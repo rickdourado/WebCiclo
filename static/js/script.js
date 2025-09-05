@@ -140,9 +140,19 @@ function setupFormFeatures() {
 // Validações customizadas
 function setupCustomValidation() {
     const form = document.querySelector('.course-form');
+    const submitBtn = form.querySelector('button[type="submit"]');
     
     form.addEventListener('submit', function(e) {
         let isValid = true;
+        
+        // Validar campos obrigatórios
+        const requiredFields = form.querySelectorAll('[required]');
+        requiredFields.forEach(field => {
+            if (field.value.trim() === '') {
+                field.classList.add('error');
+                isValid = false;
+            }
+        });
         
         // Validar se fim das inscrições é posterior ao início
         const inicioData = document.getElementById('inicio_inscricoes_data');
@@ -162,6 +172,9 @@ function setupCustomValidation() {
         
         if (!isValid) {
             e.preventDefault();
+            // Restaurar o botão de submit se a validação falhar
+            submitBtn.innerHTML = '<i class="fas fa-save"></i> Criar Curso';
+            submitBtn.disabled = false;
         }
     });
 }

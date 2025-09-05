@@ -2,6 +2,10 @@ from flask import Flask, render_template, request, redirect, url_for, flash, ses
 from datetime import datetime
 import os
 
+# Importar módulos para geração de arquivos
+from csv_generator import generate_csv
+from pdf_generator import generate_pdf
+
 app = Flask(__name__)
 # Configuração para produção no PythonAnywhere
 app.secret_key = os.environ.get('SECRET_KEY', 'ciclo_carioca_v4_pythonanywhere_2025')
@@ -65,6 +69,14 @@ def create_course():
         # Adicionar ao "banco de dados"
         COURSES_DB.append(course_data)
         
+        # Gerar arquivos CSV e PDF
+        try:
+            csv_path = generate_csv(course_data)
+            pdf_path = generate_pdf(course_data)
+            flash(f'Arquivos gerados: CSV e PDF', 'info')
+        except Exception as file_error:
+            flash(f'Erro ao gerar arquivos: {str(file_error)}', 'warning')
+        
         flash('Curso criado com sucesso!', 'success')
         return redirect(url_for('course_success', course_id=course_data['id']))
         
@@ -80,7 +92,18 @@ def course_success(course_id):
         flash('Curso não encontrado', 'error')
         return redirect(url_for('index'))
     
-    return render_template('course_success.html', course=course)
+    # Verificar se existem arquivos gerados para este curso
+    csv_files = [f for f in os.listdir('CSV') if f.startswith(f"curso_{course_id}_")]
+    pdf_files = [f for f in os.listdir('PDF') if f.startswith(f"curso_{course_id}_")]
+    
+    # Obter os arquivos mais recentes (se existirem)
+    latest_csv = csv_files[-1] if csv_files else None
+    latest_pdf = pdf_files[-1] if pdf_files else None
+    
+    return render_template('course_success.html', 
+                           course=course, 
+                           csv_file=latest_csv, 
+                           pdf_file=latest_pdf)
 
 @app.route('/courses')
 def list_courses():

@@ -85,6 +85,34 @@
             margin-top: 40px;
         }
         
+        .file-info {
+            background: #edf2f7;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 30px;
+            border-left: 4px solid #4299e1;
+        }
+        
+        .file-info h4 {
+            color: #2b6cb0;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .file-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 0;
+        }
+        
+        .file-icon {
+            font-size: 1.2rem;
+            color: #4a5568;
+        }
+        
         @keyframes bounce {
             0%, 20%, 50%, 80%, 100% {
                 transform: translateY(0);
@@ -146,7 +174,7 @@
                 <h1 class="success-title">Curso Criado com Sucesso!</h1>
                 
                 <p class="success-message">
-                    O curso <strong>"{{ course.nome }}"</strong> foi criado e está disponível no sistema Ciclo Carioca.
+                    O curso <strong>"{{ course.titulo }}"</strong> foi criado e está disponível no sistema Ciclo Carioca.
                     Os participantes já podem se inscrever e acompanhar as informações do curso.
                 </p>
                 
@@ -160,13 +188,13 @@
                         </div>
                         
                         <div class="detail-item">
-                            <span class="detail-label">Nome</span>
-                            <span class="detail-value">{{ course.nome }}</span>
+                            <span class="detail-label">Título</span>
+                            <span class="detail-value">{{ course.titulo }}</span>
                         </div>
                         
                         <div class="detail-item">
-                            <span class="detail-label">Categoria</span>
-                            <span class="detail-value">{{ course.categoria }}</span>
+                            <span class="detail-label">Tema</span>
+                            <span class="detail-value">{{ course.tema }}</span>
                         </div>
                         
                         <div class="detail-item">
@@ -175,8 +203,8 @@
                         </div>
                         
                         <div class="detail-item">
-                            <span class="detail-label">Nível</span>
-                            <span class="detail-value">{{ course.nivel }}</span>
+                            <span class="detail-label">Órgão</span>
+                            <span class="detail-value">{{ course.orgao }}</span>
                         </div>
                         
                         <div class="detail-item">
@@ -185,49 +213,18 @@
                         </div>
                         
                         <div class="detail-item">
-                            <span class="detail-label">Vagas</span>
-                            <span class="detail-value">{{ course.vagas }} vagas</span>
+                            <span class="detail-label">Público-alvo</span>
+                            <span class="detail-value">{{ course.publico_alvo }}</span>
                         </div>
                         
                         <div class="detail-item">
-                            <span class="detail-label">Período</span>
-                            <span class="detail-value">{{ course.data_inicio }} a {{ course.data_fim }}</span>
-                        </div>
-                        
-                        {% if course.horario %}
-                        <div class="detail-item">
-                            <span class="detail-label">Horário</span>
-                            <span class="detail-value">{{ course.horario }}</span>
-                        </div>
-                        {% endif %}
-                        
-                        {% if course.local %}
-                        <div class="detail-item">
-                            <span class="detail-label">Local</span>
-                            <span class="detail-value">{{ course.local }}</span>
-                        </div>
-                        {% endif %}
-                        
-                        <div class="detail-item">
-                            <span class="detail-label">Valor</span>
-                            <span class="detail-value">
-                                {% if course.gratuito %}
-                                    Gratuito
-                                {% else %}
-                                    R$ {{ "%.2f"|format(course.valor|float) }}
-                                {% endif %}
-                            </span>
+                            <span class="detail-label">Período de Inscrições</span>
+                            <span class="detail-value">{{ course.inicio_inscricoes }} a {{ course.fim_inscricoes }}</span>
                         </div>
                         
                         <div class="detail-item">
-                            <span class="detail-label">Certificação</span>
-                            <span class="detail-value">
-                                {% if course.certificacao %}
-                                    <i class="fas fa-check text-green"></i> Emite certificado
-                                {% else %}
-                                    <i class="fas fa-times text-red"></i> Não emite certificado
-                                {% endif %}
-                            </span>
+                            <span class="detail-label">Descrição</span>
+                            <span class="detail-value">{{ course.descricao }}</span>
                         </div>
                         
                         <div class="detail-item">
@@ -236,6 +233,32 @@
                         </div>
                     </div>
                 </div>
+                
+                <!-- Informações sobre arquivos gerados -->
+                {% if csv_file or pdf_file %}
+                <div class="file-info">
+                    <h4><i class="fas fa-file-alt"></i> Arquivos Gerados</h4>
+                    <p>Os seguintes arquivos foram gerados automaticamente:</p>
+                    
+                    <div class="file-items">
+                        {% if csv_file %}
+                        <div class="file-item">
+                            <i class="fas fa-file-csv file-icon"></i>
+                            <span>{{ csv_file }}</span>
+                        </div>
+                        {% endif %}
+                        
+                        {% if pdf_file %}
+                        <div class="file-item">
+                            <i class="fas fa-file-pdf file-icon"></i>
+                            <span>{{ pdf_file }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <p class="mt-2"><small>Os arquivos estão disponíveis nos diretórios CSV e PDF do servidor.</small></p>
+                </div>
+                {% endif %}
                 
                 <div class="actions">
                     <a href="{{ url_for('index') }}" class="btn btn-primary">
