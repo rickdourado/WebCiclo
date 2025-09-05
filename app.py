@@ -69,12 +69,37 @@ def create_course():
         # Adicionar ao "banco de dados"
         COURSES_DB.append(course_data)
         
+        # Garantir que os diretórios existam
+        csv_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'CSV')
+        pdf_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'PDF')
+        
+        if not os.path.exists(csv_dir):
+            os.makedirs(csv_dir)
+        if not os.path.exists(pdf_dir):
+            os.makedirs(pdf_dir)
+            
         # Gerar arquivos CSV e PDF
         try:
+            print(f"Tentando gerar arquivo CSV para o curso {course_data['id']}")
+            print(f"Diretório de trabalho atual: {os.getcwd()}")
+            print(f"Diretório CSV: {csv_dir}")
+            print(f"Diretório PDF: {pdf_dir}")
+            print(f"Verificando se os diretórios existem: CSV={os.path.exists(csv_dir)}, PDF={os.path.exists(pdf_dir)}")
+            
             csv_path = generate_csv(course_data)
+            print(f"CSV gerado com sucesso: {csv_path}")
+            print(f"Arquivo CSV existe? {os.path.exists(csv_path)}")
+            
+            print(f"Tentando gerar arquivo PDF para o curso {course_data['id']}")
             pdf_path = generate_pdf(course_data)
+            print(f"PDF gerado com sucesso: {pdf_path}")
+            print(f"Arquivo PDF existe? {os.path.exists(pdf_path)}")
+            
             flash(f'Arquivos gerados: CSV e PDF', 'info')
         except Exception as file_error:
+            print(f"ERRO ao gerar arquivos: {str(file_error)}")
+            import traceback
+            print(traceback.format_exc())
             flash(f'Erro ao gerar arquivos: {str(file_error)}', 'warning')
         
         flash('Curso criado com sucesso!', 'success')
@@ -93,8 +118,17 @@ def course_success(course_id):
         return redirect(url_for('index'))
     
     # Verificar se existem arquivos gerados para este curso
-    csv_files = [f for f in os.listdir('CSV') if f.startswith(f"curso_{course_id}_")]
-    pdf_files = [f for f in os.listdir('PDF') if f.startswith(f"curso_{course_id}_")]
+    csv_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'CSV')
+    pdf_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'PDF')
+    
+    # Garantir que os diretórios existam
+    if not os.path.exists(csv_dir):
+        os.makedirs(csv_dir)
+    if not os.path.exists(pdf_dir):
+        os.makedirs(pdf_dir)
+        
+    csv_files = [f for f in os.listdir(csv_dir) if f.startswith(f"curso_{course_id}_")]
+    pdf_files = [f for f in os.listdir(pdf_dir) if f.startswith(f"curso_{course_id}_")]
     
     # Obter os arquivos mais recentes (se existirem)
     latest_csv = csv_files[-1] if csv_files else None

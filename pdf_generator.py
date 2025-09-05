@@ -20,14 +20,17 @@ def generate_pdf(course_data):
         str: Caminho do arquivo PDF gerado.
     """
     # Criar diretório PDF se não existir
-    pdf_dir = os.path.join(os.getcwd(), 'PDF')
+    pdf_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'PDF')
+    print(f"Diretório PDF: {pdf_dir}")
     if not os.path.exists(pdf_dir):
+        print(f"Criando diretório PDF: {pdf_dir}")
         os.makedirs(pdf_dir)
     
     # Gerar nome do arquivo baseado no ID do curso e timestamp
     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
     filename = f"curso_{course_data['id']}_{timestamp}.pdf"
     filepath = os.path.join(pdf_dir, filename)
+    print(f"Caminho completo do arquivo PDF: {filepath}")
     
     # Configurar documento PDF
     doc = SimpleDocTemplate(filepath, pagesize=letter)
