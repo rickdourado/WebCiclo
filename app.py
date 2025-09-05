@@ -179,9 +179,11 @@ if __name__ == '__main__':
 # Esta aplicação será importada pelo arquivo WSGI
 application = app
 
-# Função para inicialização no PythonAnywhere
-@app.before_first_request
-def clear_flash_on_startup():
-    """Limpar mensagens flash ao iniciar a aplicação no PythonAnywhere"""
-    if 'pythonanywhere' in request.host:
-        session.pop('_flashes', None)
+# Middleware para verificar e limpar mensagens flash no PythonAnywhere
+@app.before_request
+def check_pythonanywhere():
+    """Verificar se estamos no PythonAnywhere e limpar mensagens flash"""
+    if request.host and 'pythonanywhere' in request.host:
+        # Limpar mensagens flash em todas as requisições no PythonAnywhere
+        if '_flashes' in session:
+            session.pop('_flashes', None)
