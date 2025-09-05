@@ -41,6 +41,11 @@ ORGAOS = [
 @app.route('/')
 def index():
     """Página inicial com formulário de criação de curso"""
+    # Limpar mensagens flash ao acessar a página inicial
+    # Isso evita que mensagens antigas apareçam no PythonAnywhere
+    if 'pythonanywhere' in request.host:
+        session.pop('_flashes', None)
+    
     return render_template('course_form.html', 
                          orgaos=ORGAOS)
 
@@ -151,6 +156,11 @@ def course_success(course_id):
 @app.route('/courses')
 def list_courses():
     """Listar todos os cursos criados"""
+    # Limpar mensagens flash ao acessar a lista de cursos
+    # Isso evita que mensagens antigas apareçam no PythonAnywhere
+    if 'pythonanywhere' in request.host:
+        session.pop('_flashes', None)
+    
     # Ler todos os cursos dos arquivos CSV
     courses = read_csv_files()
     return render_template('course_list.html', courses=courses)
@@ -168,3 +178,10 @@ if __name__ == '__main__':
 # Configuração para PythonAnywhere
 # Esta aplicação será importada pelo arquivo WSGI
 application = app
+
+# Função para inicialização no PythonAnywhere
+@app.before_first_request
+def clear_flash_on_startup():
+    """Limpar mensagens flash ao iniciar a aplicação no PythonAnywhere"""
+    if 'pythonanywhere' in request.host:
+        session.pop('_flashes', None)
