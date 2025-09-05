@@ -3,8 +3,10 @@ from datetime import datetime
 import os
 
 # Importar módulos para geração de arquivos
-from csv_generator import generate_csv
-from pdf_generator import generate_pdf
+from scripts.csv_generator import generate_csv
+from scripts.pdf_generator import generate_pdf
+from scripts.csv_reader import read_csv_files, get_course_by_id
+from scripts.id_manager import get_next_id, get_current_id
 
 app = Flask(__name__)
 # Configuração para produção no PythonAnywhere
@@ -52,8 +54,11 @@ def create_course():
         fim_data = request.form.get('fim_inscricoes_data')
         fim_hora = request.form.get('fim_inscricoes_hora')
         
+        # Obter próximo ID disponível
+        next_id = get_next_id()
+        
         course_data = {
-            'id': len(COURSES_DB) + 1,
+            'id': next_id,
             'titulo': request.form.get('titulo'),
             'descricao': request.form.get('descricao'),
             'inicio_inscricoes': f'{inicio_data} {inicio_hora}' if inicio_data and inicio_hora else '',
@@ -112,10 +117,14 @@ def create_course():
 @app.route('/course/<int:course_id>')
 def course_success(course_id):
     """Página de sucesso após criação do curso"""
-    course = next((c for c in COURSES_DB if c['id'] == course_id), None)
+    # Buscar curso pelo ID nos arquivos CSV
+    course = get_course_by_id(course_id)
     if not course:
-        flash('Curso não encontrado', 'error')
-        return redirect(url_for('index'))
+        # Tentar buscar no banco de dados em memória
+        course = next((c for c in COURSES_DB if c['id'] == course_id), None)
+        if not course:
+            flash('Curso não encontrado', 'error')
+            return redirect(url_for('index'))
     
     # Verificar se existem arquivos gerados para este curso
     csv_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'CSV')
@@ -142,7 +151,9 @@ def course_success(course_id):
 @app.route('/courses')
 def list_courses():
     """Listar todos os cursos criados"""
-    return render_template('course_list.html', courses=COURSES_DB)
+    # Ler todos os cursos dos arquivos CSV
+    courses = read_csv_files()
+    return render_template('course_list.html', courses=courses)
 
 if __name__ == '__main__':
     print("\n" + "="*50)

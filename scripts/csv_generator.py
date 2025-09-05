@@ -16,7 +16,7 @@ def generate_csv(course_data):
         str: Caminho do arquivo CSV gerado.
     """
     # Criar diretório CSV se não existir
-    csv_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'CSV')
+    csv_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'CSV')
     print(f"Diretório CSV: {csv_dir}")
     if not os.path.exists(csv_dir):
         print(f"Criando diretório CSV: {csv_dir}")
