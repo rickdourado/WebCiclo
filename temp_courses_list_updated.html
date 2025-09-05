@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lista de Cursos - Ciclo Carioca</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="/static/css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
@@ -293,11 +293,11 @@
                     
                     <div class="course-stats">
                         <div class="stat-card">
-                            <span class="stat-number">{{ courses|length }}</span>
+                            <span class="stat-number">2</span>
                             <span class="stat-label">Total</span>
                         </div>
                         <div class="stat-card">
-                            <span class="stat-number">{{ courses|length }}</span>
+                            <span class="stat-number">2</span>
                             <span class="stat-label">Gratuitos</span>
                         </div>
                         <div class="stat-card">
@@ -307,7 +307,7 @@
                     </div>
                 </div>
                 
-                {% if courses %}
+                
                     <!-- Filtros -->
                     <div class="filters">
                         <div class="search-box">
@@ -317,16 +317,20 @@
                         
                         <select class="filter-select" id="categoryFilter">
                             <option value="">Todas as categorias</option>
-                            {% for course in courses %}
-                                <option value="{{ course.categoria }}">{{ course.categoria }}</option>
-                            {% endfor %}
+                            
+                                <option value=""></option>
+                            
+                                <option value=""></option>
+                            
                         </select>
                         
                         <select class="filter-select" id="modalityFilter">
                             <option value="">Todas as modalidades</option>
-                            {% for course in courses %}
-                                <option value="{{ course.modalidade }}">{{ course.modalidade }}</option>
-                            {% endfor %}
+                            
+                                <option value="Presencial">Presencial</option>
+                            
+                                <option value="Presencial">Presencial</option>
+                            
                         </select>
                         
                         <select class="filter-select" id="priceFilter">
@@ -338,51 +342,51 @@
                     
                     <!-- Grid de Cursos -->
                     <div class="courses-grid" id="coursesGrid">
-                        {% for course in courses %}
+                        
                             <div class="course-card" 
-                                 data-name="{{ course.titulo|lower }}" 
-                                 data-category="{{ course.tema }}" 
-                                 data-modality="{{ course.modalidade }}"
+                                 data-name="curso de astronomia" 
+                                 data-category="Educação" 
+                                 data-modality="Presencial"
                                  data-price="gratuito">
                                 
                                 <div class="course-header">
-                                    <div class="course-id">#{{ course.id }}</div>
-                                    <h3 class="course-name">{{ course.titulo }}</h3>
-                                    <span class="course-category">{{ course.tema }}</span>
+                                    <div class="course-id">#2</div>
+                                    <h3 class="course-name">Curso de Astronomia</h3>
+                                    <span class="course-category">Educação</span>
                                 </div>
                                 
                                 <div class="course-info">
                                     <div class="info-row">
                                         <i class="fas fa-graduation-cap"></i>
-                                        <span>{{ course.modalidade }}</span>
+                                        <span>Presencial</span>
                                     </div>
                                     
                                     <div class="info-row">
                                         <i class="fas fa-clock"></i>
-                                        <span>{{ course.carga_horaria }} horas</span>
+                                        <span>40 horas</span>
                                     </div>
                                     
                                     <div class="info-row">
                                         <i class="fas fa-users"></i>
-                                        <span>{{ course.publico_alvo }}</span>
+                                        <span>Professores</span>
                                     </div>
                                     
                                     <div class="info-row">
                                         <i class="fas fa-calendar"></i>
-                                        <span>{{ course.inicio_inscricoes }} a {{ course.fim_inscricoes }}</span>
+                                        <span>2025/09/04 16:34:10 a 2025/09/04 16:34:10</span>
                                     </div>
                                     
                                     <div class="info-row">
                                         <i class="fas fa-building"></i>
-                                        <span>{{ course.orgao }}</span>
+                                        <span>Secretaria Municipal de Educação (SME)</span>
                                     </div>
                                 </div>
                                 
-                                {% if course.descricao %}
+                                
                                 <div class="course-description">
-                                    {{ course.descricao }}
+                                    Estudo dos astros e planetas
                                 </div>
-                                {% endif %}
+                                
                                 
                                 <div class="course-footer">
                                     <div class="course-price price-free">
@@ -390,36 +394,78 @@
                                     </div>
                                     
                                     <div class="course-date">
-                                        Criado em {{ course.created_at[:10] }}
+                                        Criado em 05-09-2025
                                     </div>
                                 </div>
                             </div>
-                        {% endfor %}
+                        
+                            <div class="course-card" 
+                                 data-name="curso de teste" 
+                                 data-category="Educação" 
+                                 data-modality="Presencial"
+                                 data-price="gratuito">
+                                
+                                <div class="course-header">
+                                    <div class="course-id">#1</div>
+                                    <h3 class="course-name">Curso de Teste</h3>
+                                    <span class="course-category">Educação</span>
+                                </div>
+                                
+                                <div class="course-info">
+                                    <div class="info-row">
+                                        <i class="fas fa-graduation-cap"></i>
+                                        <span>Presencial</span>
+                                    </div>
+                                    
+                                    <div class="info-row">
+                                        <i class="fas fa-clock"></i>
+                                        <span>40 horas</span>
+                                    </div>
+                                    
+                                    <div class="info-row">
+                                        <i class="fas fa-users"></i>
+                                        <span>Professores</span>
+                                    </div>
+                                    
+                                    <div class="info-row">
+                                        <i class="fas fa-calendar"></i>
+                                        <span>2025/09/04 16:34:10 a 2025/09/04 16:34:10</span>
+                                    </div>
+                                    
+                                    <div class="info-row">
+                                        <i class="fas fa-building"></i>
+                                        <span>Secretaria Municipal de Educação (SME)</span>
+                                    </div>
+                                </div>
+                                
+                                
+                                <div class="course-description">
+                                    Descrição de teste
+                                </div>
+                                
+                                
+                                <div class="course-footer">
+                                    <div class="course-price price-free">
+                                        <i class="fas fa-gift"></i> Gratuito
+                                    </div>
+                                    
+                                    <div class="course-date">
+                                        Criado em 05-09-2025
+                                    </div>
+                                </div>
+                            </div>
+                        
                     </div>
-                {% else %}
-                    <!-- Estado Vazio -->
-                    <div class="empty-state">
-                        <div class="empty-icon">
-                            <i class="fas fa-graduation-cap"></i>
-                        </div>
-                        <h3 class="empty-title">Nenhum curso cadastrado</h3>
-                        <p class="empty-message">
-                            Ainda não há cursos cadastrados no sistema. Comece criando seu primeiro curso!
-                        </p>
-                        <a href="{{ url_for('index') }}" class="btn btn-primary">
-                            <i class="fas fa-plus"></i> Criar Primeiro Curso
-                        </a>
-                    </div>
-                {% endif %}
+                
                 
                 <!-- Botão de Ação -->
-                {% if courses %}
+                
                 <div style="text-align: center; margin-top: 40px;">
-                    <a href="{{ url_for('index') }}" class="btn btn-primary">
+                    <a href="/" class="btn btn-primary">
                         <i class="fas fa-plus"></i> Criar Novo Curso
                     </a>
                 </div>
-                {% endif %}
+                
             </div>
         </main>
     </div>

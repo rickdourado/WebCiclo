@@ -21,7 +21,10 @@ def read_csv_files():
         return []
     
     courses = []
-    csv_files = glob.glob(os.path.join(csv_dir, "curso_*.csv"))
+    csv_files = glob.glob(os.path.join(csv_dir, "*.csv"))
+    
+    # Ignorar arquivos de teste
+    csv_files = [f for f in csv_files if not os.path.basename(f).startswith('teste')]
     
     for csv_file in csv_files:
         try:
@@ -29,7 +32,8 @@ def read_csv_files():
                 reader = csv.DictReader(f)
                 for row in reader:
                     # Adicionar o nome do arquivo como referência
-                    row['file_id'] = os.path.basename(csv_file).split('_')[1]
+                    # O ID agora está no conteúdo do CSV, não no nome do arquivo
+                    row['file_id'] = row.get('id', '')
                     courses.append(row)
         except Exception as e:
             print(f"Erro ao ler arquivo {csv_file}: {str(e)}")

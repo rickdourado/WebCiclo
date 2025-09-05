@@ -141,8 +141,14 @@ def course_success(course_id):
     if not os.path.exists(pdf_dir):
         os.makedirs(pdf_dir)
         
-    csv_files = [f for f in os.listdir(csv_dir) if f.startswith(f"curso_{course_id}_")]
-    pdf_files = [f for f in os.listdir(pdf_dir) if f.startswith(f"curso_{course_id}_")]
+    # Buscar arquivos pelo título do curso em vez do ID
+    if course:
+        titulo_formatado = course['titulo'].replace(' ', '_')
+        csv_files = [f for f in os.listdir(csv_dir) if titulo_formatado in f]
+        pdf_files = [f for f in os.listdir(pdf_dir) if titulo_formatado in f]
+    else:
+        csv_files = []
+        pdf_files = []
     
     # Obter os arquivos mais recentes (se existirem)
     latest_csv = csv_files[-1] if csv_files else None
@@ -163,6 +169,13 @@ def list_courses():
     
     # Ler todos os cursos dos arquivos CSV
     courses = read_csv_files()
+    
+    # Corrigir problemas de codificação
+    for course in courses:
+        for key, value in course.items():
+            if isinstance(value, str):
+                course[key] = value.encode('latin1').decode('utf-8', errors='ignore')
+    
     return render_template('course_list.html', courses=courses)
 
 if __name__ == '__main__':
