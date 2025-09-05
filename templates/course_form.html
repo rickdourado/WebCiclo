@@ -7,6 +7,32 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Função para formatar datas no formato brasileiro
+            function formatarDataBrasileira() {
+                const camposData = document.querySelectorAll('input[type="date"]');
+                camposData.forEach(campo => {
+                    campo.addEventListener('change', function() {
+                        if (this.value) {
+                            const [ano, mes, dia] = this.value.split('-');
+                            const dataFormatada = `${dia}/${mes}/${ano}`;
+                            // Exibe a data formatada em um elemento adjacente ou tooltip
+                            this.setAttribute('title', `Data: ${dataFormatada}`);
+                        }
+                    });
+                    // Formatar datas já preenchidas
+                    if (campo.value) {
+                        const [ano, mes, dia] = campo.value.split('-');
+                        const dataFormatada = `${dia}/${mes}/${ano}`;
+                        campo.setAttribute('title', `Data: ${dataFormatada}`);
+                    }
+                });
+            }
+            
+            formatarDataBrasileira();
+        });
+    </script>
 </head>
 <body>
     <div class="container">

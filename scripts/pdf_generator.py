@@ -26,9 +26,10 @@ def generate_pdf(course_data):
         print(f"Criando diretório PDF: {pdf_dir}")
         os.makedirs(pdf_dir)
     
-    # Gerar nome do arquivo baseado no ID do curso e timestamp
-    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-    filename = f"curso_{course_data['id']}_{timestamp}.pdf"
+    # Gerar nome do arquivo baseado na data atual e título do curso
+    data_atual = datetime.now().strftime('%Y%m%d')
+    titulo_formatado = course_data['titulo'].replace(' ', '_')
+    filename = f"{data_atual}_{titulo_formatado}.pdf"
     filepath = os.path.join(pdf_dir, filename)
     print(f"Caminho completo do arquivo PDF: {filepath}")
     
@@ -86,7 +87,7 @@ def generate_pdf(course_data):
     
     # Rodapé
     elements.append(Spacer(1, 0.5*inch))
-    footer_text = f"Documento gerado automaticamente em {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}"
+    footer_text = f"Documento gerado automaticamente em {datetime.now().strftime('%d-%m-%Y %H:%M:%S')}"
     elements.append(Paragraph(footer_text, styles["Italic"]))
     
     # Gerar PDF

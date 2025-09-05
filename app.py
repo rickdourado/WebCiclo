@@ -66,14 +66,14 @@ def create_course():
             'id': next_id,
             'titulo': request.form.get('titulo'),
             'descricao': request.form.get('descricao'),
-            'inicio_inscricoes': f'{inicio_data} {inicio_hora}' if inicio_data and inicio_hora else '',
-            'fim_inscricoes': f'{fim_data} {fim_hora}' if fim_data and fim_hora else '',
+            'inicio_inscricoes': f'{inicio_data.replace("-", "/")} {inicio_hora}' if inicio_data and inicio_hora else '',
+            'fim_inscricoes': f'{fim_data.replace("-", "/")} {fim_hora}' if fim_data and fim_hora else '',
             'orgao': request.form.get('orgao'),
             'tema': request.form.get('tema'),
             'modalidade': request.form.get('modalidade'),
             'carga_horaria': request.form.get('carga_horaria'),
             'publico_alvo': request.form.get('publico_alvo'),
-            'created_at': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            'created_at': datetime.now().strftime('%d-%m-%Y %H:%M:%S')
         }
         
         # Adicionar ao "banco de dados"
