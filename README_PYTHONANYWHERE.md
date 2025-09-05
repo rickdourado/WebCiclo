@@ -2,13 +2,13 @@
 
 ## 📋 Descrição
 Versão v4 do WebApp Ciclo Carioca, otimizada para deployment no PythonAnywhere.
-Esta versão é uma réplica da v3, mas configurada especificamente para produção.
+Esta versão é uma réplica da v3, mas configurada especificamente para produção no diretório /home/rickdevarq/WebCiclo.
 
 ## 🚀 Instruções de Deploy no PythonAnywhere
 
 ### 1. Upload dos Arquivos
 - Faça upload de todos os arquivos para o diretório da sua conta PythonAnywhere
-- Estrutura recomendada: `/home/seuusuario/ciclo-carioca-v4/`
+- Estrutura configurada: `/home/rickdevarq/WebCiclo/`
 
 ### 2. Instalação das Dependências
 ```bash
@@ -20,12 +20,12 @@ pip3.10 install --user -r requirements.txt
 2. Clique em "Add a new web app"
 3. Escolha "Manual configuration" e Python 3.10
 4. Configure o arquivo WSGI:
-   - Caminho: `/home/seuusuario/ciclo-carioca-v4/flask_app.py`
+   - Caminho: `/home/rickdevarq/WebCiclo/flask_app.py`
    - Ou copie o conteúdo de `flask_app.py` para o arquivo WSGI gerado
 
 ### 4. Configuração de Arquivos Estáticos
 - URL: `/static/`
-- Directory: `/home/seuusuario/ciclo-carioca-v4/static/`
+- Directory: `/home/rickdevarq/WebCiclo/static/`
 
 ### 5. Variáveis de Ambiente (Opcional)
 No dashboard, em "Files" > "Environment variables":
@@ -34,7 +34,7 @@ No dashboard, em "Files" > "Environment variables":
 
 ## 📁 Estrutura de Arquivos
 ```
-v4/
+WebCiclo/
 ├── app.py                    # Aplicação Flask principal
 ├── flask_app.py             # Arquivo WSGI para PythonAnywhere
 ├── requirements.txt         # Dependências Python
