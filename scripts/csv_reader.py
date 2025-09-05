@@ -30,11 +30,18 @@ def read_csv_files():
         try:
             with open(csv_file, 'r', encoding='utf-8') as f:
                 reader = csv.DictReader(f)
+                valid_rows = []
                 for row in reader:
-                    # Adicionar o nome do arquivo como referência
-                    # O ID agora está no conteúdo do CSV, não no nome do arquivo
-                    row['file_id'] = row.get('id', '')
-                    courses.append(row)
+                    # Verificar se a linha tem todos os campos necessários
+                    if row and 'id' in row and 'titulo' in row:
+                        # Adicionar o nome do arquivo como referência
+                        row['file_id'] = row.get('id', '')
+                        row['source_file'] = os.path.basename(csv_file)
+                        valid_rows.append(row)
+                
+                # Se houver linhas válidas, adicionar apenas a última (mais completa)
+                if valid_rows:
+                    courses.append(valid_rows[-1])
         except Exception as e:
             print(f"Erro ao ler arquivo {csv_file}: {str(e)}")
     
@@ -55,8 +62,29 @@ def get_course_by_id(course_id):
     """
     courses = read_csv_files()
     
-    for course in courses:
-        if course.get('id') == str(course_id) or course.get('file_id') == str(course_id):
-            return course
+    # Converter course_id para string para comparação
+    course_id_str = str(course_id)
     
+    # Imprimir informações de debug
+    print(f"Buscando curso com ID: {course_id_str}")
+    print(f"Total de cursos encontrados: {len(courses)}")
+    
+    # Filtrar cursos com o ID correto
+    matching_courses = []
+    for course in courses:
+        course_id_value = course.get('id')
+        file_id_value = course.get('file_id')
+        print(f"Verificando curso: ID={course_id_value}, file_id={file_id_value}, titulo={course.get('titulo')}")
+        
+        if course_id_value == course_id_str or file_id_value == course_id_str:
+            matching_courses.append(course)
+    
+    if matching_courses:
+        # Se encontrou mais de um curso com o mesmo ID, use o mais recente
+        # (primeiro da lista, já que read_csv_files ordena por data de criação decrescente)
+        selected_course = matching_courses[0]
+        print(f"Curso encontrado: {selected_course.get('titulo')} (ID: {selected_course.get('id')})")
+        return selected_course
+    
+    print(f"Nenhum curso encontrado com ID: {course_id_str}")
     return None
