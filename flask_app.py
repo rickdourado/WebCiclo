@@ -1,13 +1,13 @@
 #!/usr/bin/python3.10
 
 # Este arquivo é usado pelo PythonAnywhere para servir a aplicação Flask
-# Arquivo flask_app.py no diretório raiz da conta PythonAnywhere
+# Arquivo flask_app.py no diretório raiz da conta CicloCarioca.pythonanywhere.com
 
 import sys
 import os
 
 # Adicione o caminho do projeto ao sys.path
-path = '/home/rickdevarq/WebCiclo'
+path = '/home/CicloCarioca/CadastroCurso'
 if path not in sys.path:
     sys.path.append(path)
 

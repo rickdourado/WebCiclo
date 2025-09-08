@@ -9,7 +9,7 @@ from scripts.csv_reader import read_csv_files, get_course_by_id
 from scripts.id_manager import get_next_id, get_current_id
 
 app = Flask(__name__)
-# Configuração para produção no PythonAnywhere
+# Configuração para produção no CicloCarioca.pythonanywhere.com
 app.secret_key = os.environ.get('SECRET_KEY', 'ciclo_carioca_v4_pythonanywhere_2025')
 
 # Configuração do template folder
@@ -78,7 +78,7 @@ ORGAOS = [
 def index():
     """Página inicial com formulário de criação de curso"""
     # Limpar mensagens flash ao acessar a página inicial
-    # Isso evita que mensagens antigas apareçam no PythonAnywhere
+    # Isso evita que mensagens antigas apareçam no CicloCarioca.pythonanywhere.com
     if 'pythonanywhere' in request.host:
         session.pop('_flashes', None)
     
@@ -214,7 +214,7 @@ def list_courses():
 
 if __name__ == '__main__':
     print("\n" + "="*50)
-    print("🎓 WebApp v4 - Ciclo Carioca (PythonAnywhere)")
+    print("🎓 WebApp v4 - Ciclo Carioca (CicloCarioca.pythonanywhere.com)")
     print("📋 Formulário de Criação de Cursos")
     print("🌐 Rodando em modo de produção")
     print("="*50 + "\n")
@@ -222,14 +222,14 @@ if __name__ == '__main__':
     # Configuração para desenvolvimento local
     app.run(debug=False, host='0.0.0.0', port=5001)
 
-# Configuração para PythonAnywhere
+# Configuração para CicloCarioca.pythonanywhere.com
 # Esta aplicação será importada pelo arquivo WSGI
 application = app
 
-# Middleware para verificar e limpar mensagens flash no PythonAnywhere
+# Middleware para verificar e limpar mensagens flash no CicloCarioca.pythonanywhere.com
 @app.before_request
 def check_pythonanywhere():
-    """Verificar se estamos no PythonAnywhere e limpar mensagens flash"""
+    """Verificar se estamos no CicloCarioca.pythonanywhere.com e limpar mensagens flash"""
     if request.host and 'pythonanywhere' in request.host:
         # Limpar mensagens flash em todas as requisições no PythonAnywhere
         if '_flashes' in session:

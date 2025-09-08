@@ -1,8 +1,8 @@
-# Regras do Projeto WebCiclo
+# Regras do Projeto CadastroCurso
 
 ## Visão Geral
 
-O WebCiclo é um sistema de curadoria de cursos desenvolvido com Flask para frontend e backend, utilizando HTML5, CSS3 e JavaScript Vanilla para a interface. O sistema é projetado para ser hospedado na plataforma PythonAnywhere.
+O CadastroCurso é um sistema de curadoria de cursos desenvolvido com Flask para frontend e backend, utilizando HTML5, CSS3 e JavaScript Vanilla para a interface. O sistema é projetado para ser hospedado na plataforma CicloCarioca.pythonanywhere.com.
 
 ## Arquitetura do Sistema
 
@@ -15,9 +15,9 @@ A estrutura do sistema se divide em três partes principais:
 ## Estrutura de Arquivos do Projeto
 
 ```
-WebCiclo/
+CadastroCurso/
 ├── app.py                    # Aplicação Flask principal
-├── flask_app.py              # Arquivo WSGI para PythonAnywhere
+├── flask_app.py              # Arquivo WSGI para CicloCarioca.pythonanywhere.com
 ├── requirements.txt          # Dependências Python
 ├── last_id.json              # Armazena o último ID utilizado
 ├── README_PYTHONANYWHERE.md  # Instruções para deploy
@@ -76,6 +76,6 @@ WebCiclo/
 ## Observações Importantes
 
 - O sistema utiliza arquivos CSV e PDF para armazenamento de dados em vez de um banco de dados tradicional
-- A estrutura do projeto está otimizada para funcionar no ambiente PythonAnywhere
+- A estrutura do projeto está otimizada para funcionar no ambiente CicloCarioca.pythonanywhere.com
 - O sistema utiliza Flask para servir tanto o backend quanto o frontend
 - Não são utilizados frameworks JavaScript como React ou bibliotecas como jQuery

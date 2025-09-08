@@ -1,6 +1,6 @@
-# Documentação do WebCiclo
+# Documentação do CadastroCurso
 
-Esta pasta contém a documentação do projeto WebCiclo, um sistema de curadoria de cursos desenvolvido com Flask.
+Esta pasta contém a documentação do projeto CadastroCurso, um sistema de curadoria de cursos desenvolvido com Flask.
 
 ## Estrutura da Documentação
 
