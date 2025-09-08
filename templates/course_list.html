@@ -373,7 +373,25 @@
                                     
                                     <div class="info-row">
                                         <i class="fas fa-calendar"></i>
-                                        <span>{{ course.inicio_inscricoes }} a {{ course.fim_inscricoes }}</span>
+                                        <span>
+                                            {% if course.inicio_inscricoes %}
+                                                {% set inicio_parts = course.inicio_inscricoes.split('/') %}
+                                                {% if inicio_parts|length == 3 %}
+                                                    {{ inicio_parts[2] }}/{{ inicio_parts[1] }}/{{ inicio_parts[0] }}
+                                                {% else %}
+                                                    {{ course.inicio_inscricoes }}
+                                                {% endif %}
+                                            {% endif %}
+                                            a
+                                            {% if course.fim_inscricoes %}
+                                                {% set fim_parts = course.fim_inscricoes.split('/') %}
+                                                {% if fim_parts|length == 3 %}
+                                                    {{ fim_parts[2] }}/{{ fim_parts[1] }}/{{ fim_parts[0] }}
+                                                {% else %}
+                                                    {{ course.fim_inscricoes }}
+                                                {% endif %}
+                                            {% endif %}
+                                        </span>
                                     </div>
                                     
                                     <div class="info-row">
@@ -394,7 +412,14 @@
                                     </div>
                                     
                                     <div class="course-date">
-                                        Criado em {{ course.created_at[:10] }}
+                                        {% if course.created_at %}
+                                            {% set created_parts = course.created_at.split(' ')[0].split('-') %}
+                                            {% if created_parts|length == 3 %}
+                                                Criado em {{ created_parts[0] }}/{{ created_parts[1] }}/{{ created_parts[2] }}
+                                            {% else %}
+                                                Criado em {{ course.created_at[:10] }}
+                                            {% endif %}
+                                        {% endif %}
                                     </div>
                                 </div>
                             </div>
