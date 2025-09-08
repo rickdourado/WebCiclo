@@ -169,6 +169,24 @@
                                  <input type="text" id="carga_horaria" name="carga_horaria" required 
                                         placeholder="Digite a carga horária (ex: 40 horas, 80h, 2 meses, etc.)">
                              </div>
+
+                             <div class="form-group full-width">
+                                 <label class="required">O curso é gratuito?</label>
+                                 <div class="radio-group">
+                                     <label class="radio-label">
+                                         <input type="radio" name="curso_gratuito" value="sim" required onclick="toggleValorCurso(false)"> SIM
+                                     </label>
+                                     <label class="radio-label">
+                                         <input type="radio" name="curso_gratuito" value="nao" required onclick="toggleValorCurso(true)"> NÃO
+                                     </label>
+                                 </div>
+                             </div>
+                             
+                             <div class="form-group full-width" id="valor_curso_container" style="display: none;">
+                                 <label for="valor_curso" class="required">Valor (R$)</label>
+                                 <input type="text" id="valor_curso" name="valor_curso" step="0.01" min="0"
+                                        placeholder="Digite o valor do curso (ex: 100,00)" oninput="formatarValor(this)">
+                             </div>
                              
                              <div class="form-group full-width">
                                  <label for="publico_alvo" class="required">Público-alvo</label>
@@ -189,9 +207,33 @@
                              </div>
                              
                              <div class="form-group full-width" id="pre_requisitos_container" style="display: none;">
-                                 <label for="pre_requisitos" class="required">PRÉ REQUISITOS para recebimento de certificados</label>
+                                 <label for="pre_requisitos" class="required">Pré-requisitos para Recebimento de Certificados</label>
                                  <textarea id="pre_requisitos" name="pre_requisitos" rows="3"
                                            placeholder="Ex: Frequência mínima de 75%, entrega de trabalho final, aprovação em avaliação..."></textarea>
+                             </div>
+                             
+                             <div class="form-group full-width">
+                                 <label class="required">Oferece Bolsa</label>
+                                 <div class="radio-group">
+                                     <label class="radio-label">
+                                         <input type="radio" name="oferece_bolsa" value="sim" required onclick="toggleValorBolsa(true)"> SIM
+                                     </label>
+                                     <label class="radio-label">
+                                         <input type="radio" name="oferece_bolsa" value="nao" required onclick="toggleValorBolsa(false)"> NÃO
+                                     </label>
+                                 </div>
+                             </div>
+                             
+                             <div class="form-group full-width" id="valor_bolsa_container" style="display: none;">
+                                 <label for="valor_bolsa" class="required">Valor da Bolsa (R$)</label>
+                                 <input type="text" id="valor_bolsa" name="valor_bolsa" step="0.01" min="0"
+                                        placeholder="Digite o valor da bolsa (ex: 100,00)" oninput="formatarValor(this)">
+                             </div>
+                             
+                             <div class="form-group full-width" id="requisitos_bolsa_container" style="display: none;">
+                                 <label for="requisitos_bolsa" class="required">Requisitos para a Obtenção da Bolsa</label>
+                                 <textarea id="requisitos_bolsa" name="requisitos_bolsa" rows="3"
+                                           placeholder="Descreva os requisitos necessários para obtenção da bolsa"></textarea>
                              </div>
                              
                              <div class="form-group full-width">
@@ -218,6 +260,51 @@
             </div>
         </main>
     </div>
+
+    <script>
+        function toggleValorCurso(mostrar) {
+            const valorCursoContainer = document.getElementById('valor_curso_container');
+            if (mostrar) {
+                valorCursoContainer.style.display = 'block';
+                document.getElementById('valor_curso').setAttribute('required', 'required');
+            } else {
+                valorCursoContainer.style.display = 'none';
+                document.getElementById('valor_curso').removeAttribute('required');
+                document.getElementById('valor_curso').value = '';
+            }
+        }
+
+        function togglePreRequisitos(mostrar) {
+            const preRequisitosContainer = document.getElementById('pre_requisitos_container');
+            if (mostrar) {
+                preRequisitosContainer.style.display = 'block';
+                document.getElementById('pre_requisitos').setAttribute('required', 'required');
+            } else {
+                preRequisitosContainer.style.display = 'none';
+                document.getElementById('pre_requisitos').removeAttribute('required');
+                document.getElementById('pre_requisitos').value = '';
+            }
+        }
+        
+        function toggleValorBolsa(mostrar) {
+            const valorBolsaContainer = document.getElementById('valor_bolsa_container');
+            const requisitosContainer = document.getElementById('requisitos_bolsa_container');
+            
+            if (mostrar) {
+                valorBolsaContainer.style.display = 'block';
+                requisitosContainer.style.display = 'block';
+                document.getElementById('valor_bolsa').setAttribute('required', 'required');
+                document.getElementById('requisitos_bolsa').setAttribute('required', 'required');
+            } else {
+                valorBolsaContainer.style.display = 'none';
+                requisitosContainer.style.display = 'none';
+                document.getElementById('valor_bolsa').removeAttribute('required');
+                document.getElementById('requisitos_bolsa').removeAttribute('required');
+                document.getElementById('valor_bolsa').value = '';
+                document.getElementById('requisitos_bolsa').value = '';
+            }
+        }
+    </script>
 
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
     <script>

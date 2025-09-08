@@ -106,6 +106,11 @@ def create_course():
             'tema': request.form.get('tema'),  # Campo renomeado para 'Categoria' na interface, mantido como 'tema' no backend para compatibilidade
             'modalidade': request.form.get('modalidade'),
             'carga_horaria': request.form.get('carga_horaria'),
+            'curso_gratuito': request.form.get('curso_gratuito'),
+            'valor_curso': request.form.get('valor_curso') if request.form.get('curso_gratuito') == 'nao' else '',
+            'oferece_bolsa': request.form.get('oferece_bolsa'),
+            'valor_bolsa': request.form.get('valor_bolsa') if request.form.get('oferece_bolsa') == 'sim' else '',
+            'requisitos_bolsa': request.form.get('requisitos_bolsa') if request.form.get('oferece_bolsa') == 'sim' else '',
             'publico_alvo': request.form.get('publico_alvo'),
             'oferece_certificado': request.form.get('oferece_certificado'),
             'pre_requisitos': request.form.get('pre_requisitos') if request.form.get('oferece_certificado') == 'sim' else '',

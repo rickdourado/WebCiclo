@@ -324,11 +324,11 @@
                             <span class="stat-label">Total</span>
                         </div>
                         <div class="stat-card">
-                            <span class="stat-number">{{ courses|length }}</span>
+                            <span class="stat-number">{{ courses|selectattr('curso_gratuito', 'equalto', 'sim')|list|length }}</span>
                             <span class="stat-label">Gratuitos</span>
                         </div>
                         <div class="stat-card">
-                            <span class="stat-number">0</span>
+                            <span class="stat-number">{{ courses|selectattr('curso_gratuito', 'equalto', 'nao')|list|length }}</span>
                             <span class="stat-label">Pagos</span>
                         </div>
                     </div>
@@ -360,6 +360,12 @@
                             {% endfor %}
                         </select>
                         
+                        <select class="filter-select" id="bolsaFilter">
+                            <option value="">Todos os cursos</option>
+                            <option value="sim">Com bolsa</option>
+                            <option value="nao">Sem bolsa</option>
+                        </select>
+                        
 
                     </div>
                     
@@ -370,7 +376,8 @@
                                  data-name="{{ course.titulo|lower }}" 
                                  data-category="{{ course.tema }}" 
                                  data-modality="{{ course.modalidade }}"
-                                 data-price="gratuito">
+                                 data-price="gratuito"
+                                 data-bolsa="{{ course.oferece_bolsa }}">
                                 
                                 <div class="course-header">
                                     <div class="course-id">#{{ course.id }}</div>
@@ -398,6 +405,18 @@
                                         <i class="fas fa-certificate"></i>
                                         <span>Certificado: {% if course.oferece_certificado == 'sim' %}Sim{% else %}Não{% endif %}</span>
                                     </div>
+                                    
+                                    <div class="info-row">
+                                        <i class="fas fa-hand-holding-usd"></i>
+                                        <span>Oferece Bolsa: {% if course.oferece_bolsa == 'sim' %}Sim{% else %}Não{% endif %}</span>
+                                    </div>
+                                    
+                                    {% if course.oferece_bolsa == 'sim' and course.valor_bolsa %}
+                                    <div class="info-row">
+                                        <i class="fas fa-money-bill-wave"></i>
+                                        <span>Valor da Bolsa: R$ {{ course.valor_bolsa }}</span>
+                                    </div>
+                                    {% endif %}
                                     
                                     {% if course.oferece_certificado == 'sim' and course.pre_requisitos %}
                                     <div class="info-row">
@@ -447,8 +466,12 @@
                                 {% endif %}
                                 
                                 <div class="course-footer">
-                                    <div class="course-price price-free">
-                                        <i class="fas fa-gift"></i> Gratuito
+                                    <div class="course-price {% if course.curso_gratuito == 'sim' %}price-free{% else %}price-paid{% endif %}">
+                                        {% if course.curso_gratuito == 'sim' %}
+                                            <i class="fas fa-gift"></i> Gratuito
+                                        {% else %}
+                                            <i class="fas fa-tag"></i> R$ {{ course.valor_curso }}
+                                        {% endif %}
                                     </div>
                                     
                                     <div class="course-date">
@@ -505,6 +528,7 @@
             const searchInput = document.getElementById('searchInput');
             const categoryFilter = document.getElementById('categoryFilter');
             const modalityFilter = document.getElementById('modalityFilter');
+            const bolsaFilter = document.getElementById('bolsaFilter');
             const coursesGrid = document.getElementById('coursesGrid');
             const courseCards = document.querySelectorAll('.course-card');
             
@@ -512,6 +536,7 @@
                 const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
                 const selectedCategory = categoryFilter ? categoryFilter.value : '';
                 const selectedModality = modalityFilter ? modalityFilter.value : '';
+                const selectedBolsa = bolsaFilter ? bolsaFilter.value : '';
                 
                 let visibleCount = 0;
                 
@@ -520,12 +545,14 @@
                     const category = card.dataset.category || '';
                     const modality = card.dataset.modality || '';
                     const price = card.dataset.price || '';
+                    const bolsa = card.dataset.bolsa || '';
                     
                     const matchesSearch = name.includes(searchTerm);
                     const matchesCategory = !selectedCategory || category === selectedCategory;
                     const matchesModality = !selectedModality || modality === selectedModality;
+                    const matchesBolsa = !selectedBolsa || bolsa === selectedBolsa;
                     
-                    const isVisible = matchesSearch && matchesCategory && matchesModality;
+                    const isVisible = matchesSearch && matchesCategory && matchesModality && matchesBolsa;
                     
                     card.style.display = isVisible ? 'block' : 'none';
                     if (isVisible) visibleCount++;
@@ -559,6 +586,7 @@
             if (searchInput) searchInput.addEventListener('input', filterCourses);
             if (categoryFilter) categoryFilter.addEventListener('change', filterCourses);
             if (modalityFilter) modalityFilter.addEventListener('change', filterCourses);
+            if (bolsaFilter) bolsaFilter.addEventListener('change', filterCourses);
             
             // Remover duplicatas dos filtros
             [categoryFilter, modalityFilter].forEach(select => {

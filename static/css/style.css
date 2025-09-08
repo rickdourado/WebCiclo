@@ -489,6 +489,22 @@ textarea:valid:not(:placeholder-shown) {
     border-color: #38a169;
 }
 
+.price-free {
+    color: #38a169;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.price-paid {
+    color: #e53e3e;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
 /* Loading state */
 .btn:disabled {
     opacity: 0.6;

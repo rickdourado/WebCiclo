@@ -215,6 +215,37 @@
                         </div>
                         
                         <div class="detail-item">
+                            <span class="detail-label">Curso Gratuito</span>
+                            <span class="detail-value">{% if course.curso_gratuito == 'sim' %}Sim{% else %}Não{% endif %}</span>
+                        </div>
+                        
+                        {% if course.curso_gratuito == 'nao' and course.valor_curso %}
+                        <div class="detail-item">
+                            <span class="detail-label">Valor do Curso</span>
+                            <span class="detail-value">R$ {{ course.valor_curso }}</span>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="detail-item">
+                            <span class="detail-label">Oferece Bolsa</span>
+                            <span class="detail-value">{% if course.oferece_bolsa == 'sim' %}Sim{% else %}Não{% endif %}</span>
+                        </div>
+                        
+                        {% if course.oferece_bolsa == 'sim' and course.valor_bolsa %}
+                        <div class="detail-item">
+                            <span class="detail-label">Valor da Bolsa</span>
+                            <span class="detail-value">R$ {{ course.valor_bolsa }}</span>
+                        </div>
+                        {% endif %}
+                        
+                        {% if course.oferece_bolsa == 'sim' and course.requisitos_bolsa %}
+                        <div class="detail-item">
+                            <span class="detail-label">Requisitos para a Obtenção da Bolsa</span>
+                            <span class="detail-value">{{ course.requisitos_bolsa }}</span>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="detail-item">
                             <span class="detail-label">Público-alvo</span>
                             <span class="detail-value">{{ course.publico_alvo }}</span>
                         </div>

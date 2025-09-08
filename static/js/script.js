@@ -65,9 +65,12 @@ function setupAutoSave() {
     if (savedData) {
         const data = JSON.parse(savedData);
         Object.keys(data).forEach(key => {
-            const field = form.querySelector(`[name="${key}"]`);
-            if (field && !field.value) {
-                field.value = data[key];
+            // Não carregar os campos de valor do curso e da bolsa
+            if (key !== 'valor_curso' && key !== 'valor_bolsa') {
+                const field = form.querySelector(`[name="${key}"]`);
+                if (field && !field.value) {
+                    field.value = data[key];
+                }
             }
         });
     }
@@ -97,6 +100,43 @@ function setupPageLeaveConfirmation() {
         formChanged = false;
         localStorage.removeItem('course_form_draft');
     });
+}
+
+// Função para mostrar/esconder o campo de valor do curso
+function toggleValorCurso(mostrar) {
+    const valorCursoContainer = document.getElementById('valor_curso_container');
+    const valorCursoInput = document.getElementById('valor_curso');
+    
+    if (mostrar) {
+        valorCursoContainer.style.display = 'block';
+        valorCursoInput.required = true;
+    } else {
+        valorCursoContainer.style.display = 'none';
+        valorCursoInput.required = false;
+        valorCursoInput.value = '';
+    }
+}
+
+// Função para mostrar/esconder o campo de valor da bolsa
+function toggleValorBolsa(mostrar) {
+    const valorBolsaContainer = document.getElementById('valor_bolsa_container');
+    const requisitosContainer = document.getElementById('requisitos_bolsa_container');
+    const valorBolsaInput = document.getElementById('valor_bolsa');
+    const requisitosInput = document.getElementById('requisitos_bolsa');
+    
+    if (mostrar) {
+        valorBolsaContainer.style.display = 'block';
+        requisitosContainer.style.display = 'block';
+        valorBolsaInput.required = true;
+        requisitosInput.required = true;
+    } else {
+        valorBolsaContainer.style.display = 'none';
+        requisitosContainer.style.display = 'none';
+        valorBolsaInput.required = false;
+        requisitosInput.required = false;
+        valorBolsaInput.value = '';
+        requisitosInput.value = '';
+    }
 }
 
 // Animação de loading no botão de submit
@@ -154,6 +194,36 @@ function setupCustomValidation() {
             }
         });
         
+        // Preparar valores monetários antes do envio
+        const valorCurso = document.getElementById('valor_curso');
+        const valorBolsa = document.getElementById('valor_bolsa');
+        
+        if (valorCurso && valorCurso.value) {
+            // Converte o valor formatado para o formato que o backend espera
+            const valorNumerico = valorCurso.value.replace(',', '.');
+            // Cria um campo oculto para enviar o valor numérico
+            const hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = 'valor_curso';
+            hiddenInput.value = valorNumerico;
+            form.appendChild(hiddenInput);
+            // Renomeia o campo original para não enviar duplicado
+            valorCurso.name = 'valor_curso_display';
+        }
+        
+        if (valorBolsa && valorBolsa.value) {
+            // Converte o valor formatado para o formato que o backend espera
+            const valorNumerico = valorBolsa.value.replace(',', '.');
+            // Cria um campo oculto para enviar o valor numérico
+            const hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = 'valor_bolsa';
+            hiddenInput.value = valorNumerico;
+            form.appendChild(hiddenInput);
+            // Renomeia o campo original para não enviar duplicado
+            valorBolsa.name = 'valor_bolsa_display';
+        }
+        
         // Validar se fim das inscrições é posterior ao início
         const inicioData = document.getElementById('inicio_inscricoes_data');
         const inicioHora = document.getElementById('inicio_inscricoes_hora');
@@ -178,6 +248,59 @@ function setupCustomValidation() {
         }
     });
 }
+
+// Função para formatar valores monetários
+function formatarValor(input) {
+    // Remove qualquer caractere que não seja número ou vírgula
+    let valor = input.value.replace(/[^0-9,]/g, '');
+    
+    // Atualiza o valor do campo apenas removendo caracteres inválidos
+    input.value = valor;
+}
+
+// Adiciona evento de blur para garantir formatação ao sair do campo
+document.addEventListener('DOMContentLoaded', function() {
+    const camposValor = document.querySelectorAll('#valor_curso, #valor_bolsa');
+    
+    camposValor.forEach(campo => {
+        campo.addEventListener('blur', function() {
+            if (this.value === '') return;
+            
+            // Remove qualquer caractere que não seja número ou vírgula
+            let valor = this.value.replace(/[^0-9,]/g, '');
+            
+            // Trata o caso onde há mais de uma vírgula
+            if (valor.split(',').length > 2) {
+                const partes = valor.split(',');
+                valor = partes[0] + ',' + partes.slice(1).join('');
+            }
+            
+            // Verifica se o valor tem vírgula
+            if (!valor.includes(',')) {
+                // Se não tem vírgula, adiciona ,00 no final
+                valor = valor + ',00';
+            } else {
+                // Se tem vírgula, garante que tenha 2 casas decimais
+                const partes = valor.split(',');
+                const inteiro = partes[0] || '0';
+                let decimal = partes[1] || '00';
+                
+                // Limita a 2 casas decimais
+                if (decimal.length > 2) {
+                    decimal = decimal.substring(0, 2);
+                } else if (decimal.length === 1) {
+                    decimal = decimal + '0';
+                } else if (decimal.length === 0) {
+                    decimal = '00';
+                }
+                
+                valor = inteiro + ',' + decimal;
+            }
+            
+            this.value = valor;
+        });
+    });
+});
 
 // Inicialização quando o DOM estiver carregado
 document.addEventListener('DOMContentLoaded', function() {
