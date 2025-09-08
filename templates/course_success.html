@@ -223,6 +223,23 @@
                         </div>
                         
                         <div class="detail-item">
+                            <span class="detail-label">Oferece Certificado</span>
+                            <span class="detail-value">{% if course.oferece_certificado == 'sim' %}Sim{% else %}Não{% endif %}</span>
+                        </div>
+                        
+                        {% if course.oferece_certificado == 'sim' %}
+                        <div class="detail-item">
+                            <span class="detail-label">Pré-requisitos para Certificado</span>
+                            <span class="detail-value">{{ course.pre_requisitos }}</span>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="detail-item">
+                            <span class="detail-label">Informações Complementares para Inscrição</span>
+                            <span class="detail-value">{{ course.info_complementares }}</span>
+                        </div>
+                        
+                        <div class="detail-item">
                             <span class="detail-label">Descrição</span>
                             <span class="detail-value">{{ course.descricao }}</span>
                         </div>

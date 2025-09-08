@@ -372,6 +372,23 @@
                                     </div>
                                     
                                     <div class="info-row">
+                                        <i class="fas fa-certificate"></i>
+                                        <span>Certificado: {% if course.oferece_certificado == 'sim' %}Sim{% else %}Não{% endif %}</span>
+                                    </div>
+                                    
+                                    {% if course.oferece_certificado == 'sim' and course.pre_requisitos %}
+                                    <div class="info-row">
+                                        <i class="fas fa-clipboard-check"></i>
+                                        <span>Pré-requisitos: {{ course.pre_requisitos }}</span>
+                                    </div>
+                                    {% endif %}
+                                    
+                                    <div class="info-row">
+                                        <i class="fas fa-info-circle"></i>
+                                        <span>Informações para inscrição: {{ course.info_complementares }}</span>
+                                    </div>
+                                    
+                                    <div class="info-row">
                                         <i class="fas fa-calendar"></i>
                                         <span>
                                             {% if course.inicio_inscricoes %}

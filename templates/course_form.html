@@ -173,6 +173,30 @@
                                  <textarea id="publico_alvo" name="publico_alvo" required rows="3"
                                            placeholder="Ex: Servidores públicos, estudantes, profissionais da área de tecnologia..."></textarea>
                              </div>
+                             
+                             <div class="form-group full-width">
+                                 <label class="required">Oferece Certificado</label>
+                                 <div class="radio-group">
+                                     <label class="radio-label">
+                                         <input type="radio" name="oferece_certificado" value="sim" required onclick="togglePreRequisitos(true)"> SIM
+                                     </label>
+                                     <label class="radio-label">
+                                         <input type="radio" name="oferece_certificado" value="nao" required onclick="togglePreRequisitos(false)"> NÃO
+                                     </label>
+                                 </div>
+                             </div>
+                             
+                             <div class="form-group full-width" id="pre_requisitos_container" style="display: none;">
+                                 <label for="pre_requisitos" class="required">PRÉ REQUISITOS para recebimento de certificados</label>
+                                 <textarea id="pre_requisitos" name="pre_requisitos" rows="3"
+                                           placeholder="Ex: Frequência mínima de 75%, entrega de trabalho final, aprovação em avaliação..."></textarea>
+                             </div>
+                             
+                             <div class="form-group full-width">
+                                 <label for="info_complementares" class="required">Informações Complementares para inscrição de participantes</label>
+                                 <textarea id="info_complementares" name="info_complementares" rows="4" required
+                                           placeholder="Informe quais dados serão necessários para inscrição dos participantes (Ex: CPF, identidade, escolaridade, idade, bairro, etc.)"></textarea>
+                             </div>
                         </div>
                     </div>
 
@@ -194,5 +218,20 @@
     </div>
 
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <script>
+        function togglePreRequisitos(mostrar) {
+            const container = document.getElementById('pre_requisitos_container');
+            const preRequisitosField = document.getElementById('pre_requisitos');
+            
+            if (mostrar) {
+                container.style.display = 'block';
+                preRequisitosField.setAttribute('required', '');
+            } else {
+                container.style.display = 'none';
+                preRequisitosField.removeAttribute('required');
+                preRequisitosField.value = '';
+            }
+        }
+    </script>
 </body>
 </html>

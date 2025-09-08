@@ -66,6 +66,9 @@ def generate_pdf(course_data):
         ["Modalidade", course_data['modalidade']],
         ["Carga Horária", course_data['carga_horaria']],
         ["Público Alvo", course_data['publico_alvo']],
+        ["Oferece Certificado", 'Sim' if course_data['oferece_certificado'] == 'sim' else 'Não'],
+        ["Pré-requisitos para Certificado", course_data['pre_requisitos'] if course_data['oferece_certificado'] == 'sim' else 'Não aplicável'],
+        ["Informações Complementares para Inscrição", course_data['info_complementares']],
         ["Data de Criação", course_data['created_at']]
     ]
     

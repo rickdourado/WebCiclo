@@ -107,6 +107,9 @@ def create_course():
             'modalidade': request.form.get('modalidade'),
             'carga_horaria': request.form.get('carga_horaria'),
             'publico_alvo': request.form.get('publico_alvo'),
+            'oferece_certificado': request.form.get('oferece_certificado'),
+            'pre_requisitos': request.form.get('pre_requisitos') if request.form.get('oferece_certificado') == 'sim' else '',
+            'info_complementares': request.form.get('info_complementares'),
             'created_at': datetime.now().strftime('%d-%m-%Y %H:%M:%S')
         }
         
