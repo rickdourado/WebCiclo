@@ -19,23 +19,59 @@ app.static_folder = 'static'
 # Simulação de banco de dados para cursos
 COURSES_DB = []
 
-# Dados de exemplo para órgãos
+# Lista de órgãos carregada do arquivo Listadecursos.txt
 ORGAOS = [
-    'Secretaria Municipal de Educação (SME)',
-    'Secretaria Municipal de Saúde (SMS)',
-    'Secretaria Municipal de Ciência e Tecnologia (SMCT)',
-    'Secretaria Municipal de Trabalho e Emprego (SMTE)',
-    'Secretaria Municipal de Desenvolvimento Urbano (SMDU)',
-    'Secretaria Municipal de Meio Ambiente (SMAC)',
-    'Secretaria Municipal de Cultura (SMC)',
-    'Secretaria Municipal de Assistência Social (SMAS)',
-    'Secretaria Municipal de Fazenda (SMF)',
-    'Secretaria Municipal de Transportes (SMTR)',
-    'Instituto de Vigilância Sanitária (IVISA)',
-    'Empresa Municipal de Vigilância (EMV)',
-    'Fundação Planetário da Cidade do Rio de Janeiro',
-    'Instituto Pereira Passos (IPP)',
-    'Empresa Municipal de Informática (IPLANRIO)'
+    'Secretaria Municipal da Casa Civil',
+    'Secretaria Municipal de Coordenação Governamental - SMCG',
+    'Controladoria Geral do Município - CGM',
+    'Procuradoria Geral do Município - PGM',
+    'Secretaria Municipal de Fazenda - SMF',
+    'Secretaria Municipal de Integridade, Transparência e Proteção de Dados - SMIT',
+    'Secretaria Municipal de Desenvolvimento Urbano e Licenciamento - SMDU',
+    'Secretaria Municipal de Desenvolvimento Econômico – SMDE',
+    'Secretaria Municipal de Infraestrutura - SMI',
+    'Secretaria Municipal de Ordem Pública - SEOP',
+    'Secretaria Municipal de Conservação - SECONSERVA',
+    'Secretaria Municipal de Educação - SME',
+    'Secretaria Municipal de Assistência Social - SMAS',
+    'Secretaria Municipal de Transportes - SMTR',
+    'Secretaria Municipal de Saúde - SMS',
+    'Secretaria Mun. do Envelhecimento Saudável e Qualidade de Vida - SEMESQV',
+    'Secretaria de Esportes - SMEL',
+    'Secretaria Especial da Juventude Carioca - JUV-RIO',
+    'Secretaria Especial de Ação Comunitária - SEAC-RIO',
+    'Secretaria Especial de Integração Metropolitana - SEIM',
+    'Secretaria Especial de Políticas para Mulheres e  Cuidados - SPM-RIO',
+    'Secretaria Municipal da Pessoa com Deficiência - SMPD',
+    'Secretaria Municipal de Ciência, Tecnologia e Inovação - SMCT',
+    'Secretaria Municipal de Cultura - SMC',
+    'Secretaria Municipal de Habitação - SMH',
+    'Secretaria Municipal do Ambiente e Clima - SMAC',
+    'Secretaria Municipal de Proteção e Defesa dos Animais - SMPDA',
+    'Secretaria Municipal de Trabalho e Renda - SMTE',
+    'Secretaria Especial de Economia Solidária - SES-RIO',
+    'Secretaria Municipal de Turismo - SMTUR-RIO',
+    'Secretaria Especial de Cidadania e Família - SECID',
+    'Empresa de Eventos do Município do Rio de Janeiro - RIOEVENTOS',
+    'Companhia de Engenharia de Tráfego do RJ - CET-Rio',
+    'Companhia Municipal de Energia e Iluminação - RIOLUZ',
+    'Companhia Municipal de Limpeza Urbana – COMLURB',
+    'Empresa de Turismo do Município do Rio de Janeiro - RIOTUR',
+    'Empresa Distribuidora de Filmes S.A. - RIOFILME',
+    'Empresa Municipal de Artes Gráficas - Imprensa da Cidade - IC',
+    'Empresa Municipal de Informática - IPLANRIO',
+    'Empresa Municipal de Multimeios Ltda. - MULTIRIO',
+    'Empresa Municipal de Urbanização - RIO-URBE',
+    'Empresa Pública de Saúde do Rio de Janeiro – RioSaúde',
+    'Guarda Municipal do Rio de Janeiro - GM-Rio',
+    'Instituto de Previdência e Assistência - PREVI-RIO',
+    'Instituto Municipal de Urbanismo Pereira Passos - IPP',
+    'Instituto Rio Patrimônio da Humanidade - IRPH',
+    'Fundação Cidade das Artes',
+    'Fundação Instituto das Águas do Município do Rio de Janeiro - RIO-ÁGUAS',
+    'Fundação Instituto de Geotécnica do Município do Rio de Janeiro – GEO-RIO',
+    'Fundação Parques e Jardins - FPJ',
+    'Fundação Planetário da Cidade do Rio de Janeiro'
 ]
 
 @app.route('/')
@@ -55,9 +91,7 @@ def create_course():
     try:
         # Capturar dados do formulário
         inicio_data = request.form.get('inicio_inscricoes_data')
-        inicio_hora = request.form.get('inicio_inscricoes_hora')
         fim_data = request.form.get('fim_inscricoes_data')
-        fim_hora = request.form.get('fim_inscricoes_hora')
         
         # Obter próximo ID disponível
         next_id = get_next_id()
@@ -66,10 +100,10 @@ def create_course():
             'id': next_id,
             'titulo': request.form.get('titulo'),
             'descricao': request.form.get('descricao'),
-            'inicio_inscricoes': f'{inicio_data.replace("-", "/")} {inicio_hora}' if inicio_data and inicio_hora else '',
-            'fim_inscricoes': f'{fim_data.replace("-", "/")} {fim_hora}' if fim_data and fim_hora else '',
+            'inicio_inscricoes': f'{inicio_data.replace("-", "/")}' if inicio_data else '',
+            'fim_inscricoes': f'{fim_data.replace("-", "/")}' if fim_data else '',
             'orgao': request.form.get('orgao'),
-            'tema': request.form.get('tema'),
+            'tema': request.form.get('tema'),  # Campo renomeado para 'Categoria' na interface, mantido como 'tema' no backend para compatibilidade
             'modalidade': request.form.get('modalidade'),
             'carga_horaria': request.form.get('carga_horaria'),
             'publico_alvo': request.form.get('publico_alvo'),

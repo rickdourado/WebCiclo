@@ -317,8 +317,12 @@
                         
                         <select class="filter-select" id="categoryFilter">
                             <option value="">Todas as categorias</option>
+                            {% set categories = [] %}
                             {% for course in courses %}
-                                <option value="{{ course.categoria }}">{{ course.categoria }}</option>
+                                {% if course.tema not in categories %}
+                                    {% set categories = categories + [course.tema] %}
+                                    <option value="{{ course.tema }}">{{ course.tema }}</option>
+                                {% endif %}
                             {% endfor %}
                         </select>
                         
@@ -348,7 +352,7 @@
                                 <div class="course-header">
                                     <div class="course-id">#{{ course.id }}</div>
                                     <h3 class="course-name">{{ course.titulo }}</h3>
-                                    <span class="course-category">{{ course.tema }}</span>
+                                    <span class="course-category">Categoria: {{ course.tema }}</span>
                                 </div>
                                 
                                 <div class="course-info">

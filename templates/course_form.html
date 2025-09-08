@@ -9,6 +9,18 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Definir a data atual como valor padrão para os campos de data
+            function setDataAtual() {
+                const hoje = new Date();
+                const ano = hoje.getFullYear();
+                const mes = String(hoje.getMonth() + 1).padStart(2, '0');
+                const dia = String(hoje.getDate()).padStart(2, '0');
+                const dataAtual = `${ano}-${mes}-${dia}`;
+                
+                document.getElementById('inicio_inscricoes_data').value = dataAtual;
+                document.getElementById('fim_inscricoes_data').value = dataAtual;
+            }
+            
             // Função para formatar datas no formato brasileiro
             function formatarDataBrasileira() {
                 const camposData = document.querySelectorAll('input[type="date"]');
@@ -30,6 +42,7 @@
                 });
             }
             
+            setDataAtual();
             formatarDataBrasileira();
         });
     </script>
@@ -77,35 +90,33 @@
                     <div class="form-section">
                         <div class="form-grid">
                             <div class="form-group full-width">
-                                <label for="titulo" class="required">Nome do Curso*</label>
+                                <label for="titulo" class="required">Nome do Curso</label>
                                 <input type="text" id="titulo" name="titulo" required 
                                        placeholder="Digite o título do curso">
                             </div>
                             
                             <div class="form-group full-width">
-                                <label for="descricao" class="required">Descrição*</label>
+                                <label for="descricao" class="required">Descrição</label>
                                 <textarea id="descricao" name="descricao" rows="6" required
                                           placeholder="Digite a descrição do curso"></textarea>
                             </div>
                             
                             <div class="form-group">
-                                <label for="inicio_inscricoes" class="required">Início das inscrições*</label>
+                                <label for="inicio_inscricoes" class="required">Início das inscrições</label>
                                 <div class="datetime-group">
-                                    <input type="date" id="inicio_inscricoes_data" name="inicio_inscricoes_data" required value="2025-09-04">
-                                    <input type="time" id="inicio_inscricoes_hora" name="inicio_inscricoes_hora" required value="16:34:10">
+                                    <input type="date" id="inicio_inscricoes_data" name="inicio_inscricoes_data" required>
                                 </div>
                             </div>
                             
                             <div class="form-group">
-                                <label for="fim_inscricoes" class="required">Fim das inscrições*</label>
+                                <label for="fim_inscricoes" class="required">Fim das inscrições</label>
                                 <div class="datetime-group">
-                                    <input type="date" id="fim_inscricoes_data" name="fim_inscricoes_data" required value="2025-09-04">
-                                    <input type="time" id="fim_inscricoes_hora" name="fim_inscricoes_hora" required value="16:34:10">
+                                    <input type="date" id="fim_inscricoes_data" name="fim_inscricoes_data" required>
                                 </div>
                             </div>
                             
                             <div class="form-group full-width">
-                                 <label for="orgao" class="required">Órgão (Quem oferece o curso)*</label>
+                                 <label for="orgao" class="required">Órgão (Quem oferece o curso)</label>
                                  <select id="orgao" name="orgao" required>
                                      <option value="">Selecione um órgão</option>
                                      {% for orgao in orgaos %}
@@ -115,24 +126,34 @@
                              </div>
                              
                              <div class="form-group full-width">
-                                 <label for="tema" class="required">Tema*</label>
+                                 <label for="tema" class="required">Categoria</label>
                                  <select id="tema" name="tema" required>
-                                     <option value="">Selecione o tema</option>
+                                     <option value="">Selecione a categoria</option>
+                                     <option value="Tech">Tech</option>
+                                     <option value="Dados">Dados</option>
+                                     <option value="IA">IA</option>
+                                     <option value="Design">Design</option>
+                                     <option value="Cibersegurança">Cibersegurança</option>
+                                     <option value="Marketing">Marketing</option>
+                                     <option value="Finanças">Finanças</option>
+                                     <option value="Gestão">Gestão</option>
+                                     <option value="Games">Games</option>
+                                     <option value="Nutrição">Nutrição</option>
                                      <option value="Educação">Educação</option>
+                                     <option value="Gastronomia">Gastronomia</option>
                                      <option value="Saúde">Saúde</option>
-                                     <option value="Tecnologia">Tecnologia</option>
-                                     <option value="Administração">Administração</option>
-                                     <option value="Meio Ambiente">Meio Ambiente</option>
+                                     <option value="Veterinária">Veterinária</option>
+                                     <option value="Carreira">Carreira</option>
+                                     <option value="Estética">Estética</option>
+                                     <option value="Sustentabilidade">Sustentabilidade</option>
+                                     <option value="Artes">Artes</option>
                                      <option value="Cultura">Cultura</option>
-                                     <option value="Esporte">Esporte</option>
-                                     <option value="Turismo">Turismo</option>
-                                     <option value="Segurança">Segurança</option>
-                                     <option value="Outros">Outros</option>
+                                     <option value="Astronomia">Astronomia</option>
                                  </select>
                              </div>
                              
                              <div class="form-group full-width">
-                                 <label for="modalidade" class="required">Modalidade*</label>
+                                 <label for="modalidade" class="required">Modalidade</label>
                                  <select id="modalidade" name="modalidade" required>
                                      <option value="">Selecione a modalidade</option>
                                      <option value="Presencial">Presencial</option>
@@ -142,13 +163,13 @@
                              </div>
                              
                              <div class="form-group full-width">
-                                 <label for="carga_horaria" class="required">Carga Horária*</label>
+                                 <label for="carga_horaria" class="required">Carga Horária</label>
                                  <input type="text" id="carga_horaria" name="carga_horaria" required 
                                         placeholder="Digite a carga horária (ex: 40 horas, 80h, 2 meses, etc.)">
                              </div>
                              
                              <div class="form-group full-width">
-                                 <label for="publico_alvo" class="required">Público-alvo*</label>
+                                 <label for="publico_alvo" class="required">Público-alvo</label>
                                  <textarea id="publico_alvo" name="publico_alvo" required rows="3"
                                            placeholder="Ex: Servidores públicos, estudantes, profissionais da área de tecnologia..."></textarea>
                              </div>
