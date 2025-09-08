@@ -204,11 +204,8 @@ def list_courses():
     # Ler todos os cursos dos arquivos CSV
     courses = read_csv_files()
     
-    # Corrigir problemas de codificação
-    for course in courses:
-        for key, value in course.items():
-            if isinstance(value, str):
-                course[key] = value.encode('latin1').decode('utf-8', errors='ignore')
+    # Não é necessário recodificar os dados, pois já estão em UTF-8
+    # Os arquivos CSV são lidos com encoding='utf-8' no csv_reader.py
     
     return render_template('course_list.html', courses=courses)
 
