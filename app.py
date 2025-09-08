@@ -212,6 +212,124 @@ def list_courses():
     
     return render_template('course_list.html', courses=courses)
 
+@app.route('/edit_course/<int:course_id>', methods=['GET', 'POST'])
+def edit_course(course_id):
+    """Editar um curso existente"""
+    # Buscar curso pelo ID
+    course = get_course_by_id(course_id)
+    
+    if not course:
+        flash('Curso não encontrado', 'error')
+        return redirect(url_for('list_courses'))
+    
+    if request.method == 'POST':
+        try:
+            # Capturar dados do formulário
+            inicio_data = request.form.get('inicio_inscricoes_data')
+            fim_data = request.form.get('fim_inscricoes_data')
+            
+            # Converter datas do formato YYYY-MM-DD para DD-MM-AAAA
+            inicio_inscricoes = ''
+            if inicio_data:
+                try:
+                    ano, mes, dia = inicio_data.split('-')
+                    inicio_inscricoes = f'{dia}-{mes}-{ano}'
+                except:
+                    inicio_inscricoes = course.get('inicio_inscricoes', '')
+            else:
+                inicio_inscricoes = course.get('inicio_inscricoes', '')
+                
+            fim_inscricoes = ''
+            if fim_data:
+                try:
+                    ano, mes, dia = fim_data.split('-')
+                    fim_inscricoes = f'{dia}-{mes}-{ano}'
+                except:
+                    fim_inscricoes = course.get('fim_inscricoes', '')
+            else:
+                fim_inscricoes = course.get('fim_inscricoes', '')
+            
+            # Atualizar dados do curso
+            course_data = {
+                'id': course_id,
+                'titulo': request.form.get('titulo'),
+                'descricao': request.form.get('descricao'),
+                'inicio_inscricoes': inicio_inscricoes,
+                'fim_inscricoes': fim_inscricoes,
+                'orgao': request.form.get('orgao'),
+                'tema': request.form.get('tema'),
+                'modalidade': request.form.get('modalidade'),
+                'carga_horaria': request.form.get('carga_horaria'),
+                'publico_alvo': request.form.get('publico_alvo'),
+                'oferece_certificado': request.form.get('oferece_certificado'),
+                'pre_requisitos': request.form.get('pre_requisitos') if request.form.get('oferece_certificado') == 'sim' else '',
+                'info_complementares': request.form.get('info_complementares'),
+                'created_at': course.get('created_at', datetime.now().strftime('%d-%m-%Y %H:%M:%S')),
+                'updated_at': datetime.now().strftime('%d-%m-%Y %H:%M:%S')
+            }
+            
+            # Gerar novos arquivos CSV e PDF
+            try:
+                csv_path = generate_csv(course_data)
+                pdf_path = generate_pdf(course_data)
+                flash(f'Arquivos atualizados: CSV e PDF', 'info')
+            except Exception as file_error:
+                flash(f'Erro ao gerar arquivos: {str(file_error)}', 'warning')
+            
+            flash('Curso atualizado com sucesso!', 'success')
+            return redirect(url_for('course_success', course_id=course_id))
+            
+        except Exception as e:
+            flash(f'Erro ao atualizar curso: {str(e)}', 'error')
+            return redirect(url_for('edit_course', course_id=course_id))
+    
+    # Converter datas para o formato HTML (YYYY-MM-DD)
+    if 'inicio_inscricoes' in course and course['inicio_inscricoes']:
+        try:
+            # Tentar primeiro com separador '-'
+            if '-' in course['inicio_inscricoes']:
+                parts = course['inicio_inscricoes'].split('-')
+            # Tentar com separador '/' se não encontrar '-'
+            else:
+                parts = course['inicio_inscricoes'].split('/')
+                
+            if len(parts) == 3:
+                # Se estiver no formato DD-MM-AAAA ou DD/MM/AAAA
+                if len(parts[2]) == 4:  # Ano tem 4 dígitos
+                    course['inicio_inscricoes_data'] = f'{parts[2]}-{parts[1]}-{parts[0]}'
+                # Se estiver no formato AAAA-MM-DD ou AAAA/MM/DD
+                elif len(parts[0]) == 4:  # Ano tem 4 dígitos
+                    course['inicio_inscricoes_data'] = f'{parts[0]}-{parts[1]}-{parts[2]}'
+        except Exception as e:
+            print(f"Erro ao converter data de início: {e}")
+            course['inicio_inscricoes_data'] = ''
+    else:
+        course['inicio_inscricoes_data'] = ''
+    
+    if 'fim_inscricoes' in course and course['fim_inscricoes']:
+        try:
+            # Tentar primeiro com separador '-'
+            if '-' in course['fim_inscricoes']:
+                parts = course['fim_inscricoes'].split('-')
+            # Tentar com separador '/' se não encontrar '-'
+            else:
+                parts = course['fim_inscricoes'].split('/')
+                
+            if len(parts) == 3:
+                # Se estiver no formato DD-MM-AAAA ou DD/MM/AAAA
+                if len(parts[2]) == 4:  # Ano tem 4 dígitos
+                    course['fim_inscricoes_data'] = f'{parts[2]}-{parts[1]}-{parts[0]}'
+                # Se estiver no formato AAAA-MM-DD ou AAAA/MM/DD
+                elif len(parts[0]) == 4:  # Ano tem 4 dígitos
+                    course['fim_inscricoes_data'] = f'{parts[0]}-{parts[1]}-{parts[2]}'
+        except Exception as e:
+            print(f"Erro ao converter data de fim: {e}")
+            course['fim_inscricoes_data'] = ''
+    else:
+        course['fim_inscricoes_data'] = ''
+    
+    return render_template('course_edit.html', course=course, orgaos=ORGAOS)
+
 if __name__ == '__main__':
     print("\n" + "="*50)
     print("🎓 WebApp v4 - Ciclo Carioca (CicloCarioca.pythonanywhere.com)")

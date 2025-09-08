@@ -45,6 +45,14 @@ body {
     gap: 12px;
 }
 
+.logo-section a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    color: inherit;
+}
+
 .logo-section i {
     font-size: 2rem;
     color: #667eea;

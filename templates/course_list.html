@@ -79,6 +79,29 @@
             box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
         }
         
+        .btn-secondary {
+            background-color: #4a5568;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #2d3748;
+        }
+        
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 0.8rem;
+        }
+        
         .course-card::before {
             content: '';
             position: absolute;
@@ -221,10 +244,11 @@
         
         .search-input {
             width: 100%;
-            padding: 8px 16px 8px 40px;
+            padding: 8px 16px;
             border: 2px solid #e2e8f0;
             border-radius: 8px;
             font-size: 0.9rem;
+            text-align: center;
         }
         
         .search-icon {
@@ -233,6 +257,7 @@
             top: 50%;
             transform: translateY(-50%);
             color: #718096;
+            pointer-events: none;
         }
         
         @media (max-width: 768px) {
@@ -270,9 +295,11 @@
         <header class="header">
             <div class="header-content">
                 <div class="logo-section">
-                    <i class="fas fa-graduation-cap"></i>
-                    <h1>Ciclo Carioca</h1>
-                    <span class="version">v3.0</span>
+                    <a href="{{ url_for('index') }}" title="Ir para página inicial">
+                        <i class="fas fa-graduation-cap"></i>
+                        <h1>Ciclo Carioca</h1>
+                    </a>
+                    <span class="version">v1.0</span>
                 </div>
                 <div class="breadcrumb">
                     <span>Cursos</span>
@@ -333,11 +360,7 @@
                             {% endfor %}
                         </select>
                         
-                        <select class="filter-select" id="priceFilter">
-                            <option value="">Todos os preços</option>
-                            <option value="gratuito">Gratuitos</option>
-                            <option value="pago">Pagos</option>
-                        </select>
+
                     </div>
                     
                     <!-- Grid de Cursos -->
@@ -439,6 +462,12 @@
                                         {% endif %}
                                     </div>
                                 </div>
+                                
+                                <div style="margin-top: 15px; text-align: center;">
+                                    <a href="{{ url_for('edit_course', course_id=course.id) }}" style="background-color: #4a5568; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 0.8rem; font-weight: 500; cursor: pointer; text-decoration: none; display: inline-block;">
+                                        <i class="fas fa-edit"></i> Editar
+                                    </a>
+                                </div>
                             </div>
                         {% endfor %}
                     </div>
@@ -476,7 +505,6 @@
             const searchInput = document.getElementById('searchInput');
             const categoryFilter = document.getElementById('categoryFilter');
             const modalityFilter = document.getElementById('modalityFilter');
-            const priceFilter = document.getElementById('priceFilter');
             const coursesGrid = document.getElementById('coursesGrid');
             const courseCards = document.querySelectorAll('.course-card');
             
@@ -484,7 +512,6 @@
                 const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
                 const selectedCategory = categoryFilter ? categoryFilter.value : '';
                 const selectedModality = modalityFilter ? modalityFilter.value : '';
-                const selectedPrice = priceFilter ? priceFilter.value : '';
                 
                 let visibleCount = 0;
                 
@@ -497,9 +524,8 @@
                     const matchesSearch = name.includes(searchTerm);
                     const matchesCategory = !selectedCategory || category === selectedCategory;
                     const matchesModality = !selectedModality || modality === selectedModality;
-                    const matchesPrice = !selectedPrice || price === selectedPrice;
                     
-                    const isVisible = matchesSearch && matchesCategory && matchesModality && matchesPrice;
+                    const isVisible = matchesSearch && matchesCategory && matchesModality;
                     
                     card.style.display = isVisible ? 'block' : 'none';
                     if (isVisible) visibleCount++;
@@ -533,7 +559,6 @@
             if (searchInput) searchInput.addEventListener('input', filterCourses);
             if (categoryFilter) categoryFilter.addEventListener('change', filterCourses);
             if (modalityFilter) modalityFilter.addEventListener('change', filterCourses);
-            if (priceFilter) priceFilter.addEventListener('change', filterCourses);
             
             // Remover duplicatas dos filtros
             [categoryFilter, modalityFilter].forEach(select => {

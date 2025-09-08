@@ -53,9 +53,11 @@
         <header class="header">
             <div class="header-content">
                 <div class="logo-section">
-                    <i class="fas fa-graduation-cap"></i>
-                    <h1>Ciclo Carioca</h1>
-                    <span class="version">v3.0</span>
+                    <a href="{{ url_for('index') }}" title="Ir para página inicial">
+                        <i class="fas fa-graduation-cap"></i>
+                        <h1>Ciclo Carioca</h1>
+                    </a>
+                    <span class="version">v1.0</span>
                 </div>
                 <div class="breadcrumb">
                     <span>Cursos</span>
@@ -202,8 +204,8 @@
 
                     <!-- Botões de Ação -->
                     <div class="form-actions">
-                        <button type="button" class="btn btn-secondary" onclick="window.history.back()">
-                            <i class="fas fa-arrow-left"></i> Cancelar
+                        <button type="button" class="btn btn-secondary" onclick="window.location.href='{{ url_for("list_courses") }}'">
+                            <i class="fas fa-list"></i> Listar Cursos
                         </button>
                         <button type="reset" class="btn btn-outline">
                             <i class="fas fa-undo"></i> Limpar Formulário

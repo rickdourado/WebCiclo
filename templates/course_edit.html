@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Curso - Ciclo Carioca</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Função para formatar datas no formato brasileiro
+            function formatarDataBrasileira() {
+                const camposData = document.querySelectorAll('input[type="date"]');
+                camposData.forEach(campo => {
+                    campo.addEventListener('change', function() {
+                        if (this.value) {
+                            const [ano, mes, dia] = this.value.split('-');
+                            const dataFormatada = `${dia}/${mes}/${ano}`;
+                            // Exibe a data formatada em um elemento adjacente ou tooltip
+                            this.setAttribute('title', `Data: ${dataFormatada}`);
+                        }
+                    });
+                    // Formatar datas já preenchidas
+                    if (campo.value) {
+                        const [ano, mes, dia] = campo.value.split('-');
+                        const dataFormatada = `${dia}/${mes}/${ano}`;
+                        campo.setAttribute('title', `Data: ${dataFormatada}`);
+                    }
+                });
+            }
+            
+            // Mostrar/ocultar campo de pré-requisitos com base na seleção de certificado
+            const certificadoSelect = document.getElementById('oferece_certificado');
+            const preRequisitosGroup = document.getElementById('pre_requisitos_group');
+            
+            if (certificadoSelect && preRequisitosGroup) {
+                function togglePreRequisitos() {
+                    if (certificadoSelect.value === 'sim') {
+                        preRequisitosGroup.style.display = 'block';
+                    } else {
+                        preRequisitosGroup.style.display = 'none';
+                    }
+                }
+                
+                certificadoSelect.addEventListener('change', togglePreRequisitos);
+                togglePreRequisitos(); // Executar na carga inicial
+            }
+            
+            formatarDataBrasileira();
+        });
+    </script>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo-section">
+                    <a href="{{ url_for('index') }}" title="Ir para página inicial">
+                        <i class="fas fa-graduation-cap"></i>
+                        <h1>Ciclo Carioca</h1>
+                    </a>
+                    <span class="version">v1.0</span>
+                </div>
+                <div class="breadcrumb">
+                    <span>Cursos</span>
+                    <i class="fas fa-chevron-right"></i>
+                    <span class="current">Editar Curso</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="form-container">
+                <div class="form-header">
+                    <h2><i class="fas fa-edit"></i> Editar Curso</h2>
+                    <p class="form-description">Atualize as informações do curso #{{ course.id }} - {{ course.titulo }}</p>
+                </div>
+
+                <!-- Flash Messages -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }}">
+                                <i class="fas fa-{{ 'check-circle' if category == 'success' else 'exclamation-triangle' }}"></i>
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                <form method="POST" action="{{ url_for('edit_course', course_id=course.id) }}" class="course-form">
+                    <!-- Formulário de Edição de Curso -->
+                    <div class="form-section">
+                        <div class="form-grid">
+                            <div class="form-group full-width">
+                                <label for="titulo" class="required">Nome do Curso</label>
+                                <input type="text" id="titulo" name="titulo" required 
+                                       placeholder="Digite o título do curso" value="{{ course.titulo }}">
+                            </div>
+                            
+                            <div class="form-group full-width">
+                                <label for="descricao" class="required">Descrição</label>
+                                <textarea id="descricao" name="descricao" rows="6" required
+                                          placeholder="Descreva o curso detalhadamente">{{ course.descricao }}</textarea>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="inicio_inscricoes_data" class="required">Início das Inscrições</label>
+                                <input type="date" id="inicio_inscricoes_data" name="inicio_inscricoes_data" required
+                                       value="{{ course.inicio_inscricoes_data }}">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="fim_inscricoes_data" class="required">Fim das Inscrições</label>
+                                <input type="date" id="fim_inscricoes_data" name="fim_inscricoes_data" required
+                                       value="{{ course.fim_inscricoes_data }}">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="orgao" class="required">Órgão Responsável</label>
+                                <select id="orgao" name="orgao" required>
+                                    <option value="" disabled>Selecione um órgão</option>
+                                    {% for orgao in orgaos %}
+                                        <option value="{{ orgao }}" {% if course.orgao == orgao %}selected{% endif %}>{{ orgao }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="tema" class="required">Categoria</label>
+                                <input type="text" id="tema" name="tema" required 
+                                       placeholder="Ex: Tecnologia, Saúde, Educação" value="{{ course.tema }}">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="modalidade" class="required">Modalidade</label>
+                                <select id="modalidade" name="modalidade" required>
+                                    <option value="" disabled>Selecione uma modalidade</option>
+                                    <option value="Presencial" {% if course.modalidade == 'Presencial' %}selected{% endif %}>Presencial</option>
+                                    <option value="Online" {% if course.modalidade == 'Online' %}selected{% endif %}>Online</option>
+                                    <option value="Híbrido" {% if course.modalidade == 'Híbrido' %}selected{% endif %}>Híbrido</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="carga_horaria" class="required">Carga Horária (horas)</label>
+                                <input type="number" id="carga_horaria" name="carga_horaria" required 
+                                       min="1" max="1000" placeholder="Ex: 40" value="{{ course.carga_horaria }}">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="publico_alvo" class="required">Público Alvo</label>
+                                <input type="text" id="publico_alvo" name="publico_alvo" required 
+                                       placeholder="Ex: Servidores municipais" value="{{ course.publico_alvo }}">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="oferece_certificado" class="required">Oferece Certificado?</label>
+                                <select id="oferece_certificado" name="oferece_certificado" required>
+                                    <option value="sim" {% if course.oferece_certificado == 'sim' %}selected{% endif %}>Sim</option>
+                                    <option value="nao" {% if course.oferece_certificado == 'nao' %}selected{% endif %}>Não</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group" id="pre_requisitos_group" style="display: {% if course.oferece_certificado == 'sim' %}block{% else %}none{% endif %};">
+                                <label for="pre_requisitos">Pré-requisitos para Certificação</label>
+                                <input type="text" id="pre_requisitos" name="pre_requisitos" 
+                                       placeholder="Ex: 75% de presença" value="{{ course.pre_requisitos }}">
+                            </div>
+                            
+                            <div class="form-group full-width">
+                                <label for="info_complementares" class="required">Informações Complementares</label>
+                                <textarea id="info_complementares" name="info_complementares" rows="4" required
+                                          placeholder="Informações adicionais sobre o curso">{{ course.info_complementares }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <a href="{{ url_for('list_courses') }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Voltar
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Salvar Alterações
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+</body>
+</html>
