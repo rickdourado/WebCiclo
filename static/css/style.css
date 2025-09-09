@@ -208,6 +208,13 @@ body {
 }
 
 /* Form grid */
+
+/* Alinhamento da seção de Unidades em telas médias/grandes */
+@media (min-width: 768px) {
+    #unidades_container {
+        grid-column: 2 / -1; /* posiciona na segunda coluna até o fim, alinhando à direita do campo Modalidade */
+    }
+}
 .form-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -532,4 +539,24 @@ textarea:valid:not(:placeholder-shown) {
     to {
         transform: rotate(360deg);
     }
+}
+
+/* Remover borda ao redor das informações das Unidades */
+.unidade-fieldset {
+    border: none;
+    padding: 0;
+    margin: 0;
+}
+
+.add-unidade-btn {
+    margin-top: 16px;
+}
+    padding: 0;
+    margin: 0;
+}
+
+/* Remover classes relacionadas ao upload de imagens */
+.file-input,
+.input-help {
+    display: none;
 }

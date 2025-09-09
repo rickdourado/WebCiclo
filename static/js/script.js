@@ -154,6 +154,38 @@ function toggleInfoAdicionais(mostrar) {
     }
 }
 
+// Função para mostrar/esconder campos de unidades conforme modalidade selecionada
+function toggleUnidades() {
+    const modalidadeSelect = document.getElementById('modalidade');
+    const unidadesContainer = document.getElementById('unidades_container');
+    if (!modalidadeSelect || !unidadesContainer) return;
+
+    const shouldShow = ['Presencial', 'Híbrido'].includes(modalidadeSelect.value);
+    if (shouldShow) {
+        unidadesContainer.style.display = 'block';
+        unidadesContainer.querySelectorAll('input').forEach(el => el.setAttribute('required', ''));
+    } else {
+        unidadesContainer.style.display = 'none';
+        unidadesContainer.querySelectorAll('input').forEach(el => {
+            el.removeAttribute('required');
+            el.value = '';
+        });
+    }
+}
+
+// Função para adicionar dinamicamente outra unidade
+function addUnidade() {
+    const unidadesContainer = document.getElementById('unidades_container');
+    if (!unidadesContainer) return;
+
+    const firstFieldset = unidadesContainer.querySelector('.unidade-fieldset');
+    if (!firstFieldset) return;
+
+    const clone = firstFieldset.cloneNode(true);
+    clone.querySelectorAll('input').forEach(input => input.value = '');
+    unidadesContainer.insertBefore(clone, unidadesContainer.querySelector('.add-unidade-btn'));
+}
+
 // Animação de loading no botão de submit
 function setupSubmitButton() {
     const form = document.querySelector('.course-form');
@@ -209,45 +241,15 @@ function setupCustomValidation() {
             }
         });
         
-        // Preparar valores monetários antes do envio
-        const valorCurso = document.getElementById('valor_curso');
-        const valorBolsa = document.getElementById('valor_bolsa');
-        
-        if (valorCurso && valorCurso.value) {
-            // Converte o valor formatado para o formato que o backend espera
-            const valorNumerico = valorCurso.value.replace(',', '.');
-            // Cria um campo oculto para enviar o valor numérico
-            const hiddenInput = document.createElement('input');
-            hiddenInput.type = 'hidden';
-            hiddenInput.name = 'valor_curso';
-            hiddenInput.value = valorNumerico;
-            form.appendChild(hiddenInput);
-            // Renomeia o campo original para não enviar duplicado
-            valorCurso.name = 'valor_curso_display';
-        }
-        
-        if (valorBolsa && valorBolsa.value) {
-            // Converte o valor formatado para o formato que o backend espera
-            const valorNumerico = valorBolsa.value.replace(',', '.');
-            // Cria um campo oculto para enviar o valor numérico
-            const hiddenInput = document.createElement('input');
-            hiddenInput.type = 'hidden';
-            hiddenInput.name = 'valor_bolsa';
-            hiddenInput.value = valorNumerico;
-            form.appendChild(hiddenInput);
-            // Renomeia o campo original para não enviar duplicado
-            valorBolsa.name = 'valor_bolsa_display';
-        }
-        
         // Validar se fim das inscrições é posterior ao início
         const inicioData = document.getElementById('inicio_inscricoes_data');
         const inicioHora = document.getElementById('inicio_inscricoes_hora');
         const fimData = document.getElementById('fim_inscricoes_data');
         const fimHora = document.getElementById('fim_inscricoes_hora');
         
-        if (inicioData.value && fimData.value) {
-            const inicioDateTime = new Date(`${inicioData.value}T${inicioHora.value}`);
-            const fimDateTime = new Date(`${fimData.value}T${fimHora.value}`);
+        if (inicioData && fimData) {
+            const inicioDateTime = new Date(`${inicioData.value}T${inicioHora ? inicioHora.value : '00:00'}`);
+            const fimDateTime = new Date(`${fimData.value}T${fimHora ? fimHora.value : '23:59'}`);
             
             if (fimDateTime <= inicioDateTime) {
                 alert('O fim das inscrições deve ser posterior ao início das inscrições.');
@@ -326,6 +328,12 @@ document.addEventListener('DOMContentLoaded', function() {
     setupSubmitButton();
     setupFormFeatures();
     setupCustomValidation();
+    // Configurar exibição dinâmica das unidades
+    const modalidadeSelect = document.getElementById('modalidade');
+    if (modalidadeSelect) {
+        toggleUnidades();
+        modalidadeSelect.addEventListener('change', toggleUnidades);
+    }
     
     console.log('WebApp v3 - Formulário inicializado com sucesso!');
 });

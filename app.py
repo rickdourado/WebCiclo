@@ -1,6 +1,7 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, session
+from flask import Flask, render_template, request, redirect, url_for, flash, session, send_from_directory
 from datetime import datetime
 import os
+import functools
 
 # Importar módulos para geração de arquivos
 from scripts.csv_generator import generate_csv
@@ -9,12 +10,19 @@ from scripts.csv_reader import read_csv_files, get_course_by_id
 from scripts.id_manager import get_next_id, get_current_id
 
 app = Flask(__name__)
-# Configuração para produção no CicloCarioca.pythonanywhere.com
 app.secret_key = os.environ.get('SECRET_KEY', 'ciclo_carioca_v4_pythonanywhere_2025')
 
 # Configuração do template folder
 app.template_folder = 'templates'
 app.static_folder = 'static'
+
+# Configuração para upload de imagens
+UPLOAD_FOLDER = os.path.join('static', 'images', 'uploads')
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 # Simulação de banco de dados para cursos
 COURSES_DB = []
@@ -77,17 +85,15 @@ ORGAOS = [
 @app.route('/')
 def index():
     """Página inicial com formulário de criação de curso"""
-    # Limpar mensagens flash ao acessar a página inicial
-    # Isso evita que mensagens antigas apareçam no CicloCarioca.pythonanywhere.com
-    if 'pythonanywhere' in request.host:
-        session.pop('_flashes', None)
+    # Limpar todas as mensagens flash ao acessar a página inicial
+    session.pop('_flashes', None)
     
     return render_template('index.html', 
                          orgaos=ORGAOS)
 
+# Remover função de verificação de extensões de arquivo
 @app.route('/create_course', methods=['POST'])
 def create_course():
-    """Processar criação de novo curso"""
     try:
         # Capturar dados do formulário
         inicio_data = request.form.get('inicio_inscricoes_data')
@@ -103,7 +109,7 @@ def create_course():
             'inicio_inscricoes': f'{inicio_data.replace("-", "/")}' if inicio_data else '',
             'fim_inscricoes': f'{fim_data.replace("-", "/")}' if fim_data else '',
             'orgao': request.form.get('orgao'),
-            'tema': request.form.get('tema'),  # Campo renomeado para 'Categoria' na interface, mantido como 'tema' no backend para compatibilidade
+            'tema': request.form.get('tema'),
             'modalidade': request.form.get('modalidade'),
             'carga_horaria': request.form.get('carga_horaria'),
             'curso_gratuito': request.form.get('curso_gratuito'),
@@ -217,6 +223,53 @@ def list_courses():
     
     return render_template('course_list.html', courses=courses)
 
+# -----------------------------
+# Rotas e helpers de autenticação admin
+# -----------------------------
+ADMIN_USERNAME = 'ciclo.carioca@prefeitura.rio'
+ADMIN_PASSWORD = 'CicloCarioc@2025#'
+
+def login_required(view_func):
+    """Decorator para proteger rotas que exigem login de admin"""
+    @functools.wraps(view_func)
+    def wrapped_view(*args, **kwargs):
+        if not session.get('logged_in'):
+            flash('Faça login para acessar esta página.', 'warning')
+            return redirect(url_for('admin_login'))
+        return view_func(*args, **kwargs)
+    return wrapped_view
+
+@app.route('/admin/login', methods=['GET', 'POST'])
+def admin_login():
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+        if username == ADMIN_USERNAME and password == ADMIN_PASSWORD:
+            session['logged_in'] = True
+            flash('Login realizado com sucesso!', 'success')
+            return redirect(url_for('admin_dashboard'))
+        else:
+            flash('Credenciais inválidas.', 'error')
+            return redirect(url_for('admin_login'))
+    return render_template('admin_login.html')
+
+@app.route('/admin/logout')
+def admin_logout():
+    session.pop('logged_in', None)
+    flash('Logout realizado com sucesso.', 'info')
+    return redirect(url_for('index'))
+
+@app.route('/admin')
+@login_required
+def admin_dashboard():
+    # Reutiliza leitura de cursos já existente
+    courses = read_csv_files()
+    return render_template('course_list.html', courses=courses)
+
+# -----------------------------
+# Fim da seção de autenticação admin
+# -----------------------------
+
 @app.route('/edit_course/<int:course_id>', methods=['GET', 'POST'])
 def edit_course(course_id):
     """Editar um curso existente"""
@@ -282,7 +335,7 @@ def edit_course(course_id):
                 flash(f'Erro ao gerar arquivos: {str(file_error)}', 'warning')
             
             flash('Curso atualizado com sucesso!', 'success')
-            return redirect(url_for('course_success', course_id=course_id))
+            return redirect(url_for('course_edit_success', course_id=course_id))
             
         except Exception as e:
             flash(f'Erro ao atualizar curso: {str(e)}', 'error')
@@ -334,6 +387,32 @@ def edit_course(course_id):
         course['fim_inscricoes_data'] = ''
     
     return render_template('course_edit.html', course=course, orgaos=ORGAOS)
+
+@app.route('/course_edit_success/<int:course_id>')
+def course_edit_success(course_id):
+    """Exibir página de sucesso após edição do curso"""
+    course = get_course_by_id(course_id)
+    if not course:
+        flash('Curso não encontrado', 'error')
+        return redirect(url_for('list_courses'))
+    return render_template('course_edit_success.html', course=course)
+
+@app.route('/download/<filename>')
+def download_file(filename):
+    """Rota para download de arquivos CSV e PDF"""
+    if filename.endswith('.csv'):
+        directory = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'CSV')
+    elif filename.endswith('.pdf'):
+        directory = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'PDF')
+    else:
+        flash('Tipo de arquivo não suportado', 'error')
+        return redirect(url_for('index'))
+    
+    try:
+        return send_from_directory(directory, filename, as_attachment=True)
+    except Exception as e:
+        flash(f'Erro ao baixar arquivo: {str(e)}', 'error')
+        return redirect(url_for('index'))
 
 if __name__ == '__main__':
     print("\n" + "="*50)

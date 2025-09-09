@@ -1,0 +1,2 @@
+id,titulo,descricao,inicio_inscricoes,fim_inscricoes,orgao,tema,modalidade,carga_horaria,curso_gratuito,valor_curso,oferece_bolsa,valor_bolsa,requisitos_bolsa,publico_alvo,oferece_certificado,pre_requisitos,info_complementares,imagens,created_at
+8,Curso do Teste 4,Testando 3,2025/09/09,2025/09/10,Secretaria Municipal de Educação - SME,Carreira,Online,40 ,sim,,nao,,,Testers,nao,,RG E CPF,['logo_ciclocarioca-05.png'],09-09-2025 17:26:02

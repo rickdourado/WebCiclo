@@ -81,7 +81,7 @@
                     {% endif %}
                 {% endwith %}
 
-                <form method="POST" action="{{ url_for('create_course') }}" class="course-form">
+                <form method="POST" action="{{ url_for('create_course') }}" class="course-form" enctype="multipart/form-data">
                     <!-- Formulário de Criação de Curso -->
                     <div class="form-section">
                         <div class="form-grid">
@@ -120,6 +120,8 @@
                                      {% endfor %}
                                  </select>
                              </div>
+
+
                              
                              <div class="form-group full-width">
                                  <label for="tema" class="required">Categoria</label>
@@ -157,6 +159,26 @@
                                      <option value="Híbrido">Híbrido</option>
                                  </select>
                              </div>
+                             <!-- bloco_unidades_inicio -->
+                             <div class="form-group full-width" id="unidades_container" style="display:none;">
+                                 <fieldset class="unidade-fieldset">
+                                     <legend>Informações da Unidade</legend>
+                                     <label>Endereço da unidade*</label>
+                                     <input type="text" name="endereco_unidade[]" required>
+                                     <label>Bairro*</label>
+                                     <input type="text" name="bairro_unidade[]" required>
+                                     <label>Número de vagas*</label>
+                                     <input type="number" name="vagas_unidade[]" min="1" required>
+                                     <label>Início das aulas*</label>
+                                     <input type="date" name="inicio_aulas_data[]" required>
+                                     <label>Fim das aulas*</label>
+                                     <input type="date" name="fim_aulas_data[]" required>
+                                     <label>Dias de aula*</label>
+                                     <input type="text" name="dias_aula[]" required>
+                                 </fieldset>
+                                 <button type="button" class="btn btn-outline add-unidade-btn" onclick="addUnidade()">+ Adicionar outra unidade</button>
+                             </div>
+                             <!-- bloco_unidades_fim -->
                              
                              <div class="form-group full-width">
                                  <label for="carga_horaria" class="required">Carga Horária</label>
@@ -252,16 +274,16 @@
 
                              <div class="form-group full-width" id="info_adicionais_container" style="display:none;">
                                  <label for="info_adicionais">Informações Adicionais do Curso</label>
-                                 <textarea id="info_adicionais" name="info_adicionais" rows="4" placeholder="Digite informações adicionais, se necessário"></textarea>
+                                 <textarea id="info_adicionais" name="info_adicionais" rows="4" placeholder="Digite informações adicionais, se necessário, como recursos utilizados, facilitador, etc"></textarea>
                              </div>
                         </div>
                     </div>
 
                     <!-- Botões de Ação -->
                     <div class="form-actions">
-                        <button type="button" class="btn btn-secondary" onclick="window.location.href='{{ url_for("list_courses") }}'">
-                            <i class="fas fa-list"></i> Listar Cursos
-                        </button>
+                        <a href="{{ url_for('admin_login') }}" class="btn btn-secondary">
+                            <i class="fas fa-user-shield"></i> Acesso do Admin
+                        </a>
                         <button type="reset" class="btn btn-outline">
                             <i class="fas fa-undo"></i> Limpar Formulário
                         </button>
@@ -274,64 +296,64 @@
         </main>
     </div>
 
-    <script>
-        function toggleValorCurso(mostrar) {
-            const valorCursoContainer = document.getElementById('valor_curso_container');
-            if (mostrar) {
-                valorCursoContainer.style.display = 'block';
-                document.getElementById('valor_curso').setAttribute('required', 'required');
-            } else {
-                valorCursoContainer.style.display = 'none';
-                document.getElementById('valor_curso').removeAttribute('required');
-                document.getElementById('valor_curso').value = '';
-            }
-        }
+     <script>
+         function toggleValorCurso(mostrar) {
+             const valorCursoContainer = document.getElementById('valor_curso_container');
+             if (mostrar) {
+                 valorCursoContainer.style.display = 'block';
+                 document.getElementById('valor_curso').setAttribute('required', 'required');
+             } else {
+                 valorCursoContainer.style.display = 'none';
+                 document.getElementById('valor_curso').removeAttribute('required');
+                 document.getElementById('valor_curso').value = '';
+             }
+         }
 
-        function togglePreRequisitos(mostrar) {
-            const preRequisitosContainer = document.getElementById('pre_requisitos_container');
-            if (mostrar) {
-                preRequisitosContainer.style.display = 'block';
-                document.getElementById('pre_requisitos').setAttribute('required', 'required');
-            } else {
-                preRequisitosContainer.style.display = 'none';
-                document.getElementById('pre_requisitos').removeAttribute('required');
-                document.getElementById('pre_requisitos').value = '';
-            }
-        }
-        
-        function toggleValorBolsa(mostrar) {
-            const valorBolsaContainer = document.getElementById('valor_bolsa_container');
-            const requisitosContainer = document.getElementById('requisitos_bolsa_container');
-            
-            if (mostrar) {
-                valorBolsaContainer.style.display = 'block';
-                requisitosContainer.style.display = 'block';
-                document.getElementById('valor_bolsa').setAttribute('required', 'required');
-                document.getElementById('requisitos_bolsa').setAttribute('required', 'required');
-            } else {
-                valorBolsaContainer.style.display = 'none';
-                requisitosContainer.style.display = 'none';
-                document.getElementById('valor_bolsa').removeAttribute('required');
-                document.getElementById('requisitos_bolsa').removeAttribute('required');
-                document.getElementById('valor_bolsa').value = '';
-                document.getElementById('requisitos_bolsa').value = '';
-            }
-        }
-    </script>
+         function togglePreRequisitos(mostrar) {
+             const preRequisitosContainer = document.getElementById('pre_requisitos_container');
+             if (mostrar) {
+                 preRequisitosContainer.style.display = 'block';
+                 document.getElementById('pre_requisitos').setAttribute('required', 'required');
+             } else {
+                 preRequisitosContainer.style.display = 'none';
+                 document.getElementById('pre_requisitos').removeAttribute('required');
+                 document.getElementById('pre_requisitos').value = '';
+             }
+         }
+         
+         function toggleValorBolsa(mostrar) {
+             const valorBolsaContainer = document.getElementById('valor_bolsa_container');
+             const requisitosContainer = document.getElementById('requisitos_bolsa_container');
+             
+             if (mostrar) {
+                 valorBolsaContainer.style.display = 'block';
+                 requisitosContainer.style.display = 'block';
+                 document.getElementById('valor_bolsa').setAttribute('required', 'required');
+                 document.getElementById('requisitos_bolsa').setAttribute('required', 'required');
+             } else {
+                 valorBolsaContainer.style.display = 'none';
+                 requisitosContainer.style.display = 'none';
+                 document.getElementById('valor_bolsa').removeAttribute('required');
+                 document.getElementById('requisitos_bolsa').removeAttribute('required');
+                 document.getElementById('valor_bolsa').value = '';
+                 document.getElementById('requisitos_bolsa').value = '';
+             }
+         }
+     </script>
 
-    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
-    <script>
-        function togglePreRequisitos(mostrar) {
-            const container = document.getElementById('pre_requisitos_container');
-            const preRequisitosField = document.getElementById('pre_requisitos');
-            
-            if (mostrar) {
-                container.style.display = 'block';
-                preRequisitosField.setAttribute('required', '');
-            } else {
-                container.style.display = 'none';
-                preRequisitosField.removeAttribute('required');
-                preRequisitosField.value = '';
-            }
-        }
-    </script>
+     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+     <script>
+         function togglePreRequisitos(mostrar) {
+             const container = document.getElementById('pre_requisitos_container');
+             const preRequisitosField = document.getElementById('pre_requisitos');
+             
+             if (mostrar) {
+                 container.style.display = 'block';
+                 preRequisitosField.setAttribute('required', '');
+             } else {
+                 container.style.display = 'none';
+                 preRequisitosField.removeAttribute('required');
+                 preRequisitosField.value = '';
+             }
+         }
+     </script>
