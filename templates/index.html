@@ -66,7 +66,7 @@
             <div class="form-container">
                 <div class="form-header">
                     <h2><i class="fas fa-plus-circle"></i> Criar Novo Curso</h2>
-                    <p class="form-description">Preencha as informações abaixo para criar um novo curso no sistema Ciclo Carioca</p>
+                    <p class="form-description">Preencha as informações abaixo para criar um novo curso na plataforma</p>
                 </div>
 
                 <!-- Flash Messages -->
@@ -175,19 +175,19 @@
                                      </label>
                                  </div>
                              </div>
-                             
+
                              <div class="form-group full-width" id="valor_curso_container" style="display: none;">
                                  <label for="valor_curso" class="required">Valor (R$)</label>
                                  <input type="text" id="valor_curso" name="valor_curso" step="0.01" min="0"
                                         placeholder="Digite o valor do curso (ex: 100,00)" oninput="formatarValor(this)">
                              </div>
-                             
+
                              <div class="form-group full-width">
                                  <label for="publico_alvo" class="required">Público-alvo</label>
                                  <textarea id="publico_alvo" name="publico_alvo" required rows="3"
                                            placeholder="Ex: Servidores públicos, estudantes, profissionais da área de tecnologia..."></textarea>
                              </div>
-                             
+
                              <div class="form-group full-width">
                                  <label class="required">Oferece Certificado</label>
                                  <div class="radio-group">
@@ -199,13 +199,13 @@
                                      </label>
                                  </div>
                              </div>
-                             
+
                              <div class="form-group full-width" id="pre_requisitos_container" style="display: none;">
                                  <label for="pre_requisitos" class="required">Pré-requisitos para Recebimento de Certificados</label>
                                  <textarea id="pre_requisitos" name="pre_requisitos" rows="3"
                                            placeholder="Ex: Frequência mínima de 75%, entrega de trabalho final, aprovação em avaliação..."></textarea>
                              </div>
-                             
+
                              <div class="form-group full-width">
                                  <label class="required">Oferece Bolsa</label>
                                  <div class="radio-group">
@@ -217,7 +217,7 @@
                                      </label>
                                  </div>
                              </div>
-                             
+
                              <div class="form-group full-width" id="valor_bolsa_container" style="display: none;">
                                  <label for="valor_bolsa" class="required">Valor da Bolsa (R$)</label>
                                  <input type="text" id="valor_bolsa" name="valor_bolsa" step="0.01" min="0"
@@ -234,6 +234,25 @@
                                  <label for="info_complementares" class="required">Informações Complementares para inscrição de participantes</label>
                                  <textarea id="info_complementares" name="info_complementares" rows="4" required
                                            placeholder="Informe quais dados serão necessários para inscrição dos participantes (Ex: CPF, identidade, escolaridade, idade, bairro, etc.)"></textarea>
+                             </div>
+
+                             <!-- Pergunta: Informações adicionais do curso? -->
+                             <div class="form-group full-width">
+                                 <label class="required">Informações adicionais do curso?</label>
+                                 <span style="color:red; font-size: 0.9em; display:block; margin:4px 0 8px;">Para divulgar o curso de forma clara e objetiva, o foco deve ser em apresentar somente as informações mais importantes. Detalhes adicionais podem ser comunicados aos alunos que se matricularem, por isso, avalie se esses dados são realmente essenciais para o público geral no momento da divulgação.</span>
+                                 <div class="radio-group">
+                                     <label class="radio-label">
+                                         <input type="radio" name="info_adicionais_opcao" value="sim" required onclick="toggleInfoAdicionais(true)"> SIM
+                                     </label>
+                                     <label class="radio-label">
+                                         <input type="radio" name="info_adicionais_opcao" value="nao" required onclick="toggleInfoAdicionais(false)"> NÃO
+                                     </label>
+                                 </div>
+                             </div>
+
+                             <div class="form-group full-width" id="info_adicionais_container" style="display:none;">
+                                 <label for="info_adicionais">Informações Adicionais do Curso</label>
+                                 <textarea id="info_adicionais" name="info_adicionais" rows="4" placeholder="Digite informações adicionais, se necessário"></textarea>
                              </div>
                         </div>
                     </div>

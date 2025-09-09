@@ -301,8 +301,8 @@ select {
 
 /* Textarea */
 textarea {
-    resize: vertical;
-    min-height: 100px;
+    resize: none;
+    height: 120px;
 }
 
 /* Checkbox styling */

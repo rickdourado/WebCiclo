@@ -139,6 +139,21 @@ function toggleValorBolsa(mostrar) {
     }
 }
 
+// Função para mostrar/esconder informações adicionais do curso
+function toggleInfoAdicionais(mostrar) {
+    const container = document.getElementById('info_adicionais_container');
+    const campo = document.getElementById('info_adicionais');
+
+    if (mostrar) {
+        container.style.display = 'block';
+    } else {
+        container.style.display = 'none';
+        if (campo) {
+            campo.value = '';
+        }
+    }
+}
+
 // Animação de loading no botão de submit
 function setupSubmitButton() {
     const form = document.querySelector('.course-form');
