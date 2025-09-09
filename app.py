@@ -82,7 +82,7 @@ def index():
     if 'pythonanywhere' in request.host:
         session.pop('_flashes', None)
     
-    return render_template('course_form.html', 
+    return render_template('index.html', 
                          orgaos=ORGAOS)
 
 @app.route('/create_course', methods=['POST'])

@@ -37,7 +37,7 @@ WebCiclo/
 │   └── js/
 │       └── script.js         # Scripts JavaScript
 └── templates/                # Templates HTML
-    ├── course_form.html      # Formulário de criação de curso
+    ├── index.html           # Página inicial com formulário de criação de curso
     ├── course_list.html      # Lista de cursos
     └── course_success.html   # Página de sucesso após criação
 ```

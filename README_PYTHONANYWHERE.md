@@ -40,7 +40,7 @@ CadastroCurso/
 ├── requirements.txt         # Dependências Python
 ├── README_PYTHONANYWHERE.md # Este arquivo
 ├── templates/               # Templates HTML
-│   ├── course_form.html
+│   ├── index.html
 │   ├── course_list.html
 │   └── course_success.html
 └── static/                  # Arquivos estáticos
