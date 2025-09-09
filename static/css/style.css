@@ -33,10 +33,10 @@ body {
 
 .header-content {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
     flex-wrap: wrap;
-    gap: 20px;
+    gap: 15px;
 }
 
 .logo-section {
@@ -51,6 +51,11 @@ body {
     gap: 12px;
     text-decoration: none;
     color: inherit;
+}
+
+.logo-section img {
+    max-height: 75px;
+    width: auto;
 }
 
 .logo-section i {
@@ -75,7 +80,7 @@ body {
 }
 
 .breadcrumb {
-    display: flex;
+    display: none !important;
     align-items: center;
     gap: 8px;
     color: #718096;
