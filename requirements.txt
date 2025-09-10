@@ -6,3 +6,4 @@ Itsdangerous==2.1.2
 Click==8.1.7
 Blinker==1.6.3
 reportlab==4.4.3
+google-generativeai==0.3.2

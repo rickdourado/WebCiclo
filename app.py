@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash, ses
 from datetime import datetime
 import os
 import functools
+import google.generativeai as genai
 
 # Importar módulos para geração de arquivos
 from scripts.csv_generator import generate_csv
@@ -11,6 +12,28 @@ from scripts.id_manager import get_next_id, get_current_id
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'ciclo_carioca_v4_pythonanywhere_2025')
+
+# Configuração do Gemini
+genai.configure(api_key=os.environ.get('GEMINI_API_KEY'))
+generation_config = {
+    "temperature": 0.7,
+    "top_p": 1,
+    "top_k": 1,
+    "max_output_tokens": 2048,
+}
+
+# Função para melhorar a descrição usando Gemini
+def enhance_description(description):
+    try:
+        model = genai.GenerativeModel('gemini-pro', generation_config=generation_config)
+        prompt = f"""Melhore a seguinte descrição de curso, mantendo as informações principais mas tornando o texto mais profissional e atraente. Mantenha em português e use no máximo 500 palavras:
+
+{description}"""
+        response = model.generate_content(prompt)
+        return response.text.strip()
+    except Exception as e:
+        print(f"Erro ao melhorar descrição: {str(e)}")
+        return description
 
 # Configuração do template folder
 app.template_folder = 'templates'
@@ -102,10 +125,14 @@ def create_course():
         # Obter próximo ID disponível
         next_id = get_next_id()
         
+        # Melhorar a descrição usando Gemini
+        original_description = request.form.get('descricao')
+        enhanced_description = enhance_description(original_description)
+        
         course_data = {
             'id': next_id,
             'titulo': request.form.get('titulo'),
-            'descricao': request.form.get('descricao'),
+            'descricao': enhanced_description,
             'inicio_inscricoes': f'{inicio_data.replace("-", "/")}' if inicio_data else '',
             'fim_inscricoes': f'{fim_data.replace("-", "/")}' if fim_data else '',
             'orgao': request.form.get('orgao'),
