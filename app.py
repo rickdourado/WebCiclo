@@ -315,6 +315,7 @@ def admin_dashboard():
 # -----------------------------
 
 @app.route('/edit_course/<int:course_id>', methods=['GET', 'POST'])
+@login_required
 def edit_course(course_id):
     """Editar um curso existente"""
     # Buscar curso pelo ID
@@ -433,6 +434,7 @@ def edit_course(course_id):
     return render_template('course_edit.html', course=course, orgaos=ORGAOS)
 
 @app.route('/course_edit_success/<int:course_id>')
+@login_required
 def course_edit_success(course_id):
     """Exibir página de sucesso após edição do curso"""
     course = get_course_by_id(course_id)
@@ -442,6 +444,7 @@ def course_edit_success(course_id):
     return render_template('course_edit_success.html', course=course)
 
 @app.route('/delete_course/<int:course_id>', methods=['POST'])
+@login_required
 def delete_course(course_id):
     """Excluir um curso existente e seus arquivos"""
     try:
@@ -475,6 +478,7 @@ def delete_course(course_id):
         return redirect(url_for('list_courses'))
 
 @app.route('/download/<filename>')
+@login_required
 def download_file(filename):
     """Rota para download de arquivos CSV e PDF"""
     if filename.endswith('.csv'):
