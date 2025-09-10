@@ -2,7 +2,11 @@ from flask import Flask, render_template, request, redirect, url_for, flash, ses
 from datetime import datetime
 import os
 import functools
+from dotenv import load_dotenv
 import google.generativeai as genai
+
+# Carregar variáveis de ambiente do arquivo .env
+load_dotenv()
 
 # Importar módulos para geração de arquivos
 from scripts.csv_generator import generate_csv
@@ -15,24 +19,31 @@ app.secret_key = os.environ.get('SECRET_KEY', 'ciclo_carioca_v4_pythonanywhere_2
 
 # Configuração do Gemini
 genai.configure(api_key=os.environ.get('GEMINI_API_KEY'))
-generation_config = {
-    "temperature": 0.7,
-    "top_p": 1,
-    "top_k": 1,
-    "max_output_tokens": 2048,
-}
 
 # Função para melhorar a descrição usando Gemini
 def enhance_description(description):
+    print(f"\nTentando melhorar descrição com Gemini...")
+    print(f"Descrição original: {description}")
+    
     try:
-        model = genai.GenerativeModel('gemini-pro', generation_config=generation_config)
-        prompt = f"""Melhore a seguinte descrição de curso, mantendo as informações principais mas tornando o texto mais profissional e atraente. Mantenha em português e use no máximo 500 palavras:
+        print("Configurando modelo Gemini...")
+        model = genai.GenerativeModel(model_name='models/gemini-1.5-pro')
+        
+        prompt = f"""Explique de forma simples o que o curso ensina em no máximo 3 linhas. Mantenha em português, seja direto e objetivo:
 
 {description}"""
+        print("Enviando prompt para o Gemini...")
+        
         response = model.generate_content(prompt)
-        return response.text.strip()
+        enhanced = response.text.strip()
+        
+        print(f"Descrição melhorada: {enhanced}")
+        return enhanced
     except Exception as e:
-        print(f"Erro ao melhorar descrição: {str(e)}")
+        print(f"\nERRO ao melhorar descrição com Gemini: {str(e)}")
+        print(f"Tipo do erro: {type(e).__name__}")
+        import traceback
+        print(f"Traceback completo:\n{traceback.format_exc()}")
         return description
 
 # Configuração do template folder
@@ -46,6 +57,8 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
 
 # Simulação de banco de dados para cursos
 COURSES_DB = []
