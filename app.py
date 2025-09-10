@@ -226,8 +226,12 @@ def list_courses():
 # -----------------------------
 # Rotas e helpers de autenticação admin
 # -----------------------------
-ADMIN_USERNAME = 'ciclo.carioca@prefeitura.rio'
-ADMIN_PASSWORD = 'CicloCarioc@2025#'
+ADMIN_USERNAME = os.environ.get('ADMIN_USERNAME')
+ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD')
+
+# Verificar se as credenciais foram configuradas
+if not ADMIN_USERNAME or not ADMIN_PASSWORD:
+    raise ValueError('As credenciais de admin (ADMIN_USERNAME e ADMIN_PASSWORD) precisam ser configuradas nas variáveis de ambiente.')
 
 def login_required(view_func):
     """Decorator para proteger rotas que exigem login de admin"""
