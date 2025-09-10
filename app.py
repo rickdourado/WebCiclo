@@ -441,6 +441,39 @@ def course_edit_success(course_id):
         return redirect(url_for('list_courses'))
     return render_template('course_edit_success.html', course=course)
 
+@app.route('/delete_course/<int:course_id>', methods=['POST'])
+def delete_course(course_id):
+    """Excluir um curso existente e seus arquivos"""
+    try:
+        # Buscar curso pelo ID
+        course = get_course_by_id(course_id)
+        
+        if not course:
+            flash('Curso não encontrado', 'error')
+            return redirect(url_for('list_courses'))
+        
+        # Obter o título formatado do curso para encontrar os arquivos
+        titulo_formatado = course['titulo'].replace(' ', '_')
+        
+        # Encontrar e excluir o arquivo CSV
+        csv_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'CSV')
+        csv_files = [f for f in os.listdir(csv_dir) if titulo_formatado in f]
+        for csv_file in csv_files:
+            os.remove(os.path.join(csv_dir, csv_file))
+        
+        # Encontrar e excluir o arquivo PDF
+        pdf_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'PDF')
+        pdf_files = [f for f in os.listdir(pdf_dir) if titulo_formatado in f]
+        for pdf_file in pdf_files:
+            os.remove(os.path.join(pdf_dir, pdf_file))
+        
+        flash('Curso excluído com sucesso!', 'success')
+        return redirect(url_for('list_courses'))
+        
+    except Exception as e:
+        flash(f'Erro ao excluir curso: {str(e)}', 'error')
+        return redirect(url_for('list_courses'))
+
 @app.route('/download/<filename>')
 def download_file(filename):
     """Rota para download de arquivos CSV e PDF"""

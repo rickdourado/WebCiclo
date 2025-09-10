@@ -290,6 +290,24 @@
     </style>
 </head>
 <body>
+    <!-- Modal de confirmação de exclusão -->
+    <div id="deleteModal" class="modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4);">
+        <div class="modal-content" style="background-color: #fefefe; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 500px; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.2);">
+            <div class="modal-header" style="margin-bottom: 15px;">
+                <h3 style="margin: 0; color: #e53e3e;">Confirmar Exclusão</h3>
+            </div>
+            <div class="modal-body">
+                <p>Você realmente deseja excluir o curso <strong id="cursoTitulo"></strong>?</p>
+                <p>Esta ação não pode ser desfeita e removerá permanentemente o curso, o arquivo CSV e o arquivo PDF.</p>
+            </div>
+            <div class="modal-footer" style="margin-top: 20px; display: flex; justify-content: flex-end; gap: 10px;">
+                <button onclick="fecharModal()" style="background-color: #718096; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer;">Cancelar</button>
+                <form id="deleteForm" method="POST" action="">
+                    <button type="submit" style="background-color: #e53e3e; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer;">Sim, Excluir</button>
+                </form>
+            </div>
+        </div>
+    </div>
     <div class="container">
         <!-- Header -->
         <header class="header">
@@ -480,10 +498,13 @@
                                     </div>
                                 </div>
                                 
-                                <div style="margin-top: 15px; text-align: center;">
+                                <div style="margin-top: 15px; text-align: center; display: flex; justify-content: center; gap: 10px;">
                                     <a href="{{ url_for('edit_course', course_id=course.id) }}" style="background-color: #4a5568; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 0.8rem; font-weight: 500; cursor: pointer; text-decoration: none; display: inline-block;">
                                         <i class="fas fa-edit"></i> Editar
                                     </a>
+                                    <button onclick="confirmarExclusao({{ course.id }}, '{{ course.titulo }}')" style="background-color: #e53e3e; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 0.8rem; font-weight: 500; cursor: pointer; text-decoration: none; display: inline-block;">
+                                        <i class="fas fa-trash"></i> Deletar Curso
+                                    </button>
                                 </div>
                             </div>
                         {% endfor %}
@@ -517,6 +538,26 @@
     </div>
 
     <script>
+        // Função para abrir o modal de confirmação de exclusão
+        function confirmarExclusao(courseId, courseTitle) {
+            document.getElementById('deleteModal').style.display = 'block';
+            document.getElementById('cursoTitulo').textContent = courseTitle;
+            document.getElementById('deleteForm').action = '/delete_course/' + courseId;
+        }
+        
+        // Função para fechar o modal
+        function fecharModal() {
+            document.getElementById('deleteModal').style.display = 'none';
+        }
+        
+        // Fechar o modal se o usuário clicar fora dele
+        window.onclick = function(event) {
+            var modal = document.getElementById('deleteModal');
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        }
+        
         // Funcionalidade de busca e filtros
         document.addEventListener('DOMContentLoaded', function() {
             const searchInput = document.getElementById('searchInput');
