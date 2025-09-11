@@ -626,3 +626,26 @@ textarea:valid:not(:placeholder-shown) {
 .input-help {
     display: none;
 }
+
+/* Estilos para campos com erro */
+input.error, select.error, textarea.error {
+    border: 2px solid #e53e3e !important;
+    background-color: rgba(229, 62, 62, 0.05) !important;
+}
+
+input[type="radio"].error, input[type="checkbox"].error {
+    outline: 2px solid #e53e3e !important;
+    outline-offset: 2px !important;
+}
+
+.radio-group.error label, .checkbox-group.error label {
+    color: #e53e3e !important;
+}
+
+/* Mensagem de erro */
+.error-message {
+    color: #e53e3e;
+    font-size: 0.85rem;
+    margin-top: 4px;
+    display: block;
+}

@@ -235,10 +235,193 @@ function setupCustomValidation() {
         
         // Validar campos obrigatórios
         const requiredFields = form.querySelectorAll('[required]');
+        const processedRadioNames = new Set();
+        
         requiredFields.forEach(field => {
-            if (field.value.trim() === '') {
-                field.classList.add('error');
+            if (field.type === 'radio' || field.type === 'checkbox') {
+                // Evita processar o mesmo grupo mais de uma vez
+                if (processedRadioNames.has(field.name)) return;
+                processedRadioNames.add(field.name);
+                
+                // Verifica se algum radio/checkbox do grupo está marcado
+                const group = form.querySelectorAll(`input[name="${field.name}"]`);
+                const algumMarcado = Array.from(group).some(radio => radio.checked);
+                
+                if (!algumMarcado) {
+                    group.forEach(radio => radio.classList.add('error'));
+                    isValid = false;
+                } else {
+                    group.forEach(radio => radio.classList.remove('error'));
+                }
+            } else {
+                // Para outros tipos de campo, verifica se está vazio
+                if (field.value.trim() === '') {
+                    field.classList.add('error');
+                    isValid = false;
+                } else {
+                    field.classList.remove('error');
+                }
+            }
+        });
+        
+        // Validar se fim das inscrições é posterior ao início
+        const inicioData = document.getElementById('inicio_inscricoes_data');
+        const inicioHora = document.getElementById('inicio_inscricoes_hora');
+        const fimData = document.getElementById('fim_inscricoes_data');
+        const fimHora = document.getElementById('fim_inscricoes_hora');
+        
+        if (inicioData && fimData) {
+            const inicioDateTime = new Date(`${inicioData.value}T${inicioHora ? inicioHora.value : '00:00'}`);
+            const fimDateTime = new Date(`${fimData.value}T${fimHora ? fimHora.value : '23:59'}`);
+            
+            if (fimDateTime <= inicioDateTime) {
+                alert('O fim das inscrições deve ser posterior ao início das inscrições.');
                 isValid = false;
+            }
+        }
+        
+        if (!isValid) {
+            e.preventDefault();
+            // Restaurar o botão de submit se a validação falhar
+            submitBtn.innerHTML = '<i class="fas fa-save"></i> Criar Curso';
+            submitBtn.disabled = false;
+        }
+    });
+}
+
+// Função para adicionar evento de clique direto no botão de submit
+function setupSubmitButtonClick() {
+    const form = document.querySelector('.course-form');
+    const submitBtn = form.querySelector('button[type="submit"]');
+    
+    submitBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        // Validar o formulário manualmente
+        let isValid = true;
+        
+        // Validar campos obrigatórios
+        const requiredFields = form.querySelectorAll('[required]');
+        const processedRadioNames = new Set();
+        
+        requiredFields.forEach(field => {
+            if (field.type === 'radio' || field.type === 'checkbox') {
+                // Evita processar o mesmo grupo mais de uma vez
+                if (processedRadioNames.has(field.name)) return;
+                processedRadioNames.add(field.name);
+                
+                // Verifica se algum radio/checkbox do grupo está marcado
+                const group = form.querySelectorAll(`input[name="${field.name}"]`);
+                const algumMarcado = Array.from(group).some(radio => radio.checked);
+                
+                if (!algumMarcado) {
+                    group.forEach(radio => radio.classList.add('error'));
+                    isValid = false;
+                } else {
+                    group.forEach(radio => radio.classList.remove('error'));
+                }
+            } else {
+                // Para outros tipos de campo, verifica se está vazio
+                if (field.value.trim() === '') {
+                    field.classList.add('error');
+                    isValid = false;
+                } else {
+                    field.classList.remove('error');
+                }
+            }
+        });
+        
+        // Validar se fim das inscrições é posterior ao início
+        const inicioData = document.getElementById('inicio_inscricoes_data');
+        const inicioHora = document.getElementById('inicio_inscricoes_hora');
+        const fimData = document.getElementById('fim_inscricoes_data');
+        const fimHora = document.getElementById('fim_inscricoes_hora');
+        
+        if (inicioData && fimData) {
+            const inicioDateTime = new Date(`${inicioData.value}T${inicioHora ? inicioHora.value : '00:00'}`);
+            const fimDateTime = new Date(`${fimData.value}T${fimHora ? fimHora.value : '23:59'}`);
+            
+            if (fimDateTime <= inicioDateTime) {
+                alert('O fim das inscrições deve ser posterior ao início das inscrições.');
+                isValid = false;
+            }
+        }
+        
+        if (isValid) {
+            // Se o formulário for válido, mostrar animação de loading e enviar
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Criando Curso...';
+            submitBtn.disabled = true;
+            form.submit();
+        } else {
+            // Exibir mensagem de erro
+            alert('Por favor, preencha todos os campos obrigatórios.');
+        }
+    });
+}
+
+// Configurar funcionalidades específicas do formulário
+function setupFormFeatures() {
+    // Configurar máscaras para campos de horário
+    const timeInputs = document.querySelectorAll('input[type="time"]');
+    timeInputs.forEach(input => {
+        input.addEventListener('focus', function() {
+            this.style.backgroundColor = '#333';
+        });
+        
+        input.addEventListener('blur', function() {
+            this.style.backgroundColor = '#2a2a2a';
+        });
+    });
+    
+    // Sincronizar datas quando necessário
+    const inicioData = document.getElementById('inicio_inscricoes_data');
+    const fimData = document.getElementById('fim_inscricoes_data');
+    
+    if (inicioData && fimData) {
+        inicioData.addEventListener('change', function() {
+            if (fimData.value < this.value) {
+                fimData.value = this.value;
+            }
+        });
+    }
+}
+
+// Validações customizadas
+function setupCustomValidation() {
+    const form = document.querySelector('.course-form');
+    const submitBtn = form.querySelector('button[type="submit"]');
+    
+    form.addEventListener('submit', function(e) {
+        let isValid = true;
+        
+        // Validar campos obrigatórios
+        const requiredFields = form.querySelectorAll('[required]');
+        const processedRadioNames = new Set();
+        
+        requiredFields.forEach(field => {
+            if (field.type === 'radio' || field.type === 'checkbox') {
+                // Evita processar o mesmo grupo mais de uma vez
+                if (processedRadioNames.has(field.name)) return;
+                processedRadioNames.add(field.name);
+                
+                // Verifica se algum radio/checkbox do grupo está marcado
+                const group = form.querySelectorAll(`input[name="${field.name}"]`);
+                const algumMarcado = Array.from(group).some(radio => radio.checked);
+                
+                if (!algumMarcado) {
+                    group.forEach(radio => radio.classList.add('error'));
+                    isValid = false;
+                } else {
+                    group.forEach(radio => radio.classList.remove('error'));
+                }
+            } else {
+                // Para outros tipos de campo, verifica se está vazio
+                if (field.value.trim() === '') {
+                    field.classList.add('error');
+                    isValid = false;
+                } else {
+                    field.classList.remove('error');
+                }
             }
         });
         
@@ -329,6 +512,7 @@ document.addEventListener('DOMContentLoaded', function() {
     setupSubmitButton();
     setupFormFeatures();
     setupCustomValidation();
+    setupSubmitButtonClick(); // Adicionar nova função
     // Configurar exibição dinâmica das unidades
     const modalidadeSelect = document.getElementById('modalidade');
     if (modalidadeSelect) {
