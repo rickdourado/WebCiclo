@@ -255,9 +255,23 @@
                              </div>
 
                              <div class="form-group full-width" id="valor_curso_container" style="display: none;">
-                                 <label for="valor_curso" class="required">Valor (R$)</label>
-                                 <input type="text" id="valor_curso" name="valor_curso" step="0.01" min="0"
-                                        placeholder="Digite o valor do curso (ex: 100,00)" oninput="formatarValor(this)">
+                                <div class="valor-curso-row">
+                                    <div class="valor-curso-col">
+                                        <label for="valor_curso_inteira" class="required">Valor INTEIRA (R$)</label>
+                                        <input type="text" id="valor_curso_inteira" name="valor_curso_inteira" step="0.01" min="0"
+                                            placeholder="Digite o valor integral (ex: 100,00)" oninput="formatarValor(this)" required>
+                                    </div>
+                                    <div class="valor-curso-col">
+                                        <label for="valor_curso_meia">Valor MEIA (R$)</label>
+                                        <input type="text" id="valor_curso_meia" name="valor_curso_meia" step="0.01" min="0"
+                                            placeholder="Digite o valor da meia (ex: 50,00)" oninput="formatarValor(this); toggleRequisitos()">
+                                    </div>
+                                </div>
+                                <div id="requisitos_meia_container" style="display: none;">
+                                    <label for="requisitos_meia">Requisitos para MEIA</label>
+                                    <textarea id="requisitos_meia" name="requisitos_meia" rows="2"
+                                        placeholder="Ex: Estudantes, idosos, pessoas com deficiência..."></textarea>
+                                </div>
                              </div>
 
                              <div class="form-group full-width">

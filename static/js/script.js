@@ -1,6 +1,3 @@
-// Funções de interatividade do formulário simplificado
-
-// Validação em tempo real
 function setupRealTimeValidation() {
     const requiredFields = document.querySelectorAll('input[required], select[required], textarea[required]');
     
@@ -76,118 +73,7 @@ function setupAutoSave() {
     }
 }
 
-// Confirmação ao sair da página
-function setupPageLeaveConfirmation() {
-    let formChanged = false;
-    const form = document.querySelector('.course-form');
-    const inputs = form.querySelectorAll('input, select, textarea');
-    
-    inputs.forEach(input => {
-        input.addEventListener('input', function() {
-            formChanged = true;
-        });
-    });
-    
-    window.addEventListener('beforeunload', function(e) {
-        if (formChanged) {
-            e.preventDefault();
-            e.returnValue = '';
-        }
-    });
-    
-    // Limpar flag ao submeter
-    form.addEventListener('submit', function() {
-        formChanged = false;
-        localStorage.removeItem('course_form_draft');
-    });
-}
-
-// Função para mostrar/esconder o campo de valor do curso
-function toggleValorCurso(mostrar) {
-    const valorCursoContainer = document.getElementById('valor_curso_container');
-    const valorCursoInput = document.getElementById('valor_curso');
-    
-    if (mostrar) {
-        valorCursoContainer.style.display = 'block';
-        valorCursoInput.required = true;
-    } else {
-        valorCursoContainer.style.display = 'none';
-        valorCursoInput.required = false;
-        valorCursoInput.value = '';
-    }
-}
-
-// Função para mostrar/esconder o campo de valor da bolsa
-function toggleValorBolsa(mostrar) {
-    const valorBolsaContainer = document.getElementById('valor_bolsa_container');
-    const requisitosContainer = document.getElementById('requisitos_bolsa_container');
-    const valorBolsaInput = document.getElementById('valor_bolsa');
-    const requisitosInput = document.getElementById('requisitos_bolsa');
-    
-    if (mostrar) {
-        valorBolsaContainer.style.display = 'block';
-        requisitosContainer.style.display = 'block';
-        valorBolsaInput.required = true;
-        requisitosInput.required = true;
-    } else {
-        valorBolsaContainer.style.display = 'none';
-        requisitosContainer.style.display = 'none';
-        valorBolsaInput.required = false;
-        requisitosInput.required = false;
-        valorBolsaInput.value = '';
-        requisitosInput.value = '';
-    }
-}
-
-// Função para mostrar/esconder informações adicionais do curso
-function toggleInfoAdicionais(mostrar) {
-    const container = document.getElementById('info_adicionais_container');
-    const campo = document.getElementById('info_adicionais');
-
-    if (mostrar) {
-        container.style.display = 'block';
-    } else {
-        container.style.display = 'none';
-        if (campo) {
-            campo.value = '';
-        }
-    }
-}
-
-// Função para mostrar/esconder campos de unidades conforme modalidade selecionada
-function toggleUnidades() {
-    const modalidadeSelect = document.getElementById('modalidade');
-    const unidadesContainer = document.getElementById('unidades_container');
-    if (!modalidadeSelect || !unidadesContainer) return;
-
-    const shouldShow = ['Presencial', 'Híbrido'].includes(modalidadeSelect.value);
-    if (shouldShow) {
-        unidadesContainer.style.display = 'block';
-        unidadesContainer.querySelectorAll('input').forEach(el => el.setAttribute('required', ''));
-    } else {
-        unidadesContainer.style.display = 'none';
-        unidadesContainer.querySelectorAll('input').forEach(el => {
-            el.removeAttribute('required');
-            el.value = '';
-        });
-    }
-}
-
-// Função para adicionar dinamicamente outra unidade
-function addUnidade() {
-    const unidadesContainer = document.getElementById('unidades_container');
-    if (!unidadesContainer) return;
-
-    const firstFieldset = unidadesContainer.querySelector('.unidade-fieldset');
-    if (!firstFieldset) return;
-
-    const clone = firstFieldset.cloneNode(true);
-    clone.querySelectorAll('input').forEach(input => input.value = '');
-    clone.querySelectorAll('select').forEach(select => select.selectedIndex = 0);
-    unidadesContainer.insertBefore(clone, unidadesContainer.querySelector('.add-unidade-btn'));
-}
-
-// Animação de loading no botão de submit
+// Limpar flag ao submeter
 function setupSubmitButton() {
     const form = document.querySelector('.course-form');
     const submitBtn = form.querySelector('button[type="submit"]');
@@ -388,110 +274,19 @@ function isFieldVisible(field) {
     return true;
 }
 
-// Configurar funcionalidades específicas do formulário
-function setupFormFeatures() {
-    // Configurar máscaras para campos de horário
-    const timeInputs = document.querySelectorAll('input[type="time"]');
-    timeInputs.forEach(input => {
-        input.addEventListener('focus', function() {
-            this.style.backgroundColor = '#333';
-        });
-        
-        input.addEventListener('blur', function() {
-            this.style.backgroundColor = '#2a2a2a';
-        });
-    });
-    
-    // Sincronizar datas quando necessário
-    const inicioData = document.getElementById('inicio_inscricoes_data');
-    const fimData = document.getElementById('fim_inscricoes_data');
-    
-    if (inicioData && fimData) {
-        inicioData.addEventListener('change', function() {
-            if (fimData.value < this.value) {
-                fimData.value = this.value;
-            }
-        });
-    }
-}
-
-// Validações customizadas
-function setupCustomValidation() {
-    const form = document.querySelector('.course-form');
-    const submitBtn = form.querySelector('button[type="submit"]');
-    
-    form.addEventListener('submit', function(e) {
-        let isValid = true;
-        
-        // Validar campos obrigatórios
-        const requiredFields = form.querySelectorAll('[required]');
-        const processedRadioNames = new Set();
-        
-        requiredFields.forEach(field => {
-            // Verificar se o campo está em um container visível
-            const isVisible = isFieldVisible(field);
-            
-            // Se o campo não estiver visível, não validar
-            if (!isVisible) return;
-            
-            if (field.type === 'radio' || field.type === 'checkbox') {
-                // Evita processar o mesmo grupo mais de uma vez
-                if (processedRadioNames.has(field.name)) return;
-                processedRadioNames.add(field.name);
-                
-                // Verifica se algum radio/checkbox do grupo está marcado
-                const group = form.querySelectorAll(`input[name="${field.name}"]`);
-                const algumMarcado = Array.from(group).some(radio => radio.checked);
-                
-                if (!algumMarcado) {
-                    group.forEach(radio => radio.classList.add('error'));
-                    isValid = false;
-                } else {
-                    group.forEach(radio => radio.classList.remove('error'));
-                }
-            } else {
-                // Para outros tipos de campo, verifica se está vazio
-                if (field.value.trim() === '') {
-                    field.classList.add('error');
-                    isValid = false;
-                } else {
-                    field.classList.remove('error');
-                }
-            }
-        });
-        
-        // Validar se fim das inscrições é posterior ao início
-        const inicioData = document.getElementById('inicio_inscricoes_data');
-        const inicioHora = document.getElementById('inicio_inscricoes_hora');
-        const fimData = document.getElementById('fim_inscricoes_data');
-        const fimHora = document.getElementById('fim_inscricoes_hora');
-        
-        if (inicioData && fimData) {
-            const inicioDateTime = new Date(`${inicioData.value}T${inicioHora ? inicioHora.value : '00:00'}`);
-            const fimDateTime = new Date(`${fimData.value}T${fimHora ? fimHora.value : '23:59'}`);
-            
-            if (fimDateTime <= inicioDateTime) {
-                alert('O fim das inscrições deve ser posterior ao início das inscrições.');
-                isValid = false;
-            }
-        }
-        
-        if (!isValid) {
-            e.preventDefault();
-            // Restaurar o botão de submit se a validação falhar
-            submitBtn.innerHTML = '<i class="fas fa-save"></i> Criar Curso';
-            submitBtn.disabled = false;
-        }
-    });
-}
-
 // Função para formatar valores monetários
 function formatarValor(input) {
-    // Remove qualquer caractere que não seja número ou vírgula
-    let valor = input.value.replace(/[^0-9,]/g, '');
+    // Remove todos os caracteres não numéricos
+    let valor = input.value.replace(/\D/g, '');
     
-    // Atualiza o valor do campo apenas removendo caracteres inválidos
-    input.value = valor;
+    // Converte para número e divide por 100 para obter o valor em reais
+    valor = (parseInt(valor) || 0) / 100;
+    
+    // Formata o valor como moeda brasileira
+    input.value = valor.toLocaleString('pt-BR', {
+        style: 'currency',
+        currency: 'BRL'
+    });
 }
 
 // Adiciona evento de blur para garantir formatação ao sair do campo
@@ -538,12 +333,56 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
+// Função para exibir/ocultar campos de unidades com base na modalidade selecionada
+function toggleUnidades() {
+    const modalidade = document.getElementById('modalidade').value;
+    const unidadesContainer = document.getElementById('unidades_container');
+    
+    if (modalidade === 'presencial' || modalidade === 'hibrido') {
+        unidadesContainer.style.display = 'block';
+        document.querySelectorAll('.unidade-field').forEach(field => {
+            field.setAttribute('required', 'required');
+        });
+    } else {
+        unidadesContainer.style.display = 'none';
+        document.querySelectorAll('.unidade-field').forEach(field => {
+            field.removeAttribute('required');
+        });
+    }
+}
+
+// Função para adicionar nova unidade
+function addUnidade() {
+    const unidadesContainer = document.getElementById('unidades_list');
+    const unidadeCount = unidadesContainer.children.length + 1;
+    
+    const unidadeDiv = document.createElement('div');
+    unidadeDiv.className = 'unidade-item';
+    
+    unidadeDiv.innerHTML = `
+        <h4>Unidade ${unidadeCount}</h4>
+        <div class="form-group">
+            <label for="unidade_${unidadeCount}">Nome da Unidade:</label>
+            <input type="text" id="unidade_${unidadeCount}" name="unidade_${unidadeCount}" class="unidade-field" required>
+        </div>
+        <div class="form-group">
+            <label for="endereco_${unidadeCount}">Endereço:</label>
+            <input type="text" id="endereco_${unidadeCount}" name="endereco_${unidadeCount}" class="unidade-field" required>
+        </div>
+    `;
+    
+    unidadesContainer.appendChild(unidadeDiv);
+    
+    // Atualizar o contador de unidades
+    document.getElementById('unidade_count').value = unidadeCount;
+}
+
 // Inicialização quando o DOM estiver carregado
 document.addEventListener('DOMContentLoaded', function() {
     setupRealTimeValidation();
     setupCharacterCounters();
     setupAutoSave();
-    setupPageLeaveConfirmation();
+    // Função setupPageLeaveConfirmation() foi removida para evitar o popup de confirmação ao sair da página
     setupSubmitButton();
     setupFormFeatures();
     setupCustomValidation();

@@ -649,3 +649,27 @@ input[type="radio"].error, input[type="checkbox"].error {
     margin-top: 4px;
     display: block;
 }
+
+/* Estilos para os campos de valor do curso */
+.valor-curso-row {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 15px;
+}
+
+.valor-curso-col {
+    flex: 1;
+}
+
+.valor-curso-col label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.valor-curso-col input {
+    width: 100%;
+}
+
+#requisitos_meia_container {
+    margin-top: 10px;
+}
