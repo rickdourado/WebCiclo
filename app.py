@@ -506,6 +506,8 @@ def download_file(filename):
         flash(f'Erro ao baixar arquivo: {str(e)}', 'error')
         return redirect(url_for('index'))
 
+
+
 if __name__ == '__main__':
     print("\n" + "="*50)
     print("🎓 WebApp v4 - Ciclo Carioca (CicloCarioca.pythonanywhere.com)")
