@@ -216,7 +216,6 @@
                     <h3><i class="fas fa-info-circle"></i> Detalhes do Curso</h3>
                     
                     <div class="detail-grid">
-                        
                         <div class="detail-item">
                             <span class="detail-label">Título</span>
                             <span class="detail-value">{{ course.titulo }}</span>
@@ -259,14 +258,39 @@
                         </div>
                         
                         <div class="detail-item">
+                            <span class="detail-label">Dias de Aula</span>
+                            <span class="detail-value">{{ course.dias_aula if course.dias_aula else '-' }}</span>
+                        </div>
+                        
+                        <div class="detail-item">
+                            <span class="detail-label">Horário de Início</span>
+                            <span class="detail-value">{{ course.horario_inicio if course.horario_inicio else '-' }}</span>
+                        </div>
+                        
+                        <div class="detail-item">
+                            <span class="detail-label">Horário de Término</span>
+                            <span class="detail-value">{{ course.horario_fim if course.horario_fim else '-' }}</span>
+                        </div>
+                        
+                        <div class="detail-item">
                             <span class="detail-label">Curso Gratuito</span>
                             <span class="detail-value">{% if course.curso_gratuito == 'sim' %}Sim{% else %}Não{% endif %}</span>
                         </div>
                         
                         {% if course.curso_gratuito == 'nao' and course.valor_curso %}
                         <div class="detail-item">
-                            <span class="detail-label">Valor do Curso</span>
+                            <span class="detail-label">Valor do Curso (Inteira)</span>
                             <span class="detail-value">R$ {{ course.valor_curso }}</span>
+                        </div>
+                        
+                        <div class="detail-item">
+                            <span class="detail-label">Valor do Curso (Meia)</span>
+                            <span class="detail-value">R$ {{ course.valor_meia if course.valor_meia else '-' }}</span>
+                        </div>
+                        
+                        <div class="detail-item">
+                            <span class="detail-label">Requisitos para Meia</span>
+                            <span class="detail-value">{{ course.requisitos_meia if course.requisitos_meia else '-' }}</span>
                         </div>
                         {% endif %}
                         
@@ -313,10 +337,30 @@
                         
                         {% if course.info_complementares %}
                         <div class="detail-item">
-                            <span class="detail-label">Informações Complementares para Inscrição</span>
+                            <span class="detail-label">Informações Complementares</span>
                             <span class="detail-value">{{ course.info_complementares }}</span>
                         </div>
                         {% endif %}
+                        
+                        <!-- Unidades -->
+                        <div class="detail-item full-width">
+                            <span class="detail-label">Unidades</span>
+                            <div class="detail-value">
+                                {% if course.unidades %}
+                                    {% for unidade in course.unidades %}
+                                    <div class="unidade-item">
+                                        <p><strong>Endereço:</strong> {{ unidade.endereco }}</p>
+                                        <p><strong>Bairro:</strong> {{ unidade.bairro }}</p>
+                                        <p><strong>Vagas:</strong> {{ unidade.vagas }}</p>
+                                        <p><strong>Datas:</strong> {{ unidade.datas }}</p>
+                                        <p><strong>Horários:</strong> {{ unidade.horarios }}</p>
+                                    </div>
+                                    {% endfor %}
+                                {% else %}
+                                    <p>Nenhuma unidade cadastrada</p>
+                                {% endif %}
+                            </div>
+                        </div>
                         
                         <div class="detail-item">
                             <span class="detail-label">Descrição Original</span>

@@ -337,15 +337,51 @@ document.addEventListener('DOMContentLoaded', function() {
 function toggleUnidades() {
     const modalidade = document.getElementById('modalidade').value;
     const unidadesContainer = document.getElementById('unidades_container');
+    const legendaUnidade = document.querySelector('#unidades_container fieldset legend');
     
-    if (modalidade === 'presencial' || modalidade === 'hibrido') {
+    if (modalidade === 'Presencial' || modalidade === 'Híbrido' || modalidade === 'Online') {
         unidadesContainer.style.display = 'block';
-        document.querySelectorAll('.unidade-field').forEach(field => {
-            field.setAttribute('required', 'required');
-        });
+        
+        // Tratamento específico para modalidade Online
+        if (modalidade === 'Online') {
+            // Altera o título para "Informações do Curso"
+            if (legendaUnidade) {
+                legendaUnidade.textContent = 'Informações do Curso';
+                legendaUnidade.style.fontSize = '1.2em'; // Aumenta o tamanho da fonte
+            }
+            
+            // Oculta campos de endereço e bairro para modalidade Online
+            document.querySelectorAll('#unidades_container input[name="endereco_unidade[]"], #unidades_container input[name="bairro_unidade[]"]').forEach(field => {
+                field.style.display = 'none';
+                field.previousElementSibling.style.display = 'none'; // Oculta também as labels
+                field.removeAttribute('required');
+            });
+            
+            // Mantém visíveis e obrigatórios os outros campos
+            document.querySelectorAll('#unidades_container input:not([name="endereco_unidade[]"]):not([name="bairro_unidade[]"]), #unidades_container select').forEach(field => {
+                if (field.hasAttribute('required')) {
+                    field.setAttribute('required', 'required');
+                }
+            });
+        } else {
+            // Para Presencial e Híbrido, mostra todos os campos e restaura o título original
+            if (legendaUnidade) {
+                legendaUnidade.textContent = 'Informações da Unidade';
+                legendaUnidade.style.fontSize = '1.2em'; // Usa o mesmo tamanho de fonte que a modalidade Online
+            }
+            document.querySelectorAll('#unidades_container input, #unidades_container label').forEach(field => {
+                field.style.display = '';
+            });
+            
+            // Restaura o required para todos os campos que tinham originalmente
+            document.querySelectorAll('#unidades_container input[required], #unidades_container select[required]').forEach(field => {
+                field.setAttribute('required', 'required');
+            });
+        }
     } else {
         unidadesContainer.style.display = 'none';
-        document.querySelectorAll('.unidade-field').forEach(field => {
+        // Remove o atributo required de todos os campos dentro do container de unidades
+        document.querySelectorAll('#unidades_container input, #unidades_container select').forEach(field => {
             field.removeAttribute('required');
         });
     }
