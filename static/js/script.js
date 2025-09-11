@@ -238,6 +238,12 @@ function setupCustomValidation() {
         const processedRadioNames = new Set();
         
         requiredFields.forEach(field => {
+            // Verificar se o campo está em um container visível
+            const isVisible = isFieldVisible(field);
+            
+            // Se o campo não estiver visível, não validar
+            if (!isVisible) return;
+            
             if (field.type === 'radio' || field.type === 'checkbox') {
                 // Evita processar o mesmo grupo mais de uma vez
                 if (processedRadioNames.has(field.name)) return;
@@ -270,7 +276,7 @@ function setupCustomValidation() {
         const fimData = document.getElementById('fim_inscricoes_data');
         const fimHora = document.getElementById('fim_inscricoes_hora');
         
-        if (inicioData && fimData) {
+        if (inicioData && fimData && inicioData.value && fimData.value) {
             const inicioDateTime = new Date(`${inicioData.value}T${inicioHora ? inicioHora.value : '00:00'}`);
             const fimDateTime = new Date(`${fimData.value}T${fimHora ? fimHora.value : '23:59'}`);
             
@@ -297,7 +303,9 @@ function setupSubmitButtonClick() {
     submitBtn.addEventListener('click', function(e) {
         e.preventDefault();
         
-        // Validar o formulário manualmente
+        // Evitar validação duplicada
+        if (submitBtn.disabled) return;
+        
         let isValid = true;
         
         // Validar campos obrigatórios
@@ -305,6 +313,12 @@ function setupSubmitButtonClick() {
         const processedRadioNames = new Set();
         
         requiredFields.forEach(field => {
+            // Verificar se o campo está em um container visível
+            const isVisible = isFieldVisible(field);
+            
+            // Se o campo não estiver visível, não validar
+            if (!isVisible) return;
+            
             if (field.type === 'radio' || field.type === 'checkbox') {
                 // Evita processar o mesmo grupo mais de uma vez
                 if (processedRadioNames.has(field.name)) return;
@@ -337,7 +351,7 @@ function setupSubmitButtonClick() {
         const fimData = document.getElementById('fim_inscricoes_data');
         const fimHora = document.getElementById('fim_inscricoes_hora');
         
-        if (inicioData && fimData) {
+        if (inicioData && fimData && inicioData.value && fimData.value) {
             const inicioDateTime = new Date(`${inicioData.value}T${inicioHora ? inicioHora.value : '00:00'}`);
             const fimDateTime = new Date(`${fimData.value}T${fimHora ? fimHora.value : '23:59'}`);
             
@@ -354,9 +368,24 @@ function setupSubmitButtonClick() {
             form.submit();
         } else {
             // Exibir mensagem de erro
-            alert('Por favor, preencha todos os campos obrigatórios.');
+            alert('Por favor, preencha todos os campos obrigatórios visíveis.');
         }
     });
+}
+
+// Função auxiliar para verificar se um campo está visível
+function isFieldVisible(field) {
+    // Verificar se o próprio campo está visível
+    if (window.getComputedStyle(field).display === 'none') return false;
+    
+    // Verificar se algum container pai está oculto
+    let parent = field.parentElement;
+    while (parent && parent !== document) {
+        if (window.getComputedStyle(parent).display === 'none') return false;
+        parent = parent.parentElement;
+    }
+    
+    return true;
 }
 
 // Configurar funcionalidades específicas do formulário
@@ -399,6 +428,12 @@ function setupCustomValidation() {
         const processedRadioNames = new Set();
         
         requiredFields.forEach(field => {
+            // Verificar se o campo está em um container visível
+            const isVisible = isFieldVisible(field);
+            
+            // Se o campo não estiver visível, não validar
+            if (!isVisible) return;
+            
             if (field.type === 'radio' || field.type === 'checkbox') {
                 // Evita processar o mesmo grupo mais de uma vez
                 if (processedRadioNames.has(field.name)) return;
