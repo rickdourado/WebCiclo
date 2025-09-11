@@ -169,10 +169,66 @@
                                      <input type="text" name="bairro_unidade[]" required>
                                      <label>Número de vagas*</label>
                                      <input type="number" name="vagas_unidade[]" min="1" required>
-                                     <label>Início das aulas*</label>
-                                     <input type="date" name="inicio_aulas_data[]" required>
-                                     <label>Fim das aulas*</label>
-                                     <input type="date" name="fim_aulas_data[]" required>
+                                     <div class="data-group">
+                                         <div class="data-field">
+                                             <label>Início das aulas*</label>
+                                             <input type="date" name="inicio_aulas_data[]" required>
+                                         </div>
+                                         <div class="data-field">
+                                             <label>Fim das aulas*</label>
+                                             <input type="date" name="fim_aulas_data[]" required>
+                                         </div>
+                                     </div>
+                                     <div class="horario-group">
+                                         <div class="horario-field">
+                                             <label>Horário-Início*</label>
+                                             <select name="horario_inicio[]" required>
+                                                 <option value="">Selecione o horário</option>
+                                                 <option value="06:00">06:00</option>
+                                                 <option value="07:00">07:00</option>
+                                                 <option value="08:00">08:00</option>
+                                                 <option value="09:00">09:00</option>
+                                                 <option value="10:00">10:00</option>
+                                                 <option value="11:00">11:00</option>
+                                                 <option value="12:00">12:00</option>
+                                                 <option value="13:00">13:00</option>
+                                                 <option value="14:00">14:00</option>
+                                                 <option value="15:00">15:00</option>
+                                                 <option value="16:00">16:00</option>
+                                                 <option value="17:00">17:00</option>
+                                                 <option value="18:00">18:00</option>
+                                                 <option value="19:00">19:00</option>
+                                                 <option value="20:00">20:00</option>
+                                                 <option value="21:00">21:00</option>
+                                                 <option value="22:00">22:00</option>
+                                                 <option value="23:00">23:00</option>
+                                             </select>
+                                         </div>
+                                         <div class="horario-field">
+                                             <label>Horário-Fim*</label>
+                                             <select name="horario_fim[]" required>
+                                                 <option value="">Selecione o horário</option>
+                                                 <option value="06:00">06:00</option>
+                                                 <option value="07:00">07:00</option>
+                                                 <option value="08:00">08:00</option>
+                                                 <option value="09:00">09:00</option>
+                                                 <option value="10:00">10:00</option>
+                                                 <option value="11:00">11:00</option>
+                                                 <option value="12:00">12:00</option>
+                                                 <option value="13:00">13:00</option>
+                                                 <option value="14:00">14:00</option>
+                                                 <option value="15:00">15:00</option>
+                                                 <option value="16:00">16:00</option>
+                                                 <option value="17:00">17:00</option>
+                                                 <option value="18:00">18:00</option>
+                                                 <option value="19:00">19:00</option>
+                                                 <option value="20:00">20:00</option>
+                                                 <option value="21:00">21:00</option>
+                                                 <option value="22:00">22:00</option>
+                                                 <option value="23:00">23:00</option>
+                                             </select>
+                                         </div>
+                                     </div>
                                      <label>Dias de aula*</label>
                                      <input type="text" name="dias_aula[]" required>
                                  </fieldset>
@@ -254,8 +310,9 @@
                              
                              <div class="form-group full-width">
                                  <label for="info_complementares" class="required">Informações Complementares para inscrição de participantes</label>
+                                 <span style="color:red; font-size:0.9em; display:block; margin:4px 0 8px;">OBS: Com o acesso via gov.br, já teremos o Nome e CPF do candidato.</span>
                                  <textarea id="info_complementares" name="info_complementares" rows="4" required
-                                           placeholder="Informe quais dados serão necessários para inscrição dos participantes (Ex: CPF, identidade, escolaridade, idade, bairro, etc.)"></textarea>
+                                           placeholder="Informe quais dados serão necessários para inscrição dos participantes (Ex: Escolaridade, Idade, Bairro, etc.)"></textarea>                        
                              </div>
 
                              <!-- Pergunta: Informações adicionais do curso? -->

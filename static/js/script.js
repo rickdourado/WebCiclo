@@ -183,6 +183,7 @@ function addUnidade() {
 
     const clone = firstFieldset.cloneNode(true);
     clone.querySelectorAll('input').forEach(input => input.value = '');
+    clone.querySelectorAll('select').forEach(select => select.selectedIndex = 0);
     unidadesContainer.insertBefore(clone, unidadesContainer.querySelector('.add-unidade-btn'));
 }
 
