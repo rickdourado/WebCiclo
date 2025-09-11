@@ -169,6 +169,21 @@
             overflow: hidden;
         }
         
+        .description-section {
+            margin-bottom: 10px;
+        }
+        
+        .description-section h4 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 5px;
+        }
+        
+        .description-section p {
+            margin: 0;
+        }
+        
         .course-footer {
             display: flex;
             justify-content: space-between;
@@ -471,9 +486,21 @@
                                     </div>
                                 </div>
                                 
-                                {% if course.descricao %}
+                                {% if course.descricao_original or course.descricao %}
                                 <div class="course-description">
-                                    {{ course.descricao }}
+                                    {% if course.descricao_original %}
+                                    <div class="description-section">
+                                        <h4>Descrição Original:</h4>
+                                        <p>{{ course.descricao_original }}</p>
+                                    </div>
+                                    {% endif %}
+                                    
+                                    {% if course.descricao %}
+                                    <div class="description-section">
+                                        <h4>Descrição Melhorada (LLM):</h4>
+                                        <p>{{ course.descricao }}</p>
+                                    </div>
+                                    {% endif %}
                                 </div>
                                 {% endif %}
                                 

@@ -146,6 +146,7 @@ def create_course():
             'id': next_id,
             'titulo': request.form.get('titulo'),
             'descricao': enhanced_description,
+            'descricao_original': original_description,
             'inicio_inscricoes': f'{inicio_data.replace("-", "/")}' if inicio_data else '',
             'fim_inscricoes': f'{fim_data.replace("-", "/")}' if fim_data else '',
             'orgao': request.form.get('orgao'),
@@ -353,10 +354,20 @@ def edit_course(course_id):
                 fim_inscricoes = course.get('fim_inscricoes', '')
             
             # Atualizar dados do curso
+            # Capturar a descrição original do formulário
+            original_description = request.form.get('original_description')
+            
+            # Melhorar a descrição usando Gemini se foi alterada
+            if original_description != course.get('descricao_original', ''):
+                enhanced_description = enhance_description(original_description)
+            else:
+                enhanced_description = course.get('descricao', original_description)
+                
             course_data = {
                 'id': course_id,
                 'titulo': request.form.get('titulo'),
-                'descricao': request.form.get('descricao'),
+                'descricao': enhanced_description,
+                'descricao_original': original_description,
                 'inicio_inscricoes': inicio_inscricoes,
                 'fim_inscricoes': fim_inscricoes,
                 'orgao': request.form.get('orgao'),
