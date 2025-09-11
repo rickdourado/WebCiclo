@@ -231,10 +231,12 @@
                         </div>
                         {% endif %}
                         
+                        {% if course.info_complementares %}
                         <div class="detail-item">
                             <span class="detail-label">Informações Complementares para Inscrição</span>
                             <span class="detail-value">{{ course.info_complementares }}</span>
                         </div>
+                        {% endif %}
                         
                         <div class="detail-item">
                             <span class="detail-label">Descrição Original</span>

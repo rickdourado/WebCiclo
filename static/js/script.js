@@ -351,6 +351,21 @@ function toggleUnidades() {
     }
 }
 
+// Função para exibir/ocultar campo de informações adicionais do curso
+function toggleInfoAdicionais(mostrar) {
+    const infoAdicionaisContainer = document.getElementById('info_adicionais_container');
+    const infoAdicionaisField = document.getElementById('info_adicionais');
+    
+    if (mostrar) {
+        infoAdicionaisContainer.style.display = 'block';
+        infoAdicionaisField.setAttribute('required', 'required');
+    } else {
+        infoAdicionaisContainer.style.display = 'none';
+        infoAdicionaisField.removeAttribute('required');
+        infoAdicionaisField.value = '';
+    }
+}
+
 // Função para adicionar nova unidade
 function addUnidade() {
     const unidadesContainer = document.getElementById('unidades_list');

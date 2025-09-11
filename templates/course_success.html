@@ -216,10 +216,6 @@
                     <h3><i class="fas fa-info-circle"></i> Detalhes do Curso</h3>
                     
                     <div class="detail-grid">
-                        <div class="detail-item">
-                            <span class="detail-label">ID do Curso</span>
-                            <span class="detail-value">#{{ course.id }}</span>
-                        </div>
                         
                         <div class="detail-item">
                             <span class="detail-label">Título</span>
@@ -315,10 +311,12 @@
                         </div>
                         {% endif %}
                         
+                        {% if course.info_complementares %}
                         <div class="detail-item">
                             <span class="detail-label">Informações Complementares para Inscrição</span>
                             <span class="detail-value">{{ course.info_complementares }}</span>
                         </div>
+                        {% endif %}
                         
                         <div class="detail-item">
                             <span class="detail-label">Descrição Original</span>

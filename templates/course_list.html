@@ -452,10 +452,12 @@
                                     </div>
                                     {% endif %}
                                     
+                                    {% if course.info_complementares %}
                                     <div class="info-row">
                                         <i class="fas fa-info-circle"></i>
                                         <span>Informações para inscrição: {{ course.info_complementares }}</span>
                                     </div>
+                                    {% endif %}
                                     
                                     <div class="info-row">
                                         <i class="fas fa-calendar"></i>
