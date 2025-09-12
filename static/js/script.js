@@ -181,6 +181,19 @@ function setupCustomValidation() {
     });
 }
 
+// Função para exibir/ocultar o campo de plataforma digital
+function togglePlataformaDigital() {
+    const modalidade = document.getElementById('modalidade').value;
+    const plataformaContainer = document.getElementById('plataforma_digital_container');
+    
+    if (modalidade === 'Online') {
+        plataformaContainer.style.display = 'block';
+    } else {
+        plataformaContainer.style.display = 'none';
+        document.getElementById('plataforma_digital').value = '';
+    }
+}
+
 // Função para adicionar evento de clique direto no botão de submit
 function setupSubmitButtonClick() {
     const form = document.querySelector('.course-form');

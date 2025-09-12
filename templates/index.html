@@ -152,17 +152,22 @@
                              
                              <div class="form-group full-width">
                                  <label for="modalidade" class="required">Modalidade</label>
-                                 <select id="modalidade" name="modalidade" required>
+                                 <select id="modalidade" name="modalidade" required onchange="togglePlataformaDigital()">
                                      <option value="">Selecione a modalidade</option>
                                      <option value="Presencial">Presencial</option>
                                      <option value="Online">Online</option>
                                      <option value="Híbrido">Híbrido</option>
                                  </select>
                              </div>
+                             
                              <!-- bloco_unidades_inicio -->
                              <div class="form-group full-width" id="unidades_container" style="display:none;">
                                  <fieldset class="unidade-fieldset">
                                      <legend>Informações da Unidade</legend>
+                                     <div id="plataforma_digital_container" style="display: none;">
+                                         <label for="plataforma_digital">Plataforma Digital</label>
+                                         <input type="text" id="plataforma_digital" name="plataforma_digital" placeholder="Ex: Zoom, Google Meet, Microsoft Teams">
+                                     </div>
                                      <label>Endereço da unidade*</label>
                                      <input type="text" name="endereco_unidade[]" required>
                                      <label>Bairro*</label>
@@ -236,6 +241,7 @@
                              </div>
                              <!-- bloco_unidades_fim -->
                              
+
                              <div class="form-group full-width">
                                  <label for="carga_horaria" class="required">Carga Horária</label>
                                  <input type="text" id="carga_horaria" name="carga_horaria" required 

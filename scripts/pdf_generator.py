@@ -64,6 +64,7 @@ def generate_pdf(course_data):
         ["Órgão", course_data['orgao']],
         ["Tema", course_data['tema']],
         ["Modalidade", course_data['modalidade']],
+        ["Plataforma Digital", course_data['plataforma_digital'] if course_data['modalidade'] == 'Online' and 'plataforma_digital' in course_data else 'Não aplicável'],
         ["Carga Horária", course_data['carga_horaria']],
         ["Curso Gratuito", 'Sim' if course_data['curso_gratuito'] == 'sim' else 'Não'],
         ["Valor do Curso", course_data['valor_curso'] if 'valor_curso' in course_data and course_data['valor_curso'] else 'Gratuito'],

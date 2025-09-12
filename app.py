@@ -152,6 +152,7 @@ def create_course():
             'orgao': request.form.get('orgao'),
             'tema': request.form.get('tema'),
             'modalidade': request.form.get('modalidade'),
+            'plataforma_digital': request.form.get('plataforma_digital') if request.form.get('modalidade') == 'Online' else '',
             'carga_horaria': request.form.get('carga_horaria'),
             'curso_gratuito': request.form.get('curso_gratuito'),
             'valor_curso': request.form.get('valor_curso') if request.form.get('curso_gratuito') == 'nao' else '',

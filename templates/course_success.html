@@ -231,6 +231,13 @@
                             <span class="detail-value">{{ course.modalidade }}</span>
                         </div>
                         
+                        {% if course.modalidade == 'Online' and course.plataforma_digital %}
+                        <div class="detail-item">
+                            <span class="detail-label">Plataforma Digital</span>
+                            <span class="detail-value">{{ course.plataforma_digital }}</span>
+                        </div>
+                        {% endif %}
+                        
                         <div class="detail-item">
                             <span class="detail-label">Órgão</span>
                             <span class="detail-value">{{ course.orgao }}</span>
