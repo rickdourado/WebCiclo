@@ -474,6 +474,53 @@
                     </div>
                     {% endif %}
                     
+                    <!-- Seção: Parceiro Externo -->
+                    {% if course.parceiro_externo == 'sim' and course.parceiro_nome %}
+                    <div class="info-section">
+                        <div class="info-section-title">
+                            <i class="fas fa-handshake"></i>
+                            Parceiro Externo
+                        </div>
+                        <div class="course-info">
+                            <div class="info-row">
+                                <i class="fas fa-building"></i>
+                                <span><strong>Nome do Parceiro:</strong> {{ course.parceiro_nome }}</span>
+                            </div>
+                            
+                            {% if course.parceiro_link %}
+                            <div class="info-row">
+                                <i class="fas fa-link"></i>
+                                <span><strong>Site do Parceiro:</strong> 
+                                    <a href="{{ course.parceiro_link }}" target="_blank" style="color: #4299e1; text-decoration: none;">
+                                        {{ course.parceiro_link }} <i class="fas fa-external-link-alt" style="font-size: 0.8em;"></i>
+                                    </a>
+                                </span>
+                            </div>
+                            {% endif %}
+                            
+                            {% if course.parceiro_logo %}
+                            <div class="info-row">
+                                <i class="fas fa-image"></i>
+                                <span><strong>Logo do Parceiro:</strong> 
+                                    <a href="{{ url_for('static', filename='images/LOGOPARCEIROS/' + course.parceiro_logo) }}" target="_blank" style="color: #4299e1; text-decoration: none;">
+                                        {{ course.parceiro_logo }} <i class="fas fa-external-link-alt" style="font-size: 0.8em;"></i>
+                                    </a>
+                                </span>
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Exibir logo do parceiro como imagem -->
+                        {% if course.parceiro_logo %}
+                        <div style="margin-top: 20px; text-align: center;">
+                            <img src="{{ url_for('static', filename='images/LOGOPARCEIROS/' + course.parceiro_logo) }}" 
+                                 alt="Logo {{ course.parceiro_nome }}" 
+                                 style="max-width: 200px; max-height: 100px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                    
                     <!-- Seção: Informações do Sistema -->
                     <div class="info-section">
                         <div class="info-section-title">

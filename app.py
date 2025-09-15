@@ -52,11 +52,39 @@ app.static_folder = 'static'
 
 # Configuração para upload de imagens
 UPLOAD_FOLDER = os.path.join('static', 'images', 'uploads')
+LOGO_PARCEIROS_FOLDER = os.path.join('static', 'images', 'LOGOPARCEIROS')
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['LOGO_PARCEIROS_FOLDER'] = LOGO_PARCEIROS_FOLDER
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def save_partner_logo(file, partner_name):
+    """Salva a logo do parceiro no diretório LOGOPARCEIROS com o nome do parceiro"""
+    if file and allowed_file(file.filename):
+        # Criar diretório se não existir
+        logo_dir = app.config['LOGO_PARCEIROS_FOLDER']
+        if not os.path.exists(logo_dir):
+            os.makedirs(logo_dir)
+        
+        # Obter extensão do arquivo
+        extension = file.filename.rsplit('.', 1)[1].lower()
+        
+        # Criar nome do arquivo: nome_do_parceiro.extensão
+        # Limpar caracteres especiais do nome do parceiro
+        clean_name = "".join(c for c in partner_name if c.isalnum() or c in (' ', '-', '_')).rstrip()
+        clean_name = clean_name.replace(' ', '_')
+        filename = f"{clean_name}.{extension}"
+        
+        # Caminho completo do arquivo
+        file_path = os.path.join(logo_dir, filename)
+        
+        # Salvar arquivo
+        file.save(file_path)
+        
+        return filename
+    return None
 
 
 
@@ -142,6 +170,14 @@ def create_course():
         original_description = request.form.get('descricao')
         enhanced_description = enhance_description(original_description)
         
+        # Processar logo do parceiro se fornecido
+        partner_logo_filename = None
+        if request.form.get('parceiro_externo') == 'sim':
+            partner_name = request.form.get('parceiro_nome', '')
+            logo_file = request.files.get('parceiro_logo')
+            if logo_file and partner_name:
+                partner_logo_filename = save_partner_logo(logo_file, partner_name)
+        
         course_data = {
                 'id': next_id,
                 'titulo': request.form.get('titulo'),
@@ -166,6 +202,10 @@ def create_course():
             'oferece_certificado': request.form.get('oferece_certificado'),
             'pre_requisitos': request.form.get('pre_requisitos') if request.form.get('oferece_certificado') == 'sim' else '',
             'info_complementares': request.form.get('info_complementares'),
+            'parceiro_externo': request.form.get('parceiro_externo'),
+            'parceiro_nome': request.form.get('parceiro_nome') if request.form.get('parceiro_externo') == 'sim' else '',
+            'parceiro_link': request.form.get('parceiro_link') if request.form.get('parceiro_externo') == 'sim' else '',
+            'parceiro_logo': partner_logo_filename if partner_logo_filename else '',
             'created_at': datetime.now().strftime('%d-%m-%Y %H:%M:%S')
         }
         
@@ -366,6 +406,17 @@ def edit_course(course_id):
                 enhanced_description = enhance_description(original_description)
             else:
                 enhanced_description = course.get('descricao', original_description)
+            
+            # Processar logo do parceiro se fornecido
+            partner_logo_filename = None
+            if request.form.get('parceiro_externo') == 'sim':
+                partner_name = request.form.get('parceiro_nome', '')
+                logo_file = request.files.get('parceiro_logo')
+                if logo_file and partner_name:
+                    partner_logo_filename = save_partner_logo(logo_file, partner_name)
+                elif course.get('parceiro_logo'):
+                    # Manter logo existente se não foi enviada nova
+                    partner_logo_filename = course.get('parceiro_logo')
                 
             course_data = {
                 'id': course_id,
@@ -382,6 +433,10 @@ def edit_course(course_id):
                 'oferece_certificado': request.form.get('oferece_certificado'),
                 'pre_requisitos': request.form.get('pre_requisitos') if request.form.get('oferece_certificado') == 'sim' else '',
                 'info_complementares': request.form.get('info_complementares'),
+                'parceiro_externo': request.form.get('parceiro_externo'),
+                'parceiro_nome': request.form.get('parceiro_nome') if request.form.get('parceiro_externo') == 'sim' else '',
+                'parceiro_link': request.form.get('parceiro_link') if request.form.get('parceiro_externo') == 'sim' else '',
+                'parceiro_logo': partner_logo_filename if partner_logo_filename else '',
                 'created_at': course.get('created_at', datetime.now().strftime('%d-%m-%Y %H:%M:%S')),
                 'updated_at': datetime.now().strftime('%d-%m-%Y %H:%M:%S')
             }
