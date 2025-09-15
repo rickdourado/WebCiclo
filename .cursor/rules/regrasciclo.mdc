@@ -5,8 +5,6 @@ alwaysApply: true
 ---
 # Regras do Projeto WebCiclo
 
-Responda SEMPRE em português brasileiro. 
-
 ## Visão Geral
 
 O WebCiclo é um sistema de curadoria de cursos desenvolvido com Flask para frontend e backend, utilizando HTML5, CSS3 e JavaScript Vanilla para a interface. O sistema é projetado para ser hospedado na plataforma PythonAnywhere.
