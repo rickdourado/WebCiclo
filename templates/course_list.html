@@ -285,24 +285,45 @@
         
         /* Estilos para seção de ações administrativas */
         .action-buttons-section {
-            display: flex;
-            gap: 15px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
             margin-top: 15px;
             padding-top: 15px;
             border-top: 1px solid #e2e8f0;
-            flex-wrap: wrap;
         }
         
         .action-buttons-section .btn-secondary {
-            flex: 1;
-            min-width: 120px;
             text-align: center;
             transition: all 0.3s ease;
+            padding: 10px 12px;
+            font-size: 0.85rem;
+            white-space: nowrap;
         }
         
         .action-buttons-section .btn-secondary:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .action-buttons-section .download-btn {
+            color: white;
+        }
+        
+        .action-buttons-section .download-btn:hover {
+            color: white;
+            opacity: 0.9;
+        }
+        
+        .action-buttons-section .btn-secondary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .action-buttons-section .btn-secondary:disabled:hover {
+            transform: none;
+            box-shadow: none;
         }
         
         .info-row i {
@@ -783,6 +804,30 @@
                                                 <a href="{{ url_for('edit_course', course_id=course.id) }}" class="btn-secondary btn-sm">
                                                     <i class="fas fa-edit"></i> Editar Curso
                                                 </a>
+                                                
+                                                <!-- Botões de Download -->
+                                                {% if course.source_file %}
+                                                <a href="{{ url_for('download_file', filename=course.source_file) }}" 
+                                                   class="btn-secondary btn-sm download-btn" 
+                                                   style="background-color: #38a169;">
+                                                    <i class="fas fa-download"></i> Download CSV
+                                                </a>
+                                                
+                                                <a href="{{ url_for('download_file', filename=course.source_file.replace('.csv', '.pdf')) }}" 
+                                                   class="btn-secondary btn-sm download-btn" 
+                                                   style="background-color: #3182ce;">
+                                                    <i class="fas fa-file-pdf"></i> Download PDF
+                                                </a>
+                                                {% else %}
+                                                <button class="btn-secondary btn-sm" style="background-color: #718096;" disabled>
+                                                    <i class="fas fa-download"></i> CSV Indisponível
+                                                </button>
+                                                
+                                                <button class="btn-secondary btn-sm" style="background-color: #718096;" disabled>
+                                                    <i class="fas fa-file-pdf"></i> PDF Indisponível
+                                                </button>
+                                                {% endif %}
+                                                
                                                 <button class="btn-secondary btn-sm delete-course-btn" style="background-color: #e53e3e;" data-course-id="{{ course.id }}" data-course-title="{{ course.titulo }}">
                                                     <i class="fas fa-trash"></i> Deletar Curso
                                                 </button>

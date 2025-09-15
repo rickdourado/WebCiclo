@@ -1,0 +1,20 @@
+{
+  "mcpServers": {
+    "notion-cursos": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-notion"],
+      "env": {
+        "NOTION_TOKEN": "${NOTION_TOKEN}",
+        "NOTION_DATABASE_ID": "${NOTION_DATABASE_ID_CURSOS}"
+      }
+    },
+    "notion-formulario": {
+      "command": "npx", 
+      "args": ["-y", "@modelcontextprotocol/server-notion"],
+      "env": {
+        "NOTION_TOKEN": "${NOTION_TOKEN}",
+        "NOTION_DATABASE_ID": "${NOTION_DATABASE_ID_FORMULARIO}"
+      }
+    }
+  }
+}

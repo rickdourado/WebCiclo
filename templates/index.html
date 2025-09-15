@@ -152,7 +152,7 @@
                              
                              <div class="form-group full-width">
                                  <label for="modalidade" class="required">Modalidade</label>
-                                 <select id="modalidade" name="modalidade" required onchange="togglePlataformaDigital()">
+                                 <select id="modalidade" name="modalidade" required onchange="toggleUnidades(); togglePlataformaDigital();">
                                      <option value="">Selecione a modalidade</option>
                                      <option value="Presencial">Presencial</option>
                                      <option value="Online">Online</option>
@@ -353,6 +353,43 @@
                                  <label for="info_adicionais" class="required">Informações Adicionais do Curso</label>
                                  <textarea id="info_adicionais" name="info_complementares" rows="4" placeholder="Digite informações adicionais, como recursos utilizados, facilitador, etc"></textarea>
                              </div>
+                             
+                             <!-- Parceiro Externo -->
+                             <div class="form-group full-width">
+                                 <label class="required">CURSO OFERECIDO POR PARCEIRO EXTERNO?</label>
+                                 <div class="radio-group">
+                                     <label class="radio-label">
+                                         <input type="radio" name="parceiro_externo" value="sim" required onclick="toggleParceiroExterno(true)"> SIM
+                                     </label>
+                                     <label class="radio-label">
+                                         <input type="radio" name="parceiro_externo" value="nao" required onclick="toggleParceiroExterno(false)"> NÃO
+                                     </label>
+                                 </div>
+                             </div>
+                             
+                             <div class="form-group full-width" id="parceiro_externo_container" style="display:none;">
+                                 <fieldset class="unidade-fieldset">
+                                     <legend>Informações do Parceiro</legend>
+                                     
+                                     <div class="parceiro-grid">
+                                         <div class="parceiro-item">
+                                             <label for="parceiro_nome" class="required">Nome do Parceiro</label>
+                                             <input type="text" id="parceiro_nome" name="parceiro_nome" placeholder="Ex: Fundação Exemplo">
+                                         </div>
+                                         
+                                         <div class="parceiro-item">
+                                             <label for="parceiro_logo">Logo do Parceiro</label>
+                                             <input type="file" id="parceiro_logo" name="parceiro_logo" accept=".png,.jpg,.jpeg,image/*">
+                                             <small class="file-hint">Formatos aceitos: PNG, JPG, JPEG</small>
+                                         </div>
+                                         
+                                         <div class="parceiro-item full-width">
+                                             <label for="parceiro_link">Link do Parceiro</label>
+                                             <input type="text" id="parceiro_link" name="parceiro_link" placeholder="https://exemplo.org">
+                                         </div>
+                                     </div>
+                                 </fieldset>
+                             </div>
                         </div>
                     </div>
 
@@ -375,14 +412,21 @@
 
      <script>
          function toggleValorCurso(mostrar) {
-             const valorCursoContainer = document.getElementById('valor_curso_container');
+             const container = document.getElementById('valor_curso_container');
+             const inteira = document.getElementById('valor_curso_inteira');
+             const meia = document.getElementById('valor_curso_meia');
+             const requisitosMeia = document.getElementById('requisitos_meia');
+             const requisitosContainer = document.getElementById('requisitos_meia_container');
+ 
              if (mostrar) {
-                 valorCursoContainer.style.display = 'block';
-                 document.getElementById('valor_curso').setAttribute('required', 'required');
+                 container.style.display = 'block';
+                 if (inteira) inteira.setAttribute('required', 'required');
              } else {
-                 valorCursoContainer.style.display = 'none';
-                 document.getElementById('valor_curso').removeAttribute('required');
-                 document.getElementById('valor_curso').value = '';
+                 container.style.display = 'none';
+                 if (inteira) { inteira.removeAttribute('required'); inteira.value = ''; }
+                 if (meia) meia.value = '';
+                 if (requisitosMeia) requisitosMeia.value = '';
+                 if (requisitosContainer) requisitosContainer.style.display = 'none';
              }
          }
 
@@ -416,6 +460,49 @@
                  document.getElementById('requisitos_bolsa').value = '';
              }
          }
+        
+        function toggleParceiroExterno(mostrar) {
+            const container = document.getElementById('parceiro_externo_container');
+            const nome = document.getElementById('parceiro_nome');
+            const logo = document.getElementById('parceiro_logo');
+            const link = document.getElementById('parceiro_link');
+            
+            if (mostrar) {
+                container.style.display = 'block';
+                nome.setAttribute('required', 'required');
+            } else {
+                container.style.display = 'none';
+                nome.removeAttribute('required');
+                if (logo) logo.value = '';
+                if (link) link.value = '';
+            }
+        }
+
+        // Validação do campo de link do parceiro
+        function validatePartnerLink() {
+            const linkField = document.getElementById('parceiro_link');
+            if (linkField && linkField.value.trim() !== '') {
+                const url = linkField.value.trim();
+                // Verificar se é uma URL válida
+                try {
+                    new URL(url);
+                    linkField.setCustomValidity('');
+                } catch (e) {
+                    linkField.setCustomValidity('Por favor, insira uma URL válida (ex: https://exemplo.org)');
+                }
+            } else {
+                if (linkField) linkField.setCustomValidity('');
+            }
+        }
+
+        // Adicionar validação quando a página carregar
+        document.addEventListener('DOMContentLoaded', function() {
+            const linkField = document.getElementById('parceiro_link');
+            if (linkField) {
+                linkField.addEventListener('blur', validatePartnerLink);
+                linkField.addEventListener('input', validatePartnerLink);
+            }
+        });
      </script>
 
      <script src="{{ url_for('static', filename='js/script.js') }}"></script>

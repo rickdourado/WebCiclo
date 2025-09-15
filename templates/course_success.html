@@ -54,27 +54,100 @@
             gap: 10px;
         }
         
-        .detail-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
+        /* Estilos para seções organizadas */
+        .info-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
         }
         
-        .detail-item {
+        .info-section-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .info-section-title i {
+            color: #667eea;
+        }
+        
+        .course-info {
             display: flex;
             flex-direction: column;
-            gap: 5px;
+            gap: 12px;
         }
         
-        .detail-label {
-            font-weight: 600;
+        .info-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
             color: #4a5568;
-            font-size: 0.9rem;
+            line-height: 1.5;
+            padding: 8px 0;
+            border-bottom: 1px solid #f1f5f9;
         }
         
-        .detail-value {
+        .info-row:last-child {
+            border-bottom: none;
+        }
+        
+        .info-row strong {
             color: #2d3748;
-            font-size: 1rem;
+            font-weight: 600;
+            min-width: 140px;
+            display: inline-block;
+        }
+        
+        .info-row i {
+            width: 24px;
+            color: #667eea;
+            font-size: 1.2em;
+        }
+        
+        /* Estilos para descrições */
+        .description-item {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .description-item.enhanced {
+            background-color: #edf2f7;
+            border-left-color: #4299e1;
+        }
+        
+        .description-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+            font-size: 0.95rem;
+            color: #2d3748;
+        }
+        
+        .description-label i {
+            color: #667eea;
+        }
+        
+        .description-item.enhanced .description-label i {
+            color: #4299e1;
+        }
+        
+        .description-content {
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: #4a5568;
+            padding-left: 24px;
         }
         
         .actions {
@@ -215,173 +288,250 @@
                 <div class="course-details">
                     <h3><i class="fas fa-info-circle"></i> Detalhes do Curso</h3>
                     
-                    <div class="detail-grid">
-                        <div class="detail-item">
-                            <span class="detail-label">Título</span>
-                            <span class="detail-value">{{ course.titulo }}</span>
+                    <!-- Seção: Informações Básicas -->
+                    <div class="info-section">
+                        <div class="info-section-title">
+                            <i class="fas fa-info-circle"></i>
+                            Informações Básicas
                         </div>
-                        
-                        <div class="detail-item">
-                            <span class="detail-label">Categoria</span>
-                            <span class="detail-value">{{ course.tema }}</span>
-                        </div>
-                        
-                        <div class="detail-item">
-                            <span class="detail-label">Modalidade</span>
-                            <span class="detail-value">{{ course.modalidade }}</span>
-                        </div>
-                        
-                        {% if course.modalidade == 'Online' and course.plataforma_digital %}
-                        <div class="detail-item">
-                            <span class="detail-label">Plataforma Digital</span>
-                            <span class="detail-value">{{ course.plataforma_digital }}</span>
-                        </div>
-                        {% endif %}
-                        
-                        <div class="detail-item">
-                            <span class="detail-label">Órgão</span>
-                            <span class="detail-value">{{ course.orgao }}</span>
+                        <div class="course-info">
+                            <div class="info-row">
+                                <i class="fas fa-graduation-cap"></i>
+                                <span><strong>Título:</strong> {{ course.titulo }}</span>
+                            </div>
+                            
+                            <div class="info-row">
+                                <i class="fas fa-tag"></i>
+                                <span><strong>Categoria:</strong> {{ course.tema }}</span>
+                            </div>
+                            
+                            <div class="info-row">
+                                <i class="fas fa-graduation-cap"></i>
+                                <span><strong>Modalidade:</strong> {{ course.modalidade }}</span>
+                            </div>
+                            
+                            {% if course.modalidade == 'Online' and course.plataforma_digital %}
+                            <div class="info-row">
+                                <i class="fas fa-video"></i>
+                                <span><strong>Plataforma Digital:</strong> {{ course.plataforma_digital }}</span>
+                            </div>
+                            {% endif %}
+                            
+                            <div class="info-row">
+                                <i class="fas fa-clock"></i>
+                                <span><strong>Carga Horária:</strong> {{ course.carga_horaria }} horas</span>
+                            </div>
+                            
+                            {% if course.dias_aula %}
+                            <div class="info-row">
+                                <i class="fas fa-calendar-day"></i>
+                                <span><strong>Dias da Aula:</strong> {{ course.dias_aula }}</span>
+                            </div>
+                            {% endif %}
+                            
+                            {% if course.horario_inicio and course.horario_fim %}
+                            <div class="info-row">
+                                <i class="fas fa-clock"></i>
+                                <span><strong>Horário:</strong> {{ course.horario_inicio }} às {{ course.horario_fim }}</span>
+                            </div>
+                            {% endif %}
+                            
+                            <div class="info-row">
+                                <i class="fas fa-building"></i>
+                                <span><strong>Órgão Responsável:</strong> {{ course.orgao }}</span>
+                            </div>
                         </div>
                     </div>
-
-                    {% if course.imagens %}
-                    <div class="course-images">
-                        <h3><i class="fas fa-images"></i> Imagens do Curso</h3>
-                        <div class="image-grid">
-                            {% for imagem in course.imagens %}
-                            <div class="image-item">
-                                <img src="{{ url_for('static', filename='images/uploads/' + imagem) }}" alt="Imagem do curso">
+                    
+                    <!-- Seção: Informações Financeiras -->
+                    <div class="info-section">
+                        <div class="info-section-title">
+                            <i class="fas fa-dollar-sign"></i>
+                            Informações Financeiras
+                        </div>
+                        <div class="course-info">
+                            <div class="info-row">
+                                <i class="fas fa-tag"></i>
+                                <span><strong>Tipo:</strong> {% if course.curso_gratuito == 'sim' %}Gratuito{% else %}Pago{% endif %}</span>
                             </div>
-                            {% endfor %}
+                            
+                            {% if course.curso_gratuito == 'nao' and course.valor_curso %}
+                            <div class="info-row">
+                                <i class="fas fa-dollar-sign"></i>
+                                <span><strong>Valor do Curso:</strong> R$ {{ course.valor_curso }}</span>
+                            </div>
+                            {% endif %}
+                            
+                            <div class="info-row">
+                                <i class="fas fa-hand-holding-usd"></i>
+                                <span><strong>Oferece Bolsa:</strong> {% if course.oferece_bolsa == 'sim' %}Sim{% else %}Não{% endif %}</span>
+                            </div>
+                            
+                            {% if course.oferece_bolsa == 'sim' and course.valor_bolsa %}
+                            <div class="info-row">
+                                <i class="fas fa-money-bill-wave"></i>
+                                <span><strong>Valor da Bolsa:</strong> R$ {{ course.valor_bolsa }}</span>
+                            </div>
+                            {% endif %}
+                            
+                            {% if course.oferece_bolsa == 'sim' and course.requisitos_bolsa %}
+                            <div class="info-row">
+                                <i class="fas fa-clipboard-list"></i>
+                                <span><strong>Requisitos para Bolsa:</strong> {{ course.requisitos_bolsa }}</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Seção: Informações Acadêmicas -->
+                    <div class="info-section">
+                        <div class="info-section-title">
+                            <i class="fas fa-graduation-cap"></i>
+                            Informações Acadêmicas
+                        </div>
+                        <div class="course-info">
+                            <div class="info-row">
+                                <i class="fas fa-users"></i>
+                                <span><strong>Público Alvo:</strong> {{ course.publico_alvo }}</span>
+                            </div>
+                            
+                            <div class="info-row">
+                                <i class="fas fa-certificate"></i>
+                                <span><strong>Oferece Certificado:</strong> {% if course.oferece_certificado == 'sim' %}Sim{% else %}Não{% endif %}</span>
+                            </div>
+                            
+                            {% if course.oferece_certificado == 'sim' and course.pre_requisitos %}
+                            <div class="info-row">
+                                <i class="fas fa-clipboard-check"></i>
+                                <span><strong>Pré-requisitos para Certificado:</strong> {{ course.pre_requisitos }}</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Seção: Período de Inscrições -->
+                    <div class="info-section">
+                        <div class="info-section-title">
+                            <i class="fas fa-calendar-alt"></i>
+                            Período de Inscrições
+                        </div>
+                        <div class="course-info">
+                            <div class="info-row">
+                                <i class="fas fa-calendar-alt"></i>
+                                <span><strong>Período:</strong> {{ course.inicio_inscricoes }} a {{ course.fim_inscricoes }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Seção: Informações Complementares -->
+                    {% if course.info_complementares %}
+                    <div class="info-section">
+                        <div class="info-section-title">
+                            <i class="fas fa-info-circle"></i>
+                            Informações Complementares
+                        </div>
+                        <div class="course-info">
+                            <div class="info-row">
+                                <i class="fas fa-info-circle"></i>
+                                <span><strong>Detalhes:</strong> {{ course.info_complementares }}</span>
+                            </div>
                         </div>
                     </div>
                     {% endif %}
-
-                    <!-- Remover seção de imagens -->
-                    <div class="detail-grid">
-                        <div class="detail-item">
-                            <span class="detail-label">Carga Horária</span>
-                            <span class="detail-value">{{ course.carga_horaria }} horas</span>
+                    
+                    <!-- Seção: Descrições do Curso -->
+                    {% if course.descricao_original or course.descricao %}
+                    <div class="info-section">
+                        <div class="info-section-title">
+                            <i class="fas fa-file-alt"></i>
+                            Descrições do Curso
                         </div>
-                        
-                        <div class="detail-item">
-                            <span class="detail-label">Dias de Aula</span>
-                            <span class="detail-value">{{ course.dias_aula if course.dias_aula else '-' }}</span>
-                        </div>
-                        
-                        <div class="detail-item">
-                            <span class="detail-label">Horário de Início</span>
-                            <span class="detail-value">{{ course.horario_inicio if course.horario_inicio else '-' }}</span>
-                        </div>
-                        
-                        <div class="detail-item">
-                            <span class="detail-label">Horário de Término</span>
-                            <span class="detail-value">{{ course.horario_fim if course.horario_fim else '-' }}</span>
-                        </div>
-                        
-                        <div class="detail-item">
-                            <span class="detail-label">Curso Gratuito</span>
-                            <span class="detail-value">{% if course.curso_gratuito == 'sim' %}Sim{% else %}Não{% endif %}</span>
-                        </div>
-                        
-                        {% if course.curso_gratuito == 'nao' and course.valor_curso %}
-                        <div class="detail-item">
-                            <span class="detail-label">Valor do Curso (Inteira)</span>
-                            <span class="detail-value">R$ {{ course.valor_curso }}</span>
-                        </div>
-                        
-                        <div class="detail-item">
-                            <span class="detail-label">Valor do Curso (Meia)</span>
-                            <span class="detail-value">R$ {{ course.valor_meia if course.valor_meia else '-' }}</span>
-                        </div>
-                        
-                        <div class="detail-item">
-                            <span class="detail-label">Requisitos para Meia</span>
-                            <span class="detail-value">{{ course.requisitos_meia if course.requisitos_meia else '-' }}</span>
-                        </div>
-                        {% endif %}
-                        
-                        <div class="detail-item">
-                            <span class="detail-label">Oferece Bolsa</span>
-                            <span class="detail-value">{% if course.oferece_bolsa == 'sim' %}Sim{% else %}Não{% endif %}</span>
-                        </div>
-                        
-                        {% if course.oferece_bolsa == 'sim' and course.valor_bolsa %}
-                        <div class="detail-item">
-                            <span class="detail-label">Valor da Bolsa</span>
-                            <span class="detail-value">R$ {{ course.valor_bolsa }}</span>
-                        </div>
-                        {% endif %}
-                        
-                        {% if course.oferece_bolsa == 'sim' and course.requisitos_bolsa %}
-                        <div class="detail-item">
-                            <span class="detail-label">Requisitos para a Obtenção da Bolsa</span>
-                            <span class="detail-value">{{ course.requisitos_bolsa }}</span>
-                        </div>
-                        {% endif %}
-                        
-                        <div class="detail-item">
-                            <span class="detail-label">Público-alvo</span>
-                            <span class="detail-value">{{ course.publico_alvo }}</span>
-                        </div>
-                        
-                        <div class="detail-item">
-                            <span class="detail-label">Período de Inscrições</span>
-                            <span class="detail-value">{{ course.inicio_inscricoes }} a {{ course.fim_inscricoes }}</span>
-                        </div>
-                        
-                        <div class="detail-item">
-                            <span class="detail-label">Oferece Certificado</span>
-                            <span class="detail-value">{% if course.oferece_certificado == 'sim' %}Sim{% else %}Não{% endif %}</span>
-                        </div>
-                        
-                        {% if course.oferece_certificado == 'sim' %}
-                        <div class="detail-item">
-                            <span class="detail-label">Pré-requisitos para Certificado</span>
-                            <span class="detail-value">{{ course.pre_requisitos }}</span>
-                        </div>
-                        {% endif %}
-                        
-                        {% if course.info_complementares %}
-                        <div class="detail-item">
-                            <span class="detail-label">Informações Complementares</span>
-                            <span class="detail-value">{{ course.info_complementares }}</span>
-                        </div>
-                        {% endif %}
-                        
-                        <!-- Unidades -->
-                        <div class="detail-item full-width">
-                            <span class="detail-label">Unidades</span>
-                            <div class="detail-value">
-                                {% if course.unidades %}
-                                    {% for unidade in course.unidades %}
-                                    <div class="unidade-item">
-                                        <p><strong>Endereço:</strong> {{ unidade.endereco }}</p>
-                                        <p><strong>Bairro:</strong> {{ unidade.bairro }}</p>
-                                        <p><strong>Vagas:</strong> {{ unidade.vagas }}</p>
-                                        <p><strong>Datas:</strong> {{ unidade.datas }}</p>
-                                        <p><strong>Horários:</strong> {{ unidade.horarios }}</p>
-                                    </div>
-                                    {% endfor %}
-                                {% else %}
-                                    <p>Nenhuma unidade cadastrada</p>
-                                {% endif %}
+                        <div class="course-info">
+                            {% if course.descricao_original %}
+                            <div class="description-item">
+                                <div class="description-label">
+                                    <i class="fas fa-edit"></i>
+                                    <strong>Descrição Original:</strong>
+                                </div>
+                                <div class="description-content">
+                                    {{ course.descricao_original }}
+                                </div>
                             </div>
+                            {% endif %}
+                            
+                            {% if course.descricao %}
+                            <div class="description-item enhanced">
+                                <div class="description-label">
+                                    <i class="fas fa-magic"></i>
+                                    <strong>Descrição Melhorada (IA):</strong>
+                                </div>
+                                <div class="description-content">
+                                    {{ course.descricao }}
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Seção: Parceiro Externo -->
+                    {% if course.parceiro_externo == 'sim' and course.parceiro_nome %}
+                    <div class="info-section">
+                        <div class="info-section-title">
+                            <i class="fas fa-handshake"></i>
+                            Parceiro Externo
+                        </div>
+                        <div class="course-info">
+                            <div class="info-row">
+                                <i class="fas fa-building"></i>
+                                <span><strong>Nome do Parceiro:</strong> {{ course.parceiro_nome }}</span>
+                            </div>
+                            
+                            {% if course.parceiro_link %}
+                            <div class="info-row">
+                                <i class="fas fa-link"></i>
+                                <span><strong>Site do Parceiro:</strong> 
+                                    <a href="{{ course.parceiro_link }}" target="_blank" style="color: #4299e1; text-decoration: none;">
+                                        {{ course.parceiro_link }} <i class="fas fa-external-link-alt" style="font-size: 0.8em;"></i>
+                                    </a>
+                                </span>
+                            </div>
+                            {% endif %}
+                            
+                            {% if course.parceiro_logo %}
+                            <div class="info-row">
+                                <i class="fas fa-image"></i>
+                                <span><strong>Logo do Parceiro:</strong> 
+                                    <a href="{{ url_for('static', filename='images/LOGOPARCEIROS/' + course.parceiro_logo) }}" target="_blank" style="color: #4299e1; text-decoration: none;">
+                                        {{ course.parceiro_logo }} <i class="fas fa-external-link-alt" style="font-size: 0.8em;"></i>
+                                    </a>
+                                </span>
+                            </div>
+                            {% endif %}
                         </div>
                         
-                        <div class="detail-item">
-                            <span class="detail-label">Descrição Original</span>
-                            <span class="detail-value">{{ course.descricao_original }}</span>
+                        <!-- Exibir logo do parceiro como imagem -->
+                        {% if course.parceiro_logo %}
+                        <div style="margin-top: 20px; text-align: center;">
+                            <img src="{{ url_for('static', filename='images/LOGOPARCEIROS/' + course.parceiro_logo) }}" 
+                                 alt="Logo {{ course.parceiro_nome }}" 
+                                 style="max-width: 200px; max-height: 100px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
                         </div>
-                        
-                        <div class="detail-item">
-                            <span class="detail-label">Descrição Melhorada (LLM)</span>
-                            <span class="detail-value">{{ course.descricao }}</span>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Seção: Informações do Sistema -->
+                    <div class="info-section">
+                        <div class="info-section-title">
+                            <i class="fas fa-cogs"></i>
+                            Informações do Sistema
                         </div>
-                        
-                        <div class="detail-item">
-                            <span class="detail-label">Criado em</span>
-                            <span class="detail-value">{{ course.created_at }}</span>
+                        <div class="course-info">
+                            <div class="info-row">
+                                <i class="fas fa-calendar-plus"></i>
+                                <span><strong>Criado em:</strong> {{ course.created_at }}</span>
+                            </div>
                         </div>
                     </div>
                 </div>
