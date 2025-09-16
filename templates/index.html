@@ -180,16 +180,16 @@
                                              <input type="text" id="carga_horaria_unidade" name="carga_horaria" required 
                                                     placeholder="Digite a carga horária (ex: 40 horas, 80h, 2 meses, etc.)">
                                              
-                                             <div class="data-group">
-                                                 <div class="data-field">
-                                                     <label>Início das aulas*</label>
-                                                     <input type="date" name="inicio_aulas_data[]">
-                                                 </div>
-                                                 <div class="data-field">
-                                                     <label>Fim das aulas*</label>
-                                                     <input type="date" name="fim_aulas_data[]">
-                                                 </div>
-                                             </div>
+                        <div class="data-group">
+                            <div class="data-field">
+                                <label>Início das aulas*</label>
+                                <input type="date" name="inicio_aulas_data[]" value="{{ today_date }}">
+                            </div>
+                            <div class="data-field">
+                                <label>Fim das aulas*</label>
+                                <input type="date" name="fim_aulas_data[]" value="{{ today_date }}">
+                            </div>
+                        </div>
                                              <div class="horario-group">
                                                  <div class="horario-field">
                                                      <label>Horário-Início*</label>
@@ -298,16 +298,16 @@
                                              <input type="text" id="carga_horaria_online" name="carga_horaria" required 
                                                     placeholder="Digite a carga horária (ex: 40 horas, 80h, 2 meses, etc.)">
                                              
-                                             <div class="data-group">
-                                                 <div class="data-field">
-                                                     <label>Início das aulas*</label>
-                                                     <input type="date" id="inicio_aulas_online" name="inicio_aulas_data[]">
-                                                 </div>
-                                                 <div class="data-field">
-                                                     <label>Fim das aulas*</label>
-                                                     <input type="date" id="fim_aulas_online" name="fim_aulas_data[]">
-                                                 </div>
-                                             </div>
+                        <div class="data-group">
+                            <div class="data-field">
+                                <label>Início das aulas*</label>
+                                <input type="date" id="inicio_aulas_online" name="inicio_aulas_data[]" value="{{ today_date }}">
+                            </div>
+                            <div class="data-field">
+                                <label>Fim das aulas*</label>
+                                <input type="date" id="fim_aulas_online" name="fim_aulas_data[]" value="{{ today_date }}">
+                            </div>
+                        </div>
                                              <div class="horario-group">
                                                  <div class="horario-field">
                                                      <label>Horário-Início*</label>

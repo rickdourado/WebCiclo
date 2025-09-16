@@ -202,8 +202,13 @@ def index():
     # Limpar todas as mensagens flash ao acessar a página inicial
     session.pop('_flashes', None)
     
+    # Data atual para preenchimento automático dos campos de data
+    from datetime import datetime
+    today_date = datetime.now().strftime('%Y-%m-%d')
+    
     return render_template('index.html', 
-                         orgaos=ORGAOS)
+                         orgaos=ORGAOS,
+                         today_date=today_date)
 
 # Remover função de verificação de extensões de arquivo
 @app.route('/create_course', methods=['POST'])
