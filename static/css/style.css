@@ -615,8 +615,49 @@ textarea:valid:not(:placeholder-shown) {
     margin: 0;
 }
 
-.add-unidade-btn {
+.add-unidade-btn,
+.add-plataforma-btn {
     margin-top: 16px;
+}
+
+.remove-unidade-btn,
+.remove-plataforma-btn {
+    background: #e53e3e;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-left: 10px;
+    display: inline-block;
+    line-height: 1;
+    padding: 0;
+}
+
+.remove-unidade-btn:hover,
+.remove-plataforma-btn:hover {
+    background: #c53030;
+}
+
+.unidade-item {
+    margin-bottom: 20px;
+    padding: 15px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background-color: #f8f9fa;
+}
+
+.unidade-item legend {
+    font-weight: bold;
+    font-size: 1.1em;
+    color: #333;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 }
 
 

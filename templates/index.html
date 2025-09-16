@@ -100,14 +100,14 @@
                             <div class="form-group">
                                 <label for="inicio_inscricoes" class="required">Início das inscrições</label>
                                 <div class="datetime-group">
-                                    <input type="date" id="inicio_inscricoes_data" name="inicio_inscricoes_data" required>
+                                    <input type="date" id="inicio_inscricoes_data" name="inicio_inscricoes_data" value="{{ today_date }}" required>
                                 </div>
                             </div>
                             
                             <div class="form-group">
                                 <label for="fim_inscricoes" class="required">Fim das inscrições</label>
                                 <div class="datetime-group">
-                                    <input type="date" id="fim_inscricoes_data" name="fim_inscricoes_data" required>
+                                    <input type="date" id="fim_inscricoes_data" name="fim_inscricoes_data" value="{{ today_date }}" required>
                                 </div>
                             </div>
                             
@@ -163,18 +163,18 @@
                              <!-- Subformulário para Presencial/Híbrido -->
                              <div class="form-group full-width" id="unidades_container" style="display:none;">
                                  <fieldset class="unidade-fieldset">
-                                     <legend>Informações da Unidade</legend>
+                                     <legend>Informações da Unidade <button type="button" class="remove-unidade-btn" onclick="removeUnidade(this)" style="display:none;">×</button></legend>
                                      
                                      <!-- Container para múltiplas unidades -->
                                      <div id="unidades_list">
                                          <!-- Primeira unidade (sempre presente) -->
                                          <div class="unidade-item" data-unidade="0">
                                              <label>Endereço da unidade*</label>
-                                             <input type="text" name="endereco_unidade[]">
+                                             <input type="text" name="endereco_unidade[]" required>
                                              <label>Bairro*</label>
-                                             <input type="text" name="bairro_unidade[]">
+                                             <input type="text" name="bairro_unidade[]" required>
                                              <label>Número de vagas*</label>
-                                             <input type="number" name="vagas_unidade[]" min="1">
+                                             <input type="number" name="vagas_unidade[]" min="1" required>
                                              
                                              <label for="carga_horaria_unidade" class="required">Carga Horária</label>
                                              <input type="text" id="carga_horaria_unidade" name="carga_horaria" required 
@@ -183,17 +183,17 @@
                         <div class="data-group">
                             <div class="data-field">
                                 <label>Início das aulas*</label>
-                                <input type="date" name="inicio_aulas_data[]" value="{{ today_date }}">
+                                <input type="date" name="inicio_aulas_data[]" value="{{ today_date }}" required>
                             </div>
                             <div class="data-field">
                                 <label>Fim das aulas*</label>
-                                <input type="date" name="fim_aulas_data[]" value="{{ today_date }}">
+                                <input type="date" name="fim_aulas_data[]" value="{{ today_date }}" required>
                             </div>
                         </div>
                                              <div class="horario-group">
                                                  <div class="horario-field">
                                                      <label>Horário-Início*</label>
-                                                     <select name="horario_inicio[]">
+                                                     <select name="horario_inicio[]" required>
                                                          <option value="">Selecione o horário</option>
                                                          <option value="06:00">06:00</option>
                                                          <option value="07:00">07:00</option>
@@ -217,7 +217,7 @@
                                                  </div>
                                                  <div class="horario-field">
                                                      <label>Horário-Fim*</label>
-                                                     <select name="horario_fim[]">
+                                                     <select name="horario_fim[]" required>
                                                          <option value="">Selecione o horário</option>
                                                          <option value="06:00">06:00</option>
                                                          <option value="07:00">07:00</option>
@@ -281,18 +281,18 @@
                              <!-- Subformulário para Online -->
                              <div class="form-group full-width" id="plataforma_container" style="display:none;">
                                  <fieldset class="unidade-fieldset">
-                                     <legend>Informações da Plataforma</legend>
+                                     <legend>Informações da Plataforma <button type="button" class="remove-plataforma-btn" onclick="removePlataforma(this)" style="display:none;">×</button></legend>
                                      
                                      <!-- Container para plataforma online -->
                                      <div id="plataforma_list">
                                          <!-- Informações da plataforma online -->
                                          <div class="unidade-item" data-plataforma="0">
-                                             <label for="plataforma_digital" class="required">Plataforma Digital</label>
+                                             <label for="plataforma_digital">Plataforma Digital</label>
                                              <input type="text" id="plataforma_digital" name="plataforma_digital" 
                                                     placeholder="Ex: Zoom, Google Meet, Microsoft Teams">
                                              
                                              <label>Número de vagas*</label>
-                                             <input type="number" id="vagas_online" name="vagas_unidade[]" min="1">
+                                             <input type="number" id="vagas_online" name="vagas_unidade[]" min="1" required>
                                              
                                              <label for="carga_horaria_online" class="required">Carga Horária</label>
                                              <input type="text" id="carga_horaria_online" name="carga_horaria" required 
@@ -300,17 +300,17 @@
                                              
                         <div class="data-group">
                             <div class="data-field">
-                                <label>Início das aulas*</label>
+                                <label>Início das aulas</label>
                                 <input type="date" id="inicio_aulas_online" name="inicio_aulas_data[]" value="{{ today_date }}">
                             </div>
                             <div class="data-field">
-                                <label>Fim das aulas*</label>
+                                <label>Fim das aulas</label>
                                 <input type="date" id="fim_aulas_online" name="fim_aulas_data[]" value="{{ today_date }}">
                             </div>
                         </div>
                                              <div class="horario-group">
                                                  <div class="horario-field">
-                                                     <label>Horário-Início*</label>
+                                                     <label>Horário-Início</label>
                                                      <select id="horario_inicio_online" name="horario_inicio[]">
                                                          <option value="">Selecione o horário</option>
                                                          <option value="06:00">06:00</option>
@@ -334,7 +334,7 @@
                                                      </select>
                                                  </div>
                                                  <div class="horario-field">
-                                                     <label>Horário-Fim*</label>
+                                                     <label>Horário-Fim</label>
                                                      <select id="horario_fim_online" name="horario_fim[]">
                                                          <option value="">Selecione o horário</option>
                                                          <option value="06:00">06:00</option>
@@ -358,7 +358,7 @@
                                                      </select>
                                                  </div>
                                              </div>
-                                             <label>Dias de aula*</label>
+                                             <label>Dias de aula</label>
                                              <div class="checkbox-group dias-aula">
                                                  <label class="checkbox-label">
                                                      <input type="checkbox" name="dias_aula[]" value="Segunda-feira">
@@ -391,6 +391,8 @@
                                              </div>
                                          </div>
                                      </div>
+                                     
+                                     <button type="button" class="btn btn-outline add-plataforma-btn" onclick="addPlataforma()">+ Adicionar outra plataforma</button>
                                  </fieldset>
                              </div>
                              
@@ -422,8 +424,8 @@
                                     </div>
                                 </div>
                                 <div id="requisitos_meia_container" style="display: none;">
-                                    <label for="requisitos_meia">Requisitos para MEIA</label>
-                                    <textarea id="requisitos_meia" name="requisitos_meia" rows="2"
+                                    <label for="requisitos_meia" class="required">Condições para obtenção de meia-entrada</label>
+                                    <textarea id="requisitos_meia" name="requisitos_meia" rows="2" required
                                         placeholder="Ex: Estudantes, idosos, pessoas com deficiência..."></textarea>
                                 </div>
                              </div>
@@ -578,7 +580,54 @@
                     valorCursoMeia.removeAttribute('required');
                     valorCursoMeia.value = '';
                 }
+                // Esconder também o campo de requisitos da meia quando curso for gratuito
+                const requisitosContainer = document.getElementById('requisitos_meia_container');
+                const requisitosField = document.getElementById('requisitos_meia');
+                if (requisitosContainer) requisitosContainer.style.display = 'none';
+                if (requisitosField) {
+                    requisitosField.removeAttribute('required');
+                    requisitosField.value = '';
+                }
             }
+        }
+
+        function toggleRequisitos() {
+            const valorMeia = document.getElementById('valor_curso_meia');
+            const requisitosContainer = document.getElementById('requisitos_meia_container');
+            const requisitosField = document.getElementById('requisitos_meia');
+            
+            if (valorMeia && requisitosContainer && requisitosField) {
+                const valor = valorMeia.value.trim();
+                
+                if (valor !== '') {
+                    // Se há valor na meia, mostrar campo de requisitos
+                    requisitosContainer.style.display = 'block';
+                    requisitosField.setAttribute('required', 'required');
+                } else {
+                    // Se não há valor na meia, esconder campo de requisitos
+                    requisitosContainer.style.display = 'none';
+                    requisitosField.removeAttribute('required');
+                    requisitosField.value = '';
+                }
+            }
+        }
+
+        function formatarValor(input) {
+            // Remove tudo que não é número ou vírgula
+            let valor = input.value.replace(/[^\d,]/g, '');
+            
+            // Se há vírgula, garante que só há uma
+            const partes = valor.split(',');
+            if (partes.length > 2) {
+                valor = partes[0] + ',' + partes.slice(1).join('');
+            }
+            
+            // Limita a 2 casas decimais após a vírgula
+            if (partes.length === 2 && partes[1].length > 2) {
+                valor = partes[0] + ',' + partes[1].substring(0, 2);
+            }
+            
+            input.value = valor;
         }
 
          function togglePreRequisitos(mostrar) {
@@ -774,6 +823,322 @@
                         }
                     }
                 }
+            });
+        }
+
+        // Funções para gerenciar unidades
+        function addUnidade() {
+            const unidadesList = document.getElementById('unidades_list');
+            const unidades = unidadesList.querySelectorAll('.unidade-item');
+            const nextIndex = unidades.length;
+            
+            // Criar nova unidade
+            const newUnidade = document.createElement('div');
+            newUnidade.className = 'unidade-item';
+            newUnidade.setAttribute('data-unidade', nextIndex);
+            
+            newUnidade.innerHTML = `
+                <legend>Informações da Unidade ${nextIndex + 1} <button type="button" class="remove-unidade-btn" onclick="removeUnidade(this)">×</button></legend>
+                <label>Endereço da unidade*</label>
+                <input type="text" name="endereco_unidade[]" required>
+                <label>Bairro*</label>
+                <input type="text" name="bairro_unidade[]" required>
+                <label>Número de vagas*</label>
+                <input type="number" name="vagas_unidade[]" min="1" required>
+                
+                <label for="carga_horaria_unidade_${nextIndex}" class="required">Carga Horária</label>
+                <input type="text" id="carga_horaria_unidade_${nextIndex}" name="carga_horaria" required 
+                       placeholder="Digite a carga horária (ex: 40 horas, 80h, 2 meses, etc.)">
+                
+                <div class="data-group">
+                    <div class="data-field">
+                        <label>Início das aulas*</label>
+                        <input type="date" name="inicio_aulas_data[]" value="{{ today_date }}" required>
+                    </div>
+                    <div class="data-field">
+                        <label>Fim das aulas*</label>
+                        <input type="date" name="fim_aulas_data[]" value="{{ today_date }}" required>
+                    </div>
+                </div>
+                <div class="horario-group">
+                    <div class="horario-field">
+                        <label>Horário-Início*</label>
+                        <select name="horario_inicio[]" required>
+                            <option value="">Selecione o horário</option>
+                            <option value="06:00">06:00</option>
+                            <option value="07:00">07:00</option>
+                            <option value="08:00">08:00</option>
+                            <option value="09:00">09:00</option>
+                            <option value="10:00">10:00</option>
+                            <option value="11:00">11:00</option>
+                            <option value="12:00">12:00</option>
+                            <option value="13:00">13:00</option>
+                            <option value="14:00">14:00</option>
+                            <option value="15:00">15:00</option>
+                            <option value="16:00">16:00</option>
+                            <option value="17:00">17:00</option>
+                            <option value="18:00">18:00</option>
+                            <option value="19:00">19:00</option>
+                            <option value="20:00">20:00</option>
+                            <option value="21:00">21:00</option>
+                            <option value="22:00">22:00</option>
+                        </select>
+                    </div>
+                    <div class="horario-field">
+                        <label>Horário-Fim*</label>
+                        <select name="horario_fim[]" required>
+                            <option value="">Selecione o horário</option>
+                            <option value="06:00">06:00</option>
+                            <option value="07:00">07:00</option>
+                            <option value="08:00">08:00</option>
+                            <option value="09:00">09:00</option>
+                            <option value="10:00">10:00</option>
+                            <option value="11:00">11:00</option>
+                            <option value="12:00">12:00</option>
+                            <option value="13:00">13:00</option>
+                            <option value="14:00">14:00</option>
+                            <option value="15:00">15:00</option>
+                            <option value="16:00">16:00</option>
+                            <option value="17:00">17:00</option>
+                            <option value="18:00">18:00</option>
+                            <option value="19:00">19:00</option>
+                            <option value="20:00">20:00</option>
+                            <option value="21:00">21:00</option>
+                            <option value="22:00">22:00</option>
+                        </select>
+                    </div>
+                </div>
+                <label>Dias de aula*</label>
+                <div class="checkbox-group dias-aula">
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="dias_aula[]" value="Segunda-feira">
+                        <span>Segunda-feira</span>
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="dias_aula[]" value="Terça-feira">
+                        <span>Terça-feira</span>
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="dias_aula[]" value="Quarta-feira">
+                        <span>Quarta-feira</span>
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="dias_aula[]" value="Quinta-feira">
+                        <span>Quinta-feira</span>
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="dias_aula[]" value="Sexta-feira">
+                        <span>Sexta-feira</span>
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="dias_aula[]" value="Sábado">
+                        <span>Sábado</span>
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="dias_aula[]" value="Domingo">
+                        <span>Domingo</span>
+                    </label>
+                </div>
+            `;
+            
+            unidadesList.appendChild(newUnidade);
+            updateRemoveButtonsVisibility();
+        }
+
+        function removeUnidade(button) {
+            const unidadesList = document.getElementById('unidades_list');
+            const unidades = unidadesList.querySelectorAll('.unidade-item');
+            
+            // Não permitir remover se só há uma unidade
+            if (unidades.length <= 1) {
+                return;
+            }
+            
+            // Remover a unidade
+            const unidadeItem = button.closest('.unidade-item');
+            unidadeItem.remove();
+            
+            // Renumerar as unidades restantes
+            renumberUnits();
+            updateRemoveButtonsVisibility();
+        }
+
+        function renumberUnits() {
+            const unidades = document.querySelectorAll('#unidades_list .unidade-item');
+            unidades.forEach((unidade, index) => {
+                unidade.setAttribute('data-unidade', index);
+                const legend = unidade.querySelector('legend');
+                if (legend) {
+                    legend.innerHTML = `Informações da Unidade ${index + 1} <button type="button" class="remove-unidade-btn" onclick="removeUnidade(this)">×</button>`;
+                }
+            });
+        }
+
+        function updateRemoveButtonsVisibility() {
+            const unidades = document.querySelectorAll('#unidades_list .unidade-item');
+            const removeButtons = document.querySelectorAll('.remove-unidade-btn');
+            
+            // Mostrar botão de remover apenas se há mais de uma unidade
+            removeButtons.forEach(button => {
+                button.style.display = unidades.length > 1 ? 'inline-block' : 'none';
+            });
+        }
+
+        // Funções para gerenciar plataformas online
+        function addPlataforma() {
+            const plataformaList = document.getElementById('plataforma_list');
+            const plataformas = plataformaList.querySelectorAll('.unidade-item');
+            const nextIndex = plataformas.length;
+            
+            // Criar nova plataforma
+            const newPlataforma = document.createElement('div');
+            newPlataforma.className = 'unidade-item';
+            newPlataforma.setAttribute('data-plataforma', nextIndex);
+            
+            newPlataforma.innerHTML = `
+                <legend>Informações da Plataforma ${nextIndex + 1} <button type="button" class="remove-plataforma-btn" onclick="removePlataforma(this)">×</button></legend>
+                <label for="plataforma_digital_${nextIndex}">Plataforma Digital</label>
+                <input type="text" id="plataforma_digital_${nextIndex}" name="plataforma_digital" 
+                       placeholder="Ex: Zoom, Google Meet, Microsoft Teams">
+                
+                <label>Número de vagas*</label>
+                <input type="number" name="vagas_unidade[]" min="1" required>
+                
+                <label for="carga_horaria_online_${nextIndex}" class="required">Carga Horária</label>
+                <input type="text" id="carga_horaria_online_${nextIndex}" name="carga_horaria" required 
+                       placeholder="Digite a carga horária (ex: 40 horas, 80h, 2 meses, etc.)">
+                
+                <div class="data-group">
+                    <div class="data-field">
+                        <label>Início das aulas</label>
+                        <input type="date" name="inicio_aulas_data[]" value="{{ today_date }}">
+                    </div>
+                    <div class="data-field">
+                        <label>Fim das aulas</label>
+                        <input type="date" name="fim_aulas_data[]" value="{{ today_date }}">
+                    </div>
+                </div>
+                <div class="horario-group">
+                    <div class="horario-field">
+                        <label>Horário-Início</label>
+                        <select name="horario_inicio[]">
+                            <option value="">Selecione o horário</option>
+                            <option value="06:00">06:00</option>
+                            <option value="07:00">07:00</option>
+                            <option value="08:00">08:00</option>
+                            <option value="09:00">09:00</option>
+                            <option value="10:00">10:00</option>
+                            <option value="11:00">11:00</option>
+                            <option value="12:00">12:00</option>
+                            <option value="13:00">13:00</option>
+                            <option value="14:00">14:00</option>
+                            <option value="15:00">15:00</option>
+                            <option value="16:00">16:00</option>
+                            <option value="17:00">17:00</option>
+                            <option value="18:00">18:00</option>
+                            <option value="19:00">19:00</option>
+                            <option value="20:00">20:00</option>
+                            <option value="21:00">21:00</option>
+                            <option value="22:00">22:00</option>
+                        </select>
+                    </div>
+                    <div class="horario-field">
+                        <label>Horário-Fim</label>
+                        <select name="horario_fim[]">
+                            <option value="">Selecione o horário</option>
+                            <option value="06:00">06:00</option>
+                            <option value="07:00">07:00</option>
+                            <option value="08:00">08:00</option>
+                            <option value="09:00">09:00</option>
+                            <option value="10:00">10:00</option>
+                            <option value="11:00">11:00</option>
+                            <option value="12:00">12:00</option>
+                            <option value="13:00">13:00</option>
+                            <option value="14:00">14:00</option>
+                            <option value="15:00">15:00</option>
+                            <option value="16:00">16:00</option>
+                            <option value="17:00">17:00</option>
+                            <option value="18:00">18:00</option>
+                            <option value="19:00">19:00</option>
+                            <option value="20:00">20:00</option>
+                            <option value="21:00">21:00</option>
+                            <option value="22:00">22:00</option>
+                        </select>
+                    </div>
+                </div>
+                <label>Dias de aula</label>
+                <div class="checkbox-group dias-aula">
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="dias_aula[]" value="Segunda-feira">
+                        <span>Segunda-feira</span>
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="dias_aula[]" value="Terça-feira">
+                        <span>Terça-feira</span>
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="dias_aula[]" value="Quarta-feira">
+                        <span>Quarta-feira</span>
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="dias_aula[]" value="Quinta-feira">
+                        <span>Quinta-feira</span>
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="dias_aula[]" value="Sexta-feira">
+                        <span>Sexta-feira</span>
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="dias_aula[]" value="Sábado">
+                        <span>Sábado</span>
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="dias_aula[]" value="Domingo">
+                        <span>Domingo</span>
+                    </label>
+                </div>
+            `;
+            
+            plataformaList.appendChild(newPlataforma);
+            updateRemovePlataformaButtonsVisibility();
+        }
+
+        function removePlataforma(button) {
+            const plataformaList = document.getElementById('plataforma_list');
+            const plataformas = plataformaList.querySelectorAll('.unidade-item');
+            
+            // Não permitir remover se só há uma plataforma
+            if (plataformas.length <= 1) {
+                return;
+            }
+            
+            // Remover a plataforma
+            const plataformaItem = button.closest('.unidade-item');
+            plataformaItem.remove();
+            
+            // Renumerar as plataformas restantes
+            renumberPlataformas();
+            updateRemovePlataformaButtonsVisibility();
+        }
+
+        function renumberPlataformas() {
+            const plataformas = document.querySelectorAll('#plataforma_list .unidade-item');
+            plataformas.forEach((plataforma, index) => {
+                plataforma.setAttribute('data-plataforma', index);
+                const legend = plataforma.querySelector('legend');
+                if (legend) {
+                    legend.innerHTML = `Informações da Plataforma ${index + 1} <button type="button" class="remove-plataforma-btn" onclick="removePlataforma(this)">×</button>`;
+                }
+            });
+        }
+
+        function updateRemovePlataformaButtonsVisibility() {
+            const plataformas = document.querySelectorAll('#plataforma_list .unidade-item');
+            const removeButtons = document.querySelectorAll('.remove-plataforma-btn');
+            
+            // Mostrar botão de remover apenas se há mais de uma plataforma
+            removeButtons.forEach(button => {
+                button.style.display = plataformas.length > 1 ? 'inline-block' : 'none';
             });
         }
 

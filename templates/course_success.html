@@ -357,11 +357,27 @@
                                 <span><strong>Tipo:</strong> {% if course.curso_gratuito == 'sim' %}Gratuito{% else %}Pago{% endif %}</span>
                             </div>
                             
-                            {% if course.curso_gratuito == 'nao' and course.valor_curso %}
-                            <div class="info-row">
-                                <i class="fas fa-dollar-sign"></i>
-                                <span><strong>Valor do Curso:</strong> R$ {{ course.valor_curso }}</span>
-                            </div>
+                            {% if course.curso_gratuito == 'nao' %}
+                                {% if course.valor_curso_inteira %}
+                                <div class="info-row">
+                                    <i class="fas fa-dollar-sign"></i>
+                                    <span><strong>Valor Inteira:</strong> R$ {{ course.valor_curso_inteira }}</span>
+                                </div>
+                                {% endif %}
+                                
+                                {% if course.valor_curso_meia %}
+                                <div class="info-row">
+                                    <i class="fas fa-percentage"></i>
+                                    <span><strong>Valor Meia:</strong> R$ {{ course.valor_curso_meia }}</span>
+                                </div>
+                                {% endif %}
+                                
+                                {% if course.requisitos_meia %}
+                                <div class="info-row">
+                                    <i class="fas fa-clipboard-check"></i>
+                                    <span><strong>Condições para Meia-entrada:</strong> {{ course.requisitos_meia }}</span>
+                                </div>
+                                {% endif %}
                             {% endif %}
                             
                             <div class="info-row">
