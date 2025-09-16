@@ -324,6 +324,13 @@
                             </div>
                             {% endif %}
                             
+                            {% if course.modalidade == 'Online' and course.aulas_assincronas %}
+                            <div class="info-row">
+                                <i class="fas fa-video"></i>
+                                <span><strong>Tipo de Aula:</strong> {% if course.aulas_assincronas == 'sim' %}Aulas Assíncronas (no seu próprio ritmo){% else %}Aulas Síncronas (horário fixo){% endif %}</span>
+                            </div>
+                            {% endif %}
+                            
                             {% if course.dias_aula %}
                             <div class="info-row">
                                 <i class="fas fa-calendar-day"></i>
