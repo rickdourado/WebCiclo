@@ -249,10 +249,19 @@
                             </div>
                             {% endif %}
                             
+                            {% if course.carga_horaria %}
                             <div class="info-row">
                                 <i class="fas fa-clock"></i>
-                                <span><strong>Carga Horária:</strong> {{ course.carga_horaria }} horas</span>
+                                <span><strong>Carga Horária:</strong> {{ course.carga_horaria }}</span>
                             </div>
+                            {% endif %}
+                            
+                            {% if course.modalidade == 'Online' and course.aulas_assincronas %}
+                            <div class="info-row">
+                                <i class="fas fa-video"></i>
+                                <span><strong>Tipo de Aula:</strong> {% if course.aulas_assincronas == 'sim' %}Aulas Assíncronas (no seu próprio ritmo){% else %}Aulas Síncronas (horário fixo){% endif %}</span>
+                            </div>
+                            {% endif %}
                             
                             {% if course.dias_aula %}
                             <div class="info-row">
@@ -264,7 +273,7 @@
                             {% if course.horario_inicio and course.horario_fim %}
                             <div class="info-row">
                                 <i class="fas fa-clock"></i>
-                                <span><strong>Horário:</strong> {{ course.horario_inicio }} às {{ course.horario_fim }}</span>
+                                <span><strong>Horário:</strong> {{ course.horario_inicio.split(',')[0].strip() }} às {{ course.horario_fim.split(',')[0].strip() }}</span>
                             </div>
                             {% endif %}
                             
@@ -287,11 +296,27 @@
                                 <span><strong>Tipo:</strong> {% if course.curso_gratuito == 'sim' %}Gratuito{% else %}Pago{% endif %}</span>
                             </div>
                             
-                            {% if course.curso_gratuito == 'nao' and course.valor_curso %}
-                            <div class="info-row">
-                                <i class="fas fa-dollar-sign"></i>
-                                <span><strong>Valor do Curso:</strong> R$ {{ course.valor_curso }}</span>
-                            </div>
+                            {% if course.curso_gratuito == 'nao' %}
+                                {% if course.valor_curso_inteira %}
+                                <div class="info-row">
+                                    <i class="fas fa-dollar-sign"></i>
+                                    <span><strong>Valor Inteira:</strong> R$ {{ course.valor_curso_inteira }}</span>
+                                </div>
+                                {% endif %}
+                                
+                                {% if course.valor_curso_meia %}
+                                <div class="info-row">
+                                    <i class="fas fa-percentage"></i>
+                                    <span><strong>Valor Meia:</strong> R$ {{ course.valor_curso_meia }}</span>
+                                </div>
+                                {% endif %}
+                                
+                                {% if course.requisitos_meia %}
+                                <div class="info-row">
+                                    <i class="fas fa-clipboard-check"></i>
+                                    <span><strong>Condições para Meia-entrada:</strong> {{ course.requisitos_meia }}</span>
+                                </div>
+                                {% endif %}
                             {% endif %}
                             
                             <div class="info-row">
@@ -350,7 +375,37 @@
                         <div class="course-info">
                             <div class="info-row">
                                 <i class="fas fa-calendar-alt"></i>
-                                <span><strong>Período:</strong> {{ course.inicio_inscricoes }} a {{ course.fim_inscricoes }}</span>
+                                <span><strong>Período:</strong> 
+                                    {% if course.inicio_inscricoes %}
+                                        {% set inicio_parts = course.inicio_inscricoes.split('/') %}
+                                        {% if inicio_parts|length == 3 %}
+                                            {% if inicio_parts[0]|length == 4 %}
+                                                {# Formato YYYY/MM/DD - converter para DD/MM/AAAA #}
+                                                {{ inicio_parts[2] }}/{{ inicio_parts[1] }}/{{ inicio_parts[0] }}
+                                            {% else %}
+                                                {# Formato DD/MM/AAAA - manter como está #}
+                                                {{ course.inicio_inscricoes }}
+                                            {% endif %}
+                                        {% else %}
+                                            {{ course.inicio_inscricoes }}
+                                        {% endif %}
+                                    {% endif %}
+                                    {% if course.fim_inscricoes %}
+                                        a 
+                                        {% set fim_parts = course.fim_inscricoes.split('/') %}
+                                        {% if fim_parts|length == 3 %}
+                                            {% if fim_parts[0]|length == 4 %}
+                                                {# Formato YYYY/MM/DD - converter para DD/MM/AAAA #}
+                                                {{ fim_parts[2] }}/{{ fim_parts[1] }}/{{ fim_parts[0] }}
+                                            {% else %}
+                                                {# Formato DD/MM/AAAA - manter como está #}
+                                                {{ course.fim_inscricoes }}
+                                            {% endif %}
+                                        {% else %}
+                                            {{ course.fim_inscricoes }}
+                                        {% endif %}
+                                    {% endif %}
+                                </span>
                             </div>
                         </div>
                     </div>
@@ -368,6 +423,53 @@
                                 <span><strong>Detalhes:</strong> {{ course.info_complementares }}</span>
                             </div>
                         </div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Seção: Parceiro Externo -->
+                    {% if course.parceiro_externo == 'sim' and course.parceiro_nome %}
+                    <div class="info-section">
+                        <div class="info-section-title">
+                            <i class="fas fa-handshake"></i>
+                            Parceiro Externo
+                        </div>
+                        <div class="course-info">
+                            <div class="info-row">
+                                <i class="fas fa-building"></i>
+                                <span><strong>Nome do Parceiro:</strong> {{ course.parceiro_nome }}</span>
+                            </div>
+                            
+                            {% if course.parceiro_link %}
+                            <div class="info-row">
+                                <i class="fas fa-link"></i>
+                                <span><strong>Site do Parceiro:</strong> 
+                                    <a href="{{ course.parceiro_link }}" target="_blank" style="color: #4299e1; text-decoration: none;">
+                                        {{ course.parceiro_link }} <i class="fas fa-external-link-alt" style="font-size: 0.8em;"></i>
+                                    </a>
+                                </span>
+                            </div>
+                            {% endif %}
+                            
+                            {% if course.parceiro_logo %}
+                            <div class="info-row">
+                                <i class="fas fa-image"></i>
+                                <span><strong>Logo do Parceiro:</strong> 
+                                    <a href="{{ url_for('static', filename='images/LOGOPARCEIROS/' + course.parceiro_logo) }}" target="_blank" style="color: #4299e1; text-decoration: none;">
+                                        {{ course.parceiro_logo }} <i class="fas fa-external-link-alt" style="font-size: 0.8em;"></i>
+                                    </a>
+                                </span>
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Exibir logo do parceiro como imagem -->
+                        {% if course.parceiro_logo %}
+                        <div style="margin-top: 20px; text-align: center;">
+                            <img src="{{ url_for('static', filename='images/LOGOPARCEIROS/' + course.parceiro_logo) }}" 
+                                 alt="Logo {{ course.parceiro_nome }}" 
+                                 style="max-width: 200px; max-height: 100px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                        </div>
+                        {% endif %}
                     </div>
                     {% endif %}
                     
