@@ -710,3 +710,75 @@ input[type="radio"].error, input[type="checkbox"].error {
         grid-column: 1;
     }
 }
+
+/* Estilos para checkboxes dos dias da semana */
+.dias-aula {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 10px;
+    margin-top: 8px;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    background-color: #f8f9fa;
+    border-radius: 6px;
+    border: 1px solid #e2e8f0;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.8rem;
+}
+
+.checkbox-label:hover {
+    background-color: #edf2f7;
+    border-color: #cbd5e0;
+}
+
+.checkbox-label input[type="checkbox"] {
+    margin: 0;
+    cursor: pointer;
+}
+
+.checkbox-label input[type="checkbox"]:checked + span {
+    font-weight: 600;
+    color: #2b6cb0;
+}
+
+.checkbox-label:has(input[type="checkbox"]:checked) {
+    background-color: #ebf8ff;
+    border-color: #4299e1;
+}
+
+/* Ajuste específico para Segunda-feira (texto mais longo) */
+.checkbox-label:has(input[value="Segunda-feira"]) {
+    padding: 4px 8px;
+    font-size: 0.65rem;
+}
+
+/* Responsividade para dias da semana */
+@media (max-width: 768px) {
+    .dias-aula {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
+    
+    .checkbox-label {
+        padding: 5px 8px;
+        font-size: 0.75rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .dias-aula {
+        grid-template-columns: 1fr;
+    }
+    
+    /* Ajuste específico para Segunda-feira em mobile */
+    .checkbox-label:has(input[value="Segunda-feira"]) {
+        padding: 3px 6px;
+        font-size: 0.6rem;
+    }
+}

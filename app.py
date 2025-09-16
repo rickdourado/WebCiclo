@@ -190,7 +190,7 @@ def create_course():
                 'modalidade': request.form.get('modalidade'),
                 'plataforma_digital': request.form.get('plataforma_digital') if request.form.get('modalidade') == 'Online' else '',
                 'carga_horaria': request.form.get('carga_horaria'),
-                'dias_aula': request.form.getlist('dias_aula[]')[0] if request.form.getlist('dias_aula[]') else '',
+                'dias_aula': ', '.join(request.form.getlist('dias_aula[]')) if request.form.getlist('dias_aula[]') else '',
                 'horario_inicio': request.form.getlist('horario_inicio[]')[0] if request.form.getlist('horario_inicio[]') else '',
                 'horario_fim': request.form.getlist('horario_fim[]')[0] if request.form.getlist('horario_fim[]') else '',
             'curso_gratuito': request.form.get('curso_gratuito'),

@@ -235,7 +235,36 @@
                                          </div>
                                      </div>
                                      <label>Dias de aula*</label>
-                                     <input type="text" name="dias_aula[]" required>
+                                     <div class="checkbox-group dias-aula">
+                                         <label class="checkbox-label">
+                                             <input type="checkbox" name="dias_aula[]" value="Segunda-feira">
+                                             <span>Segunda-feira</span>
+                                         </label>
+                                         <label class="checkbox-label">
+                                             <input type="checkbox" name="dias_aula[]" value="Terça-feira">
+                                             <span>Terça-feira</span>
+                                         </label>
+                                         <label class="checkbox-label">
+                                             <input type="checkbox" name="dias_aula[]" value="Quarta-feira">
+                                             <span>Quarta-feira</span>
+                                         </label>
+                                         <label class="checkbox-label">
+                                             <input type="checkbox" name="dias_aula[]" value="Quinta-feira">
+                                             <span>Quinta-feira</span>
+                                         </label>
+                                         <label class="checkbox-label">
+                                             <input type="checkbox" name="dias_aula[]" value="Sexta-feira">
+                                             <span>Sexta-feira</span>
+                                         </label>
+                                         <label class="checkbox-label">
+                                             <input type="checkbox" name="dias_aula[]" value="Sábado">
+                                             <span>Sábado</span>
+                                         </label>
+                                         <label class="checkbox-label">
+                                             <input type="checkbox" name="dias_aula[]" value="Domingo">
+                                             <span>Domingo</span>
+                                         </label>
+                                     </div>
                                  </fieldset>
                                  <button type="button" class="btn btn-outline add-unidade-btn" onclick="addUnidade()">+ Adicionar outra unidade</button>
                              </div>
@@ -488,6 +517,24 @@
              }
          }
 
+         // Validação dos dias de aula (pelo menos um deve ser selecionado)
+         function validateDiasAula() {
+             const diasCheckboxes = document.querySelectorAll('input[name="dias_aula[]"]');
+             const unidadesContainer = document.getElementById('unidades_container');
+             
+             if (unidadesContainer && unidadesContainer.style.display !== 'none') {
+                 const algumSelecionado = Array.from(diasCheckboxes).some(cb => cb.checked);
+                 
+                 diasCheckboxes.forEach(cb => {
+                     if (!algumSelecionado) {
+                         cb.setCustomValidity('Selecione pelo menos um dia da semana');
+                     } else {
+                         cb.setCustomValidity('');
+                     }
+                 });
+             }
+         }
+
          // Adicionar validação quando a página carregar
          document.addEventListener('DOMContentLoaded', function() {
              const linkField = document.getElementById('parceiro_link');
@@ -495,6 +542,12 @@
                  linkField.addEventListener('blur', validatePartnerLink);
                  linkField.addEventListener('input', validatePartnerLink);
              }
+             
+             // Adicionar validação aos checkboxes de dias
+             const diasCheckboxes = document.querySelectorAll('input[name="dias_aula[]"]');
+             diasCheckboxes.forEach(cb => {
+                 cb.addEventListener('change', validateDiasAula);
+             });
          });
      </script>
 
