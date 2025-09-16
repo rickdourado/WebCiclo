@@ -782,3 +782,75 @@ input[type="radio"].error, input[type="checkbox"].error {
         font-size: 0.6rem;
     }
 }
+
+/* Estilos para múltiplas unidades */
+.unidade-item {
+    margin-bottom: 30px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 20px;
+    background-color: #f8f9fa;
+    position: relative;
+}
+
+.unidade-item:not(:last-child) {
+    margin-bottom: 25px;
+}
+
+.unidade-item fieldset {
+    border: none;
+    margin: 0;
+    padding: 0;
+}
+
+.unidade-item legend {
+    font-size: 1.1em;
+    font-weight: 600;
+    color: #2d3748;
+    margin-bottom: 15px;
+    padding: 0 10px;
+    background-color: #f8f9fa;
+}
+
+.add-unidade-btn {
+    margin-top: 20px;
+    background-color: #4299e1;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9em;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.add-unidade-btn:hover {
+    background-color: #3182ce;
+    transform: translateY(-1px);
+}
+
+.add-unidade-btn:active {
+    transform: translateY(0);
+}
+
+/* Responsividade para unidades */
+@media (max-width: 768px) {
+    .unidade-item {
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+    
+    .unidade-item legend {
+        font-size: 1em;
+        margin-bottom: 12px;
+    }
+    
+    .add-unidade-btn {
+        padding: 10px 20px;
+        font-size: 0.85em;
+    }
+}

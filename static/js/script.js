@@ -350,47 +350,58 @@ document.addEventListener('DOMContentLoaded', function() {
 function toggleUnidades() {
     const modalidade = document.getElementById('modalidade').value;
     const unidadesContainer = document.getElementById('unidades_container');
-    const legendaUnidade = document.querySelector('#unidades_container fieldset legend');
+    const unidadesList = document.getElementById('unidades_list');
     
     if (modalidade === 'Presencial' || modalidade === 'Híbrido' || modalidade === 'Online') {
         unidadesContainer.style.display = 'block';
         
-        // Tratamento específico para modalidade Online
-        if (modalidade === 'Online') {
-            // Altera o título para "Informações do Curso"
-            if (legendaUnidade) {
-                legendaUnidade.textContent = 'Informações do Curso';
-                legendaUnidade.style.fontSize = '1.2em'; // Aumenta o tamanho da fonte
-            }
+        // Atualizar todas as unidades existentes
+        const unidades = unidadesList.querySelectorAll('.unidade-item');
+        unidades.forEach((unidade, index) => {
+            const legend = unidade.querySelector('legend');
+            const enderecoInputs = unidade.querySelectorAll('input[name="endereco_unidade[]"], input[name="bairro_unidade[]"]');
+            const enderecoLabels = unidade.querySelectorAll('label');
             
-            // Oculta campos de endereço e bairro para modalidade Online
-            document.querySelectorAll('#unidades_container input[name="endereco_unidade[]"], #unidades_container input[name="bairro_unidade[]"]').forEach(field => {
-                field.style.display = 'none';
-                field.previousElementSibling.style.display = 'none'; // Oculta também as labels
-                field.removeAttribute('required');
-            });
-            
-            // Mantém visíveis e obrigatórios os outros campos
-            document.querySelectorAll('#unidades_container input:not([name="endereco_unidade[]"]):not([name="bairro_unidade[]"]), #unidades_container select').forEach(field => {
-                if (field.hasAttribute('required')) {
-                    field.setAttribute('required', 'required');
+            // Tratamento específico para modalidade Online
+            if (modalidade === 'Online') {
+                // Altera o título para "Informações do Curso"
+                if (legend) {
+                    legend.textContent = `Informações do Curso ${index + 1}`;
+                    legend.style.fontSize = '1.2em';
                 }
-            });
-        } else {
-            // Para Presencial e Híbrido, mostra todos os campos e restaura o título original
-            if (legendaUnidade) {
-                legendaUnidade.textContent = 'Informações da Unidade';
-                legendaUnidade.style.fontSize = '1.2em'; // Usa o mesmo tamanho de fonte que a modalidade Online
+                
+                // Oculta campos de endereço e bairro para modalidade Online
+                enderecoInputs.forEach(field => {
+                    field.style.display = 'none';
+                    field.removeAttribute('required');
+                });
+                
+                // Oculta labels de endereço e bairro
+                enderecoLabels.forEach(label => {
+                    if (label.textContent.includes('Endereço') || label.textContent.includes('Bairro')) {
+                        label.style.display = 'none';
+                    }
+                });
+                
+            } else {
+                // Para Presencial e Híbrido, mostra todos os campos e restaura o título original
+                if (legend) {
+                    legend.textContent = `Informações da Unidade ${index + 1}`;
+                    legend.style.fontSize = '1.2em';
+                }
+                
+                enderecoInputs.forEach(field => {
+                    field.style.display = '';
+                    field.setAttribute('required', 'required');
+                });
+                
+                // Mostra todas as labels
+                enderecoLabels.forEach(label => {
+                    label.style.display = '';
+                });
             }
-            document.querySelectorAll('#unidades_container input, #unidades_container label').forEach(field => {
-                field.style.display = '';
-            });
-            
-            // Restaura o required para todos os campos que tinham originalmente
-            document.querySelectorAll('#unidades_container input[required], #unidades_container select[required]').forEach(field => {
-                field.setAttribute('required', 'required');
-            });
-        }
+        });
+        
     } else {
         unidadesContainer.style.display = 'none';
         // Remove o atributo required de todos os campos dentro do container de unidades
@@ -422,23 +433,125 @@ function addUnidade() {
     
     const unidadeDiv = document.createElement('div');
     unidadeDiv.className = 'unidade-item';
+    unidadeDiv.setAttribute('data-unidade', unidadeCount - 1);
+    
+    // Verificar se é modalidade Online para ajustar campos
+    const modalidade = document.getElementById('modalidade').value;
+    const isOnline = modalidade === 'Online';
     
     unidadeDiv.innerHTML = `
-        <h4>Unidade ${unidadeCount}</h4>
-        <div class="form-group">
-            <label for="unidade_${unidadeCount}">Nome da Unidade:</label>
-            <input type="text" id="unidade_${unidadeCount}" name="unidade_${unidadeCount}" class="unidade-field" required>
-        </div>
-        <div class="form-group">
-            <label for="endereco_${unidadeCount}">Endereço:</label>
-            <input type="text" id="endereco_${unidadeCount}" name="endereco_${unidadeCount}" class="unidade-field" required>
-        </div>
+        <fieldset class="unidade-fieldset">
+            <legend>Informações da Unidade ${unidadeCount}</legend>
+            <label>Endereço da unidade*</label>
+            <input type="text" name="endereco_unidade[]" ${isOnline ? 'style="display:none;"' : 'required'}>
+            <label>Bairro*</label>
+            <input type="text" name="bairro_unidade[]" ${isOnline ? 'style="display:none;"' : 'required'}>
+            <label>Número de vagas*</label>
+            <input type="number" name="vagas_unidade[]" min="1" required>
+            <div class="data-group">
+                <div class="data-field">
+                    <label>Início das aulas*</label>
+                    <input type="date" name="inicio_aulas_data[]" required>
+                </div>
+                <div class="data-field">
+                    <label>Fim das aulas*</label>
+                    <input type="date" name="fim_aulas_data[]" required>
+                </div>
+            </div>
+            <div class="horario-group">
+                <div class="horario-field">
+                    <label>Horário-Início*</label>
+                    <select name="horario_inicio[]" required>
+                        <option value="">Selecione o horário</option>
+                        <option value="06:00">06:00</option>
+                        <option value="07:00">07:00</option>
+                        <option value="08:00">08:00</option>
+                        <option value="09:00">09:00</option>
+                        <option value="10:00">10:00</option>
+                        <option value="11:00">11:00</option>
+                        <option value="12:00">12:00</option>
+                        <option value="13:00">13:00</option>
+                        <option value="14:00">14:00</option>
+                        <option value="15:00">15:00</option>
+                        <option value="16:00">16:00</option>
+                        <option value="17:00">17:00</option>
+                        <option value="18:00">18:00</option>
+                        <option value="19:00">19:00</option>
+                        <option value="20:00">20:00</option>
+                        <option value="21:00">21:00</option>
+                        <option value="22:00">22:00</option>
+                        <option value="23:00">23:00</option>
+                    </select>
+                </div>
+                <div class="horario-field">
+                    <label>Horário-Fim*</label>
+                    <select name="horario_fim[]" required>
+                        <option value="">Selecione o horário</option>
+                        <option value="06:00">06:00</option>
+                        <option value="07:00">07:00</option>
+                        <option value="08:00">08:00</option>
+                        <option value="09:00">09:00</option>
+                        <option value="10:00">10:00</option>
+                        <option value="11:00">11:00</option>
+                        <option value="12:00">12:00</option>
+                        <option value="13:00">13:00</option>
+                        <option value="14:00">14:00</option>
+                        <option value="15:00">15:00</option>
+                        <option value="16:00">16:00</option>
+                        <option value="17:00">17:00</option>
+                        <option value="18:00">18:00</option>
+                        <option value="19:00">19:00</option>
+                        <option value="20:00">20:00</option>
+                        <option value="21:00">21:00</option>
+                        <option value="22:00">22:00</option>
+                        <option value="23:00">23:00</option>
+                    </select>
+                </div>
+            </div>
+            <label>Dias de aula*</label>
+            <div class="checkbox-group dias-aula">
+                <label class="checkbox-label">
+                    <input type="checkbox" name="dias_aula[]" value="Segunda-feira">
+                    <span>Segunda-feira</span>
+                </label>
+                <label class="checkbox-label">
+                    <input type="checkbox" name="dias_aula[]" value="Terça-feira">
+                    <span>Terça-feira</span>
+                </label>
+                <label class="checkbox-label">
+                    <input type="checkbox" name="dias_aula[]" value="Quarta-feira">
+                    <span>Quarta-feira</span>
+                </label>
+                <label class="checkbox-label">
+                    <input type="checkbox" name="dias_aula[]" value="Quinta-feira">
+                    <span>Quinta-feira</span>
+                </label>
+                <label class="checkbox-label">
+                    <input type="checkbox" name="dias_aula[]" value="Sexta-feira">
+                    <span>Sexta-feira</span>
+                </label>
+                <label class="checkbox-label">
+                    <input type="checkbox" name="dias_aula[]" value="Sábado">
+                    <span>Sábado</span>
+                </label>
+                <label class="checkbox-label">
+                    <input type="checkbox" name="dias_aula[]" value="Domingo">
+                    <span>Domingo</span>
+                </label>
+            </div>
+        </fieldset>
     `;
     
     unidadesContainer.appendChild(unidadeDiv);
     
-    // Atualizar o contador de unidades
-    document.getElementById('unidade_count').value = unidadeCount;
+    // Adicionar validação aos novos checkboxes de dias
+    const novosCheckboxes = unidadeDiv.querySelectorAll('input[name="dias_aula[]"]');
+    novosCheckboxes.forEach(cb => {
+        cb.addEventListener('change', validateDiasAula);
+    });
+    
+    // Scroll suave para a nova unidade
+    unidadeDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
 // Inicialização quando o DOM estiver carregado
