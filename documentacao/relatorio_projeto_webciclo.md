@@ -120,14 +120,14 @@ python-dotenv==1.0.1
 ## 🚀 Implantação
 
 ### Ambiente de Produção
-- **Plataforma:** PythonAnywhere (CicloCarioca.pythonanywhere.com)
+- **Plataforma:** PythonAnywhere ([configurar URL conforme necessário])
 - **Versão Python:** 3.10
 - **WSGI:** flask_app.py
 - **Ambiente:** Modo produção
 
 ### Configuração de Segurança
 - **SECRET_KEY:** Gerenciamento via variáveis de ambiente
-- **CREDENCIAIS_ADMIN:** Username/password seguros
+- **CREDENCIAIS_ADMIN:** Configuradas via variáveis de ambiente
 - **Gerenciamento de Sessão:** Sessão Flask com timeout
 - **Upload de Arquivos:** Limitação de formato e tamanho
 
