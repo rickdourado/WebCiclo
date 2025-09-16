@@ -202,7 +202,7 @@ function setupCustomValidation() {
             console.log('Parceiro externo = NÃO, pulando validação');
         }
         
-        // Validar campos de unidades apenas se modalidade não for Online
+        // Validar campos baseado na modalidade selecionada
         console.log('Verificando campos de unidades...');
         const modalidadeValue = document.getElementById('modalidade')?.value;
         console.log(`Modalidade selecionada: ${modalidadeValue}`);
@@ -378,7 +378,7 @@ function setupSubmitButtonClick() {
             console.log('Parceiro externo = NÃO, pulando validação');
         }
         
-        // Validar campos de unidades apenas se modalidade não for Online
+        // Validar campos baseado na modalidade selecionada
         console.log('Verificando campos de unidades...');
         const modalidadeValue = document.getElementById('modalidade')?.value;
         console.log(`Modalidade selecionada: ${modalidadeValue}`);
