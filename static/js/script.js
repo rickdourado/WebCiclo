@@ -62,10 +62,10 @@ function setupAutoSave() {
     if (savedData) {
         const data = JSON.parse(savedData);
         Object.keys(data).forEach(key => {
-            // Não carregar os campos de valor do curso e da bolsa
+            // Não carregar os campos de valor do curso, da bolsa e arquivos
             if (key !== 'valor_curso' && key !== 'valor_bolsa') {
                 const field = form.querySelector(`[name="${key}"]`);
-                if (field && !field.value) {
+                if (field && !field.value && field.type !== 'file') {
                     field.value = data[key];
                 }
             }
@@ -119,42 +119,130 @@ function setupCustomValidation() {
     form.addEventListener('submit', function(e) {
         let isValid = true;
         
-        // Validar campos obrigatórios
-        const requiredFields = form.querySelectorAll('[required]');
-        const processedRadioNames = new Set();
+        // VALIDAÇÃO COM LOGS DETALHADOS
+        console.log('=== INICIANDO VALIDAÇÃO DETALHADA ===');
         
-        requiredFields.forEach(field => {
-            // Verificar se o campo está em um container visível
-            const isVisible = isFieldVisible(field);
+        // Verificar campos básicos essenciais
+        const camposBasicos = ['titulo', 'descricao', 'orgao', 'tema', 'modalidade', 'carga_horaria'];
+        
+        camposBasicos.forEach(campoName => {
+            const campo = form.querySelector(`[name="${campoName}"]`);
+            console.log(`Verificando campo: ${campoName}`);
+            console.log(`Campo encontrado: ${!!campo}`);
+            console.log(`Campo tem required: ${campo ? campo.hasAttribute('required') : 'N/A'}`);
+            console.log(`Valor do campo: "${campo ? campo.value : 'N/A'}"`);
             
-            // Se o campo não estiver visível, não validar
-            if (!isVisible) return;
-            
-            if (field.type === 'radio' || field.type === 'checkbox') {
-                // Evita processar o mesmo grupo mais de uma vez
-                if (processedRadioNames.has(field.name)) return;
-                processedRadioNames.add(field.name);
-                
-                // Verifica se algum radio/checkbox do grupo está marcado
-                const group = form.querySelectorAll(`input[name="${field.name}"]`);
-                const algumMarcado = Array.from(group).some(radio => radio.checked);
-                
-                if (!algumMarcado) {
-                    group.forEach(radio => radio.classList.add('error'));
+            if (campo && campo.hasAttribute('required')) {
+                if (campo.value.trim() === '') {
                     isValid = false;
+                    console.log(`❌ ERRO: ${campoName} vazio`);
                 } else {
-                    group.forEach(radio => radio.classList.remove('error'));
-                }
-            } else {
-                // Para outros tipos de campo, verifica se está vazio
-                if (field.value.trim() === '') {
-                    field.classList.add('error');
-                    isValid = false;
-                } else {
-                    field.classList.remove('error');
+                    console.log(`✅ OK: ${campoName} = ${campo.value}`);
                 }
             }
         });
+        
+        // Verificar radio buttons críticos
+        const radioCriticos = ['curso_gratuito', 'oferece_bolsa', 'oferece_certificado', 'parceiro_externo'];
+        radioCriticos.forEach(campoName => {
+            console.log(`Verificando radio group: ${campoName}`);
+            const group = form.querySelectorAll(`input[name="${campoName}"]`);
+            console.log(`Encontrados ${group.length} radios para ${campoName}`);
+            
+            const algumMarcado = Array.from(group).some(radio => radio.checked);
+            console.log(`Algum marcado: ${algumMarcado}`);
+            
+            if (!algumMarcado) {
+                isValid = false;
+                console.log(`❌ ERRO: ${campoName} não selecionado`);
+            } else {
+                const selecionado = Array.from(group).find(radio => radio.checked);
+                console.log(`✅ OK: ${campoName} = ${selecionado.value}`);
+            }
+        });
+        
+        // Verificar publico_alvo separadamente (é textarea, não radio)
+        console.log('Verificando publico_alvo...');
+        const publicoAlvo = form.querySelector('[name="publico_alvo"]');
+        console.log(`Campo publico_alvo encontrado: ${!!publicoAlvo}`);
+        console.log(`Campo tem required: ${publicoAlvo ? publicoAlvo.hasAttribute('required') : 'N/A'}`);
+        console.log(`Valor: "${publicoAlvo ? publicoAlvo.value : 'N/A'}"`);
+        
+        if (publicoAlvo && publicoAlvo.hasAttribute('required')) {
+            if (publicoAlvo.value.trim() === '') {
+                isValid = false;
+                console.log('❌ ERRO: publico_alvo vazio');
+            } else {
+                console.log(`✅ OK: publico_alvo = ${publicoAlvo.value}`);
+            }
+        }
+        
+        // Validar parceiro externo se necessário
+        console.log('Verificando parceiro externo...');
+        const parceiroExterno = document.querySelector('input[name="parceiro_externo"]:checked');
+        console.log(`Parceiro externo selecionado: ${parceiroExterno ? parceiroExterno.value : 'nenhum'}`);
+        
+        if (parceiroExterno && parceiroExterno.value === 'sim') {
+            console.log('Parceiro externo = SIM, validando campos...');
+            const parceiroNome = document.getElementById('parceiro_nome');
+            const parceiroContainer = document.getElementById('parceiro_externo_container');
+            
+            console.log(`Container parceiro encontrado: ${!!parceiroContainer}`);
+            console.log(`Container parceiro visível: ${parceiroContainer ? parceiroContainer.style.display : 'não encontrado'}`);
+            console.log(`Campo nome encontrado: ${!!parceiroNome}`);
+            console.log(`Nome do parceiro: "${parceiroNome ? parceiroNome.value : 'campo não encontrado'}"`);
+            
+            if (parceiroNome && parceiroNome.value.trim() === '') {
+                isValid = false;
+                console.log('❌ ERRO: Nome do parceiro vazio quando parceiro externo = sim');
+            } else {
+                console.log(`✅ OK: parceiro_nome = ${parceiroNome?.value}`);
+            }
+        } else {
+            console.log('Parceiro externo = NÃO, pulando validação');
+        }
+        
+        // Validar campos de unidades apenas se modalidade não for Online
+        console.log('Verificando campos de unidades...');
+        const modalidadeValue = document.getElementById('modalidade')?.value;
+        console.log(`Modalidade selecionada: ${modalidadeValue}`);
+        
+        const unidadesContainer = document.getElementById('unidades_container');
+        console.log(`Container unidades encontrado: ${!!unidadesContainer}`);
+        console.log(`Container unidades visível: ${unidadesContainer ? unidadesContainer.style.display : 'não encontrado'}`);
+        
+        if (modalidadeValue && unidadesContainer && unidadesContainer.style.display !== 'none') {
+            if (modalidadeValue === 'Online') {
+                console.log('✅ Modalidade Online: campos de unidade não são obrigatórios');
+            } else {
+                console.log(`Modalidade ${modalidadeValue}: validando campos de unidade...`);
+                
+                // Validar apenas dias de aula para modalidades não-Online
+                const unidades = unidadesContainer.querySelectorAll('.unidade-item');
+                console.log(`Encontradas ${unidades.length} unidades`);
+                
+                unidades.forEach((unidade, index) => {
+                    console.log(`Validando unidade ${index + 1}...`);
+                    const diasCheckboxes = unidade.querySelectorAll('input[name="dias_aula[]"]');
+                    console.log(`Encontrados ${diasCheckboxes.length} checkboxes de dias`);
+                    
+                    const algumDiaSelecionado = Array.from(diasCheckboxes).some(cb => cb.checked);
+                    console.log(`Algum dia selecionado: ${algumDiaSelecionado}`);
+                    
+                    if (!algumDiaSelecionado) {
+                        isValid = false;
+                        console.log(`❌ ERRO: Unidade ${index + 1} - Nenhum dia selecionado`);
+                    } else {
+                        const diasSelecionados = Array.from(diasCheckboxes)
+                            .filter(cb => cb.checked)
+                            .map(cb => cb.value);
+                        console.log(`✅ OK: Unidade ${index + 1} - Dias: ${diasSelecionados.join(', ')}`);
+                    }
+                });
+            }
+        } else {
+            console.log('Container de unidades não visível ou modalidade não selecionada');
+        }
         
         // Validar se fim das inscrições é posterior ao início
         const inicioData = document.getElementById('inicio_inscricoes_data');
@@ -207,42 +295,130 @@ function setupSubmitButtonClick() {
         
         let isValid = true;
         
-        // Validar campos obrigatórios
-        const requiredFields = form.querySelectorAll('[required]');
-        const processedRadioNames = new Set();
+        // VALIDAÇÃO COM LOGS DETALHADOS
+        console.log('=== INICIANDO VALIDAÇÃO DETALHADA ===');
         
-        requiredFields.forEach(field => {
-            // Verificar se o campo está em um container visível
-            const isVisible = isFieldVisible(field);
+        // Verificar campos básicos essenciais
+        const camposBasicos = ['titulo', 'descricao', 'orgao', 'tema', 'modalidade', 'carga_horaria'];
+        
+        camposBasicos.forEach(campoName => {
+            const campo = form.querySelector(`[name="${campoName}"]`);
+            console.log(`Verificando campo: ${campoName}`);
+            console.log(`Campo encontrado: ${!!campo}`);
+            console.log(`Campo tem required: ${campo ? campo.hasAttribute('required') : 'N/A'}`);
+            console.log(`Valor do campo: "${campo ? campo.value : 'N/A'}"`);
             
-            // Se o campo não estiver visível, não validar
-            if (!isVisible) return;
-            
-            if (field.type === 'radio' || field.type === 'checkbox') {
-                // Evita processar o mesmo grupo mais de uma vez
-                if (processedRadioNames.has(field.name)) return;
-                processedRadioNames.add(field.name);
-                
-                // Verifica se algum radio/checkbox do grupo está marcado
-                const group = form.querySelectorAll(`input[name="${field.name}"]`);
-                const algumMarcado = Array.from(group).some(radio => radio.checked);
-                
-                if (!algumMarcado) {
-                    group.forEach(radio => radio.classList.add('error'));
+            if (campo && campo.hasAttribute('required')) {
+                if (campo.value.trim() === '') {
                     isValid = false;
+                    console.log(`❌ ERRO: ${campoName} vazio`);
                 } else {
-                    group.forEach(radio => radio.classList.remove('error'));
-                }
-            } else {
-                // Para outros tipos de campo, verifica se está vazio
-                if (field.value.trim() === '') {
-                    field.classList.add('error');
-                    isValid = false;
-                } else {
-                    field.classList.remove('error');
+                    console.log(`✅ OK: ${campoName} = ${campo.value}`);
                 }
             }
         });
+        
+        // Verificar radio buttons críticos
+        const radioCriticos = ['curso_gratuito', 'oferece_bolsa', 'oferece_certificado', 'parceiro_externo'];
+        radioCriticos.forEach(campoName => {
+            console.log(`Verificando radio group: ${campoName}`);
+            const group = form.querySelectorAll(`input[name="${campoName}"]`);
+            console.log(`Encontrados ${group.length} radios para ${campoName}`);
+            
+            const algumMarcado = Array.from(group).some(radio => radio.checked);
+            console.log(`Algum marcado: ${algumMarcado}`);
+            
+            if (!algumMarcado) {
+                isValid = false;
+                console.log(`❌ ERRO: ${campoName} não selecionado`);
+            } else {
+                const selecionado = Array.from(group).find(radio => radio.checked);
+                console.log(`✅ OK: ${campoName} = ${selecionado.value}`);
+            }
+        });
+        
+        // Verificar publico_alvo separadamente (é textarea, não radio)
+        console.log('Verificando publico_alvo...');
+        const publicoAlvo = form.querySelector('[name="publico_alvo"]');
+        console.log(`Campo publico_alvo encontrado: ${!!publicoAlvo}`);
+        console.log(`Campo tem required: ${publicoAlvo ? publicoAlvo.hasAttribute('required') : 'N/A'}`);
+        console.log(`Valor: "${publicoAlvo ? publicoAlvo.value : 'N/A'}"`);
+        
+        if (publicoAlvo && publicoAlvo.hasAttribute('required')) {
+            if (publicoAlvo.value.trim() === '') {
+                isValid = false;
+                console.log('❌ ERRO: publico_alvo vazio');
+            } else {
+                console.log(`✅ OK: publico_alvo = ${publicoAlvo.value}`);
+            }
+        }
+        
+        // Validar parceiro externo se necessário
+        console.log('Verificando parceiro externo...');
+        const parceiroExterno = document.querySelector('input[name="parceiro_externo"]:checked');
+        console.log(`Parceiro externo selecionado: ${parceiroExterno ? parceiroExterno.value : 'nenhum'}`);
+        
+        if (parceiroExterno && parceiroExterno.value === 'sim') {
+            console.log('Parceiro externo = SIM, validando campos...');
+            const parceiroNome = document.getElementById('parceiro_nome');
+            const parceiroContainer = document.getElementById('parceiro_externo_container');
+            
+            console.log(`Container parceiro encontrado: ${!!parceiroContainer}`);
+            console.log(`Container parceiro visível: ${parceiroContainer ? parceiroContainer.style.display : 'não encontrado'}`);
+            console.log(`Campo nome encontrado: ${!!parceiroNome}`);
+            console.log(`Nome do parceiro: "${parceiroNome ? parceiroNome.value : 'campo não encontrado'}"`);
+            
+            if (parceiroNome && parceiroNome.value.trim() === '') {
+                isValid = false;
+                console.log('❌ ERRO: Nome do parceiro vazio quando parceiro externo = sim');
+            } else {
+                console.log(`✅ OK: parceiro_nome = ${parceiroNome?.value}`);
+            }
+        } else {
+            console.log('Parceiro externo = NÃO, pulando validação');
+        }
+        
+        // Validar campos de unidades apenas se modalidade não for Online
+        console.log('Verificando campos de unidades...');
+        const modalidadeValue = document.getElementById('modalidade')?.value;
+        console.log(`Modalidade selecionada: ${modalidadeValue}`);
+        
+        const unidadesContainer = document.getElementById('unidades_container');
+        console.log(`Container unidades encontrado: ${!!unidadesContainer}`);
+        console.log(`Container unidades visível: ${unidadesContainer ? unidadesContainer.style.display : 'não encontrado'}`);
+        
+        if (modalidadeValue && unidadesContainer && unidadesContainer.style.display !== 'none') {
+            if (modalidadeValue === 'Online') {
+                console.log('✅ Modalidade Online: campos de unidade não são obrigatórios');
+            } else {
+                console.log(`Modalidade ${modalidadeValue}: validando campos de unidade...`);
+                
+                // Validar apenas dias de aula para modalidades não-Online
+                const unidades = unidadesContainer.querySelectorAll('.unidade-item');
+                console.log(`Encontradas ${unidades.length} unidades`);
+                
+                unidades.forEach((unidade, index) => {
+                    console.log(`Validando unidade ${index + 1}...`);
+                    const diasCheckboxes = unidade.querySelectorAll('input[name="dias_aula[]"]');
+                    console.log(`Encontrados ${diasCheckboxes.length} checkboxes de dias`);
+                    
+                    const algumDiaSelecionado = Array.from(diasCheckboxes).some(cb => cb.checked);
+                    console.log(`Algum dia selecionado: ${algumDiaSelecionado}`);
+                    
+                    if (!algumDiaSelecionado) {
+                        isValid = false;
+                        console.log(`❌ ERRO: Unidade ${index + 1} - Nenhum dia selecionado`);
+                    } else {
+                        const diasSelecionados = Array.from(diasCheckboxes)
+                            .filter(cb => cb.checked)
+                            .map(cb => cb.value);
+                        console.log(`✅ OK: Unidade ${index + 1} - Dias: ${diasSelecionados.join(', ')}`);
+                    }
+                });
+            }
+        } else {
+            console.log('Container de unidades não visível ou modalidade não selecionada');
+        }
         
         // Validar se fim das inscrições é posterior ao início
         const inicioData = document.getElementById('inicio_inscricoes_data');
@@ -260,13 +436,25 @@ function setupSubmitButtonClick() {
             }
         }
         
+        console.log('Validação concluída. Válido:', isValid);
+        
         if (isValid) {
             // Se o formulário for válido, mostrar animação de loading e enviar
+            console.log('Formulário válido, enviando...');
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Criando Curso...';
             submitBtn.disabled = true;
+            
+            // Debug: verificar dados do formulário
+            const formData = new FormData(form);
+            console.log('Dados do formulário:');
+            for (let [key, value] of formData.entries()) {
+                console.log(`${key}: ${value}`);
+            }
+            
             form.submit();
         } else {
             // Exibir mensagem de erro
+            console.log('Formulário inválido, não enviando...');
             alert('Por favor, preencha todos os campos obrigatórios visíveis.');
         }
     });
@@ -361,21 +549,21 @@ function toggleUnidades() {
             const legend = unidade.querySelector('legend');
             const enderecoInputs = unidade.querySelectorAll('input[name="endereco_unidade[]"], input[name="bairro_unidade[]"]');
             const enderecoLabels = unidade.querySelectorAll('label');
-            
-            // Tratamento específico para modalidade Online
-            if (modalidade === 'Online') {
-                // Altera o título para "Informações do Curso"
+        
+        // Tratamento específico para modalidade Online
+        if (modalidade === 'Online') {
+            // Altera o título para "Informações do Curso"
                 if (legend) {
                     legend.textContent = `Informações do Curso ${index + 1}`;
                     legend.style.fontSize = '1.2em';
-                }
-                
-                // Oculta campos de endereço e bairro para modalidade Online
+            }
+            
+            // Oculta campos de endereço e bairro para modalidade Online
                 enderecoInputs.forEach(field => {
-                    field.style.display = 'none';
-                    field.removeAttribute('required');
-                });
-                
+                field.style.display = 'none';
+                field.removeAttribute('required');
+            });
+            
                 // Oculta labels de endereço e bairro
                 enderecoLabels.forEach(label => {
                     if (label.textContent.includes('Endereço') || label.textContent.includes('Bairro')) {
@@ -383,15 +571,15 @@ function toggleUnidades() {
                     }
                 });
                 
-            } else {
-                // Para Presencial e Híbrido, mostra todos os campos e restaura o título original
+        } else {
+            // Para Presencial e Híbrido, mostra todos os campos e restaura o título original
                 if (legend) {
                     legend.textContent = `Informações da Unidade ${index + 1}`;
                     legend.style.fontSize = '1.2em';
                 }
                 
                 enderecoInputs.forEach(field => {
-                    field.style.display = '';
+                field.style.display = '';
                     field.setAttribute('required', 'required');
                 });
                 
@@ -507,7 +695,7 @@ function addUnidade() {
                         <option value="23:00">23:00</option>
                     </select>
                 </div>
-            </div>
+        </div>
             <label>Dias de aula*</label>
             <div class="checkbox-group dias-aula">
                 <label class="checkbox-label">
@@ -538,7 +726,7 @@ function addUnidade() {
                     <input type="checkbox" name="dias_aula[]" value="Domingo">
                     <span>Domingo</span>
                 </label>
-            </div>
+        </div>
         </fieldset>
     `;
     

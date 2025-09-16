@@ -18,16 +18,27 @@ app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'ciclo_carioca_v4_pythonanywhere_2025')
 
 # Configuração do Gemini
-genai.configure(api_key=os.environ.get('GEMINI_API_KEY'))
+gemini_api_key = os.environ.get('GEMINI_API_KEY')
+print(f"GEMINI_API_KEY configurada: {'Sim' if gemini_api_key else 'Não'}")
+if gemini_api_key:
+    print(f"GEMINI_API_KEY (primeiros 10 chars): {gemini_api_key[:10]}...")
+    genai.configure(api_key=gemini_api_key)
+else:
+    print("AVISO: GEMINI_API_KEY não configurada. A função de melhoria de descrição não estará disponível.")
 
 # Função para melhorar a descrição usando Gemini
 def enhance_description(description):
     print(f"\nTentando melhorar descrição com Gemini...")
     print(f"Descrição original: {description}")
     
+    # Verificar se a API key está configurada
+    if not os.environ.get('GEMINI_API_KEY'):
+        print("API key do Gemini não configurada. Retornando descrição original.")
+        return description
+    
     try:
         print("Configurando modelo Gemini...")
-        model = genai.GenerativeModel(model_name='models/gemini-1.5-pro')
+        model = genai.GenerativeModel(model_name='gemini-1.5-pro')
         
         prompt = f"""Explique de forma simples o que o curso ensina em no máximo 3 linhas. Mantenha em português, seja direto e objetivo:
 
@@ -62,29 +73,68 @@ def allowed_file(filename):
 
 def save_partner_logo(file, partner_name):
     """Salva a logo do parceiro no diretório LOGOPARCEIROS com o nome do parceiro"""
-    if file and allowed_file(file.filename):
-        # Criar diretório se não existir
-        logo_dir = app.config['LOGO_PARCEIROS_FOLDER']
-        if not os.path.exists(logo_dir):
-            os.makedirs(logo_dir)
-        
-        # Obter extensão do arquivo
-        extension = file.filename.rsplit('.', 1)[1].lower()
-        
-        # Criar nome do arquivo: nome_do_parceiro.extensão
-        # Limpar caracteres especiais do nome do parceiro
-        clean_name = "".join(c for c in partner_name if c.isalnum() or c in (' ', '-', '_')).rstrip()
-        clean_name = clean_name.replace(' ', '_')
-        filename = f"{clean_name}.{extension}"
-        
-        # Caminho completo do arquivo
-        file_path = os.path.join(logo_dir, filename)
-        
-        # Salvar arquivo
-        file.save(file_path)
-        
-        return filename
-    return None
+    print(f"\n=== SALVANDO LOGO DO PARCEIRO ===")
+    print(f"File: {file}")
+    print(f"Partner name: {partner_name}")
+    print(f"File filename: {file.filename if file else 'None'}")
+    
+    if file and file.filename and file.filename != '' and allowed_file(file.filename):
+        try:
+            # Criar diretório se não existir
+            logo_dir = app.config['LOGO_PARCEIROS_FOLDER']
+            print(f"Logo directory: {logo_dir}")
+            
+            if not os.path.exists(logo_dir):
+                print(f"Criando diretório: {logo_dir}")
+                os.makedirs(logo_dir)
+            else:
+                print(f"Diretório já existe: {logo_dir}")
+            
+            # Obter extensão do arquivo
+            extension = file.filename.rsplit('.', 1)[1].lower()
+            print(f"Extension: {extension}")
+            
+            # Criar nome do arquivo: nome_do_parceiro.extensão
+            # Limpar caracteres especiais do nome do parceiro
+            clean_name = "".join(c for c in partner_name if c.isalnum() or c in (' ', '-', '_')).rstrip()
+            clean_name = clean_name.replace(' ', '_')
+            filename = f"{clean_name}.{extension}"
+            print(f"Clean name: {clean_name}")
+            print(f"Final filename: {filename}")
+            
+            # Caminho completo do arquivo
+            file_path = os.path.join(logo_dir, filename)
+            print(f"Full file path: {file_path}")
+            
+            # Verificar se arquivo já existe
+            if os.path.exists(file_path):
+                print(f"AVISO: Arquivo já existe e será sobrescrito: {file_path}")
+            else:
+                print(f"Arquivo novo será criado: {file_path}")
+            
+            # Salvar arquivo (sobrescreve se já existir)
+            file.save(file_path)
+            print(f"Arquivo salvo com sucesso: {file_path}")
+            
+            # Verificar se arquivo foi salvo
+            if os.path.exists(file_path):
+                file_size = os.path.getsize(file_path)
+                print(f"Confirmação: Arquivo existe com {file_size} bytes")
+            else:
+                print(f"ERRO: Arquivo não foi salvo corretamente")
+            
+            return filename
+        except Exception as e:
+            print(f"ERRO ao salvar logo do parceiro: {str(e)}")
+            import traceback
+            print(f"Traceback:\n{traceback.format_exc()}")
+            return None
+    else:
+        print(f"Arquivo inválido ou não permitido")
+        if file:
+            print(f"File filename: {file.filename}")
+            print(f"Allowed file: {allowed_file(file.filename)}")
+        return None
 
 
 
@@ -159,6 +209,26 @@ def index():
 @app.route('/create_course', methods=['POST'])
 def create_course():
     try:
+        print("\n=== INICIANDO CRIAÇÃO DE CURSO ===")
+        print(f"Método: {request.method}")
+        print(f"Form data keys: {list(request.form.keys())}")
+        print(f"Files keys: {list(request.files.keys())}")
+        
+        # Log detalhado de todos os campos do formulário
+        print("\n=== DADOS DO FORMULÁRIO ===")
+        for key, value in request.form.items():
+            print(f"{key}: {value}")
+        
+        # Log específico para campos problemáticos
+        print(f"\n=== CAMPOS ESPECÍFICOS ===")
+        print(f"dias_aula[]: {request.form.getlist('dias_aula[]')}")
+        print(f"parceiro_externo: {request.form.get('parceiro_externo')}")
+        print(f"parceiro_nome: {request.form.get('parceiro_nome')}")
+        print(f"modalidade: {request.form.get('modalidade')}")
+        print(f"endereco_unidade[]: {request.form.getlist('endereco_unidade[]')}")
+        print(f"horario_inicio[]: {request.form.getlist('horario_inicio[]')}")
+        print(f"horario_fim[]: {request.form.getlist('horario_fim[]')}")
+        
         # Capturar dados do formulário
         inicio_data = request.form.get('inicio_inscricoes_data')
         fim_data = request.form.get('fim_inscricoes_data')
@@ -168,15 +238,48 @@ def create_course():
         
         # Melhorar a descrição usando Gemini
         original_description = request.form.get('descricao')
-        enhanced_description = enhance_description(original_description)
+        print(f"\n=== PROCESSANDO DESCRIÇÃO ===")
+        print(f"Descrição original: {original_description}")
+        print("Chamando enhance_description...")
+        
+        try:
+            enhanced_description = enhance_description(original_description)
+            print(f"Descrição melhorada: {enhanced_description}")
+        except Exception as desc_error:
+            print(f"ERRO ao processar descrição: {str(desc_error)}")
+            import traceback
+            print(f"Traceback:\n{traceback.format_exc()}")
+            enhanced_description = original_description
+            print("Usando descrição original devido ao erro.")
         
         # Processar logo do parceiro se fornecido
         partner_logo_filename = None
+        print(f"\n=== PROCESSANDO PARCEIRO EXTERNO ===")
+        print(f"parceiro_externo: {request.form.get('parceiro_externo')}")
+        print(f"parceiro_nome: {request.form.get('parceiro_nome')}")
+        print(f"parceiro_logo file: {request.files.get('parceiro_logo')}")
+        
         if request.form.get('parceiro_externo') == 'sim':
             partner_name = request.form.get('parceiro_nome', '')
             logo_file = request.files.get('parceiro_logo')
+            print(f"Partner name: {partner_name}")
+            print(f"Logo file: {logo_file}")
+            print(f"Logo file filename: {logo_file.filename if logo_file else 'None'}")
+            
             if logo_file and partner_name:
-                partner_logo_filename = save_partner_logo(logo_file, partner_name)
+                print("Chamando save_partner_logo...")
+                try:
+                    partner_logo_filename = save_partner_logo(logo_file, partner_name)
+                    print(f"Logo salva com filename: {partner_logo_filename}")
+                except Exception as logo_error:
+                    print(f"ERRO ao salvar logo: {str(logo_error)}")
+                    import traceback
+                    print(f"Traceback logo:\n{traceback.format_exc()}")
+                    partner_logo_filename = None
+            else:
+                print("Logo não será salva (arquivo ou nome do parceiro em branco)")
+        else:
+            print("Parceiro externo = 'nao', não processando logo")
         
         course_data = {
                 'id': next_id,
@@ -250,10 +353,19 @@ def create_course():
             print(traceback.format_exc())
             flash(f'Erro ao gerar arquivos: {str(file_error)}', 'warning')
         
+        print(f"\n=== CURSO CRIADO COM SUCESSO ===")
+        print(f"ID do curso: {course_data['id']}")
+        print(f"Total de cursos no banco: {len(COURSES_DB)}")
+        print(f"Redirecionando para: course_success/{course_data['id']}")
+        
         flash('Curso criado com sucesso!', 'success')
         return redirect(url_for('course_success', course_id=course_data['id']))
         
     except Exception as e:
+        print(f"\n=== ERRO AO CRIAR CURSO ===")
+        print(f"Erro: {str(e)}")
+        import traceback
+        print(f"Traceback completo:\n{traceback.format_exc()}")
         flash(f'Erro ao criar curso: {str(e)}', 'error')
         return redirect(url_for('index'))
 

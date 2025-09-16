@@ -174,25 +174,25 @@
                                         <fieldset class="unidade-fieldset">
                                             <legend>Informações da Unidade 1</legend>
                                             <label>Endereço da unidade*</label>
-                                            <input type="text" name="endereco_unidade[]" required>
+                                            <input type="text" name="endereco_unidade[]">
                                             <label>Bairro*</label>
-                                            <input type="text" name="bairro_unidade[]" required>
+                                            <input type="text" name="bairro_unidade[]">
                                             <label>Número de vagas*</label>
-                                            <input type="number" name="vagas_unidade[]" min="1" required>
+                                            <input type="number" name="vagas_unidade[]" min="1">
                                             <div class="data-group">
                                                 <div class="data-field">
                                                     <label>Início das aulas*</label>
-                                                    <input type="date" name="inicio_aulas_data[]" required>
+                                                    <input type="date" name="inicio_aulas_data[]">
                                                 </div>
                                                 <div class="data-field">
                                                     <label>Fim das aulas*</label>
-                                                    <input type="date" name="fim_aulas_data[]" required>
+                                                    <input type="date" name="fim_aulas_data[]">
                                                 </div>
                                             </div>
                                             <div class="horario-group">
                                                 <div class="horario-field">
                                                     <label>Horário-Início*</label>
-                                                    <select name="horario_inicio[]" required>
+                                                    <select name="horario_inicio[]">
                                                         <option value="">Selecione o horário</option>
                                                         <option value="06:00">06:00</option>
                                                         <option value="07:00">07:00</option>
@@ -216,7 +216,7 @@
                                                 </div>
                                                 <div class="horario-field">
                                                     <label>Horário-Fim*</label>
-                                                    <select name="horario_fim[]" required>
+                                                    <select name="horario_fim[]">
                                                         <option value="">Selecione o horário</option>
                                                         <option value="06:00">06:00</option>
                                                         <option value="07:00">07:00</option>
@@ -302,7 +302,7 @@
                                     <div class="valor-curso-col">
                                         <label for="valor_curso_inteira" class="required">Valor INTEIRA (R$)</label>
                                         <input type="text" id="valor_curso_inteira" name="valor_curso_inteira" step="0.01" min="0"
-                                            placeholder="Digite o valor integral (ex: 100,00)" oninput="formatarValor(this)" required>
+                                            placeholder="Digite o valor integral (ex: 100,00)" oninput="formatarValor(this)">
                                     </div>
                                     <div class="valor-curso-col">
                                         <label for="valor_curso_meia">Valor MEIA (R$)</label>
@@ -448,17 +448,27 @@
     </div>
 
      <script>
-         function toggleValorCurso(mostrar) {
-             const valorCursoContainer = document.getElementById('valor_curso_container');
-             if (mostrar) {
-                 valorCursoContainer.style.display = 'block';
-                 document.getElementById('valor_curso').setAttribute('required', 'required');
-             } else {
-                 valorCursoContainer.style.display = 'none';
-                 document.getElementById('valor_curso').removeAttribute('required');
-                 document.getElementById('valor_curso').value = '';
-             }
-         }
+        function toggleValorCurso(mostrar) {
+            const valorCursoContainer = document.getElementById('valor_curso_container');
+            const valorCursoInteira = document.getElementById('valor_curso_inteira');
+            const valorCursoMeia = document.getElementById('valor_curso_meia');
+            
+            if (mostrar) {
+                valorCursoContainer.style.display = 'block';
+                if (valorCursoInteira) valorCursoInteira.setAttribute('required', 'required');
+                if (valorCursoMeia) valorCursoMeia.setAttribute('required', 'required');
+            } else {
+                valorCursoContainer.style.display = 'none';
+                if (valorCursoInteira) {
+                    valorCursoInteira.removeAttribute('required');
+                    valorCursoInteira.value = '';
+                }
+                if (valorCursoMeia) {
+                    valorCursoMeia.removeAttribute('required');
+                    valorCursoMeia.value = '';
+                }
+            }
+        }
 
          function togglePreRequisitos(mostrar) {
              const preRequisitosContainer = document.getElementById('pre_requisitos_container');
@@ -574,4 +584,48 @@
                  preRequisitosField.value = '';
              }
          }
+
+        function toggleUnidades() {
+            const modalidade = document.getElementById('modalidade').value;
+            const unidadesContainer = document.getElementById('unidades_container');
+            
+            if (modalidade === 'Presencial' || modalidade === 'Híbrido') {
+                unidadesContainer.style.display = 'block';
+                // Tornar campos obrigatórios para modalidades presenciais
+                setUnidadeFieldsRequired(true);
+            } else if (modalidade === 'Online') {
+                unidadesContainer.style.display = 'block';
+                // Campos não obrigatórios para modalidade online
+                setUnidadeFieldsRequired(false);
+            } else {
+                unidadesContainer.style.display = 'none';
+                setUnidadeFieldsRequired(false);
+            }
+        }
+
+        function setUnidadeFieldsRequired(required) {
+            const unidades = document.querySelectorAll('.unidade-item');
+            unidades.forEach(unidade => {
+                const campos = unidade.querySelectorAll('input[name^="endereco_unidade"], input[name^="bairro_unidade"], input[name^="vagas_unidade"], input[name^="inicio_aulas_data"], input[name^="fim_aulas_data"], select[name^="horario_inicio"], select[name^="horario_fim"]');
+                campos.forEach(campo => {
+                    if (required) {
+                        campo.setAttribute('required', 'required');
+                    } else {
+                        campo.removeAttribute('required');
+                    }
+                });
+            });
+        }
+
+        function togglePlataformaDigital() {
+            const modalidade = document.getElementById('modalidade').value;
+            const plataformaContainer = document.getElementById('plataforma_digital_container');
+            
+            if (modalidade === 'Online') {
+                plataformaContainer.style.display = 'block';
+            } else {
+                plataformaContainer.style.display = 'none';
+                document.getElementById('plataforma_digital').value = '';
+            }
+        }
      </script>
