@@ -320,7 +320,7 @@
                                 <input type="date" id="fim_aulas_online" name="fim_aulas_data[]" value="{{ today_date }}">
                             </div>
                         </div>
-                                             <div id="horarios_detalhados_online_container">
+                                             <div id="horarios_detalhados_online_container" style="display: none;">
                                                  <div class="horario-group">
                                                      <div class="horario-field">
                                                          <label>Horário-Início</label>
@@ -743,7 +743,6 @@
          });
      </script>
 
-     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
      <script>
          function togglePreRequisitos(mostrar) {
              const container = document.getElementById('pre_requisitos_container');
@@ -786,18 +785,26 @@
          }
 
         function setUnidadeFieldsRequired(required) {
-            const unidades = document.querySelectorAll('.unidade-item');
+            // Selecionar todos os campos de unidade diretamente
+            const camposUnidade = document.querySelectorAll(
+                'input[name="endereco_unidade[]"], ' +
+                'input[name="bairro_unidade[]"], ' +
+                'input[name="vagas_unidade[]"], ' +
+                'input[name="inicio_aulas_data[]"], ' +
+                'input[name="fim_aulas_data[]"], ' +
+                'select[name="horario_inicio[]"], ' +
+                'select[name="horario_fim[]"]'
+            );
+            
             const cargaHorariaUnidade = document.getElementById('carga_horaria_unidade');
             
-            unidades.forEach(unidade => {
-                const campos = unidade.querySelectorAll('input[name^="endereco_unidade"], input[name^="bairro_unidade"], input[name^="vagas_unidade"], input[name^="inicio_aulas_data"], input[name^="fim_aulas_data"], select[name^="horario_inicio"], select[name^="horario_fim"]');
-                campos.forEach(campo => {
-                    if (required) {
-                        campo.setAttribute('required', 'required');
-                    } else {
-                        campo.removeAttribute('required');
-                    }
-                });
+            // Processar campos de unidade
+            camposUnidade.forEach(campo => {
+                if (required) {
+                    campo.setAttribute('required', 'required');
+                } else {
+                    campo.removeAttribute('required');
+                }
             });
             
             // Controlar campo Carga Horária do subformulário Unidade
@@ -823,16 +830,38 @@
             const horarioInicioOnline = document.getElementById('horario_inicio_online');
             const horarioFimOnline = document.getElementById('horario_fim_online');
             
-            const campos = [plataformaDigital, vagasOnline, cargaHorariaOnline, inicioAulasOnline, fimAulasOnline, horarioInicioOnline, horarioFimOnline];
+            // Verificar se aulas assíncronas está marcado como "SIM"
+            const aulasAssincronasSim = document.querySelector('input[name="aulas_assincronas"][value="sim"]');
+            const isAsync = aulasAssincronasSim && aulasAssincronasSim.checked;
             
-            campos.forEach(campo => {
+            // Campos sempre obrigatórios para modalidade Online
+            const camposObrigatorios = [plataformaDigital, vagasOnline, cargaHorariaOnline];
+            
+            // Campos condicionais (só obrigatórios se não for assíncrono)
+            const camposCondicionais = [inicioAulasOnline, fimAulasOnline, horarioInicioOnline, horarioFimOnline];
+            
+            // Processar campos obrigatórios
+            camposObrigatorios.forEach(campo => {
                 if (campo) {
                     if (required) {
                         campo.setAttribute('required', 'required');
                     } else {
                         campo.removeAttribute('required');
-                        // Só limpar se o campo estiver vazio ou se não for o campo de carga horária
                         if (campo.value === '' || campo.id !== 'carga_horaria_online') {
+                            campo.value = '';
+                        }
+                    }
+                }
+            });
+            
+            // Processar campos condicionais
+            camposCondicionais.forEach(campo => {
+                if (campo) {
+                    if (required && !isAsync) {
+                        campo.setAttribute('required', 'required');
+                    } else {
+                        campo.removeAttribute('required');
+                        if (campo.value === '') {
                             campo.value = '';
                         }
                     }
@@ -1177,24 +1206,101 @@
                     // Aulas assíncronas - ocultar campos de horário e dias
                     horariosContainer.style.display = 'none';
                     horariosOnlineContainer.style.display = 'none';
+                    
+                    // Remover required dos campos ocultos
+                    const camposHorario = [
+                        document.getElementById('horario_inicio_online'),
+                        document.getElementById('horario_fim_online')
+                    ];
+                    const camposDias = horariosOnlineContainer.querySelectorAll('input[name="dias_aula[]"]');
+                    
+                    camposHorario.forEach(campo => {
+                        if (campo) campo.removeAttribute('required');
+                    });
+                    camposDias.forEach(campo => {
+                        if (campo) campo.removeAttribute('required');
+                    });
                 } else {
                     // Aulas síncronas - mostrar campos de horário e dias
                     horariosContainer.style.display = 'block';
                     horariosOnlineContainer.style.display = 'block';
+                    
+                    // Adicionar required aos campos visíveis
+                    const camposHorario = [
+                        document.getElementById('horario_inicio_online'),
+                        document.getElementById('horario_fim_online')
+                    ];
+                    const camposDias = horariosOnlineContainer.querySelectorAll('input[name="dias_aula[]"]');
+                    
+                    camposHorario.forEach(campo => {
+                        if (campo) campo.setAttribute('required', 'required');
+                    });
+                    camposDias.forEach(campo => {
+                        if (campo) campo.setAttribute('required', 'required');
+                    });
                 }
+            }
+            
+            // Atualizar campos obrigatórios da plataforma
+            setPlataformaFieldsRequired(true);
+        }
+
+        // Função para garantir que campos assíncronos estejam corretos
+        function garantirCamposAssincronos() {
+            const aulasAssincronasSim = document.querySelector('input[name="aulas_assincronas"][value="sim"]');
+            const horarioInicioOnline = document.getElementById('horario_inicio_online');
+            const horarioFimOnline = document.getElementById('horario_fim_online');
+            
+            if (aulasAssincronasSim && aulasAssincronasSim.checked) {
+                // SIM está marcado - garantir que campos de horário não sejam obrigatórios
+                if (horarioInicioOnline) horarioInicioOnline.removeAttribute('required');
+                if (horarioFimOnline) horarioFimOnline.removeAttribute('required');
+                
+                // Garantir que containers estejam ocultos
+                const horariosContainer = document.getElementById('horarios_detalhados_online_container');
+                const horariosOnlineContainer = document.getElementById('horarios_online_container');
+                if (horariosContainer) horariosContainer.style.display = 'none';
+                if (horariosOnlineContainer) horariosOnlineContainer.style.display = 'none';
             }
         }
 
         // Inicializar campos quando a página carrega
         document.addEventListener('DOMContentLoaded', function() {
-            // Ocultar campos de horário por padrão (já que SIM está selecionado)
-            const horariosContainer = document.getElementById('horarios_detalhados_online_container');
-            const horariosOnlineContainer = document.getElementById('horarios_online_container');
+            // Inicializar modalidade corretamente primeiro
+            toggleUnidades();
             
-            if (horariosContainer && horariosOnlineContainer) {
-                horariosContainer.style.display = 'none';
-                horariosOnlineContainer.style.display = 'none';
+            // Múltiplas tentativas para garantir inicialização correta
+            setTimeout(garantirCamposAssincronos, 10);
+            setTimeout(garantirCamposAssincronos, 50);
+            setTimeout(garantirCamposAssincronos, 100);
+            setTimeout(garantirCamposAssincronos, 200);
+            
+            // Monitorar mudanças nos radio buttons de aulas assíncronas
+            const radioButtons = document.querySelectorAll('input[name="aulas_assincronas"]');
+            radioButtons.forEach(radio => {
+                radio.addEventListener('change', function() {
+                    if (this.value === 'sim') {
+                        // Remover required dos campos de horário quando SIM for selecionado
+                        setTimeout(garantirCamposAssincronos, 10);
+                    }
+                });
+            });
+            
+            // Monitorar mudanças na modalidade
+            const modalidadeSelect = document.getElementById('modalidade');
+            if (modalidadeSelect) {
+                modalidadeSelect.addEventListener('change', function() {
+                    if (this.value === 'Online') {
+                        // Quando modalidade Online for selecionada, garantir campos assíncronos
+                        setTimeout(garantirCamposAssincronos, 10);
+                    }
+                });
             }
         });
 
      </script>
+     
+     <!-- Scripts JavaScript modulares -->
+     <script src="{{ url_for('static', filename='js/form-validator.js') }}"></script>
+     <script src="{{ url_for('static', filename='js/form-manager.js') }}"></script>
+     <script src="{{ url_for('static', filename='js/script.js') }}"></script>

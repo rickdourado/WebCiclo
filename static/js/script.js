@@ -1,20 +1,57 @@
-function setupRealTimeValidation() {
-    const requiredFields = document.querySelectorAll('input[required], select[required], textarea[required]');
+// script.js - Arquivo principal JavaScript refatorado
+// Agora usa módulos separados para melhor organização
+
+let formValidator;
+let formManager;
+
+// Funções globais mantidas para compatibilidade com templates
+function toggleAulasAssincronas(isAsync) {
+    if (formManager) {
+        formManager.toggleAulasAssincronas(isAsync);
+    }
+}
+
+function toggleUnidades() {
+    if (formManager) {
+        formManager.toggleUnidades();
+    }
+}
+
+function addUnidade() {
+    if (formManager) {
+        formManager.addUnidade();
+    }
+}
+
+function removeUnidade(button) {
+    if (formManager) {
+        formManager.removeUnidade(button);
+    }
+}
+
+function addPlataforma() {
+    if (formManager) {
+        formManager.addPlataforma();
+    }
+}
+
+function removePlataforma(button) {
+    if (formManager) {
+        formManager.removePlataforma(button);
+    }
+}
+
+function formatarValor(input) {
+    // Remove todos os caracteres não numéricos
+    let valor = input.value.replace(/\D/g, '');
     
-    requiredFields.forEach(field => {
-        field.addEventListener('blur', function() {
-            if (this.value.trim() === '') {
-                this.classList.add('error');
-            } else {
-                this.classList.remove('error');
-            }
-        });
-        
-        field.addEventListener('input', function() {
-            if (this.classList.contains('error') && this.value.trim() !== '') {
-                this.classList.remove('error');
-            }
-        });
+    // Converte para número e divide por 100 para obter o valor em reais
+    valor = (parseInt(valor) || 0) / 100;
+    
+    // Formata o valor como moeda brasileira
+    input.value = valor.toLocaleString('pt-BR', {
+        style: 'currency',
+        currency: 'BRL'
     });
 }
 
@@ -255,7 +292,7 @@ function setupCustomValidation() {
             const fimDateTime = new Date(`${fimData.value}T${fimHora ? fimHora.value : '23:59'}`);
             
             if (fimDateTime <= inicioDateTime) {
-                alert('O fim das inscrições deve ser posterior ao início das inscrições.');
+                alert('O fim das inscrições deve ser posterior ou igual ao início das inscrições.');
                 isValid = false;
             }
         }
@@ -431,7 +468,7 @@ function setupSubmitButtonClick() {
             const fimDateTime = new Date(`${fimData.value}T${fimHora ? fimHora.value : '23:59'}`);
             
             if (fimDateTime <= inicioDateTime) {
-                alert('O fim das inscrições deve ser posterior ao início das inscrições.');
+                alert('O fim das inscrições deve ser posterior ou igual ao início das inscrições.');
                 isValid = false;
             }
         }
@@ -534,70 +571,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// Função para exibir/ocultar campos de unidades com base na modalidade selecionada
-function toggleUnidades() {
-    const modalidade = document.getElementById('modalidade').value;
-    const unidadesContainer = document.getElementById('unidades_container');
-    const unidadesList = document.getElementById('unidades_list');
-    
-    if (modalidade === 'Presencial' || modalidade === 'Híbrido' || modalidade === 'Online') {
-        unidadesContainer.style.display = 'block';
-        
-        // Atualizar todas as unidades existentes
-        const unidades = unidadesList.querySelectorAll('.unidade-item');
-        unidades.forEach((unidade, index) => {
-            const legend = unidade.querySelector('legend');
-            const enderecoInputs = unidade.querySelectorAll('input[name="endereco_unidade[]"], input[name="bairro_unidade[]"]');
-            const enderecoLabels = unidade.querySelectorAll('label');
-        
-        // Tratamento específico para modalidade Online
-        if (modalidade === 'Online') {
-            // Altera o título para "Informações do Curso"
-                if (legend) {
-                    legend.textContent = `Informações do Curso ${index + 1}`;
-                    legend.style.fontSize = '1.2em';
-            }
-            
-            // Oculta campos de endereço e bairro para modalidade Online
-                enderecoInputs.forEach(field => {
-                field.style.display = 'none';
-                field.removeAttribute('required');
-            });
-            
-                // Oculta labels de endereço e bairro
-                enderecoLabels.forEach(label => {
-                    if (label.textContent.includes('Endereço') || label.textContent.includes('Bairro')) {
-                        label.style.display = 'none';
-                    }
-                });
-                
-        } else {
-            // Para Presencial e Híbrido, mostra todos os campos e restaura o título original
-                if (legend) {
-                    legend.textContent = `Informações da Unidade ${index + 1}`;
-                    legend.style.fontSize = '1.2em';
-                }
-                
-                enderecoInputs.forEach(field => {
-                field.style.display = '';
-                    field.setAttribute('required', 'required');
-                });
-                
-                // Mostra todas as labels
-                enderecoLabels.forEach(label => {
-                    label.style.display = '';
-                });
-            }
-        });
-        
-    } else {
-        unidadesContainer.style.display = 'none';
-        // Remove o atributo required de todos os campos dentro do container de unidades
-        document.querySelectorAll('#unidades_container input, #unidades_container select').forEach(field => {
-            field.removeAttribute('required');
-        });
-    }
-}
+// Função toggleUnidades() removida - agora é gerenciada pelo FormManager
 
 // Função para exibir/ocultar campo de informações adicionais do curso
 function toggleInfoAdicionais(mostrar) {
@@ -744,20 +718,20 @@ function addUnidade() {
 
 // Inicialização quando o DOM estiver carregado
 document.addEventListener('DOMContentLoaded', function() {
-    setupRealTimeValidation();
-    setupCharacterCounters();
-    setupAutoSave();
-    // Função setupPageLeaveConfirmation() foi removida para evitar o popup de confirmação ao sair da página
-    setupSubmitButton();
-    setupFormFeatures();
-    setupCustomValidation();
-    setupSubmitButtonClick(); // Adicionar nova função
-    // Configurar exibição dinâmica das unidades
-    const modalidadeSelect = document.getElementById('modalidade');
-    if (modalidadeSelect) {
-        toggleUnidades();
-        modalidadeSelect.addEventListener('change', toggleUnidades);
+    // Inicializar gerenciador de formulários
+    formManager = new FormManager();
+    
+    // Inicializar validador de formulários
+    const form = document.querySelector('.course-form');
+    if (form) {
+        formValidator = new FormValidator(form);
     }
     
-    console.log('WebApp v3 - Formulário inicializado com sucesso!');
+    // Inicializar campos condicionais
+    if (formManager) {
+        formManager.initializeAsyncFields();
+    }
+    
+    console.log('WebApp v4 - Formulário inicializado com sucesso!');
+    console.log('Módulos carregados: FormManager, FormValidator');
 });

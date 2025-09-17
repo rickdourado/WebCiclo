@@ -4,6 +4,8 @@ globs:
 alwaysApply: true
 ---
 # Regras do Projeto WebCiclo
+- Execute um comando no terminal por vez, ao invés de utilizar &&, para evitar erros.
+- O ambiente virtual de desenvolvimento é intitulado 'ciclo', usado pelo Anaconda
 
 ## Visão Geral
 
