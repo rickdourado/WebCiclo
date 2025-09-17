@@ -409,8 +409,28 @@
                                      <button type="button" class="btn btn-outline add-plataforma-btn" onclick="addPlataforma()">+ Adicionar outra plataforma</button>
                                  </fieldset>
                              </div>
-                             
 
+                             <div class="form-group full-width">
+                                 <label for="acessibilidade" class="required">Acessibilidade</label>
+                                 <select id="acessibilidade" name="acessibilidade" required onchange="toggleRecursosAcessibilidade()">
+                                     <option value="">Selecione uma opção</option>
+                                     <option value="acessivel">Acessível para pessoas com deficiência</option>
+                                     <option value="exclusivo">Exclusivo para pessoas com deficiência</option>
+                                     <option value="nao_acessivel">Não acessível para Pessoas com Deficiência</option>
+                                 </select>
+                             </div>
+
+                             <div class="form-group full-width" id="recursos_acessibilidade_container" style="display: none;">
+                                 <label for="recursos_acessibilidade" class="required">Recursos de Acessibilidade</label>
+                                 <textarea id="recursos_acessibilidade" name="recursos_acessibilidade" rows="3"
+                                           placeholder="Ex: Intérprete de Libras, material em Braille, rampa de acesso, elevador..."></textarea>
+                             </div>
+
+                             <div class="form-group full-width">
+                                 <label for="publico_alvo" class="required">Público-alvo</label>
+                                 <textarea id="publico_alvo" name="publico_alvo" required rows="3"
+                                           placeholder="Ex: Servidores públicos, estudantes, profissionais da área de tecnologia..."></textarea>
+                             </div>
 
                              <div class="form-group full-width">
                                  <label class="required">O curso é gratuito?</label>
@@ -442,12 +462,6 @@
                                     <textarea id="requisitos_meia" name="requisitos_meia" rows="2" required
                                         placeholder="Ex: Estudantes, idosos, pessoas com deficiência..."></textarea>
                                 </div>
-                             </div>
-
-                             <div class="form-group full-width">
-                                 <label for="publico_alvo" class="required">Público-alvo</label>
-                                 <textarea id="publico_alvo" name="publico_alvo" required rows="3"
-                                           placeholder="Ex: Servidores públicos, estudantes, profissionais da área de tecnologia..."></textarea>
                              </div>
 
                              <div class="form-group full-width">
@@ -653,6 +667,21 @@
                  preRequisitosContainer.style.display = 'none';
                  document.getElementById('pre_requisitos').removeAttribute('required');
                  document.getElementById('pre_requisitos').value = '';
+             }
+         }
+
+         function toggleRecursosAcessibilidade() {
+             const acessibilidadeSelect = document.getElementById('acessibilidade');
+             const recursosContainer = document.getElementById('recursos_acessibilidade_container');
+             const recursosField = document.getElementById('recursos_acessibilidade');
+             
+             if (acessibilidadeSelect.value === 'acessivel' || acessibilidadeSelect.value === 'exclusivo') {
+                 recursosContainer.style.display = 'block';
+                 recursosField.setAttribute('required', 'required');
+             } else {
+                 recursosContainer.style.display = 'none';
+                 recursosField.removeAttribute('required');
+                 recursosField.value = '';
              }
          }
          

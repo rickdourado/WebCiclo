@@ -265,8 +265,9 @@ class FormValidator {
     }
     
     validateUnits() {
-        const unidades = document.querySelectorAll('.unidade-item');
-        console.log(`Encontradas ${unidades.length} unidades`);
+        // Validar apenas unidades presenciais (que têm data-unidade, não data-plataforma)
+        const unidades = document.querySelectorAll('.unidade-item[data-unidade]');
+        console.log(`Encontradas ${unidades.length} unidades presenciais`);
         
         unidades.forEach((unidade, index) => {
             console.log(`Validando unidade ${index + 1}...`);

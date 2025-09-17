@@ -310,6 +310,27 @@
                                 <span><strong>Modalidade:</strong> {{ course.modalidade }}</span>
                             </div>
                             
+                            {% if course.inicio_aulas_data or course.fim_aulas_data %}
+                            <div class="info-row">
+                                <i class="fas fa-calendar-check"></i>
+                                <span><strong>Data de Realização:</strong> 
+                                    {% set inicio_data = course.inicio_aulas_data.split(',')[0].strip() if course.inicio_aulas_data else '' %}
+                                    {% set fim_data = course.fim_aulas_data.split(',')[0].strip() if course.fim_aulas_data else '' %}
+                                    {% if inicio_data and fim_data %}
+                                        {% set inicio_formatada = inicio_data.split('-')[2] + '/' + inicio_data.split('-')[1] + '/' + inicio_data.split('-')[0] %}
+                                        {% set fim_formatada = fim_data.split('-')[2] + '/' + fim_data.split('-')[1] + '/' + fim_data.split('-')[0] %}
+                                        {{ inicio_formatada }} a {{ fim_formatada }}
+                                    {% elif inicio_data %}
+                                        {% set inicio_formatada = inicio_data.split('-')[2] + '/' + inicio_data.split('-')[1] + '/' + inicio_data.split('-')[0] %}
+                                        A partir de {{ inicio_formatada }}
+                                    {% elif fim_data %}
+                                        {% set fim_formatada = fim_data.split('-')[2] + '/' + fim_data.split('-')[1] + '/' + fim_data.split('-')[0] %}
+                                        Até {{ fim_formatada }}
+                                    {% endif %}
+                                </span>
+                            </div>
+                            {% endif %}
+                            
                             {% if course.modalidade == 'Online' and course.plataforma_digital %}
                             <div class="info-row">
                                 <i class="fas fa-video"></i>
@@ -419,6 +440,35 @@
                                 <i class="fas fa-users"></i>
                                 <span><strong>Público Alvo:</strong> {{ course.publico_alvo }}</span>
                             </div>
+                            
+                            {% if course.vagas_unidade %}
+                            <div class="info-row">
+                                <i class="fas fa-user-plus"></i>
+                                <span><strong>Número de Vagas:</strong> {{ course.vagas_unidade.split(',')[0].strip() }}</span>
+                            </div>
+                            {% endif %}
+                            
+                            <div class="info-row">
+                                <i class="fas fa-universal-access"></i>
+                                <span><strong>Acessibilidade:</strong> 
+                                    {% if course.acessibilidade == 'acessivel' %}
+                                        Acessível para pessoas com deficiência
+                                    {% elif course.acessibilidade == 'exclusivo' %}
+                                        Exclusivo para pessoas com deficiência
+                                    {% elif course.acessibilidade == 'nao_acessivel' %}
+                                        Não acessível para Pessoas com Deficiência
+                                    {% else %}
+                                        {{ course.acessibilidade }}
+                                    {% endif %}
+                                </span>
+                            </div>
+                            
+                            {% if course.recursos_acessibilidade %}
+                            <div class="info-row">
+                                <i class="fas fa-wheelchair"></i>
+                                <span><strong>Recursos de Acessibilidade:</strong> {{ course.recursos_acessibilidade }}</span>
+                            </div>
+                            {% endif %}
                             
                             <div class="info-row">
                                 <i class="fas fa-certificate"></i>

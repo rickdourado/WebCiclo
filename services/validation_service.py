@@ -63,7 +63,8 @@ class CourseValidator:
             'oferece_bolsa': 'Oferece Bolsa',
             'oferece_certificado': 'Oferece Certificado',
             'parceiro_externo': 'Parceiro Externo',
-            'publico_alvo': 'Público Alvo'
+            'publico_alvo': 'Público Alvo',
+            'acessibilidade': 'Acessibilidade'
         }
         
         for field, label in required_fields.items():
@@ -95,6 +96,12 @@ class CourseValidator:
         if form_data.get('oferece_certificado') == 'sim':
             if not form_data.get('pre_requisitos'):
                 self.errors.append("Pré-requisitos para certificado são obrigatórios quando oferece certificado")
+        
+        # Validar recursos de acessibilidade
+        acessibilidade = form_data.get('acessibilidade')
+        if acessibilidade in ['acessivel', 'exclusivo']:
+            if not form_data.get('recursos_acessibilidade'):
+                self.errors.append("Recursos de acessibilidade são obrigatórios quando o curso é acessível ou exclusivo para pessoas com deficiência")
     
     def _validate_modality_fields(self, form_data: Dict):
         """Valida campos específicos da modalidade"""
@@ -168,7 +175,7 @@ class CourseValidator:
                 self.errors.append(f"Nome do parceiro deve ter no máximo {Config.MAX_PARTNER_NAME_LENGTH} caracteres")
     
     def _extract_units_data(self, form_data: Dict) -> List[Dict]:
-        """Extrai dados das unidades do formulário"""
+        """Extrai dados das unidades do formulário (apenas unidades presenciais)"""
         unidades = []
         
         # Extrair dados de arrays
@@ -177,17 +184,25 @@ class CourseValidator:
         vagas = form_data.getlist('vagas_unidade[]') if hasattr(form_data, 'getlist') else form_data.get('vagas_unidade[]', [])
         dias = form_data.getlist('dias_aula[]') if hasattr(form_data, 'getlist') else form_data.get('dias_aula[]', [])
         
-        # Determinar número de unidades
+        # Determinar número de unidades presenciais
+        # Usar apenas os campos que realmente pertencem às unidades presenciais
         max_units = max(len(enderecos), len(bairros), len(vagas))
         
+        # Filtrar apenas unidades que têm dados válidos (não vazios)
         for i in range(max_units):
-            unidade = {
-                'endereco_unidade': enderecos[i] if i < len(enderecos) else '',
-                'bairro_unidade': bairros[i] if i < len(bairros) else '',
-                'vagas_unidade': vagas[i] if i < len(vagas) else '',
-                'dias_aula': dias[i] if i < len(dias) else ''
-            }
-            unidades.append(unidade)
+            endereco = enderecos[i] if i < len(enderecos) else ''
+            bairro = bairros[i] if i < len(bairros) else ''
+            vaga = vagas[i] if i < len(vagas) else ''
+            
+            # Só incluir se pelo menos um campo principal não estiver vazio
+            if endereco.strip() or bairro.strip() or vaga.strip():
+                unidade = {
+                    'endereco_unidade': endereco,
+                    'bairro_unidade': bairro,
+                    'vagas_unidade': vaga,
+                    'dias_aula': dias[i] if i < len(dias) else ''
+                }
+                unidades.append(unidade)
         
         return unidades
     

@@ -177,6 +177,8 @@ class CourseService:
             'valor_bolsa': form_data.get('valor_bolsa') if form_data.get('oferece_bolsa') == 'sim' else '',
             'requisitos_bolsa': form_data.get('requisitos_bolsa') if form_data.get('oferece_bolsa') == 'sim' else '',
             'publico_alvo': form_data.get('publico_alvo', ''),
+            'acessibilidade': form_data.get('acessibilidade', ''),
+            'recursos_acessibilidade': form_data.get('recursos_acessibilidade') if form_data.get('acessibilidade') in ['acessivel', 'exclusivo'] else '',
             'oferece_certificado': form_data.get('oferece_certificado', ''),
             'pre_requisitos': form_data.get('pre_requisitos') if form_data.get('oferece_certificado') == 'sim' else '',
             'info_complementares': form_data.get('info_complementares', ''),
