@@ -141,8 +141,7 @@
                 ];
                 
                 const camposOnline = [
-                    'input[name="plataforma_digital"]',
-                    'select[name="aulas_assincronas"]'
+                    'input[name="plataforma_digital"]'
                 ];
                 
                 // Limpar todos os campos de modalidade
@@ -185,8 +184,8 @@
                     });
                     
                     // Limpar horários apenas se aulas forem assíncronas
-                    const aulasAssincronas = document.querySelector('select[name="aulas_assincronas"]');
-                    if (aulasAssincronas && aulasAssincronas.value === 'sim') {
+                    const aulasAssincronasSim = document.querySelector('input[name="aulas_assincronas"][value="sim"]');
+                    if (aulasAssincronasSim && aulasAssincronasSim.checked) {
                         const camposHorario = [
                             'input[name="horario_inicio[]"]',
                             'input[name="horario_fim[]"]'
@@ -204,8 +203,7 @@
                 } else if (modalidade === 'Presencial' || modalidade === 'Híbrido') {
                     // Limpar campos específicos de Online
                     const camposOnline = [
-                        'input[name="plataforma_digital"]',
-                        'select[name="aulas_assincronas"]'
+                        'input[name="plataforma_digital"]'
                     ];
                     
                     camposOnline.forEach(seletor => {
@@ -213,8 +211,6 @@
                         campos.forEach(campo => {
                             if (campo.type === 'text') {
                                 campo.value = '';
-                            } else if (campo.tagName === 'SELECT') {
-                                campo.selectedIndex = 0;
                             }
                         });
                     });
@@ -225,8 +221,8 @@
             
             // Função para limpar horários quando aulas assíncronas são selecionadas
             function limparHorariosSeAssincronas() {
-                const aulasAssincronas = document.querySelector('select[name="aulas_assincronas"]');
-                if (aulasAssincronas && aulasAssincronas.value === 'sim') {
+                const aulasAssincronasSim = document.querySelector('input[name="aulas_assincronas"][value="sim"]');
+                if (aulasAssincronasSim && aulasAssincronasSim.checked) {
                     const camposHorario = [
                         'input[name="horario_inicio[]"]',
                         'input[name="horario_fim[]"]'
@@ -260,12 +256,12 @@
             }
             
             // Adicionar event listener para limpar horários quando aulas assíncronas mudar
-            const aulasAssincronasSelect = document.querySelector('select[name="aulas_assincronas"]');
-            if (aulasAssincronasSelect) {
-                aulasAssincronasSelect.addEventListener('change', function() {
+            const aulasAssincronasRadios = document.querySelectorAll('input[name="aulas_assincronas"]');
+            aulasAssincronasRadios.forEach(radio => {
+                radio.addEventListener('change', function() {
                     limparHorariosSeAssincronas();
                 });
-            }
+            });
         });
     </script>
 </head>
