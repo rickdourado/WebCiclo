@@ -74,8 +74,19 @@
                     {% if messages %}
                         {% for category, message in messages %}
                             <div class="alert alert-{{ category }}">
-                                <i class="fas fa-{{ 'check-circle' if category == 'success' else 'exclamation-triangle' }}"></i>
-                                {{ message }}
+                                {% if category == 'success' %}
+                                    <i class="fas fa-check-circle"></i>
+                                    <strong>Sucesso!</strong> {{ message }}
+                                {% elif category == 'error' %}
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    <strong>Erro de Validação:</strong> {{ message }}
+                                {% elif category == 'warning' %}
+                                    <i class="fas fa-exclamation-circle"></i>
+                                    <strong>Atenção:</strong> {{ message }}
+                                {% else %}
+                                    <i class="fas fa-info-circle"></i>
+                                    {{ message }}
+                                {% endif %}
                             </div>
                         {% endfor %}
                     {% endif %}
@@ -756,20 +767,34 @@
              }
          }
 
-         // Adicionar validação quando a página carregar
-         document.addEventListener('DOMContentLoaded', function() {
-             const linkField = document.getElementById('parceiro_link');
-             if (linkField) {
-                 linkField.addEventListener('blur', validatePartnerLink);
-                 linkField.addEventListener('input', validatePartnerLink);
-             }
-             
-             // Adicionar validação aos checkboxes de dias
-             const diasCheckboxes = document.querySelectorAll('input[name="dias_aula[]"]');
-             diasCheckboxes.forEach(cb => {
-                 cb.addEventListener('change', validateDiasAula);
-             });
-         });
+        // Adicionar validação quando a página carregar
+        document.addEventListener('DOMContentLoaded', function() {
+            const linkField = document.getElementById('parceiro_link');
+            if (linkField) {
+                linkField.addEventListener('blur', validatePartnerLink);
+                linkField.addEventListener('input', validatePartnerLink);
+            }
+            
+            // Adicionar validação aos checkboxes de dias
+            const diasCheckboxes = document.querySelectorAll('input[name="dias_aula[]"]');
+            diasCheckboxes.forEach(cb => {
+                cb.addEventListener('change', validateDiasAula);
+            });
+            
+            // Scroll automático para mensagens de erro
+            const errorAlert = document.querySelector('.alert-error');
+            if (errorAlert) {
+                errorAlert.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                
+                // Destacar a mensagem de erro
+                setTimeout(() => {
+                    errorAlert.style.transform = 'scale(1.02)';
+                    setTimeout(() => {
+                        errorAlert.style.transform = 'scale(1)';
+                    }, 200);
+                }, 100);
+            }
+        });
      </script>
 
      <script>

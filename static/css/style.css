@@ -165,6 +165,8 @@ body {
     align-items: center;
     gap: 12px;
     font-weight: 500;
+    position: relative;
+    z-index: 1000;
 }
 
 .alert-success {
@@ -176,7 +178,22 @@ body {
 .alert-error {
     background: #fed7d7;
     color: #742a2a;
-    border: 1px solid #feb2b2;
+    border: 2px solid #e53e3e;
+    box-shadow: 0 4px 12px rgba(229, 62, 62, 0.15);
+    animation: shake 0.5s ease-in-out;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.alert-error i {
+    color: #e53e3e;
+    font-size: 1.3rem;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
 }
 
 /* Form sections */

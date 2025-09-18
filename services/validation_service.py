@@ -146,24 +146,63 @@ class CourseValidator:
     
     def _validate_dates(self, form_data: Dict):
         """Valida datas do formulário"""
-        inicio_data = form_data.get('inicio_inscricoes_data')
-        fim_data = form_data.get('fim_inscricoes_data')
+        inicio_inscricoes = form_data.get('inicio_inscricoes_data')
+        fim_inscricoes = form_data.get('fim_inscricoes_data')
         
-        if inicio_data and fim_data:
+        # Validar datas de inscrições
+        if inicio_inscricoes and fim_inscricoes:
             try:
-                inicio = datetime.strptime(inicio_data, '%Y-%m-%d')
-                fim = datetime.strptime(fim_data, '%Y-%m-%d')
+                inicio_insc = datetime.strptime(inicio_inscricoes, '%Y-%m-%d')
+                fim_insc = datetime.strptime(fim_inscricoes, '%Y-%m-%d')
                 
-                if fim < inicio:
+                if fim_insc < inicio_insc:
                     self.errors.append("O fim das inscrições deve ser posterior ou igual ao início das inscrições")
                 
                 # Verificar se as datas não são muito distantes no futuro
                 hoje = datetime.now()
-                if inicio > datetime(hoje.year + 2, hoje.month, hoje.day):
+                if inicio_insc > datetime(hoje.year + 2, hoje.month, hoje.day):
                     self.warnings.append("Data de início das inscrições muito distante no futuro")
                     
             except ValueError:
                 self.errors.append("Formato de data inválido")
+        
+        # Validar datas das aulas em relação às datas de inscrições
+        self._validate_aulas_dates(form_data, inicio_inscricoes, fim_inscricoes)
+    
+    def _validate_aulas_dates(self, form_data: Dict, inicio_inscricoes: str, fim_inscricoes: str):
+        """Valida datas das aulas em relação às datas de inscrições"""
+        if not inicio_inscricoes or not fim_inscricoes:
+            return
+            
+        try:
+            inicio_insc = datetime.strptime(inicio_inscricoes, '%Y-%m-%d')
+            fim_insc = datetime.strptime(fim_inscricoes, '%Y-%m-%d')
+            
+            # Verificar datas das unidades (modalidade Presencial/Híbrida)
+            inicio_aulas_list = form_data.getlist('inicio_aulas_data[]') if hasattr(form_data, 'getlist') else [form_data.get('inicio_aulas_data[]', '')]
+            fim_aulas_list = form_data.getlist('fim_aulas_data[]') if hasattr(form_data, 'getlist') else [form_data.get('fim_aulas_data[]', '')]
+            
+            for i, (inicio_aula, fim_aula) in enumerate(zip(inicio_aulas_list, fim_aulas_list), 1):
+                if inicio_aula and fim_aula:
+                    try:
+                        inicio_aula_dt = datetime.strptime(inicio_aula.split(',')[0].strip(), '%Y-%m-%d')
+                        fim_aula_dt = datetime.strptime(fim_aula.split(',')[0].strip(), '%Y-%m-%d')
+                        
+                        # Início das aulas deve ser >= fim das inscrições
+                        if inicio_aula_dt < fim_insc:
+                            fim_insc_formatado = fim_insc.strftime('%d/%m/%Y')
+                            self.errors.append(f"Início das aulas da unidade {i} deve ser posterior ou igual ao fim das inscrições ({fim_insc_formatado})")
+                        
+                        # Fim das aulas deve ser >= fim das inscrições
+                        if fim_aula_dt < fim_insc:
+                            fim_insc_formatado = fim_insc.strftime('%d/%m/%Y')
+                            self.errors.append(f"Fim das aulas da unidade {i} deve ser posterior ou igual ao fim das inscrições ({fim_insc_formatado})")
+                            
+                    except (ValueError, IndexError):
+                        self.errors.append(f"Formato de data inválido para unidade {i}")
+                        
+        except ValueError:
+            self.errors.append("Formato de data de inscrições inválido")
     
     def _validate_external_partner(self, form_data: Dict):
         """Valida dados do parceiro externo"""

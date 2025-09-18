@@ -293,11 +293,74 @@ function setupCustomValidation() {
             }
         }
         
+        // Validar datas das aulas em relação às datas de inscrições
+        if (!validateAulasDates()) {
+            isValid = false;
+        }
+        
         if (!isValid) {
             e.preventDefault();
             // Restaurar o botão de submit se a validação falhar
             submitBtn.innerHTML = '<i class="fas fa-save"></i> Criar Curso';
             submitBtn.disabled = false;
+        }
+    });
+}
+
+// Função para configurar validação de datas em tempo real
+function setupDateValidation() {
+    // Validar quando a data de fim das inscrições mudar
+    const fimInscricoesData = document.getElementById('fim_inscricoes_data');
+    if (fimInscricoesData) {
+        fimInscricoesData.addEventListener('change', function() {
+            validateAulasDatesRealTime();
+        });
+    }
+    
+    // Validar quando as datas das aulas mudarem
+    document.addEventListener('change', function(e) {
+        if (e.target.name === 'inicio_aulas_data[]' || e.target.name === 'fim_aulas_data[]') {
+            validateAulasDatesRealTime();
+        }
+    });
+}
+
+// Função para validar datas das aulas em tempo real (sem alertas)
+function validateAulasDatesRealTime() {
+    const fimInscricoesData = document.getElementById('fim_inscricoes_data');
+    if (!fimInscricoesData || !fimInscricoesData.value) {
+        return;
+    }
+    
+    const fimInscricoes = new Date(fimInscricoesData.value);
+    
+    // Validar datas das unidades
+    const inicioAulasInputs = document.querySelectorAll('input[name="inicio_aulas_data[]"]');
+    const fimAulasInputs = document.querySelectorAll('input[name="fim_aulas_data[]"]');
+    
+    inicioAulasInputs.forEach((input) => {
+        if (input.value) {
+            const inicioAulas = new Date(input.value);
+            if (inicioAulas < fimInscricoes) {
+                input.style.borderColor = '#e53e3e';
+                input.style.backgroundColor = 'rgba(229, 62, 62, 0.05)';
+            } else {
+                input.style.borderColor = '';
+                input.style.backgroundColor = '';
+            }
+        }
+    });
+    
+    fimAulasInputs.forEach((input) => {
+        if (input.value) {
+            const fimAulas = new Date(input.value);
+            if (fimAulas < fimInscricoes) {
+                input.style.borderColor = '#e53e3e';
+                input.style.backgroundColor = 'rgba(229, 62, 62, 0.05)';
+            } else {
+                input.style.borderColor = '';
+                input.style.backgroundColor = '';
+            }
         }
     });
 }
@@ -469,6 +532,11 @@ function setupSubmitButtonClick() {
             }
         }
         
+        // Validar datas das aulas em relação às datas de inscrições
+        if (!validateAulasDates()) {
+            isValid = false;
+        }
+        
         console.log('Validação concluída. Válido:', isValid);
         
         if (isValid) {
@@ -506,6 +574,45 @@ function isFieldVisible(field) {
     }
     
     return true;
+}
+
+// Função para validar datas das aulas em relação às datas de inscrições
+function validateAulasDates() {
+    const fimInscricoesData = document.getElementById('fim_inscricoes_data');
+    if (!fimInscricoesData || !fimInscricoesData.value) {
+        return true; // Se não há data de fim das inscrições, não validar
+    }
+    
+    const fimInscricoes = new Date(fimInscricoesData.value);
+    let isValid = true;
+    
+    // Validar datas das unidades (modalidade Presencial/Híbrida)
+    const inicioAulasInputs = document.querySelectorAll('input[name="inicio_aulas_data[]"]');
+    const fimAulasInputs = document.querySelectorAll('input[name="fim_aulas_data[]"]');
+    
+    inicioAulasInputs.forEach((input, index) => {
+        if (input.value) {
+            const inicioAulas = new Date(input.value);
+            if (inicioAulas < fimInscricoes) {
+                const fimInscricoesFormatado = fimInscricoes.toLocaleDateString('pt-BR');
+                alert(`Início das aulas da unidade ${index + 1} deve ser posterior ou igual ao fim das inscrições (${fimInscricoesFormatado}).`);
+                isValid = false;
+            }
+        }
+    });
+    
+    fimAulasInputs.forEach((input, index) => {
+        if (input.value) {
+            const fimAulas = new Date(input.value);
+            if (fimAulas < fimInscricoes) {
+                const fimInscricoesFormatado = fimInscricoes.toLocaleDateString('pt-BR');
+                alert(`Fim das aulas da unidade ${index + 1} deve ser posterior ou igual ao fim das inscrições (${fimInscricoesFormatado}).`);
+                isValid = false;
+            }
+        }
+    });
+    
+    return isValid;
 }
 
 // Função para formatar valores monetários
@@ -596,6 +703,9 @@ document.addEventListener('DOMContentLoaded', function() {
     if (form) {
         formValidator = new FormValidator(form);
     }
+    
+    // Inicializar validação de datas
+    setupDateValidation();
     
     // Inicializar campos condicionais
     if (formManager) {

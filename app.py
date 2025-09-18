@@ -94,9 +94,6 @@ ORGAOS = [
 @app.route('/')
 def index():
     """Página inicial com formulário de criação de curso"""
-    # Limpar todas as mensagens flash ao acessar a página inicial
-    session.pop('_flashes', None)
-    
     # Data atual para preenchimento automático dos campos de data
     from datetime import datetime
     today_date = datetime.now().strftime('%Y-%m-%d')
