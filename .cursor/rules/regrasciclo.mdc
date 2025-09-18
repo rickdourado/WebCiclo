@@ -67,7 +67,7 @@ WebCiclo/
 - **Linguagem:** Toda documentação e comentários em português brasileiro
 - **Controle de Versão:** Verificar a data do sistema ao registrar mudanças
 - **Documentação:** Manter arquivos .md de documentação na pasta `documentacao`
-- **Changelog:** Registrar alterações diárias em arquivos com formato `AAAA-MM-DD.md` na pasta `documentacao/changelogs`
+- **Changelog:** Registrar alterações diárias em arquivos com formato `AAAA-MM-DD.md` na pasta `documentacao/changelogs`. Sempre que houver alterações novas, atualize o changelog do dia, ao invés de criar outro .md com o nome da alteração.
 - **Padrões:** Utilizar HTML5 semântico, CSS modular e JavaScript ES6+ compatível
 - **Acessibilidade:** Garantir que as páginas sejam acessíveis e responsivas
 - **Segurança:** Implementar validação de dados e proteção contra ataques comuns
