@@ -58,7 +58,6 @@ class CourseValidator:
             'orgao': 'Órgão Responsável',
             'tema': 'Tema/Categoria',
             'modalidade': 'Modalidade',
-            'carga_horaria': 'Carga Horária',
             'curso_gratuito': 'Curso Gratuito',
             'oferece_bolsa': 'Oferece Bolsa',
             'oferece_certificado': 'Oferece Certificado',
@@ -110,11 +109,11 @@ class CourseValidator:
         if modalidade == 'Online':
             # Para Online, apenas vagas e carga horária são obrigatórios
             vagas_unidade = form_data.get('vagas_unidade[]') or form_data.get('vagas_unidade')
-            if not vagas_unidade:
+            if not vagas_unidade or (isinstance(vagas_unidade, list) and not any(vagas_unidade)):
                 self.errors.append("Número de vagas é obrigatório para cursos online")
             
             carga_horaria = form_data.get('carga_horaria[]') or form_data.get('carga_horaria')
-            if not carga_horaria:
+            if not carga_horaria or (isinstance(carga_horaria, list) and not any(carga_horaria)):
                 self.errors.append("Carga horária é obrigatória para cursos online")
             
             # Verificar se aulas são síncronas (NÃO assíncronas)
@@ -225,7 +224,7 @@ class CourseValidator:
         
         # Determinar número de unidades presenciais
         # Usar apenas os campos que realmente pertencem às unidades presenciais
-        max_units = max(len(enderecos), len(bairros), len(vagas))
+        max_units = max(len(enderecos), len(bairros), len(vagas)) if (enderecos or bairros or vagas) else 0
         
         # Filtrar apenas unidades que têm dados válidos (não vazios)
         for i in range(max_units):
@@ -242,7 +241,6 @@ class CourseValidator:
                     'dias_aula': dias[i] if i < len(dias) else ''
                 }
                 unidades.append(unidade)
-        
         return unidades
     
     def validate_file_upload(self, file, allowed_extensions: set = None) -> Tuple[bool, str]:

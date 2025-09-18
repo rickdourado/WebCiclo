@@ -347,16 +347,19 @@ class FormManager {
     }
     
     generateUnidadeHTML(count, isOnline) {
-        const enderecoFields = isOnline ? 'style="display:none;"' : 'required';
         const legendText = isOnline ? `Informações do Curso ${count}` : `Informações da Unidade ${count}`;
+        
+        // Para cursos online, não incluir campos de endereço e bairro
+        const enderecoFields = isOnline ? '' : `
+                <label>Endereço da unidade*</label>
+                <input type="text" name="endereco_unidade[]" required>
+                <label>Bairro*</label>
+                <input type="text" name="bairro_unidade[]" required>`;
         
         return `
             <fieldset class="unidade-fieldset">
                 <legend>${legendText} <button type="button" class="remove-unidade-btn" onclick="removeUnidade(this)" style="display:none;">×</button></legend>
-                <label>Endereço da unidade*</label>
-                <input type="text" name="endereco_unidade[]" ${enderecoFields}>
-                <label>Bairro*</label>
-                <input type="text" name="bairro_unidade[]" ${enderecoFields}>
+                ${enderecoFields}
                 <label>Número de vagas*</label>
                 <input type="number" name="vagas_unidade[]" min="1" required>
                 <div class="data-group">

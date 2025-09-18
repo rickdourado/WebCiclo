@@ -314,8 +314,8 @@
                             <div class="info-row">
                                 <i class="fas fa-calendar-check"></i>
                                 <span><strong>Data de Realização:</strong> 
-                                    {% set inicio_data = course.inicio_aulas_data.split(',')[0].strip() if course.inicio_aulas_data else '' %}
-                                    {% set fim_data = course.fim_aulas_data.split(',')[0].strip() if course.fim_aulas_data else '' %}
+                                    {% set inicio_data = course.inicio_aulas_data.split('|')[0].strip() if course.inicio_aulas_data else '' %}
+                                    {% set fim_data = course.fim_aulas_data.split('|')[0].strip() if course.fim_aulas_data else '' %}
                                     {% if inicio_data and fim_data %}
                                         {% set inicio_formatada = inicio_data.split('-')[2] + '/' + inicio_data.split('-')[1] + '/' + inicio_data.split('-')[0] %}
                                         {% set fim_formatada = fim_data.split('-')[2] + '/' + fim_data.split('-')[1] + '/' + fim_data.split('-')[0] %}
@@ -355,14 +355,24 @@
                             {% if course.dias_aula %}
                             <div class="info-row">
                                 <i class="fas fa-calendar-day"></i>
-                                <span><strong>Dias da Aula:</strong> {{ course.dias_aula }}</span>
+                                <span><strong>Dias da Aula:</strong> 
+                                    {% set dias_lista = course.dias_aula.split('|') %}
+                                    {% set dias_unicos = [] %}
+                                    {% for dia in dias_lista %}
+                                        {% set dia_limpo = dia.strip() %}
+                                        {% if dia_limpo not in dias_unicos %}
+                                            {% set _ = dias_unicos.append(dia_limpo) %}
+                                        {% endif %}
+                                    {% endfor %}
+                                    {{ dias_unicos|join(', ') }}
+                                </span>
                             </div>
                             {% endif %}
                             
                             {% if course.horario_inicio and course.horario_fim %}
                             <div class="info-row">
                                 <i class="fas fa-clock"></i>
-                                <span><strong>Horário:</strong> {{ course.horario_inicio.split(',')[0].strip() }} às {{ course.horario_fim.split(',')[0].strip() }}</span>
+                                <span><strong>Horário:</strong> {{ course.horario_inicio.split('|')[0].strip() }} às {{ course.horario_fim.split('|')[0].strip() }}</span>
                             </div>
                             {% endif %}
                             
@@ -447,6 +457,93 @@
                         </div>
                     </div>
                     
+                    <!-- Seção: Informações de Localização (apenas para cursos presenciais/híbridos) -->
+                    {% if course.modalidade in ['Presencial', 'Híbrido'] and (course.endereco_unidade or course.bairro_unidade) %}
+                    <div class="info-section">
+                        <div class="info-section-title">
+                            <i class="fas fa-map-marker-alt"></i>
+                            Informações de Localização
+                        </div>
+                        <div class="course-info">
+                            {% set enderecos = course.endereco_unidade.split('|') if course.endereco_unidade else [] %}
+                            {% set bairros = course.bairro_unidade.split('|') if course.bairro_unidade else [] %}
+                            {% set vagas = course.vagas_unidade.split('|') if course.vagas_unidade else [] %}
+                            {% set inicio_aulas = course.inicio_aulas_data.split('|') if course.inicio_aulas_data else [] %}
+                            {% set fim_aulas = course.fim_aulas_data.split('|') if course.fim_aulas_data else [] %}
+                            {% set horario_inicio = course.horario_inicio.split('|') if course.horario_inicio else [] %}
+                            {% set horario_fim = course.horario_fim.split('|') if course.horario_fim else [] %}
+                            {% set dias_aula = course.dias_aula.split('|') if course.dias_aula else [] %}
+                            
+                            {% set max_units = [enderecos|length, bairros|length, vagas|length, inicio_aulas|length, fim_aulas|length, horario_inicio|length, horario_fim|length, dias_aula|length]|max %}
+                            
+                            {% for i in range(max_units) %}
+                                {% if enderecos[i] or bairros[i] or vagas[i] %}
+                                <div class="unit-info" style="margin-bottom: 20px; padding: 15px; background-color: #f8f9fa; border-radius: 8px; border-left: 4px solid #667eea;">
+                                    <div style="font-weight: 600; color: #2d3748; margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
+                                        <i class="fas fa-building" style="color: #667eea;"></i>
+                                        Unidade {{ i + 1 }}
+                                    </div>
+                                    
+                                    {% if enderecos[i] %}
+                                    <div class="info-row">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                        <span><strong>Endereço:</strong> {{ enderecos[i].strip() }}</span>
+                                    </div>
+                                    {% endif %}
+                                    
+                                    {% if bairros[i] %}
+                                    <div class="info-row">
+                                        <i class="fas fa-map"></i>
+                                        <span><strong>Bairro:</strong> {{ bairros[i].strip() }}</span>
+                                    </div>
+                                    {% endif %}
+                                    
+                                    {% if vagas[i] %}
+                                    <div class="info-row">
+                                        <i class="fas fa-user-plus"></i>
+                                        <span><strong>Vagas:</strong> {{ vagas[i].strip() }}</span>
+                                    </div>
+                                    {% endif %}
+                                    
+                                    {% if inicio_aulas[i] or fim_aulas[i] %}
+                                    <div class="info-row">
+                                        <i class="fas fa-calendar-check"></i>
+                                        <span><strong>Período das Aulas:</strong> 
+                                            {% if inicio_aulas[i] and fim_aulas[i] %}
+                                                {% set inicio_formatada = inicio_aulas[i].strip().split('-')[2] + '/' + inicio_aulas[i].strip().split('-')[1] + '/' + inicio_aulas[i].strip().split('-')[0] %}
+                                                {% set fim_formatada = fim_aulas[i].strip().split('-')[2] + '/' + fim_aulas[i].strip().split('-')[1] + '/' + fim_aulas[i].strip().split('-')[0] %}
+                                                {{ inicio_formatada }} a {{ fim_formatada }}
+                                            {% elif inicio_aulas[i] %}
+                                                {% set inicio_formatada = inicio_aulas[i].strip().split('-')[2] + '/' + inicio_aulas[i].strip().split('-')[1] + '/' + inicio_aulas[i].strip().split('-')[0] %}
+                                                A partir de {{ inicio_formatada }}
+                                            {% elif fim_aulas[i] %}
+                                                {% set fim_formatada = fim_aulas[i].strip().split('-')[2] + '/' + fim_aulas[i].strip().split('-')[1] + '/' + fim_aulas[i].strip().split('-')[0] %}
+                                                Até {{ fim_formatada }}
+                                            {% endif %}
+                                        </span>
+                                    </div>
+                                    {% endif %}
+                                    
+                                    {% if horario_inicio[i] and horario_fim[i] %}
+                                    <div class="info-row">
+                                        <i class="fas fa-clock"></i>
+                                        <span><strong>Horário:</strong> {{ horario_inicio[i].strip() }} às {{ horario_fim[i].strip() }}</span>
+                                    </div>
+                                    {% endif %}
+                                    
+                                    {% if dias_aula[i] %}
+                                    <div class="info-row">
+                                        <i class="fas fa-calendar-day"></i>
+                                        <span><strong>Dias da Aula:</strong> {{ dias_aula[i].strip() }}</span>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    
                     <!-- Seção: Informações Acadêmicas -->
                     <div class="info-section">
                         <div class="info-section-title">
@@ -462,7 +559,18 @@
                             {% if course.vagas_unidade %}
                             <div class="info-row">
                                 <i class="fas fa-user-plus"></i>
-                                <span><strong>Número de Vagas:</strong> {{ course.vagas_unidade.split(',')[0].strip() }}</span>
+                                <span><strong>Total de Vagas:</strong> 
+                                    {% set vagas_lista = course.vagas_unidade.split('|') %}
+                                    {% set vagas_numericas = [] %}
+                                    {% for vaga in vagas_lista %}
+                                        {% set vaga_limpa = vaga.strip() %}
+                                        {% if vaga_limpa and vaga_limpa.isdigit() %}
+                                            {% set _ = vagas_numericas.append(vaga_limpa|int) %}
+                                        {% endif %}
+                                    {% endfor %}
+                                    {% set total_vagas = vagas_numericas|sum %}
+                                    {{ total_vagas }} vagas
+                                </span>
                             </div>
                             {% endif %}
                             
