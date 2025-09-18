@@ -162,21 +162,37 @@ class CourseService:
         
         # Campos específicos por modalidade
         if modalidade == 'Online':
+            # Verificar se aulas são síncronas (assíncronas = "não")
+            aulas_assincronas = form_data.get('aulas_assincronas', '')
+            aulas_sincronas = aulas_assincronas == 'nao'
+            
             # Campos específicos para Online
             course_data.update({
                 'plataforma_digital': form_data.get('plataforma_digital', ''),
                 'carga_horaria': form_data.get('carga_horaria', ''),
-                'aulas_assincronas': form_data.get('aulas_assincronas', ''),
+                'aulas_assincronas': aulas_assincronas,
                 'dias_aula': '|'.join(form_data.getlist('dias_aula[]')) if hasattr(form_data, 'getlist') else form_data.get('dias_aula[]', ''),
                 # Campos de Presencial/Híbrido devem estar vazios para Online
                 'endereco_unidade': '',
                 'bairro_unidade': '',
                 'vagas_unidade': '',
                 'inicio_aulas_data': '',
-                'fim_aulas_data': '',
-                'horario_inicio': '',
-                'horario_fim': ''
+                'fim_aulas_data': ''
             })
+            
+            # Horários baseados no tipo de aula
+            if aulas_sincronas:
+                # Para aulas síncronas, incluir horários
+                course_data.update({
+                    'horario_inicio': '|'.join([h for h in form_data.getlist('horario_inicio[]') if h.strip()]) if hasattr(form_data, 'getlist') else form_data.get('horario_inicio[]', ''),
+                    'horario_fim': '|'.join([h for h in form_data.getlist('horario_fim[]') if h.strip()]) if hasattr(form_data, 'getlist') else form_data.get('horario_fim[]', '')
+                })
+            else:
+                # Para aulas assíncronas, horários devem estar vazios
+                course_data.update({
+                    'horario_inicio': '',
+                    'horario_fim': ''
+                })
         else:
             # Campos específicos para Presencial/Híbrido
             course_data.update({

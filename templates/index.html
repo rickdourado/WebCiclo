@@ -174,9 +174,7 @@
                         'input[name="endereco_unidade[]"]',
                         'input[name="bairro_unidade[]"]',
                         'input[name="inicio_aulas_data[]"]',
-                        'input[name="fim_aulas_data[]"]',
-                        'input[name="horario_inicio[]"]',
-                        'input[name="horario_fim[]"]'
+                        'input[name="fim_aulas_data[]"]'
                     ];
                     
                     camposPresencial.forEach(seletor => {
@@ -185,6 +183,22 @@
                             campo.value = '';
                         });
                     });
+                    
+                    // Limpar horários apenas se aulas forem assíncronas
+                    const aulasAssincronas = document.querySelector('select[name="aulas_assincronas"]');
+                    if (aulasAssincronas && aulasAssincronas.value === 'sim') {
+                        const camposHorario = [
+                            'input[name="horario_inicio[]"]',
+                            'input[name="horario_fim[]"]'
+                        ];
+                        
+                        camposHorario.forEach(seletor => {
+                            const campos = document.querySelectorAll(seletor);
+                            campos.forEach(campo => {
+                                campo.value = '';
+                            });
+                        });
+                    }
                     
                     console.log('Campos de Presencial/Híbrido limpos para modalidade Online');
                 } else if (modalidade === 'Presencial' || modalidade === 'Híbrido') {
@@ -209,6 +223,26 @@
                 }
             }
             
+            // Função para limpar horários quando aulas assíncronas são selecionadas
+            function limparHorariosSeAssincronas() {
+                const aulasAssincronas = document.querySelector('select[name="aulas_assincronas"]');
+                if (aulasAssincronas && aulasAssincronas.value === 'sim') {
+                    const camposHorario = [
+                        'input[name="horario_inicio[]"]',
+                        'input[name="horario_fim[]"]'
+                    ];
+                    
+                    camposHorario.forEach(seletor => {
+                        const campos = document.querySelectorAll(seletor);
+                        campos.forEach(campo => {
+                            campo.value = '';
+                        });
+                    });
+                    
+                    console.log('Horários limpos para aulas assíncronas');
+                }
+            }
+            
             // Executar limpeza do formulário
             limparFormulario();
             
@@ -222,6 +256,14 @@
                 modalidadeSelect.addEventListener('change', function() {
                     const modalidadeSelecionada = this.value;
                     limparCamposPorModalidade(modalidadeSelecionada);
+                });
+            }
+            
+            // Adicionar event listener para limpar horários quando aulas assíncronas mudar
+            const aulasAssincronasSelect = document.querySelector('select[name="aulas_assincronas"]');
+            if (aulasAssincronasSelect) {
+                aulasAssincronasSelect.addEventListener('change', function() {
+                    limparHorariosSeAssincronas();
                 });
             }
         });

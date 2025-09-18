@@ -137,16 +137,25 @@ class CourseValidator:
     
     def _validate_online_exclusive_fields(self, form_data: Dict):
         """Valida que campos específicos de Presencial/Híbrido não estão presentes em cursos Online"""
-        # Campos que não devem estar presentes em cursos Online
+        # Campos que nunca devem estar presentes em cursos Online
         presencial_fields = [
             'endereco_unidade[]',
             'bairro_unidade[]', 
             'inicio_aulas_data[]',
-            'fim_aulas_data[]',
+            'fim_aulas_data[]'
+        ]
+        
+        # Verificar se aulas são síncronas (assíncronas = "não")
+        aulas_assincronas = form_data.get('aulas_assincronas')
+        aulas_sincronas = aulas_assincronas == 'nao'
+        
+        # Campos que só devem estar presentes em aulas síncronas
+        campos_sincronos = [
             'horario_inicio[]',
             'horario_fim[]'
         ]
         
+        # Validar campos que nunca devem estar presentes
         for field in presencial_fields:
             field_value = form_data.get(field)
             if field_value and field_value.strip():
@@ -160,6 +169,27 @@ class CourseValidator:
                     if field_value.strip():
                         field_name = field.replace('[]', '').replace('_', ' ').title()
                         self.errors.append(f"Campo '{field_name}' não deve ser preenchido para cursos online")
+        
+        # Validar campos de horário baseado no tipo de aula
+        for field in campos_sincronos:
+            field_value = form_data.get(field)
+            field_name = field.replace('[]', '').replace('_', ' ').title()
+            
+            if aulas_sincronas:
+                # Para aulas síncronas, horários são obrigatórios
+                if not field_value or (isinstance(field_value, list) and not any(item.strip() for item in field_value if item)):
+                    self.errors.append(f"Campo '{field_name}' é obrigatório para aulas síncronas online")
+                elif isinstance(field_value, str) and not field_value.strip():
+                    self.errors.append(f"Campo '{field_name}' é obrigatório para aulas síncronas online")
+            else:
+                # Para aulas assíncronas, horários não devem estar presentes
+                if field_value and field_value.strip():
+                    if isinstance(field_value, list):
+                        if any(item.strip() for item in field_value if item):
+                            self.errors.append(f"Campo '{field_name}' não deve ser preenchido para aulas assíncronas online")
+                    else:
+                        if field_value.strip():
+                            self.errors.append(f"Campo '{field_name}' não deve ser preenchido para aulas assíncronas online")
     
     def _validate_units(self, unidades_data: List[Dict]):
         """Valida dados das unidades"""
