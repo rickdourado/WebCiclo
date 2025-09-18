@@ -61,6 +61,8 @@ CadastroCurso/
 - **Controle de Versão:** Verificar a data do sistema ao registrar mudanças
 - **Documentação:** Manter arquivos .md de documentação na pasta `documentacao`
 - **Changelog:** Registrar alterações diárias em arquivos com formato `AAAA-MM-DD.md` na pasta `documentacao/logs`
+- **Consolidação de Logs:** Ao final de cada dia, consolidar todos os logs individuais em um único arquivo `AAAA-MM-DD-consolidado-final.md` e remover os logs individuais
+- **Nomenclatura de Logs:** Evitar nomes desnecessários nos logs. Usar nomes descritivos e concisos que identifiquem claramente o problema ou funcionalidade
 - **Padrões:** Utilizar HTML5 semântico, CSS modular e JavaScript ES6+ compatível
 - **Acessibilidade:** Garantir que as páginas sejam acessíveis e responsivas
 - **Segurança:** Implementar validação de dados e proteção contra ataques comuns
