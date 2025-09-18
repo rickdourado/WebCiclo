@@ -172,10 +172,11 @@ class CourseService:
                 'carga_horaria': form_data.get('carga_horaria', ''),
                 'aulas_assincronas': aulas_assincronas,
                 'dias_aula': '|'.join(form_data.getlist('dias_aula[]')) if hasattr(form_data, 'getlist') else form_data.get('dias_aula[]', ''),
+                # Para cursos online, vagas_unidade deve vir do formulário
+                'vagas_unidade': '|'.join(form_data.getlist('vagas_unidade[]')) if hasattr(form_data, 'getlist') else form_data.get('vagas_unidade[]', ''),
                 # Campos de Presencial/Híbrido devem estar vazios para Online
                 'endereco_unidade': '',
                 'bairro_unidade': '',
-                'vagas_unidade': '',
                 'inicio_aulas_data': '',
                 'fim_aulas_data': ''
             })
