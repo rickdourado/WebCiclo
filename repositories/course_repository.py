@@ -46,11 +46,25 @@ class CourseRepository:
             course_data['csv_file'] = os.path.basename(csv_path)
             course_data['pdf_file'] = os.path.basename(pdf_path)
             
+            print(f"Arquivos gerados com sucesso para curso {course_data['id']}: CSV={csv_path}, PDF={pdf_path}")
+            
         except Exception as e:
-            # Log do erro mas não falha a operação
-            print(f"Erro ao gerar arquivos para curso {course_data['id']}: {str(e)}")
-            course_data['csv_file'] = None
-            course_data['pdf_file'] = None
+            # Log detalhado do erro
+            print(f"ERRO ao gerar arquivos para curso {course_data['id']}: {str(e)}")
+            print(f"Tipo do erro: {type(e).__name__}")
+            import traceback
+            print(f"Traceback: {traceback.format_exc()}")
+            
+            # Tentar gerar apenas CSV se PDF falhar
+            try:
+                csv_path = generate_csv(course_data)
+                course_data['csv_file'] = os.path.basename(csv_path)
+                course_data['pdf_file'] = None
+                print(f"CSV gerado com sucesso, PDF falhou: {csv_path}")
+            except Exception as csv_error:
+                print(f"ERRO ao gerar CSV também: {str(csv_error)}")
+                course_data['csv_file'] = None
+                course_data['pdf_file'] = None
         
         return course_data
     

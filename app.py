@@ -107,6 +107,7 @@ def create_course():
     """Cria um novo curso usando o serviço de cursos"""
     try:
         logger.info("Iniciando criação de curso")
+        logger.info(f"Dados recebidos: {dict(request.form)}")
         
         # Usar o serviço de cursos para criar o curso
         success, course_data, messages = course_service.create_course(request.form, request.files)
@@ -122,14 +123,23 @@ def create_course():
             return redirect(url_for('course_success', course_id=course_data['id']))
         else:
             # Exibir erros de validação
+            logger.warning(f"Falha na criação do curso: {messages}")
             for error in messages:
                 flash(error, 'error')
+                logger.warning(f"Erro de validação: {error}")
             
-            logger.warning(f"Falha na criação do curso: {messages}")
+            # Log detalhado para debug
+            logger.info("Dados do formulário que falharam na validação:")
+            for key, value in request.form.items():
+                logger.info(f"  {key}: {value}")
+            
             return redirect(url_for('index'))
             
     except Exception as e:
         logger.error(f"Erro interno ao criar curso: {str(e)}")
+        logger.error(f"Tipo do erro: {type(e).__name__}")
+        import traceback
+        logger.error(f"Traceback: {traceback.format_exc()}")
         flash(f'Erro interno ao criar curso: {str(e)}', 'error')
         return redirect(url_for('index'))
 
@@ -159,9 +169,9 @@ def course_success(course_id):
 def list_courses():
     """Listar todos os cursos criados"""
     try:
-        # Limpar mensagens flash ao acessar a lista de cursos
+        # Log para debug no PythonAnywhere
         if 'pythonanywhere' in request.host:
-            session.pop('_flashes', None)
+            logger.info("Acessando lista de cursos via PythonAnywhere")
         
         # Usar o serviço para listar cursos
         courses = course_service.list_courses()
@@ -376,11 +386,11 @@ if __name__ == '__main__':
 # Esta aplicação será importada pelo arquivo WSGI
 application = app
 
-# Middleware para verificar e limpar mensagens flash no CicloCarioca.pythonanywhere.com
+# Middleware para verificar se estamos no PythonAnywhere (sem limpar flash messages)
 @app.before_request
 def check_pythonanywhere():
-    """Verificar se estamos no CicloCarioca.pythonanywhere.com e limpar mensagens flash"""
+    """Verificar se estamos no CicloCarioca.pythonanywhere.com"""
     if request.host and 'pythonanywhere' in request.host:
-        # Limpar mensagens flash em todas as requisições no PythonAnywhere
-        if '_flashes' in session:
-            session.pop('_flashes', None)
+        # Apenas log para debug - NÃO limpar flash messages
+        logger.info(f"Acessando via PythonAnywhere: {request.host}")
+        # Removido: session.pop('_flashes', None) - estava impedindo exibição de erros

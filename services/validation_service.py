@@ -107,14 +107,15 @@ class CourseValidator:
         modalidade = form_data.get('modalidade')
         
         if modalidade == 'Online':
-            # Para Online, apenas vagas e carga horária são obrigatórios
+            # Para Online, apenas vagas são obrigatórias
             vagas_unidade = form_data.get('vagas_unidade[]') or form_data.get('vagas_unidade')
             if not vagas_unidade or (isinstance(vagas_unidade, list) and not any(vagas_unidade)):
                 self.errors.append("Número de vagas é obrigatório para cursos online")
             
+            # Carga horária é opcional para cursos online
             carga_horaria = form_data.get('carga_horaria[]') or form_data.get('carga_horaria')
             if not carga_horaria or (isinstance(carga_horaria, list) and not any(carga_horaria)):
-                self.errors.append("Carga horária é obrigatória para cursos online")
+                self.warnings.append("Carga horária não informada para curso online")
             
             # Verificar se aulas são síncronas (NÃO assíncronas)
             aulas_assincronas = form_data.get('aulas_assincronas')
