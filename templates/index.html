@@ -42,6 +42,92 @@
                 });
             }
             
+            // Função para limpar todos os campos do formulário, exceto campos de data
+            function limparFormulario() {
+                // Limpar campos de texto
+                const camposTexto = document.querySelectorAll('input[type="text"], input[type="email"], input[type="url"], textarea');
+                camposTexto.forEach(campo => {
+                    campo.value = '';
+                });
+                
+                // Limpar campos de número
+                const camposNumero = document.querySelectorAll('input[type="number"]');
+                camposNumero.forEach(campo => {
+                    campo.value = '';
+                });
+                
+                // Limpar campos de tempo
+                const camposTempo = document.querySelectorAll('input[type="time"]');
+                camposTempo.forEach(campo => {
+                    campo.value = '';
+                });
+                
+                // Limpar selects (exceto campos de data que já têm valores padrão)
+                const selects = document.querySelectorAll('select');
+                selects.forEach(select => {
+                    // Não limpar selects de data que já têm valores padrão
+                    if (!select.id.includes('data') && !select.id.includes('Data')) {
+                        select.selectedIndex = 0;
+                    }
+                });
+                
+                // Limpar checkboxes
+                const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+                checkboxes.forEach(checkbox => {
+                    checkbox.checked = false;
+                });
+                
+                // Limpar radio buttons
+                const radioButtons = document.querySelectorAll('input[type="radio"]');
+                radioButtons.forEach(radio => {
+                    radio.checked = false;
+                });
+                
+                // Limpar campos de arquivo
+                const camposArquivo = document.querySelectorAll('input[type="file"]');
+                camposArquivo.forEach(campo => {
+                    campo.value = '';
+                });
+                
+                // Remover unidades adicionais (manter apenas a primeira)
+                const unidadesAdicionais = document.querySelectorAll('.unidade-item:not(:first-child)');
+                unidadesAdicionais.forEach(unidade => {
+                    unidade.remove();
+                });
+                
+                // Remover plataformas adicionais (manter apenas a primeira)
+                const plataformasAdicionais = document.querySelectorAll('.plataforma-item:not(:first-child)');
+                plataformasAdicionais.forEach(plataforma => {
+                    plataforma.remove();
+                });
+                
+                // Resetar contadores de unidades e plataformas
+                if (window.formManager) {
+                    window.formManager.unidades = 1;
+                    window.formManager.plataformas = 1;
+                    window.formManager.updateRemoveButtonsVisibility();
+                    window.formManager.updateRemovePlataformaButtonsVisibility();
+                }
+                
+                // Limpar mensagens de erro visuais
+                const camposComErro = document.querySelectorAll('.campo-erro');
+                camposComErro.forEach(campo => {
+                    campo.classList.remove('campo-erro');
+                });
+                
+                // Limpar tooltips de validação
+                const tooltips = document.querySelectorAll('[title*="Data:"]');
+                tooltips.forEach(tooltip => {
+                    tooltip.removeAttribute('title');
+                });
+                
+                console.log('Formulário limpo com sucesso!');
+            }
+            
+            // Executar limpeza do formulário
+            limparFormulario();
+            
+            // Definir valores padrão para campos de data
             setDataAtual();
             formatarDataBrasileira();
         });
