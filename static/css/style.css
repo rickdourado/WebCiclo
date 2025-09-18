@@ -615,6 +615,13 @@ textarea:valid:not(:placeholder-shown) {
     margin: 0;
 }
 
+/* Remover borda ao redor das informações das Plataformas */
+.plataforma-fieldset {
+    border: none;
+    padding: 0;
+    margin: 0;
+}
+
 .add-unidade-btn,
 .add-plataforma-btn {
     margin-top: 16px;
@@ -650,7 +657,25 @@ textarea:valid:not(:placeholder-shown) {
     background-color: #f8f9fa;
 }
 
+.plataforma-item {
+    margin-bottom: 20px;
+    padding: 15px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background-color: #f8f9fa;
+}
+
 .unidade-item legend {
+    font-weight: bold;
+    font-size: 1.1em;
+    color: #333;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.plataforma-item legend {
     font-weight: bold;
     font-size: 1.1em;
     color: #333;

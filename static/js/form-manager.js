@@ -320,7 +320,10 @@ class FormManager {
     
     addUnidade() {
         const unidadesContainer = document.getElementById('unidades_list');
-        if (!unidadesContainer) return;
+        if (!unidadesContainer) {
+            console.error('Container unidades_list não encontrado!');
+            return;
+        }
         
         const unidadeCount = unidadesContainer.children.length + 1;
         
@@ -336,6 +339,9 @@ class FormManager {
         
         unidadesContainer.appendChild(unidadeDiv);
         
+        // Atualizar visibilidade dos botões de remover
+        this.updateRemoveButtonsVisibility();
+        
         // Scroll suave para a nova unidade
         unidadeDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
@@ -346,7 +352,7 @@ class FormManager {
         
         return `
             <fieldset class="unidade-fieldset">
-                <legend>${legendText}</legend>
+                <legend>${legendText} <button type="button" class="remove-unidade-btn" onclick="removeUnidade(this)" style="display:none;">×</button></legend>
                 <label>Endereço da unidade*</label>
                 <input type="text" name="endereco_unidade[]" ${enderecoFields}>
                 <label>Bairro*</label>
@@ -410,6 +416,14 @@ class FormManager {
     removeUnidade(button) {
         if (!button) return;
         
+        const unidadesList = document.getElementById('unidades_list');
+        const unidades = unidadesList.querySelectorAll('.unidade-item');
+        
+        // Não permitir remover se só há uma unidade
+        if (unidades.length <= 1) {
+            return;
+        }
+        
         const unidadeItem = button.closest('.unidade-item');
         if (unidadeItem) {
             unidadeItem.remove();
@@ -427,9 +441,22 @@ class FormManager {
             const legend = unidade.querySelector('legend');
             if (legend) {
                 const legendText = isOnline ? `Informações do Curso ${index + 1}` : `Informações da Unidade ${index + 1}`;
-                legend.textContent = legendText;
+                legend.innerHTML = `${legendText} <button type="button" class="remove-unidade-btn" onclick="removeUnidade(this)" style="display:none;">×</button>`;
             }
             unidade.setAttribute('data-unidade', index);
+        });
+        
+        // Atualizar visibilidade dos botões após renumerar
+        this.updateRemoveButtonsVisibility();
+    }
+    
+    updateRemoveButtonsVisibility() {
+        const unidades = document.querySelectorAll('#unidades_list .unidade-item');
+        const removeButtons = document.querySelectorAll('.remove-unidade-btn');
+        
+        // Mostrar botão de remover apenas se há mais de uma unidade
+        removeButtons.forEach(button => {
+            button.style.display = unidades.length > 1 ? 'inline-block' : 'none';
         });
     }
     
@@ -447,6 +474,9 @@ class FormManager {
         
         plataformaContainer.appendChild(plataformaDiv);
         
+        // Atualizar visibilidade dos botões de remover
+        this.updateRemovePlataformaButtonsVisibility();
+        
         // Scroll suave para a nova plataforma
         plataformaDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
@@ -454,7 +484,7 @@ class FormManager {
     generatePlataformaHTML(count) {
         return `
             <fieldset class="plataforma-fieldset">
-                <legend>Informações da Plataforma ${count}</legend>
+                <legend>Informações da Plataforma ${count} <button type="button" class="remove-plataforma-btn" onclick="removePlataforma(this)" style="display:none;">×</button></legend>
                 <label>Plataforma Digital</label>
                 <input type="text" name="plataforma_digital[]" placeholder="Ex: Zoom, Google Meet, etc.">
                 <label>Número de vagas*</label>
@@ -515,6 +545,14 @@ class FormManager {
     removePlataforma(button) {
         if (!button) return;
         
+        const plataformaList = document.getElementById('plataforma_list');
+        const plataformas = plataformaList.querySelectorAll('.plataforma-item');
+        
+        // Não permitir remover se só há uma plataforma
+        if (plataformas.length <= 1) {
+            return;
+        }
+        
         const plataformaItem = button.closest('.plataforma-item');
         if (plataformaItem) {
             plataformaItem.remove();
@@ -527,9 +565,22 @@ class FormManager {
         plataformas.forEach((plataforma, index) => {
             const legend = plataforma.querySelector('legend');
             if (legend) {
-                legend.textContent = `Informações da Plataforma ${index + 1}`;
+                legend.innerHTML = `Informações da Plataforma ${index + 1} <button type="button" class="remove-plataforma-btn" onclick="removePlataforma(this)" style="display:none;">×</button>`;
             }
             plataforma.setAttribute('data-plataforma', index);
+        });
+        
+        // Atualizar visibilidade dos botões após renumerar
+        this.updateRemovePlataformaButtonsVisibility();
+    }
+    
+    updateRemovePlataformaButtonsVisibility() {
+        const plataformas = document.querySelectorAll('#plataforma_list .plataforma-item');
+        const removeButtons = document.querySelectorAll('.remove-plataforma-btn');
+        
+        // Mostrar botão de remover apenas se há mais de uma plataforma
+        removeButtons.forEach(button => {
+            button.style.display = plataformas.length > 1 ? 'inline-block' : 'none';
         });
     }
 }

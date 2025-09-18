@@ -1,0 +1,32 @@
+# Regras do Projeto WebCiclo
+- Execute um comando no terminal por vez, ao invés de utilizar &&, para evitar erros.
+- O ambiente virtual de desenvolvimento é intitulado 'ciclo', usado pelo Anaconda
+
+## Visão Geral
+
+O WebCiclo.Carioca é um sistema de curadoria de cursos desenvolvido com Flask para frontend e backend, utilizando HTML5, CSS3 e JavaScript Vanilla para a interface. O sistema é projetado para ser hospedado na plataforma PythonAnywhere.
+
+## Arquitetura do Sistema
+
+A estrutura do sistema se divide em três partes principais:
+
+- **Frontend (HTML5 + CSS3 + JS Vanilla):** Interface do usuário renderizada por Flask, com páginas HTML5 semânticas, estilização CSS3 responsiva e interações básicas em JavaScript puro.
+- **Backend (Python/Flask):** Controla a lógica de negócio, processamento de dados, renderização de templates e gerenciamento de arquivos.
+- **Armazenamento de Dados:** Utiliza arquivos CSV e PDF para armazenar informações dos cursos, em vez de um banco de dados tradicional.
+
+## Regras de Desenvolvimento
+
+- **Linguagem:** Toda documentação e comentários em português brasileiro
+- **Controle de Versão:** Verificar a data do sistema ao registrar mudanças
+- **Documentação:** Manter arquivos .md de documentação na pasta `documentacao`
+- **Changelog:** Registrar alterações diárias em arquivos com formato `AAAA-MM-DD.md` na pasta `documentacao/changelogs`
+- **Padrões:** Utilizar HTML5 semântico, CSS modular e JavaScript ES6+ compatível
+- **Acessibilidade:** Garantir que as páginas sejam acessíveis e responsivas
+- **Segurança:** Implementar validação de dados e proteção contra ataques comuns
+
+## Observações Importantes
+
+- O sistema utiliza arquivos CSV e PDF para armazenamento de dados em vez de um banco de dados tradicional
+- A estrutura do projeto está otimizada para funcionar no ambiente PythonAnywhere
+- O sistema utiliza Flask para servir tanto o backend quanto o frontend
+- Não são utilizados frameworks JavaScript como React ou bibliotecas como jQuery

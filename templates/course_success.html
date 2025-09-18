@@ -389,14 +389,26 @@
                                 {% if course.valor_curso_inteira %}
                                 <div class="info-row">
                                     <i class="fas fa-dollar-sign"></i>
-                                    <span><strong>Valor Inteira:</strong> R$ {{ course.valor_curso_inteira }}</span>
+                                    <span><strong>Valor Inteira:</strong> 
+                                        {% if course.valor_curso_inteira.startswith('R$') %}
+                                            {{ course.valor_curso_inteira }}
+                                        {% else %}
+                                            R$ {{ course.valor_curso_inteira }}
+                                        {% endif %}
+                                    </span>
                                 </div>
                                 {% endif %}
                                 
                                 {% if course.valor_curso_meia %}
                                 <div class="info-row">
                                     <i class="fas fa-percentage"></i>
-                                    <span><strong>Valor Meia:</strong> R$ {{ course.valor_curso_meia }}</span>
+                                    <span><strong>Valor Meia:</strong> 
+                                        {% if course.valor_curso_meia.startswith('R$') %}
+                                            {{ course.valor_curso_meia }}
+                                        {% else %}
+                                            R$ {{ course.valor_curso_meia }}
+                                        {% endif %}
+                                    </span>
                                 </div>
                                 {% endif %}
                                 
@@ -416,7 +428,13 @@
                             {% if course.oferece_bolsa == 'sim' and course.valor_bolsa %}
                             <div class="info-row">
                                 <i class="fas fa-money-bill-wave"></i>
-                                <span><strong>Valor da Bolsa:</strong> R$ {{ course.valor_bolsa }}</span>
+                                <span><strong>Valor da Bolsa:</strong> 
+                                    {% if course.valor_bolsa.startswith('R$') %}
+                                        {{ course.valor_bolsa }}
+                                    {% else %}
+                                        R$ {{ course.valor_bolsa }}
+                                    {% endif %}
+                                </span>
                             </div>
                             {% endif %}
                             

@@ -29,11 +29,7 @@ function removeUnidade(button) {
     }
 }
 
-function addPlataforma() {
-    if (formManager) {
-        formManager.addPlataforma();
-    }
-}
+// Função addPlataforma removida - agora gerenciada exclusivamente pelo FormManager via event listener
 
 function removePlataforma(button) {
     if (formManager) {
@@ -588,133 +584,7 @@ function toggleInfoAdicionais(mostrar) {
     }
 }
 
-// Função para adicionar nova unidade
-function addUnidade() {
-    const unidadesContainer = document.getElementById('unidades_list');
-    const unidadeCount = unidadesContainer.children.length + 1;
-    
-    const unidadeDiv = document.createElement('div');
-    unidadeDiv.className = 'unidade-item';
-    unidadeDiv.setAttribute('data-unidade', unidadeCount - 1);
-    
-    // Verificar se é modalidade Online para ajustar campos
-    const modalidade = document.getElementById('modalidade').value;
-    const isOnline = modalidade === 'Online';
-    
-    unidadeDiv.innerHTML = `
-        <fieldset class="unidade-fieldset">
-            <legend>Informações da Unidade ${unidadeCount}</legend>
-            <label>Endereço da unidade*</label>
-            <input type="text" name="endereco_unidade[]" ${isOnline ? 'style="display:none;"' : 'required'}>
-            <label>Bairro*</label>
-            <input type="text" name="bairro_unidade[]" ${isOnline ? 'style="display:none;"' : 'required'}>
-            <label>Número de vagas*</label>
-            <input type="number" name="vagas_unidade[]" min="1" required>
-            <div class="data-group">
-                <div class="data-field">
-                    <label>Início das aulas*</label>
-                    <input type="date" name="inicio_aulas_data[]" required>
-                </div>
-                <div class="data-field">
-                    <label>Fim das aulas*</label>
-                    <input type="date" name="fim_aulas_data[]" required>
-                </div>
-            </div>
-            <div class="horario-group">
-                <div class="horario-field">
-                    <label>Horário-Início*</label>
-                    <select name="horario_inicio[]" required>
-                        <option value="">Selecione o horário</option>
-                        <option value="06:00">06:00</option>
-                        <option value="07:00">07:00</option>
-                        <option value="08:00">08:00</option>
-                        <option value="09:00">09:00</option>
-                        <option value="10:00">10:00</option>
-                        <option value="11:00">11:00</option>
-                        <option value="12:00">12:00</option>
-                        <option value="13:00">13:00</option>
-                        <option value="14:00">14:00</option>
-                        <option value="15:00">15:00</option>
-                        <option value="16:00">16:00</option>
-                        <option value="17:00">17:00</option>
-                        <option value="18:00">18:00</option>
-                        <option value="19:00">19:00</option>
-                        <option value="20:00">20:00</option>
-                        <option value="21:00">21:00</option>
-                        <option value="22:00">22:00</option>
-                        <option value="23:00">23:00</option>
-                    </select>
-                </div>
-                <div class="horario-field">
-                    <label>Horário-Fim*</label>
-                    <select name="horario_fim[]" required>
-                        <option value="">Selecione o horário</option>
-                        <option value="06:00">06:00</option>
-                        <option value="07:00">07:00</option>
-                        <option value="08:00">08:00</option>
-                        <option value="09:00">09:00</option>
-                        <option value="10:00">10:00</option>
-                        <option value="11:00">11:00</option>
-                        <option value="12:00">12:00</option>
-                        <option value="13:00">13:00</option>
-                        <option value="14:00">14:00</option>
-                        <option value="15:00">15:00</option>
-                        <option value="16:00">16:00</option>
-                        <option value="17:00">17:00</option>
-                        <option value="18:00">18:00</option>
-                        <option value="19:00">19:00</option>
-                        <option value="20:00">20:00</option>
-                        <option value="21:00">21:00</option>
-                        <option value="22:00">22:00</option>
-                        <option value="23:00">23:00</option>
-                    </select>
-                </div>
-        </div>
-            <label>Dias de aula*</label>
-            <div class="checkbox-group dias-aula">
-                <label class="checkbox-label">
-                    <input type="checkbox" name="dias_aula[]" value="Segunda-feira">
-                    <span>Segunda-feira</span>
-                </label>
-                <label class="checkbox-label">
-                    <input type="checkbox" name="dias_aula[]" value="Terça-feira">
-                    <span>Terça-feira</span>
-                </label>
-                <label class="checkbox-label">
-                    <input type="checkbox" name="dias_aula[]" value="Quarta-feira">
-                    <span>Quarta-feira</span>
-                </label>
-                <label class="checkbox-label">
-                    <input type="checkbox" name="dias_aula[]" value="Quinta-feira">
-                    <span>Quinta-feira</span>
-                </label>
-                <label class="checkbox-label">
-                    <input type="checkbox" name="dias_aula[]" value="Sexta-feira">
-                    <span>Sexta-feira</span>
-                </label>
-                <label class="checkbox-label">
-                    <input type="checkbox" name="dias_aula[]" value="Sábado">
-                    <span>Sábado</span>
-                </label>
-                <label class="checkbox-label">
-                    <input type="checkbox" name="dias_aula[]" value="Domingo">
-                    <span>Domingo</span>
-                </label>
-        </div>
-        </fieldset>
-    `;
-    
-    unidadesContainer.appendChild(unidadeDiv);
-    
-    // Adicionar validação aos novos checkboxes de dias
-    const novosCheckboxes = unidadeDiv.querySelectorAll('input[name="dias_aula[]"]');
-    novosCheckboxes.forEach(cb => {
-        cb.addEventListener('change', validateDiasAula);
-    });
-    
-    // Scroll suave para a nova unidade
-    unidadeDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-}
+// Função addUnidade removida - agora gerenciada exclusivamente pelo FormManager via event listener
 
 // Inicialização quando o DOM estiver carregado
 document.addEventListener('DOMContentLoaded', function() {
