@@ -147,8 +147,9 @@ class CourseService:
         # Converter datas
         inicio_data = form_data.get('inicio_inscricoes_data')
         fim_data = form_data.get('fim_inscricoes_data')
+        modalidade = form_data.get('modalidade', '')
         
-        # Processar campos de array
+        # Processar campos de array baseado na modalidade
         course_data = {
             'titulo': form_data.get('titulo', '').strip(),
             'descricao_original': form_data.get('descricao', '').strip(),
@@ -156,18 +157,45 @@ class CourseService:
             'fim_inscricoes': f'{fim_data.replace("-", "/")}' if fim_data else '',
             'orgao': form_data.get('orgao', ''),
             'tema': form_data.get('tema', ''),
-            'modalidade': form_data.get('modalidade', ''),
-            'plataforma_digital': form_data.get('plataforma_digital') if form_data.get('modalidade') == 'Online' else '',
-            'carga_horaria': form_data.get('carga_horaria', ''),
-            'aulas_assincronas': form_data.get('aulas_assincronas') if form_data.get('modalidade') == 'Online' else '',
-            'dias_aula': '|'.join(form_data.getlist('dias_aula[]')) if hasattr(form_data, 'getlist') else form_data.get('dias_aula[]', ''),
-            'endereco_unidade': '|'.join(form_data.getlist('endereco_unidade[]')) if hasattr(form_data, 'getlist') else form_data.get('endereco_unidade[]', ''),
-            'bairro_unidade': '|'.join(form_data.getlist('bairro_unidade[]')) if hasattr(form_data, 'getlist') else form_data.get('bairro_unidade[]', ''),
-            'vagas_unidade': '|'.join(form_data.getlist('vagas_unidade[]')) if hasattr(form_data, 'getlist') else form_data.get('vagas_unidade[]', ''),
-            'inicio_aulas_data': '|'.join(form_data.getlist('inicio_aulas_data[]')) if hasattr(form_data, 'getlist') else form_data.get('inicio_aulas_data[]', ''),
-            'fim_aulas_data': '|'.join(form_data.getlist('fim_aulas_data[]')) if hasattr(form_data, 'getlist') else form_data.get('fim_aulas_data[]', ''),
-            'horario_inicio': '|'.join([h for h in form_data.getlist('horario_inicio[]') if h.strip()]) if hasattr(form_data, 'getlist') else form_data.get('horario_inicio[]', ''),
-            'horario_fim': '|'.join([h for h in form_data.getlist('horario_fim[]') if h.strip()]) if hasattr(form_data, 'getlist') else form_data.get('horario_fim[]', ''),
+            'modalidade': modalidade,
+        }
+        
+        # Campos específicos por modalidade
+        if modalidade == 'Online':
+            # Campos específicos para Online
+            course_data.update({
+                'plataforma_digital': form_data.get('plataforma_digital', ''),
+                'carga_horaria': form_data.get('carga_horaria', ''),
+                'aulas_assincronas': form_data.get('aulas_assincronas', ''),
+                'dias_aula': '|'.join(form_data.getlist('dias_aula[]')) if hasattr(form_data, 'getlist') else form_data.get('dias_aula[]', ''),
+                # Campos de Presencial/Híbrido devem estar vazios para Online
+                'endereco_unidade': '',
+                'bairro_unidade': '',
+                'vagas_unidade': '',
+                'inicio_aulas_data': '',
+                'fim_aulas_data': '',
+                'horario_inicio': '',
+                'horario_fim': ''
+            })
+        else:
+            # Campos específicos para Presencial/Híbrido
+            course_data.update({
+                'endereco_unidade': '|'.join(form_data.getlist('endereco_unidade[]')) if hasattr(form_data, 'getlist') else form_data.get('endereco_unidade[]', ''),
+                'bairro_unidade': '|'.join(form_data.getlist('bairro_unidade[]')) if hasattr(form_data, 'getlist') else form_data.get('bairro_unidade[]', ''),
+                'vagas_unidade': '|'.join(form_data.getlist('vagas_unidade[]')) if hasattr(form_data, 'getlist') else form_data.get('vagas_unidade[]', ''),
+                'inicio_aulas_data': '|'.join(form_data.getlist('inicio_aulas_data[]')) if hasattr(form_data, 'getlist') else form_data.get('inicio_aulas_data[]', ''),
+                'fim_aulas_data': '|'.join(form_data.getlist('fim_aulas_data[]')) if hasattr(form_data, 'getlist') else form_data.get('fim_aulas_data[]', ''),
+                'horario_inicio': '|'.join([h for h in form_data.getlist('horario_inicio[]') if h.strip()]) if hasattr(form_data, 'getlist') else form_data.get('horario_inicio[]', ''),
+                'horario_fim': '|'.join([h for h in form_data.getlist('horario_fim[]') if h.strip()]) if hasattr(form_data, 'getlist') else form_data.get('horario_fim[]', ''),
+                'dias_aula': '|'.join(form_data.getlist('dias_aula[]')) if hasattr(form_data, 'getlist') else form_data.get('dias_aula[]', ''),
+                'carga_horaria': form_data.get('carga_horaria', ''),
+                # Campos de Online devem estar vazios para Presencial/Híbrido
+                'plataforma_digital': '',
+                'aulas_assincronas': ''
+            })
+        
+        # Campos comuns a todas as modalidades
+        course_data.update({
             'curso_gratuito': form_data.get('curso_gratuito', ''),
             'valor_curso': form_data.get('valor_curso') if form_data.get('curso_gratuito') == 'nao' else '',
             'valor_curso_inteira': form_data.get('valor_curso_inteira') if form_data.get('curso_gratuito') == 'nao' else '',
@@ -186,7 +214,7 @@ class CourseService:
             'parceiro_nome': form_data.get('parceiro_nome') if form_data.get('parceiro_externo') == 'sim' else '',
             'parceiro_link': form_data.get('parceiro_link') if form_data.get('parceiro_externo') == 'sim' else '',
             'parceiro_logo': ''
-        }
+        })
         
         return course_data
     

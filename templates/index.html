@@ -121,7 +121,92 @@
                     tooltip.removeAttribute('title');
                 });
                 
+                // Limpar campos específicos de modalidades (forçar limpeza)
+                limparCamposModalidade();
+                
                 console.log('Formulário limpo com sucesso!');
+            }
+            
+            // Função para limpar campos específicos de modalidades
+            function limparCamposModalidade() {
+                // Campos que devem ser limpos independente da modalidade
+                const camposPresencial = [
+                    'input[name="endereco_unidade[]"]',
+                    'input[name="bairro_unidade[]"]',
+                    'input[name="vagas_unidade[]"]',
+                    'input[name="inicio_aulas_data[]"]',
+                    'input[name="fim_aulas_data[]"]',
+                    'input[name="horario_inicio[]"]',
+                    'input[name="horario_fim[]"]'
+                ];
+                
+                const camposOnline = [
+                    'input[name="plataforma_digital"]',
+                    'select[name="aulas_assincronas"]'
+                ];
+                
+                // Limpar todos os campos de modalidade
+                [...camposPresencial, ...camposOnline].forEach(seletor => {
+                    const campos = document.querySelectorAll(seletor);
+                    campos.forEach(campo => {
+                        if (campo.type === 'text' || campo.type === 'number' || campo.type === 'date' || campo.type === 'time') {
+                            campo.value = '';
+                        } else if (campo.tagName === 'SELECT') {
+                            campo.selectedIndex = 0;
+                        }
+                    });
+                });
+                
+                // Limpar checkboxes de dias da semana
+                const diasCheckboxes = document.querySelectorAll('input[name="dias_aula[]"]');
+                diasCheckboxes.forEach(checkbox => {
+                    checkbox.checked = false;
+                });
+                
+                console.log('Campos de modalidade limpos com sucesso!');
+            }
+            
+            // Função para limpar campos baseada na modalidade selecionada
+            function limparCamposPorModalidade(modalidade) {
+                if (modalidade === 'Online') {
+                    // Limpar campos específicos de Presencial/Híbrido
+                    const camposPresencial = [
+                        'input[name="endereco_unidade[]"]',
+                        'input[name="bairro_unidade[]"]',
+                        'input[name="inicio_aulas_data[]"]',
+                        'input[name="fim_aulas_data[]"]',
+                        'input[name="horario_inicio[]"]',
+                        'input[name="horario_fim[]"]'
+                    ];
+                    
+                    camposPresencial.forEach(seletor => {
+                        const campos = document.querySelectorAll(seletor);
+                        campos.forEach(campo => {
+                            campo.value = '';
+                        });
+                    });
+                    
+                    console.log('Campos de Presencial/Híbrido limpos para modalidade Online');
+                } else if (modalidade === 'Presencial' || modalidade === 'Híbrido') {
+                    // Limpar campos específicos de Online
+                    const camposOnline = [
+                        'input[name="plataforma_digital"]',
+                        'select[name="aulas_assincronas"]'
+                    ];
+                    
+                    camposOnline.forEach(seletor => {
+                        const campos = document.querySelectorAll(seletor);
+                        campos.forEach(campo => {
+                            if (campo.type === 'text') {
+                                campo.value = '';
+                            } else if (campo.tagName === 'SELECT') {
+                                campo.selectedIndex = 0;
+                            }
+                        });
+                    });
+                    
+                    console.log('Campos de Online limpos para modalidade Presencial/Híbrido');
+                }
             }
             
             // Executar limpeza do formulário
@@ -130,6 +215,15 @@
             // Definir valores padrão para campos de data
             setDataAtual();
             formatarDataBrasileira();
+            
+            // Adicionar event listener para limpar campos quando modalidade mudar
+            const modalidadeSelect = document.querySelector('select[name="modalidade"]');
+            if (modalidadeSelect) {
+                modalidadeSelect.addEventListener('change', function() {
+                    const modalidadeSelecionada = this.value;
+                    limparCamposPorModalidade(modalidadeSelecionada);
+                });
+            }
         });
     </script>
 </head>

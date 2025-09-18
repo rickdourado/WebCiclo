@@ -107,6 +107,9 @@ class CourseValidator:
         modalidade = form_data.get('modalidade')
         
         if modalidade == 'Online':
+            # Para Online, validar que campos de Presencial/Híbrido não estão presentes
+            self._validate_online_exclusive_fields(form_data)
+            
             # Para Online, apenas vagas são obrigatórias
             vagas_unidade = form_data.get('vagas_unidade[]') or form_data.get('vagas_unidade')
             if not vagas_unidade or (isinstance(vagas_unidade, list) and not any(vagas_unidade)):
@@ -131,6 +134,32 @@ class CourseValidator:
                 self.errors.append("Pelo menos uma unidade é obrigatória para cursos presenciais/híbridos")
             else:
                 self._validate_units(unidades_data)
+    
+    def _validate_online_exclusive_fields(self, form_data: Dict):
+        """Valida que campos específicos de Presencial/Híbrido não estão presentes em cursos Online"""
+        # Campos que não devem estar presentes em cursos Online
+        presencial_fields = [
+            'endereco_unidade[]',
+            'bairro_unidade[]', 
+            'inicio_aulas_data[]',
+            'fim_aulas_data[]',
+            'horario_inicio[]',
+            'horario_fim[]'
+        ]
+        
+        for field in presencial_fields:
+            field_value = form_data.get(field)
+            if field_value and field_value.strip():
+                if isinstance(field_value, list):
+                    # Se é uma lista, verificar se algum item não está vazio
+                    if any(item.strip() for item in field_value if item):
+                        field_name = field.replace('[]', '').replace('_', ' ').title()
+                        self.errors.append(f"Campo '{field_name}' não deve ser preenchido para cursos online")
+                else:
+                    # Se é string, verificar se não está vazio
+                    if field_value.strip():
+                        field_name = field.replace('[]', '').replace('_', ' ').title()
+                        self.errors.append(f"Campo '{field_name}' não deve ser preenchido para cursos online")
     
     def _validate_units(self, unidades_data: List[Dict]):
         """Valida dados das unidades"""
