@@ -1355,11 +1355,16 @@
             const horariosContainer = document.getElementById('horarios_detalhados_online_container');
             const horariosOnlineContainer = document.getElementById('horarios_online_container');
             
+            console.log('toggleAulasAssincronas chamada com isAssincronas:', isAssincronas);
+            console.log('horariosContainer encontrado:', !!horariosContainer);
+            console.log('horariosOnlineContainer encontrado:', !!horariosOnlineContainer);
+            
             if (horariosContainer && horariosOnlineContainer) {
                 if (isAssincronas) {
                     // Aulas assíncronas - ocultar campos de horário e dias
                     horariosContainer.style.display = 'none';
                     horariosOnlineContainer.style.display = 'none';
+                    console.log('Campos ocultos para aulas assíncronas');
                     
                     // Remover required dos campos ocultos
                     const camposHorario = [
@@ -1378,6 +1383,9 @@
                     // Aulas síncronas - mostrar campos de horário e dias
                     horariosContainer.style.display = 'block';
                     horariosOnlineContainer.style.display = 'block';
+                    console.log('Campos mostrados para aulas síncronas');
+                    console.log('horariosContainer.style.display:', horariosContainer.style.display);
+                    console.log('horariosOnlineContainer.style.display:', horariosOnlineContainer.style.display);
                     
                     // Adicionar required aos campos visíveis
                     const camposHorario = [
@@ -1387,7 +1395,10 @@
                     const camposDias = horariosOnlineContainer.querySelectorAll('input[name="dias_aula[]"]');
                     
                     camposHorario.forEach(campo => {
-                        if (campo) campo.setAttribute('required', 'required');
+                        if (campo) {
+                            campo.setAttribute('required', 'required');
+                            console.log('Campo marcado como required:', campo.name, campo.value);
+                        }
                     });
                     camposDias.forEach(campo => {
                         if (campo) campo.setAttribute('required', 'required');
@@ -1407,6 +1418,10 @@
             const horarioInicioOnline = document.getElementById('horario_inicio_online');
             const horarioFimOnline = document.getElementById('horario_fim_online');
             
+            console.log('garantirCamposAssincronos chamada');
+            console.log('aulasAssincronasSim checked:', aulasAssincronasSim ? aulasAssincronasSim.checked : 'não encontrado');
+            console.log('aulasAssincronasNao checked:', aulasAssincronasNao ? aulasAssincronasNao.checked : 'não encontrado');
+            
             if (aulasAssincronasSim && aulasAssincronasSim.checked) {
                 // SIM está marcado - garantir que campos de horário não sejam obrigatórios
                 if (horarioInicioOnline) horarioInicioOnline.removeAttribute('required');
@@ -1417,6 +1432,7 @@
                 const horariosOnlineContainer = document.getElementById('horarios_online_container');
                 if (horariosContainer) horariosContainer.style.display = 'none';
                 if (horariosOnlineContainer) horariosOnlineContainer.style.display = 'none';
+                console.log('Campos ocultos por garantirCamposAssincronos (SIM)');
             } else if (aulasAssincronasNao && aulasAssincronasNao.checked) {
                 // NÃO está marcado - garantir que campos de horário sejam obrigatórios e visíveis
                 if (horarioInicioOnline) horarioInicioOnline.setAttribute('required', 'required');
@@ -1427,7 +1443,28 @@
                 const horariosOnlineContainer = document.getElementById('horarios_online_container');
                 if (horariosContainer) horariosContainer.style.display = 'block';
                 if (horariosOnlineContainer) horariosOnlineContainer.style.display = 'block';
+                console.log('Campos mostrados por garantirCamposAssincronos (NÃO)');
+                console.log('horariosContainer.style.display:', horariosContainer ? horariosContainer.style.display : 'não encontrado');
+                console.log('horariosOnlineContainer.style.display:', horariosOnlineContainer ? horariosOnlineContainer.style.display : 'não encontrado');
             }
+        }
+
+        // Função para verificar estado dos campos antes do envio
+        function verificarEstadoCampos() {
+            const aulasAssincronasNao = document.querySelector('input[name="aulas_assincronas"][value="nao"]');
+            const horariosContainer = document.getElementById('horarios_detalhados_online_container');
+            const horarioInicioOnline = document.getElementById('horario_inicio_online');
+            const horarioFimOnline = document.getElementById('horario_fim_online');
+            
+            console.log('=== VERIFICAÇÃO ANTES DO ENVIO ===');
+            console.log('aulas_assincronas = nao:', aulasAssincronasNao ? aulasAssincronasNao.checked : 'não encontrado');
+            console.log('horariosContainer encontrado:', !!horariosContainer);
+            console.log('horariosContainer.style.display:', horariosContainer ? horariosContainer.style.display : 'não encontrado');
+            console.log('horarioInicioOnline encontrado:', !!horarioInicioOnline);
+            console.log('horarioInicioOnline.value:', horarioInicioOnline ? horarioInicioOnline.value : 'não encontrado');
+            console.log('horarioFimOnline encontrado:', !!horarioFimOnline);
+            console.log('horarioFimOnline.value:', horarioFimOnline ? horarioFimOnline.value : 'não encontrado');
+            console.log('================================');
         }
 
         // Inicializar campos quando a página carrega
@@ -1458,6 +1495,14 @@
                         // Quando modalidade Online for selecionada, garantir campos assíncronos
                         setTimeout(garantirCamposAssincronos, 10);
                     }
+                });
+            }
+            
+            // Verificar estado dos campos antes do envio do formulário
+            const form = document.querySelector('form');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    verificarEstadoCampos();
                 });
             }
         });
