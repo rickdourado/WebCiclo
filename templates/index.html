@@ -1130,12 +1130,12 @@
             camposCondicionais.forEach(campo => {
                 if (campo) {
                     if (required && !isAsync) {
+                        // Aulas síncronas - campos obrigatórios
                         campo.setAttribute('required', 'required');
                     } else {
+                        // Aulas assíncronas ou não obrigatórios - remover required mas NÃO limpar valores
                         campo.removeAttribute('required');
-                        if (campo.value === '') {
-                            campo.value = '';
-                        }
+                        // NÃO limpar o valor do campo - deixar como está
                     }
                 }
             });
