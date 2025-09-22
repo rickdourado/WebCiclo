@@ -111,8 +111,12 @@ class CourseValidator:
             self._validate_online_exclusive_fields(form_data)
             
             # Para Online, apenas vagas são obrigatórias
-            vagas_unidade = form_data.get('vagas_unidade[]') or form_data.get('vagas_unidade')
-            if not vagas_unidade or (isinstance(vagas_unidade, list) and not any(vagas_unidade)):
+            if hasattr(form_data, 'getlist'):
+                vagas_unidade = form_data.getlist('vagas_unidade[]')
+            else:
+                vagas_unidade = form_data.get('vagas_unidade[]', [])
+            
+            if not vagas_unidade or (isinstance(vagas_unidade, list) and not any(item.strip() for item in vagas_unidade if item)):
                 self.errors.append("Número de vagas é obrigatório para cursos online")
             
             # Carga horária é opcional para cursos online
@@ -172,7 +176,12 @@ class CourseValidator:
         
         # Validar campos de horário baseado no tipo de aula
         for field in campos_sincronos:
-            field_value = form_data.get(field)
+            # Para campos com [], usar getlist para obter a lista correta
+            if hasattr(form_data, 'getlist'):
+                field_value = form_data.getlist(field)
+            else:
+                field_value = form_data.get(field, [])
+            
             field_name = field.replace('[]', '').replace('_', ' ').title()
             
             if aulas_sincronas:
@@ -183,7 +192,7 @@ class CourseValidator:
                     self.errors.append(f"Campo '{field_name}' é obrigatório para aulas síncronas online")
             else:
                 # Para aulas assíncronas, horários não devem estar presentes
-                if field_value and field_value.strip():
+                if field_value:
                     if isinstance(field_value, list):
                         if any(item.strip() for item in field_value if item):
                             self.errors.append(f"Campo '{field_name}' não deve ser preenchido para aulas assíncronas online")

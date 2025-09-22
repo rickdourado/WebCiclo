@@ -117,6 +117,14 @@ def create_course():
         logger.info("Iniciando criação de curso")
         logger.info(f"Dados recebidos: {dict(request.form)}")
         
+        # Log específico para campos de horário
+        logger.info("=== DEBUG CAMPOS DE HORÁRIO ===")
+        logger.info(f"horario_inicio[]: {request.form.getlist('horario_inicio[]')}")
+        logger.info(f"horario_fim[]: {request.form.getlist('horario_fim[]')}")
+        logger.info(f"aulas_assincronas: {request.form.get('aulas_assincronas')}")
+        logger.info(f"modalidade: {request.form.get('modalidade')}")
+        logger.info("===============================")
+        
         # Usar o serviço de cursos para criar o curso
         success, course_data, messages = course_service.create_course(request.form, request.files)
         
