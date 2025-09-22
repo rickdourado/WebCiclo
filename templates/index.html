@@ -1464,6 +1464,21 @@
             console.log('horarioInicioOnline.value:', horarioInicioOnline ? horarioInicioOnline.value : 'não encontrado');
             console.log('horarioFimOnline encontrado:', !!horarioFimOnline);
             console.log('horarioFimOnline.value:', horarioFimOnline ? horarioFimOnline.value : 'não encontrado');
+            
+            // Verificar todos os campos de horário no formulário
+            const todosHorariosInicio = document.querySelectorAll('select[name="horario_inicio[]"]');
+            const todosHorariosFim = document.querySelectorAll('select[name="horario_fim[]"]');
+            
+            console.log('=== TODOS OS CAMPOS DE HORÁRIO ===');
+            console.log('Total campos horario_inicio[]:', todosHorariosInicio.length);
+            todosHorariosInicio.forEach((campo, index) => {
+                console.log(`horario_inicio[${index}]:`, campo.value, 'visível:', campo.offsetParent !== null);
+            });
+            
+            console.log('Total campos horario_fim[]:', todosHorariosFim.length);
+            todosHorariosFim.forEach((campo, index) => {
+                console.log(`horario_fim[${index}]:`, campo.value, 'visível:', campo.offsetParent !== null);
+            });
             console.log('================================');
         }
 
@@ -1503,6 +1518,25 @@
             if (form) {
                 form.addEventListener('submit', function(e) {
                     verificarEstadoCampos();
+                    
+                    // Verificar FormData antes do envio
+                    const formData = new FormData(form);
+                    console.log('=== FORMDATA ANTES DO ENVIO ===');
+                    console.log('horario_inicio[]:', formData.getAll('horario_inicio[]'));
+                    console.log('horario_fim[]:', formData.getAll('horario_fim[]'));
+                    console.log('aulas_assincronas:', formData.get('aulas_assincronas'));
+                    console.log('modalidade:', formData.get('modalidade'));
+                    console.log('================================');
+                    
+                    // Se campos de horário estão vazios mas deveriam estar preenchidos, forçar visibilidade
+                    const aulasAssincronasNao = document.querySelector('input[name="aulas_assincronas"][value="nao"]');
+                    if (aulasAssincronasNao && aulasAssincronasNao.checked) {
+                        const horariosContainer = document.getElementById('horarios_detalhados_online_container');
+                        if (horariosContainer && horariosContainer.style.display === 'none') {
+                            console.log('⚠️ CORREÇÃO: Container estava oculto, forçando visibilidade');
+                            horariosContainer.style.display = 'block';
+                        }
+                    }
                 });
             }
         });
