@@ -1489,10 +1489,6 @@
                     });
                 }
             }
-            
-            // Atualizar campos obrigatórios da plataforma após mudança
-            // Isso garante que os campos condicionais sejam marcados corretamente
-            setPlataformaFieldsRequired(true);
         }
 
         // Função para garantir que campos assíncronos estejam corretos
@@ -1571,11 +1567,8 @@
             // Inicializar modalidade corretamente primeiro
             toggleUnidades();
             
-            // Múltiplas tentativas para garantir inicialização correta
-            setTimeout(garantirCamposAssincronos, 10);
-            setTimeout(garantirCamposAssincronos, 50);
+            // Inicializar campos assíncronos apenas uma vez
             setTimeout(garantirCamposAssincronos, 100);
-            setTimeout(garantirCamposAssincronos, 200);
             
             // Monitorar mudanças nos radio buttons de aulas assíncronas
             const radioButtons = document.querySelectorAll('input[name="aulas_assincronas"]');
@@ -1593,6 +1586,8 @@
                     if (this.value === 'Online') {
                         // Quando modalidade Online for selecionada, garantir campos assíncronos
                         setTimeout(garantirCamposAssincronos, 10);
+                        // Configurar campos obrigatórios da plataforma
+                        setTimeout(() => setPlataformaFieldsRequired(true), 50);
                     }
                 });
             }
