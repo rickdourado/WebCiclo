@@ -136,8 +136,8 @@
                     'input[name="vagas_unidade[]"]',
                     'input[name="inicio_aulas_data[]"]',
                     'input[name="fim_aulas_data[]"]',
-                    'input[name="horario_inicio[]"]',
-                    'input[name="horario_fim[]"]'
+                    'select[name="horario_inicio[]"]',
+                    'select[name="horario_fim[]"]'
                 ];
                 
                 const camposOnline = [
@@ -187,14 +187,14 @@
                     const aulasAssincronasSim = document.querySelector('input[name="aulas_assincronas"][value="sim"]');
                     if (aulasAssincronasSim && aulasAssincronasSim.checked) {
                         const camposHorario = [
-                            'input[name="horario_inicio[]"]',
-                            'input[name="horario_fim[]"]'
+                            'select[name="horario_inicio[]"]',
+                            'select[name="horario_fim[]"]'
                         ];
                         
                         camposHorario.forEach(seletor => {
                             const campos = document.querySelectorAll(seletor);
                             campos.forEach(campo => {
-                                campo.value = '';
+                                campo.selectedIndex = 0; // Reset para primeira opção (vazia)
                             });
                         });
                     }
@@ -224,14 +224,14 @@
                 const aulasAssincronasSim = document.querySelector('input[name="aulas_assincronas"][value="sim"]');
                 if (aulasAssincronasSim && aulasAssincronasSim.checked) {
                     const camposHorario = [
-                        'input[name="horario_inicio[]"]',
-                        'input[name="horario_fim[]"]'
+                        'select[name="horario_inicio[]"]',
+                        'select[name="horario_fim[]"]'
                     ];
                     
                     camposHorario.forEach(seletor => {
                         const campos = document.querySelectorAll(seletor);
                         campos.forEach(campo => {
-                            campo.value = '';
+                            campo.selectedIndex = 0; // Reset para primeira opção (vazia)
                         });
                     });
                     
