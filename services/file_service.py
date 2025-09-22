@@ -168,14 +168,14 @@ class FileService:
             return None
         
         try:
-            # Criar pasta IMAGENSCURSOS se não existir
-            images_folder = os.path.join(os.getcwd(), 'IMAGENSCURSOS')
+            # Criar pasta static/images/IMAGENSCURSOS se não existir
+            images_folder = os.path.join(os.getcwd(), 'static', 'images', 'IMAGENSCURSOS')
             if not self.ensure_directory(images_folder):
                 print(f"Erro ao criar diretório {images_folder}")
                 return None
             
             # Validar extensão do arquivo
-            if not self._is_allowed_file(file.filename):
+            if not self._allowed_file(file.filename):
                 print(f"Extensão não permitida: {file.filename}")
                 return None
             

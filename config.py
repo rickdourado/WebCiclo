@@ -18,7 +18,7 @@ class Config:
     UPLOAD_FOLDER = os.path.join('static', 'images', 'uploads')
     LOGO_PARCEIROS_FOLDER = os.path.join('static', 'images', 'LOGOPARCEIROS')
     MAX_FILE_SIZE = 16 * 1024 * 1024  # 16MB
-    ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
+    ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'bmp'}
     
     # Configurações de diretórios
     CSV_DIR = 'CSV'
