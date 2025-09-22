@@ -94,9 +94,13 @@ ORGAOS = [
 @app.route('/')
 def index():
     """Página inicial com formulário de criação de curso"""
-    # Limpar mensagens flash ao acessar a página inicial
+    # Limpar apenas mensagens de sucesso ao acessar a página inicial
     # Isso evita que mensagens de sucesso apareçam quando o usuário volta da página de sucesso
-    session.pop('_flashes', None)
+    # Mas mantém mensagens de erro de validação para serem exibidas
+    if '_flashes' in session:
+        flashes = session['_flashes']
+        # Manter apenas mensagens de erro e warning, remover sucesso
+        session['_flashes'] = [flash for flash in flashes if flash[0] in ['error', 'warning']]
     
     # Data atual para preenchimento automático dos campos de data
     from datetime import datetime
