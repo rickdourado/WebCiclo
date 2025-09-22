@@ -230,13 +230,15 @@ class CourseService:
             'parceiro_externo': form_data.get('parceiro_externo', ''),
             'parceiro_nome': form_data.get('parceiro_nome') if form_data.get('parceiro_externo') == 'sim' else '',
             'parceiro_link': form_data.get('parceiro_link') if form_data.get('parceiro_externo') == 'sim' else '',
-            'parceiro_logo': ''
+            'parceiro_logo': '',
+            'capa_curso': ''
         })
         
         return course_data
     
     def _process_uploaded_files(self, course_data: Dict, files: Dict):
         """Processa arquivos enviados"""
+        # Processar logo do parceiro
         if course_data.get('parceiro_externo') == 'sim':
             partner_name = course_data.get('parceiro_nome', '')
             logo_file = files.get('parceiro_logo')
@@ -245,6 +247,15 @@ class CourseService:
                 logo_filename = self.file_service.save_partner_logo(logo_file, partner_name)
                 if logo_filename:
                     course_data['parceiro_logo'] = logo_filename
+        
+        # Processar capa do curso
+        cover_file = files.get('capa_curso')
+        if cover_file:
+            course_title = course_data.get('titulo', '')
+            if course_title:
+                cover_filename = self.file_service.save_course_cover(cover_file, course_title)
+                if cover_filename:
+                    course_data['capa_curso'] = cover_filename
     
     def _enhance_description(self, course_data: Dict) -> Dict:
         """Melhora a descrição usando IA"""

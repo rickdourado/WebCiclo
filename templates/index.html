@@ -326,6 +326,19 @@
                                           placeholder="Digite a descrição do curso"></textarea>
                             </div>
                             
+                            <div class="form-group full-width">
+                                <label for="capa_curso">Capa do Curso</label>
+                                <div class="file-upload-container">
+                                    <input type="file" id="capa_curso" name="capa_curso" accept=".jpeg,.png,.jpg,.bmp,image/jpeg,image/png,image/jpg,image/bmp">
+                                    <div class="file-upload-display">
+                                        <i class="fas fa-cloud-upload-alt"></i>
+                                        <span class="file-upload-text">Clique para selecionar uma imagem</span>
+                                        <span class="file-upload-hint">Formatos aceitos: JPEG, PNG, JPG, BMP</span>
+                                    </div>
+                                </div>
+                                <small class="file-hint">A imagem será renomeada para o nome do curso e armazenada na pasta IMAGENSCURSOS</small>
+                            </div>
+                            
                             <div class="form-group">
                                 <label for="inicio_inscricoes" class="required">Início das inscrições</label>
                                 <div class="datetime-group">
@@ -793,6 +806,7 @@
                                          <div class="parceiro-item full-width">
                                              <label for="parceiro_link">Link do Parceiro</label>
                                              <input type="text" id="parceiro_link" name="parceiro_link" placeholder="https://exemplo.org">
+                                             <small class="help-text-red">Link da página web para onde o usuário será redirecionado para fins de inscrição na plataforma do parceiro</small>
                                          </div>
                                      </div>
                                  </fieldset>
@@ -985,6 +999,73 @@
              }
          }
 
+        // Função para gerenciar upload de capa do curso
+        function setupCourseCoverUpload() {
+            const fileInput = document.getElementById('capa_curso');
+            const fileDisplay = document.querySelector('.file-upload-display');
+            const fileText = document.querySelector('.file-upload-text');
+            
+            if (fileInput && fileDisplay && fileText) {
+                fileInput.addEventListener('change', function(e) {
+                    const file = e.target.files[0];
+                    if (file) {
+                        // Validar formato do arquivo
+                        const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/bmp'];
+                        if (!allowedTypes.includes(file.type)) {
+                            alert('Formato de arquivo não suportado. Use JPEG, PNG, JPG ou BMP.');
+                            fileInput.value = '';
+                            return;
+                        }
+                        
+                        // Validar tamanho do arquivo (máximo 5MB)
+                        const maxSize = 5 * 1024 * 1024; // 5MB
+                        if (file.size > maxSize) {
+                            alert('Arquivo muito grande. Tamanho máximo: 5MB');
+                            fileInput.value = '';
+                            return;
+                        }
+                        
+                        // Atualizar display
+                        fileDisplay.classList.add('has-file');
+                        fileText.textContent = `Arquivo selecionado: ${file.name}`;
+                        
+                        // Mostrar preview da imagem
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            // Remover preview anterior se existir
+                            const existingPreview = fileDisplay.querySelector('.image-preview');
+                            if (existingPreview) {
+                                existingPreview.remove();
+                            }
+                            
+                            // Criar preview
+                            const preview = document.createElement('img');
+                            preview.className = 'image-preview';
+                            preview.src = e.target.result;
+                            preview.style.maxWidth = '200px';
+                            preview.style.maxHeight = '150px';
+                            preview.style.borderRadius = '4px';
+                            preview.style.marginTop = '10px';
+                            preview.style.objectFit = 'cover';
+                            
+                            fileDisplay.appendChild(preview);
+                        };
+                        reader.readAsDataURL(file);
+                    } else {
+                        // Remover estado de arquivo selecionado
+                        fileDisplay.classList.remove('has-file');
+                        fileText.textContent = 'Clique para selecionar uma imagem';
+                        
+                        // Remover preview
+                        const existingPreview = fileDisplay.querySelector('.image-preview');
+                        if (existingPreview) {
+                            existingPreview.remove();
+                        }
+                    }
+                });
+            }
+        }
+
         // Adicionar validação quando a página carregar
         document.addEventListener('DOMContentLoaded', function() {
             const linkField = document.getElementById('parceiro_link');
@@ -992,6 +1073,9 @@
                 linkField.addEventListener('blur', validatePartnerLink);
                 linkField.addEventListener('input', validatePartnerLink);
             }
+            
+            // Configurar upload de capa do curso
+            setupCourseCoverUpload();
             
             // Adicionar validação aos checkboxes de dias
             const diasCheckboxes = document.querySelectorAll('input[name="dias_aula[]"]');

@@ -146,3 +146,81 @@ class FileService:
         except Exception as e:
             print(f"Erro ao criar diretório {directory_path}: {str(e)}")
             return False
+    
+    def save_course_cover(self, file, course_title: str) -> str:
+        """
+        Salva a capa do curso
+        
+        Args:
+            file: Arquivo de imagem enviado
+            course_title: Tome do curso para renomear o arquivo
+            
+        Returns:
+            str: Nome do arquivo salvo ou None se houver erro
+        """
+        print(f"\n=== SALVANDO CAPA DO CURSO ===")
+        print(f"File: {file}")
+        print(f"Course title: {course_title}")
+        print(f"File filename: {file.filename if file else 'None'}")
+        
+        if not file or not file.filename:
+            print("Nenhum arquivo de capa fornecido")
+            return None
+        
+        try:
+            # Criar pasta IMAGENSCURSOS se não existir
+            images_folder = os.path.join(os.getcwd(), 'IMAGENSCURSOS')
+            if not self.ensure_directory(images_folder):
+                print(f"Erro ao criar diretório {images_folder}")
+                return None
+            
+            # Validar extensão do arquivo
+            if not self._is_allowed_file(file.filename):
+                print(f"Extensão não permitida: {file.filename}")
+                return None
+            
+            # Obter extensão do arquivo original
+            file_extension = os.path.splitext(file.filename)[1].lower()
+            
+            # Criar nome do arquivo baseado no título do curso
+            safe_title = self._sanitize_filename(course_title)
+            new_filename = f"{safe_title}{file_extension}"
+            
+            # Caminho completo do arquivo
+            file_path = os.path.join(images_folder, new_filename)
+            
+            # Verificar se arquivo já existe e adicionar sufixo se necessário
+            counter = 1
+            original_path = file_path
+            while os.path.exists(file_path):
+                name, ext = os.path.splitext(original_path)
+                file_path = f"{name}_{counter}{ext}"
+                counter += 1
+            
+            # Salvar arquivo
+            file.save(file_path)
+            
+            print(f"Capa do curso salva: {file_path}")
+            print(f"Nome do arquivo: {os.path.basename(file_path)}")
+            
+            return os.path.basename(file_path)
+            
+        except Exception as e:
+            print(f"Erro ao salvar capa do curso: {str(e)}")
+            return None
+    
+    def _sanitize_filename(self, filename: str) -> str:
+        """
+        Sanitiza nome do arquivo removendo caracteres inválidos
+        
+        Args:
+            filename: Nome original do arquivo
+            
+        Returns:
+            str: Nome sanitizado
+        """
+        import re
+        # Remover caracteres especiais e substituir espaços por underscores
+        sanitized = re.sub(r'[^\w\s-]', '', filename)
+        sanitized = re.sub(r'[-\s]+', '_', sanitized)
+        return sanitized.strip('_')
