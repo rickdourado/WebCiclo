@@ -1403,6 +1403,7 @@
         // Função para garantir que campos assíncronos estejam corretos
         function garantirCamposAssincronos() {
             const aulasAssincronasSim = document.querySelector('input[name="aulas_assincronas"][value="sim"]');
+            const aulasAssincronasNao = document.querySelector('input[name="aulas_assincronas"][value="nao"]');
             const horarioInicioOnline = document.getElementById('horario_inicio_online');
             const horarioFimOnline = document.getElementById('horario_fim_online');
             
@@ -1416,6 +1417,16 @@
                 const horariosOnlineContainer = document.getElementById('horarios_online_container');
                 if (horariosContainer) horariosContainer.style.display = 'none';
                 if (horariosOnlineContainer) horariosOnlineContainer.style.display = 'none';
+            } else if (aulasAssincronasNao && aulasAssincronasNao.checked) {
+                // NÃO está marcado - garantir que campos de horário sejam obrigatórios e visíveis
+                if (horarioInicioOnline) horarioInicioOnline.setAttribute('required', 'required');
+                if (horarioFimOnline) horarioFimOnline.setAttribute('required', 'required');
+                
+                // Garantir que containers estejam visíveis
+                const horariosContainer = document.getElementById('horarios_detalhados_online_container');
+                const horariosOnlineContainer = document.getElementById('horarios_online_container');
+                if (horariosContainer) horariosContainer.style.display = 'block';
+                if (horariosOnlineContainer) horariosOnlineContainer.style.display = 'block';
             }
         }
 
@@ -1434,10 +1445,8 @@
             const radioButtons = document.querySelectorAll('input[name="aulas_assincronas"]');
             radioButtons.forEach(radio => {
                 radio.addEventListener('change', function() {
-                    if (this.value === 'sim') {
-                        // Remover required dos campos de horário quando SIM for selecionado
-                        setTimeout(garantirCamposAssincronos, 10);
-                    }
+                    // Garantir que campos estejam corretos independente da seleção
+                    setTimeout(garantirCamposAssincronos, 10);
                 });
             });
             
