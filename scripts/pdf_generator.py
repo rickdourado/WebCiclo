@@ -2,6 +2,7 @@
 # Módulo para geração de arquivos PDF a partir dos dados do curso
 
 import os
+import textwrap
 from datetime import datetime
 from reportlab.lib.pagesizes import letter, A4
 from reportlab.lib import colors
@@ -9,6 +10,89 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, Tabl
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch, cm
 from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_JUSTIFY
+from reportlab.lib.utils import simpleSplit
+
+def wrap_text(text, max_width_chars=60):
+    """
+    Quebra texto longo em múltiplas linhas para melhor legibilidade.
+    
+    Args:
+        text (str): Texto a ser quebrado
+        max_width_chars (int): Número máximo de caracteres por linha
+        
+    Returns:
+        str: Texto quebrado em múltiplas linhas
+    """
+    if not text or text == 'N/A':
+        return text
+    
+    # Limpar quebras de linha existentes e espaços extras
+    text = str(text).replace('\n', ' ').replace('\r', ' ').strip()
+    
+    # Quebrar texto em linhas menores
+    wrapped_lines = textwrap.wrap(text, width=max_width_chars, break_long_words=True)
+    return '\n'.join(wrapped_lines)
+
+def clean_field_value(value):
+    """
+    Limpa e formata valores dos campos para exibição no PDF.
+    
+    Args:
+        value: Valor do campo
+        
+    Returns:
+        str: Valor limpo e formatado
+    """
+    if not value or value == 'N/A' or value == '':
+        return 'N/A'
+    
+    # Converter para string e limpar
+    value_str = str(value).strip()
+    
+    # Remover caracteres problemáticos para PDF
+    value_str = value_str.replace('\r', ' ').replace('\n', ' ')
+    
+    # Limpar espaços múltiplos
+    while '  ' in value_str:
+        value_str = value_str.replace('  ', ' ')
+    
+    return value_str
+
+def create_info_table(data, col_widths=None):
+    """
+    Cria uma tabela formatada com informações do curso.
+    
+    Args:
+        data (list): Lista de listas com [campo, valor]
+        col_widths (list): Larguras das colunas
+        
+    Returns:
+        Table: Tabela formatada
+    """
+    if not data:
+        return None
+    
+    # Larguras padrão se não especificadas
+    if not col_widths:
+        col_widths = [2.2*inch, 4.3*inch]
+    
+    table = Table(data, colWidths=col_widths)
+    table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (0, -1), colors.lightgrey),
+        ('BACKGROUND', (1, 0), (1, -1), colors.white),
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+        ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
+        ('FONTNAME', (1, 0), (1, -1), 'Helvetica'),
+        ('FONTSIZE', (0, 0), (-1, -1), 9),
+        ('LEFTPADDING', (0, 0), (-1, -1), 8),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 8),
+        ('TOPPADDING', (0, 0), (-1, -1), 6),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+        ('WORDWRAP', (0, 0), (-1, -1), 'CJK'),  # Quebra de palavra para CJK e outros idiomas
+    ]))
+    
+    return table
 
 def generate_pdf(course_data):
     """
@@ -72,7 +156,9 @@ def generate_pdf(course_data):
         parent=styles['Normal'],
         fontSize=10,
         spaceAfter=6,
-        fontName='Helvetica'
+        fontName='Helvetica',
+        alignment=TA_JUSTIFY,
+        leading=12  # Espaçamento entre linhas
     )
     
     # Cabeçalho do documento
@@ -101,45 +187,32 @@ def generate_pdf(course_data):
     # Descrição do curso
     if course_data.get('descricao'):
         elements.append(Paragraph("<b>Descrição:</b>", section_style))
-        elements.append(Paragraph(course_data['descricao'], field_style))
+        descricao_text = wrap_text(clean_field_value(course_data['descricao']), 70)
+        elements.append(Paragraph(descricao_text, field_style))
         elements.append(Spacer(1, 0.2*inch))
     
     # Informações básicas
     elements.append(Paragraph("<b>INFORMAÇÕES BÁSICAS</b>", section_style))
     
     basic_info = [
-        ["ID do Curso", str(course_data.get('id', 'N/A'))],
-        ["Título", course_data.get('titulo', 'N/A')],
-        ["Órgão Responsável", course_data.get('orgao', 'N/A')],
-        ["Tema", course_data.get('tema', 'N/A')],
-        ["Modalidade", course_data.get('modalidade', 'N/A')],
-        ["Data de Criação", course_data.get('created_at', 'N/A')]
+        ["ID do Curso", clean_field_value(course_data.get('id'))],
+        ["Título", wrap_text(clean_field_value(course_data.get('titulo')), 50)],
+        ["Órgão Responsável", wrap_text(clean_field_value(course_data.get('orgao')), 50)],
+        ["Tema", clean_field_value(course_data.get('tema'))],
+        ["Modalidade", clean_field_value(course_data.get('modalidade'))],
+        ["Data de Criação", clean_field_value(course_data.get('created_at'))]
     ]
     
     # Adicionar informações específicas da modalidade
     if course_data.get('modalidade') == 'Online':
         if course_data.get('plataforma_digital'):
-            basic_info.append(["Plataforma Digital", course_data['plataforma_digital']])
+            basic_info.append(["Plataforma Digital", wrap_text(clean_field_value(course_data['plataforma_digital']), 50)])
         if course_data.get('aulas_assincronas'):
             aulas_tipo = "Assíncronas" if course_data['aulas_assincronas'] == 'sim' else "Síncronas"
             basic_info.append(["Tipo de Aulas", aulas_tipo])
     
     # Criar tabela de informações básicas
-    basic_table = Table(basic_info, colWidths=[2.5*inch, 4*inch])
-    basic_table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (0, -1), colors.lightgrey),
-        ('BACKGROUND', (1, 0), (1, -1), colors.white),
-        ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
-        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-        ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
-        ('FONTNAME', (1, 0), (1, -1), 'Helvetica'),
-        ('FONTSIZE', (0, 0), (-1, -1), 10),
-        ('LEFTPADDING', (0, 0), (-1, -1), 6),
-        ('RIGHTPADDING', (0, 0), (-1, -1), 6),
-        ('TOPPADDING', (0, 0), (-1, -1), 4),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
-    ]))
-    
+    basic_table = create_info_table(basic_info)
     elements.append(basic_table)
     elements.append(Spacer(1, 0.2*inch))
     
@@ -147,37 +220,23 @@ def generate_pdf(course_data):
     elements.append(Paragraph("<b>PERÍODOS E HORÁRIOS</b>", section_style))
     
     period_info = [
-        ["Início das Inscrições", course_data.get('inicio_inscricoes', 'N/A')],
-        ["Fim das Inscrições", course_data.get('fim_inscricoes', 'N/A')]
+        ["Início das Inscrições", clean_field_value(course_data.get('inicio_inscricoes'))],
+        ["Fim das Inscrições", clean_field_value(course_data.get('fim_inscricoes'))]
     ]
     
     # Adicionar informações de aulas se disponíveis
     if course_data.get('inicio_aulas_data'):
-        period_info.append(["Início das Aulas", course_data['inicio_aulas_data']])
+        period_info.append(["Início das Aulas", clean_field_value(course_data['inicio_aulas_data'])])
     if course_data.get('fim_aulas_data'):
-        period_info.append(["Fim das Aulas", course_data['fim_aulas_data']])
+        period_info.append(["Fim das Aulas", clean_field_value(course_data['fim_aulas_data'])])
     if course_data.get('horario_inicio'):
-        period_info.append(["Horário de Início", course_data['horario_inicio']])
+        period_info.append(["Horário de Início", clean_field_value(course_data['horario_inicio'])])
     if course_data.get('horario_fim'):
-        period_info.append(["Horário de Fim", course_data['horario_fim']])
+        period_info.append(["Horário de Fim", clean_field_value(course_data['horario_fim'])])
     if course_data.get('dias_aula'):
-        period_info.append(["Dias da Aula", course_data['dias_aula']])
+        period_info.append(["Dias da Aula", clean_field_value(course_data['dias_aula'])])
     
-    period_table = Table(period_info, colWidths=[2.5*inch, 4*inch])
-    period_table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (0, -1), colors.lightgrey),
-        ('BACKGROUND', (1, 0), (1, -1), colors.white),
-        ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
-        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-        ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
-        ('FONTNAME', (1, 0), (1, -1), 'Helvetica'),
-        ('FONTSIZE', (0, 0), (-1, -1), 10),
-        ('LEFTPADDING', (0, 0), (-1, -1), 6),
-        ('RIGHTPADDING', (0, 0), (-1, -1), 6),
-        ('TOPPADDING', (0, 0), (-1, -1), 4),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
-    ]))
-    
+    period_table = create_info_table(period_info)
     elements.append(period_table)
     elements.append(Spacer(1, 0.2*inch))
     
@@ -187,43 +246,31 @@ def generate_pdf(course_data):
     academic_info = []
     
     if course_data.get('carga_horaria'):
-        academic_info.append(["Carga Horária", course_data['carga_horaria']])
+        academic_info.append(["Carga Horária", clean_field_value(course_data['carga_horaria'])])
     
     if course_data.get('vagas_unidade'):
-        academic_info.append(["Vagas Disponíveis", course_data['vagas_unidade']])
+        academic_info.append(["Vagas Disponíveis", clean_field_value(course_data['vagas_unidade'])])
     
     if course_data.get('publico_alvo'):
-        academic_info.append(["Público Alvo", course_data['publico_alvo']])
+        academic_info.append(["Público Alvo", wrap_text(clean_field_value(course_data['publico_alvo']), 50)])
     
     if course_data.get('oferece_certificado'):
         certificado = "Sim" if course_data['oferece_certificado'] == 'sim' else "Não"
         academic_info.append(["Oferece Certificado", certificado])
         
         if course_data.get('pre_requisitos') and course_data['oferece_certificado'] == 'sim':
-            academic_info.append(["Pré-requisitos para Certificado", course_data['pre_requisitos']])
+            academic_info.append(["Pré-requisitos para Certificado", wrap_text(clean_field_value(course_data['pre_requisitos']), 50)])
     
     if course_data.get('acessibilidade'):
-        academic_info.append(["Acessibilidade", course_data['acessibilidade']])
+        academic_info.append(["Acessibilidade", clean_field_value(course_data['acessibilidade'])])
     
     if course_data.get('recursos_acessibilidade'):
-        academic_info.append(["Recursos de Acessibilidade", course_data['recursos_acessibilidade']])
+        # Tratar recursos de acessibilidade com quebra de linha adequada
+        recursos = clean_field_value(course_data['recursos_acessibilidade'])
+        academic_info.append(["Recursos de Acessibilidade", wrap_text(recursos, 45)])
     
     if academic_info:
-        academic_table = Table(academic_info, colWidths=[2.5*inch, 4*inch])
-        academic_table.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (0, -1), colors.lightgrey),
-            ('BACKGROUND', (1, 0), (1, -1), colors.white),
-            ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
-            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-            ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
-            ('FONTNAME', (1, 0), (1, -1), 'Helvetica'),
-            ('FONTSIZE', (0, 0), (-1, -1), 10),
-            ('LEFTPADDING', (0, 0), (-1, -1), 6),
-            ('RIGHTPADDING', (0, 0), (-1, -1), 6),
-            ('TOPPADDING', (0, 0), (-1, -1), 4),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
-        ]))
-        
+        academic_table = create_info_table(academic_info)
         elements.append(academic_table)
         elements.append(Spacer(1, 0.2*inch))
     
@@ -237,43 +284,29 @@ def generate_pdf(course_data):
         financial_info.append(["Curso Gratuito", gratuito])
     
     if course_data.get('valor_curso') and course_data.get('curso_gratuito') != 'sim':
-        financial_info.append(["Valor do Curso", course_data['valor_curso']])
+        financial_info.append(["Valor do Curso", clean_field_value(course_data['valor_curso'])])
     
     if course_data.get('valor_curso_inteira'):
-        financial_info.append(["Valor Inteira", course_data['valor_curso_inteira']])
+        financial_info.append(["Valor Inteira", clean_field_value(course_data['valor_curso_inteira'])])
     
     if course_data.get('valor_curso_meia'):
-        financial_info.append(["Valor Meia", course_data['valor_curso_meia']])
+        financial_info.append(["Valor Meia", clean_field_value(course_data['valor_curso_meia'])])
     
     if course_data.get('requisitos_meia'):
-        financial_info.append(["Requisitos para Meia", course_data['requisitos_meia']])
+        financial_info.append(["Requisitos para Meia", wrap_text(clean_field_value(course_data['requisitos_meia']), 50)])
     
     if course_data.get('oferece_bolsa'):
         bolsa = "Sim" if course_data['oferece_bolsa'] == 'sim' else "Não"
         financial_info.append(["Oferece Bolsa", bolsa])
     
     if course_data.get('valor_bolsa') and course_data.get('oferece_bolsa') == 'sim':
-        financial_info.append(["Valor da Bolsa", course_data['valor_bolsa']])
+        financial_info.append(["Valor da Bolsa", clean_field_value(course_data['valor_bolsa'])])
     
     if course_data.get('requisitos_bolsa') and course_data.get('oferece_bolsa') == 'sim':
-        financial_info.append(["Requisitos para Bolsa", course_data['requisitos_bolsa']])
+        financial_info.append(["Requisitos para Bolsa", wrap_text(clean_field_value(course_data['requisitos_bolsa']), 50)])
     
     if financial_info:
-        financial_table = Table(financial_info, colWidths=[2.5*inch, 4*inch])
-        financial_table.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (0, -1), colors.lightgrey),
-            ('BACKGROUND', (1, 0), (1, -1), colors.white),
-            ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
-            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-            ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
-            ('FONTNAME', (1, 0), (1, -1), 'Helvetica'),
-            ('FONTSIZE', (0, 0), (-1, -1), 10),
-            ('LEFTPADDING', (0, 0), (-1, -1), 6),
-            ('RIGHTPADDING', (0, 0), (-1, -1), 6),
-            ('TOPPADDING', (0, 0), (-1, -1), 4),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
-        ]))
-        
+        financial_table = create_info_table(financial_info)
         elements.append(financial_table)
         elements.append(Spacer(1, 0.2*inch))
     
@@ -284,30 +317,16 @@ def generate_pdf(course_data):
         location_info = []
         
         if course_data.get('endereco_unidade'):
-            location_info.append(["Endereço", course_data['endereco_unidade']])
+            location_info.append(["Endereço", wrap_text(clean_field_value(course_data['endereco_unidade']), 50)])
         
         if course_data.get('bairro_unidade'):
-            location_info.append(["Bairro", course_data['bairro_unidade']])
+            location_info.append(["Bairro", clean_field_value(course_data['bairro_unidade'])])
         
         if course_data.get('vagas_unidade'):
-            location_info.append(["Vagas por Unidade", course_data['vagas_unidade']])
+            location_info.append(["Vagas por Unidade", clean_field_value(course_data['vagas_unidade'])])
         
         if location_info:
-            location_table = Table(location_info, colWidths=[2.5*inch, 4*inch])
-            location_table.setStyle(TableStyle([
-                ('BACKGROUND', (0, 0), (0, -1), colors.lightgrey),
-                ('BACKGROUND', (1, 0), (1, -1), colors.white),
-                ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
-                ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-                ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
-                ('FONTNAME', (1, 0), (1, -1), 'Helvetica'),
-                ('FONTSIZE', (0, 0), (-1, -1), 10),
-                ('LEFTPADDING', (0, 0), (-1, -1), 6),
-                ('RIGHTPADDING', (0, 0), (-1, -1), 6),
-                ('TOPPADDING', (0, 0), (-1, -1), 4),
-                ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
-            ]))
-            
+            location_table = create_info_table(location_info)
             elements.append(location_table)
             elements.append(Spacer(1, 0.2*inch))
     
@@ -318,34 +337,21 @@ def generate_pdf(course_data):
         partner_info = []
         
         if course_data.get('parceiro_nome'):
-            partner_info.append(["Nome do Parceiro", course_data['parceiro_nome']])
+            partner_info.append(["Nome do Parceiro", wrap_text(clean_field_value(course_data['parceiro_nome']), 50)])
         
         if course_data.get('parceiro_link'):
-            partner_info.append(["Link do Parceiro", course_data['parceiro_link']])
+            partner_info.append(["Link do Parceiro", wrap_text(clean_field_value(course_data['parceiro_link']), 50)])
         
         if partner_info:
-            partner_table = Table(partner_info, colWidths=[2.5*inch, 4*inch])
-            partner_table.setStyle(TableStyle([
-                ('BACKGROUND', (0, 0), (0, -1), colors.lightgrey),
-                ('BACKGROUND', (1, 0), (1, -1), colors.white),
-                ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
-                ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-                ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
-                ('FONTNAME', (1, 0), (1, -1), 'Helvetica'),
-                ('FONTSIZE', (0, 0), (-1, -1), 10),
-                ('LEFTPADDING', (0, 0), (-1, -1), 6),
-                ('RIGHTPADDING', (0, 0), (-1, -1), 6),
-                ('TOPPADDING', (0, 0), (-1, -1), 4),
-                ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
-            ]))
-            
+            partner_table = create_info_table(partner_info)
             elements.append(partner_table)
             elements.append(Spacer(1, 0.2*inch))
     
     # Informações complementares
     if course_data.get('info_complementares'):
         elements.append(Paragraph("<b>INFORMAÇÕES COMPLEMENTARES</b>", section_style))
-        elements.append(Paragraph(course_data['info_complementares'], field_style))
+        info_text = wrap_text(clean_field_value(course_data['info_complementares']), 70)
+        elements.append(Paragraph(info_text, field_style))
         elements.append(Spacer(1, 0.2*inch))
     
     # Rodapé
