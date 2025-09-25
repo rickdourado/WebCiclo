@@ -18,6 +18,10 @@ __pycache__/
 CSV/
 PDF/
 
+# Diretórios de imagens dos cursos (não versionar)
+static/images/IMAGENSCURSOS/
+static/images/LOGOPARCEIROS/
+
 # Distribution / packaging
 .Python
 build/
@@ -191,4 +195,3 @@ cython_debug/
 #  refer to https://docs.cursor.com/context/ignore-files
 .cursorignore
 .cursorindexingignore
-static/images/IMAGENSCURSOS/Primeiros_Socorros_Básicos.jpg
