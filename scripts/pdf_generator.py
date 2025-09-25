@@ -11,6 +11,52 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch, cm
 from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_JUSTIFY
 from reportlab.lib.utils import simpleSplit
+import re
+
+def format_date_to_brazilian(date_str):
+    """
+    Converte datas para o formato brasileiro DD/MM/AAAA.
+    
+    Args:
+        date_str (str): Data em qualquer formato (YYYY-MM-DD, YYYY/MM/DD, DD/MM/YYYY, etc.)
+        
+    Returns:
+        str: Data no formato DD/MM/AAAA ou 'N/A' se inválida
+    """
+    if not date_str or date_str == 'N/A' or date_str.strip() == '':
+        return 'N/A'
+    
+    date_str = str(date_str).strip()
+    
+    # Remover caracteres extras como | no final
+    date_str = date_str.rstrip('|').strip()
+    
+    try:
+        # Padrões de data que podem aparecer
+        patterns = [
+            (r'^(\d{4})-(\d{1,2})-(\d{1,2})$', r'\3/\2/\1'),  # YYYY-MM-DD -> DD/MM/YYYY
+            (r'^(\d{4})/(\d{1,2})/(\d{1,2})$', r'\3/\2/\1'),  # YYYY/MM/DD -> DD/MM/YYYY
+            (r'^(\d{1,2})/(\d{1,2})/(\d{4})$', r'\1/\2/\3'),   # DD/MM/YYYY -> DD/MM/YYYY (já correto)
+            (r'^(\d{1,2})-(\d{1,2})-(\d{4})$', r'\1/\2/\3'),   # DD-MM-YYYY -> DD/MM/YYYY
+        ]
+        
+        for pattern, replacement in patterns:
+            match = re.match(pattern, date_str)
+            if match:
+                formatted_date = re.sub(pattern, replacement, date_str)
+                # Validar se a data é válida
+                day, month, year = formatted_date.split('/')
+                day, month, year = int(day), int(month), int(year)
+                
+                # Verificação básica de validade
+                if 1 <= day <= 31 and 1 <= month <= 12 and year >= 1900:
+                    return f"{day:02d}/{month:02d}/{year}"
+                
+        # Se não conseguiu converter, retorna o valor original limpo
+        return date_str
+        
+    except (ValueError, IndexError):
+        return date_str
 
 def wrap_text(text, max_width_chars=60):
     """
@@ -33,12 +79,13 @@ def wrap_text(text, max_width_chars=60):
     wrapped_lines = textwrap.wrap(text, width=max_width_chars, break_long_words=True)
     return '\n'.join(wrapped_lines)
 
-def clean_field_value(value):
+def clean_field_value(value, is_date=False):
     """
     Limpa e formata valores dos campos para exibição no PDF.
     
     Args:
         value: Valor do campo
+        is_date (bool): Se True, converte para formato brasileiro DD/MM/AAAA
         
     Returns:
         str: Valor limpo e formatado
@@ -48,6 +95,10 @@ def clean_field_value(value):
     
     # Converter para string e limpar
     value_str = str(value).strip()
+    
+    # Se for uma data, converter para formato brasileiro
+    if is_date:
+        return format_date_to_brazilian(value_str)
     
     # Remover caracteres problemáticos para PDF
     value_str = value_str.replace('\r', ' ').replace('\n', ' ')
@@ -220,15 +271,15 @@ def generate_pdf(course_data):
     elements.append(Paragraph("<b>PERÍODOS E HORÁRIOS</b>", section_style))
     
     period_info = [
-        ["Início das Inscrições", clean_field_value(course_data.get('inicio_inscricoes'))],
-        ["Fim das Inscrições", clean_field_value(course_data.get('fim_inscricoes'))]
+        ["Início das Inscrições", clean_field_value(course_data.get('inicio_inscricoes'), is_date=True)],
+        ["Fim das Inscrições", clean_field_value(course_data.get('fim_inscricoes'), is_date=True)]
     ]
     
     # Adicionar informações de aulas se disponíveis
     if course_data.get('inicio_aulas_data'):
-        period_info.append(["Início das Aulas", clean_field_value(course_data['inicio_aulas_data'])])
+        period_info.append(["Início das Aulas", clean_field_value(course_data['inicio_aulas_data'], is_date=True)])
     if course_data.get('fim_aulas_data'):
-        period_info.append(["Fim das Aulas", clean_field_value(course_data['fim_aulas_data'])])
+        period_info.append(["Fim das Aulas", clean_field_value(course_data['fim_aulas_data'], is_date=True)])
     if course_data.get('horario_inicio'):
         period_info.append(["Horário de Início", clean_field_value(course_data['horario_inicio'])])
     if course_data.get('horario_fim'):
