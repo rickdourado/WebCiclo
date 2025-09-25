@@ -175,6 +175,256 @@
                                      <option value="Híbrido" {% if course.modalidade == 'Híbrido' %}selected{% endif %}>Híbrido</option>
                                  </select>
                              </div>
+                             
+                             <!-- Subformulário para Presencial/Híbrido -->
+                             <div class="form-group full-width" id="unidades_container" style="display:{% if course.modalidade == 'Presencial' or course.modalidade == 'Híbrido' %}block{% else %}none{% endif %};">
+                                 <fieldset class="unidade-fieldset">
+                                     <legend>Informações da Unidade 1 <button type="button" class="remove-unidade-btn" onclick="removeUnidade(this)" style="display:none;">×</button></legend>
+                                     
+                                     <!-- Container para múltiplas unidades -->
+                                     <div id="unidades_list">
+                                         <!-- Primeira unidade (sempre presente) -->
+                                         <div class="unidade-item" data-unidade="0">
+                                             <label>Endereço da unidade*</label>
+                                             <input type="text" name="endereco_unidade[]" required value="{{ course.endereco_unidade }}">
+                                             <label>Bairro*</label>
+                                             <input type="text" name="bairro_unidade[]" required value="{{ course.bairro_unidade }}">
+                                             <label>Número de vagas*</label>
+                                             <input type="number" name="vagas_unidade[]" min="1" required value="{{ course.vagas_unidade }}">
+                                             
+                                             <label for="carga_horaria_unidade" class="required">Carga Horária</label>
+                                             <input type="text" id="carga_horaria_unidade" name="carga_horaria" required 
+                                                    placeholder="Digite a carga horária (ex: 40 horas, 80h, 2 meses, etc.)" value="{{ course.carga_horaria }}">
+                                             <small style="color: red; font-size: 0.9em; margin-top: 5px; display: block;">(Dê preferência a carga horária no formato de horas)</small>
+                                             
+                        <div class="data-group">
+                            <div class="data-field">
+                                <label>Início das aulas*</label>
+                                <input type="date" name="inicio_aulas_data[]" required value="{{ course.inicio_aulas_data }}">
+                            </div>
+                            <div class="data-field">
+                                <label>Fim das aulas*</label>
+                                <input type="date" name="fim_aulas_data[]" required value="{{ course.fim_aulas_data }}">
+                            </div>
+                        </div>
+                                             <div class="horario-group">
+                                                 <div class="horario-field">
+                                                     <label>Horário-Início*</label>
+                                                     <select name="horario_inicio[]" required>
+                                                         <option value="">Selecione o horário</option>
+                                                         <option value="06:00" {% if course.horario_inicio == '06:00' %}selected{% endif %}>06:00</option>
+                                                         <option value="07:00" {% if course.horario_inicio == '07:00' %}selected{% endif %}>07:00</option>
+                                                         <option value="08:00" {% if course.horario_inicio == '08:00' %}selected{% endif %}>08:00</option>
+                                                         <option value="09:00" {% if course.horario_inicio == '09:00' %}selected{% endif %}>09:00</option>
+                                                         <option value="10:00" {% if course.horario_inicio == '10:00' %}selected{% endif %}>10:00</option>
+                                                         <option value="11:00" {% if course.horario_inicio == '11:00' %}selected{% endif %}>11:00</option>
+                                                         <option value="12:00" {% if course.horario_inicio == '12:00' %}selected{% endif %}>12:00</option>
+                                                         <option value="13:00" {% if course.horario_inicio == '13:00' %}selected{% endif %}>13:00</option>
+                                                         <option value="14:00" {% if course.horario_inicio == '14:00' %}selected{% endif %}>14:00</option>
+                                                         <option value="15:00" {% if course.horario_inicio == '15:00' %}selected{% endif %}>15:00</option>
+                                                         <option value="16:00" {% if course.horario_inicio == '16:00' %}selected{% endif %}>16:00</option>
+                                                         <option value="17:00" {% if course.horario_inicio == '17:00' %}selected{% endif %}>17:00</option>
+                                                         <option value="18:00" {% if course.horario_inicio == '18:00' %}selected{% endif %}>18:00</option>
+                                                         <option value="19:00" {% if course.horario_inicio == '19:00' %}selected{% endif %}>19:00</option>
+                                                         <option value="20:00" {% if course.horario_inicio == '20:00' %}selected{% endif %}>20:00</option>
+                                                         <option value="21:00" {% if course.horario_inicio == '21:00' %}selected{% endif %}>21:00</option>
+                                                         <option value="22:00" {% if course.horario_inicio == '22:00' %}selected{% endif %}>22:00</option>
+                                                         <option value="23:00" {% if course.horario_inicio == '23:00' %}selected{% endif %}>23:00</option>
+                                                     </select>
+                                                 </div>
+                                                 <div class="horario-field">
+                                                     <label>Horário-Fim*</label>
+                                                     <select name="horario_fim[]" required>
+                                                         <option value="">Selecione o horário</option>
+                                                         <option value="06:00" {% if course.horario_fim == '06:00' %}selected{% endif %}>06:00</option>
+                                                         <option value="07:00" {% if course.horario_fim == '07:00' %}selected{% endif %}>07:00</option>
+                                                         <option value="08:00" {% if course.horario_fim == '08:00' %}selected{% endif %}>08:00</option>
+                                                         <option value="09:00" {% if course.horario_fim == '09:00' %}selected{% endif %}>09:00</option>
+                                                         <option value="10:00" {% if course.horario_fim == '10:00' %}selected{% endif %}>10:00</option>
+                                                         <option value="11:00" {% if course.horario_fim == '11:00' %}selected{% endif %}>11:00</option>
+                                                         <option value="12:00" {% if course.horario_fim == '12:00' %}selected{% endif %}>12:00</option>
+                                                         <option value="13:00" {% if course.horario_fim == '13:00' %}selected{% endif %}>13:00</option>
+                                                         <option value="14:00" {% if course.horario_fim == '14:00' %}selected{% endif %}>14:00</option>
+                                                         <option value="15:00" {% if course.horario_fim == '15:00' %}selected{% endif %}>15:00</option>
+                                                         <option value="16:00" {% if course.horario_fim == '16:00' %}selected{% endif %}>16:00</option>
+                                                         <option value="17:00" {% if course.horario_fim == '17:00' %}selected{% endif %}>17:00</option>
+                                                         <option value="18:00" {% if course.horario_fim == '18:00' %}selected{% endif %}>18:00</option>
+                                                         <option value="19:00" {% if course.horario_fim == '19:00' %}selected{% endif %}>19:00</option>
+                                                         <option value="20:00" {% if course.horario_fim == '20:00' %}selected{% endif %}>20:00</option>
+                                                         <option value="21:00" {% if course.horario_fim == '21:00' %}selected{% endif %}>21:00</option>
+                                                         <option value="22:00" {% if course.horario_fim == '22:00' %}selected{% endif %}>22:00</option>
+                                                         <option value="23:00" {% if course.horario_fim == '23:00' %}selected{% endif %}>23:00</option>
+                                                     </select>
+                                                 </div>
+                                             </div>
+                                             <label>Dias de aula*</label>
+                                             <div class="checkbox-group dias-aula">
+                                                 <label class="checkbox-label">
+                                                     <input type="checkbox" name="dias_aula[]" value="Segunda-feira" {% if 'Segunda-feira' in course.dias_aula %}checked{% endif %}>
+                                                     <span>Segunda-feira</span>
+                                                 </label>
+                                                 <label class="checkbox-label">
+                                                     <input type="checkbox" name="dias_aula[]" value="Terça-feira" {% if 'Terça-feira' in course.dias_aula %}checked{% endif %}>
+                                                     <span>Terça-feira</span>
+                                                 </label>
+                                                 <label class="checkbox-label">
+                                                     <input type="checkbox" name="dias_aula[]" value="Quarta-feira" {% if 'Quarta-feira' in course.dias_aula %}checked{% endif %}>
+                                                     <span>Quarta-feira</span>
+                                                 </label>
+                                                 <label class="checkbox-label">
+                                                     <input type="checkbox" name="dias_aula[]" value="Quinta-feira" {% if 'Quinta-feira' in course.dias_aula %}checked{% endif %}>
+                                                     <span>Quinta-feira</span>
+                                                 </label>
+                                                 <label class="checkbox-label">
+                                                     <input type="checkbox" name="dias_aula[]" value="Sexta-feira" {% if 'Sexta-feira' in course.dias_aula %}checked{% endif %}>
+                                                     <span>Sexta-feira</span>
+                                                 </label>
+                                                 <label class="checkbox-label">
+                                                     <input type="checkbox" name="dias_aula[]" value="Sábado" {% if 'Sábado' in course.dias_aula %}checked{% endif %}>
+                                                     <span>Sábado</span>
+                                                 </label>
+                                                 <label class="checkbox-label">
+                                                     <input type="checkbox" name="dias_aula[]" value="Domingo" {% if 'Domingo' in course.dias_aula %}checked{% endif %}>
+                                                     <span>Domingo</span>
+                                                 </label>
+                                             </div>
+                                         </div>
+                                     </div>
+                                     
+                                     <button type="button" class="btn btn-outline add-unidade-btn">+ Adicionar outra unidade</button>
+                                 </fieldset>
+                             </div>
+
+                             <!-- Subformulário para Online -->
+                             <div class="form-group full-width" id="plataforma_container" style="display:{% if course.modalidade == 'Online' %}block{% else %}none{% endif %};">
+                                 <fieldset class="unidade-fieldset">
+                                     <legend>Informações da Plataforma <button type="button" class="remove-plataforma-btn" onclick="removePlataforma(this)" style="display:none;">×</button></legend>
+                                     
+                                     <!-- Container para plataforma online -->
+                                     <div id="plataforma_list">
+                                         <!-- Informações da plataforma online -->
+                                         <div class="plataforma-item" data-plataforma="0">
+                                             <label for="plataforma_digital">Plataforma Digital</label>
+                                             <input type="text" id="plataforma_digital" name="plataforma_digital" 
+                                                    placeholder="Ex: Zoom, Google Meet, Microsoft Teams" value="{{ course.plataforma_digital }}">
+                                             
+                                             <label>Número de vagas*</label>
+                                             <input type="number" id="vagas_online" name="vagas_unidade[]" min="1" required value="{{ course.vagas_online }}">
+                                             
+                                             <label for="carga_horaria_online" class="required">Carga Horária</label>
+                                             <input type="text" id="carga_horaria_online" name="carga_horaria" required 
+                                                    placeholder="Digite a carga horária (ex: 40 horas, 80h, 2 meses, etc.)" value="{{ course.carga_horaria }}">
+                                             <small style="color: red; font-size: 0.9em; margin-top: 5px; display: block;">(Dê preferência a carga horária no formato de horas)</small>
+                                             
+                                             <label class="required">Aulas Assíncronas?</label>
+                                             <div class="radio-group">
+                                                 <label class="radio-label">
+                                                     <input type="radio" name="aulas_assincronas" value="sim" required onclick="toggleAulasAssincronas(true)" {% if course.aulas_assincronas == 'sim' %}checked{% endif %}> SIM
+                                                 </label>
+                                                 <label class="radio-label">
+                                                     <input type="radio" name="aulas_assincronas" value="nao" required onclick="toggleAulasAssincronas(false)" {% if course.aulas_assincronas == 'nao' %}checked{% endif %}> NÃO
+                                                 </label>
+                                             </div>
+                                             
+                        <div class="data-group" id="horarios_online_container">
+                            <div class="data-field">
+                                <label>Início das aulas</label>
+                                <input type="date" id="inicio_aulas_online" name="inicio_aulas_data[]" value="{{ course.inicio_aulas_online }}">
+                            </div>
+                            <div class="data-field">
+                                <label>Fim das aulas</label>
+                                <input type="date" id="fim_aulas_online" name="fim_aulas_data[]" value="{{ course.fim_aulas_online }}">
+                            </div>
+                        </div>
+                                             <div id="horarios_detalhados_online_container" style="display: {% if course.aulas_assincronas == 'nao' %}block{% else %}none{% endif %};">
+                                                 <div class="horario-group">
+                                                     <div class="horario-field">
+                                                         <label>Horário-Início</label>
+                                                         <select id="horario_inicio_online" name="horario_inicio[]">
+                                                             <option value="">Selecione o horário</option>
+                                                             <option value="06:00" {% if course.horario_inicio_online == '06:00' %}selected{% endif %}>06:00</option>
+                                                             <option value="07:00" {% if course.horario_inicio_online == '07:00' %}selected{% endif %}>07:00</option>
+                                                             <option value="08:00" {% if course.horario_inicio_online == '08:00' %}selected{% endif %}>08:00</option>
+                                                             <option value="09:00" {% if course.horario_inicio_online == '09:00' %}selected{% endif %}>09:00</option>
+                                                             <option value="10:00" {% if course.horario_inicio_online == '10:00' %}selected{% endif %}>10:00</option>
+                                                             <option value="11:00" {% if course.horario_inicio_online == '11:00' %}selected{% endif %}>11:00</option>
+                                                             <option value="12:00" {% if course.horario_inicio_online == '12:00' %}selected{% endif %}>12:00</option>
+                                                             <option value="13:00" {% if course.horario_inicio_online == '13:00' %}selected{% endif %}>13:00</option>
+                                                             <option value="14:00" {% if course.horario_inicio_online == '14:00' %}selected{% endif %}>14:00</option>
+                                                             <option value="15:00" {% if course.horario_inicio_online == '15:00' %}selected{% endif %}>15:00</option>
+                                                             <option value="16:00" {% if course.horario_inicio_online == '16:00' %}selected{% endif %}>16:00</option>
+                                                             <option value="17:00" {% if course.horario_inicio_online == '17:00' %}selected{% endif %}>17:00</option>
+                                                             <option value="18:00" {% if course.horario_inicio_online == '18:00' %}selected{% endif %}>18:00</option>
+                                                             <option value="19:00" {% if course.horario_inicio_online == '19:00' %}selected{% endif %}>19:00</option>
+                                                             <option value="20:00" {% if course.horario_inicio_online == '20:00' %}selected{% endif %}>20:00</option>
+                                                             <option value="21:00" {% if course.horario_inicio_online == '21:00' %}selected{% endif %}>21:00</option>
+                                                             <option value="22:00" {% if course.horario_inicio_online == '22:00' %}selected{% endif %}>22:00</option>
+                                                             <option value="23:00" {% if course.horario_inicio_online == '23:00' %}selected{% endif %}>23:00</option>
+                                                         </select>
+                                                     </div>
+                                                     <div class="horario-field">
+                                                         <label>Horário-Fim</label>
+                                                         <select id="horario_fim_online" name="horario_fim[]">
+                                                             <option value="">Selecione o horário</option>
+                                                             <option value="06:00" {% if course.horario_fim_online == '06:00' %}selected{% endif %}>06:00</option>
+                                                             <option value="07:00" {% if course.horario_fim_online == '07:00' %}selected{% endif %}>07:00</option>
+                                                             <option value="08:00" {% if course.horario_fim_online == '08:00' %}selected{% endif %}>08:00</option>
+                                                             <option value="09:00" {% if course.horario_fim_online == '09:00' %}selected{% endif %}>09:00</option>
+                                                             <option value="10:00" {% if course.horario_fim_online == '10:00' %}selected{% endif %}>10:00</option>
+                                                             <option value="11:00" {% if course.horario_fim_online == '11:00' %}selected{% endif %}>11:00</option>
+                                                             <option value="12:00" {% if course.horario_fim_online == '12:00' %}selected{% endif %}>12:00</option>
+                                                             <option value="13:00" {% if course.horario_fim_online == '13:00' %}selected{% endif %}>13:00</option>
+                                                             <option value="14:00" {% if course.horario_fim_online == '14:00' %}selected{% endif %}>14:00</option>
+                                                             <option value="15:00" {% if course.horario_fim_online == '15:00' %}selected{% endif %}>15:00</option>
+                                                             <option value="16:00" {% if course.horario_fim_online == '16:00' %}selected{% endif %}>16:00</option>
+                                                             <option value="17:00" {% if course.horario_fim_online == '17:00' %}selected{% endif %}>17:00</option>
+                                                             <option value="18:00" {% if course.horario_fim_online == '18:00' %}selected{% endif %}>18:00</option>
+                                                             <option value="19:00" {% if course.horario_fim_online == '19:00' %}selected{% endif %}>19:00</option>
+                                                             <option value="20:00" {% if course.horario_fim_online == '20:00' %}selected{% endif %}>20:00</option>
+                                                             <option value="21:00" {% if course.horario_fim_online == '21:00' %}selected{% endif %}>21:00</option>
+                                                             <option value="22:00" {% if course.horario_fim_online == '22:00' %}selected{% endif %}>22:00</option>
+                                                             <option value="23:00" {% if course.horario_fim_online == '23:00' %}selected{% endif %}>23:00</option>
+                                                         </select>
+                                                     </div>
+                                                 </div>
+                                                 <label>Dias de aula</label>
+                                             <div class="checkbox-group dias-aula">
+                                                 <label class="checkbox-label">
+                                                     <input type="checkbox" name="dias_aula[]" value="Segunda-feira" {% if 'Segunda-feira' in course.dias_aula %}checked{% endif %}>
+                                                     <span>Segunda-feira</span>
+                                                 </label>
+                                                 <label class="checkbox-label">
+                                                     <input type="checkbox" name="dias_aula[]" value="Terça-feira" {% if 'Terça-feira' in course.dias_aula %}checked{% endif %}>
+                                                     <span>Terça-feira</span>
+                                                 </label>
+                                                 <label class="checkbox-label">
+                                                     <input type="checkbox" name="dias_aula[]" value="Quarta-feira" {% if 'Quarta-feira' in course.dias_aula %}checked{% endif %}>
+                                                     <span>Quarta-feira</span>
+                                                 </label>
+                                                 <label class="checkbox-label">
+                                                     <input type="checkbox" name="dias_aula[]" value="Quinta-feira" {% if 'Quinta-feira' in course.dias_aula %}checked{% endif %}>
+                                                     <span>Quinta-feira</span>
+                                                 </label>
+                                                 <label class="checkbox-label">
+                                                     <input type="checkbox" name="dias_aula[]" value="Sexta-feira" {% if 'Sexta-feira' in course.dias_aula %}checked{% endif %}>
+                                                     <span>Sexta-feira</span>
+                                                 </label>
+                                                 <label class="checkbox-label">
+                                                     <input type="checkbox" name="dias_aula[]" value="Sábado" {% if 'Sábado' in course.dias_aula %}checked{% endif %}>
+                                                     <span>Sábado</span>
+                                                 </label>
+                                                 <label class="checkbox-label">
+                                                     <input type="checkbox" name="dias_aula[]" value="Domingo" {% if 'Domingo' in course.dias_aula %}checked{% endif %}>
+                                                     <span>Domingo</span>
+                                                 </label>
+                                             </div>
+                                             </div>
+                                         </div>
+                                     </div>
+                                     
+                                     <button type="button" class="btn btn-outline add-plataforma-btn">+ Adicionar outra plataforma</button>
+                                 </fieldset>
+                             </div>
                             
                             <div class="form-group full-width">
                                 <label for="acessibilidade" class="required">Acessibilidade</label>
@@ -418,6 +668,299 @@
             }
         }
 
+        function addUnidade() {
+            const unidadesList = document.getElementById('unidades_list');
+            const unidadeCount = unidadesList.children.length;
+            const newUnidadeIndex = unidadeCount;
+            
+            const newUnidadeHTML = `
+                <div class="unidade-item" data-unidade="${newUnidadeIndex}">
+                    <label>Endereço da unidade*</label>
+                    <input type="text" name="endereco_unidade[]" required>
+                    <label>Bairro*</label>
+                    <input type="text" name="bairro_unidade[]" required>
+                    <label>Número de vagas*</label>
+                    <input type="number" name="vagas_unidade[]" min="1" required>
+                    
+                    <label for="carga_horaria_unidade_${newUnidadeIndex}" class="required">Carga Horária</label>
+                    <input type="text" id="carga_horaria_unidade_${newUnidadeIndex}" name="carga_horaria" required 
+                           placeholder="Digite a carga horária (ex: 40 horas, 80h, 2 meses, etc.)">
+                    <small style="color: red; font-size: 0.9em; margin-top: 5px; display: block;">(Dê preferência a carga horária no formato de horas)</small>
+                    
+                    <div class="data-group">
+                        <div class="data-field">
+                            <label>Início das aulas*</label>
+                            <input type="date" name="inicio_aulas_data[]" required>
+                        </div>
+                        <div class="data-field">
+                            <label>Fim das aulas*</label>
+                            <input type="date" name="fim_aulas_data[]" required>
+                        </div>
+                    </div>
+                    
+                    <div class="horario-group">
+                        <div class="horario-field">
+                            <label>Horário-Início*</label>
+                            <select name="horario_inicio[]" required>
+                                <option value="">Selecione o horário</option>
+                                <option value="06:00">06:00</option>
+                                <option value="07:00">07:00</option>
+                                <option value="08:00">08:00</option>
+                                <option value="09:00">09:00</option>
+                                <option value="10:00">10:00</option>
+                                <option value="11:00">11:00</option>
+                                <option value="12:00">12:00</option>
+                                <option value="13:00">13:00</option>
+                                <option value="14:00">14:00</option>
+                                <option value="15:00">15:00</option>
+                                <option value="16:00">16:00</option>
+                                <option value="17:00">17:00</option>
+                                <option value="18:00">18:00</option>
+                                <option value="19:00">19:00</option>
+                                <option value="20:00">20:00</option>
+                                <option value="21:00">21:00</option>
+                                <option value="22:00">22:00</option>
+                                <option value="23:00">23:00</option>
+                            </select>
+                        </div>
+                        <div class="horario-field">
+                            <label>Horário-Fim*</label>
+                            <select name="horario_fim[]" required>
+                                <option value="">Selecione o horário</option>
+                                <option value="06:00">06:00</option>
+                                <option value="07:00">07:00</option>
+                                <option value="08:00">08:00</option>
+                                <option value="09:00">09:00</option>
+                                <option value="10:00">10:00</option>
+                                <option value="11:00">11:00</option>
+                                <option value="12:00">12:00</option>
+                                <option value="13:00">13:00</option>
+                                <option value="14:00">14:00</option>
+                                <option value="15:00">15:00</option>
+                                <option value="16:00">16:00</option>
+                                <option value="17:00">17:00</option>
+                                <option value="18:00">18:00</option>
+                                <option value="19:00">19:00</option>
+                                <option value="20:00">20:00</option>
+                                <option value="21:00">21:00</option>
+                                <option value="22:00">22:00</option>
+                                <option value="23:00">23:00</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <label>Dias de aula*</label>
+                    <div class="checkbox-group dias-aula">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="dias_aula[]" value="Segunda-feira">
+                            <span>Segunda-feira</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="dias_aula[]" value="Terça-feira">
+                            <span>Terça-feira</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="dias_aula[]" value="Quarta-feira">
+                            <span>Quarta-feira</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="dias_aula[]" value="Quinta-feira">
+                            <span>Quinta-feira</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="dias_aula[]" value="Sexta-feira">
+                            <span>Sexta-feira</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="dias_aula[]" value="Sábado">
+                            <span>Sábado</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="dias_aula[]" value="Domingo">
+                            <span>Domingo</span>
+                        </label>
+                    </div>
+                </div>
+            `;
+            
+            unidadesList.insertAdjacentHTML('beforeend', newUnidadeHTML);
+            
+            // Atualizar legendas e botões de remoção
+            updateUnidadeLegends();
+        }
+
+        function removeUnidade(button) {
+            const unidadeItem = button.closest('.unidade-item');
+            if (unidadeItem) {
+                unidadeItem.remove();
+                updateUnidadeLegends();
+            }
+        }
+
+        function updateUnidadeLegends() {
+            const unidades = document.querySelectorAll('.unidade-item');
+            const removeButtons = document.querySelectorAll('.remove-unidade-btn');
+            
+            unidades.forEach((unidade, index) => {
+                const legend = unidade.closest('fieldset').querySelector('legend');
+                if (legend) {
+                    legend.innerHTML = `Informações da Unidade ${index + 1} <button type="button" class="remove-unidade-btn" onclick="removeUnidade(this)" ${index === 0 ? 'style="display:none;"' : ''}>×</button>`;
+                }
+            });
+        }
+
+        function addPlataforma() {
+            const plataformaList = document.getElementById('plataforma_list');
+            const plataformaCount = plataformaList.children.length;
+            const newPlataformaIndex = plataformaCount;
+            
+            const newPlataformaHTML = `
+                <div class="plataforma-item" data-plataforma="${newPlataformaIndex}">
+                    <label for="plataforma_digital_${newPlataformaIndex}">Plataforma Digital</label>
+                    <input type="text" id="plataforma_digital_${newPlataformaIndex}" name="plataforma_digital" 
+                           placeholder="Ex: Zoom, Google Meet, Microsoft Teams">
+                    
+                    <label>Número de vagas*</label>
+                    <input type="number" id="vagas_online_${newPlataformaIndex}" name="vagas_unidade[]" min="1" required>
+                    
+                    <label for="carga_horaria_online_${newPlataformaIndex}" class="required">Carga Horária</label>
+                    <input type="text" id="carga_horaria_online_${newPlataformaIndex}" name="carga_horaria" required 
+                           placeholder="Digite a carga horária (ex: 40 horas, 80h, 2 meses, etc.)">
+                    <small style="color: red; font-size: 0.9em; margin-top: 5px; display: block;">(Dê preferência a carga horária no formato de horas)</small>
+                    
+                    <label class="required">Aulas Assíncronas?</label>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="aulas_assincronas_${newPlataformaIndex}" value="sim" required onclick="toggleAulasAssincronas(true)"> SIM
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="aulas_assincronas_${newPlataformaIndex}" value="nao" required onclick="toggleAulasAssincronas(false)"> NÃO
+                        </label>
+                    </div>
+                    
+                    <div class="data-group" id="horarios_online_container_${newPlataformaIndex}">
+                        <div class="data-field">
+                            <label>Início das aulas</label>
+                            <input type="date" id="inicio_aulas_online_${newPlataformaIndex}" name="inicio_aulas_data[]">
+                        </div>
+                        <div class="data-field">
+                            <label>Fim das aulas</label>
+                            <input type="date" id="fim_aulas_online_${newPlataformaIndex}" name="fim_aulas_data[]">
+                        </div>
+                    </div>
+                    
+                    <div id="horarios_detalhados_online_container_${newPlataformaIndex}" style="display: none;">
+                        <div class="horario-group">
+                            <div class="horario-field">
+                                <label>Horário-Início</label>
+                                <select id="horario_inicio_online_${newPlataformaIndex}" name="horario_inicio[]">
+                                    <option value="">Selecione o horário</option>
+                                    <option value="06:00">06:00</option>
+                                    <option value="07:00">07:00</option>
+                                    <option value="08:00">08:00</option>
+                                    <option value="09:00">09:00</option>
+                                    <option value="10:00">10:00</option>
+                                    <option value="11:00">11:00</option>
+                                    <option value="12:00">12:00</option>
+                                    <option value="13:00">13:00</option>
+                                    <option value="14:00">14:00</option>
+                                    <option value="15:00">15:00</option>
+                                    <option value="16:00">16:00</option>
+                                    <option value="17:00">17:00</option>
+                                    <option value="18:00">18:00</option>
+                                    <option value="19:00">19:00</option>
+                                    <option value="20:00">20:00</option>
+                                    <option value="21:00">21:00</option>
+                                    <option value="22:00">22:00</option>
+                                    <option value="23:00">23:00</option>
+                                </select>
+                            </div>
+                            <div class="horario-field">
+                                <label>Horário-Fim</label>
+                                <select id="horario_fim_online_${newPlataformaIndex}" name="horario_fim[]">
+                                    <option value="">Selecione o horário</option>
+                                    <option value="06:00">06:00</option>
+                                    <option value="07:00">07:00</option>
+                                    <option value="08:00">08:00</option>
+                                    <option value="09:00">09:00</option>
+                                    <option value="10:00">10:00</option>
+                                    <option value="11:00">11:00</option>
+                                    <option value="12:00">12:00</option>
+                                    <option value="13:00">13:00</option>
+                                    <option value="14:00">14:00</option>
+                                    <option value="15:00">15:00</option>
+                                    <option value="16:00">16:00</option>
+                                    <option value="17:00">17:00</option>
+                                    <option value="18:00">18:00</option>
+                                    <option value="19:00">19:00</option>
+                                    <option value="20:00">20:00</option>
+                                    <option value="21:00">21:00</option>
+                                    <option value="22:00">22:00</option>
+                                    <option value="23:00">23:00</option>
+                                </select>
+                            </div>
+                        </div>
+                        <label>Dias de aula</label>
+                        <div class="checkbox-group dias-aula">
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="dias_aula[]" value="Segunda-feira">
+                                <span>Segunda-feira</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="dias_aula[]" value="Terça-feira">
+                                <span>Terça-feira</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="dias_aula[]" value="Quarta-feira">
+                                <span>Quarta-feira</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="dias_aula[]" value="Quinta-feira">
+                                <span>Quinta-feira</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="dias_aula[]" value="Sexta-feira">
+                                <span>Sexta-feira</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="dias_aula[]" value="Sábado">
+                                <span>Sábado</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="dias_aula[]" value="Domingo">
+                                <span>Domingo</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            plataformaList.insertAdjacentHTML('beforeend', newPlataformaHTML);
+            
+            // Atualizar legendas e botões de remoção
+            updatePlataformaLegends();
+        }
+
+        function removePlataforma(button) {
+            const plataformaItem = button.closest('.plataforma-item');
+            if (plataformaItem) {
+                plataformaItem.remove();
+                updatePlataformaLegends();
+            }
+        }
+
+        function updatePlataformaLegends() {
+            const plataformas = document.querySelectorAll('.plataforma-item');
+            const removeButtons = document.querySelectorAll('.remove-plataforma-btn');
+            
+            plataformas.forEach((plataforma, index) => {
+                const legend = plataforma.closest('fieldset').querySelector('legend');
+                if (legend) {
+                    legend.innerHTML = `Informações da Plataforma ${index + 1} <button type="button" class="remove-plataforma-btn" onclick="removePlataforma(this)" ${index === 0 ? 'style="display:none;"' : ''}>×</button>`;
+                }
+            });
+        }
+
         function formatarValor(input) {
             let valor = input.value.replace(/[^\d,]/g, '');
             const partes = valor.split(',');
@@ -469,6 +1012,17 @@
                     if (unidadesContainer) unidadesContainer.style.display = 'none';
                     if (plataformaContainer) plataformaContainer.style.display = 'block';
                 }
+            }
+
+            // Adicionar event listeners para botões de adicionar unidades e plataformas
+            const addUnidadeBtn = document.querySelector('.add-unidade-btn');
+            if (addUnidadeBtn) {
+                addUnidadeBtn.addEventListener('click', addUnidade);
+            }
+
+            const addPlataformaBtn = document.querySelector('.add-plataforma-btn');
+            if (addPlataformaBtn) {
+                addPlataformaBtn.addEventListener('click', addPlataforma);
             }
         });
     </script>
