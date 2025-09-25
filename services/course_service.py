@@ -173,7 +173,7 @@ class CourseService:
                 'aulas_assincronas': aulas_assincronas,
                 'dias_aula': '|'.join(form_data.getlist('dias_aula[]')) if hasattr(form_data, 'getlist') else form_data.get('dias_aula[]', ''),
                 # Para cursos online, vagas_unidade deve vir do formulário
-                'vagas_unidade': '|'.join(form_data.getlist('vagas_unidade[]')) if hasattr(form_data, 'getlist') else form_data.get('vagas_unidade[]', ''),
+                'vagas_unidade': '|'.join([v.strip() for v in form_data.getlist('vagas_unidade[]') if v.strip()]) if hasattr(form_data, 'getlist') else form_data.get('vagas_unidade[]', '').strip(),
                 # Campos de Presencial/Híbrido devem estar vazios para Online
                 'endereco_unidade': '',
                 'bairro_unidade': '',
@@ -199,7 +199,7 @@ class CourseService:
             course_data.update({
                 'endereco_unidade': '|'.join(form_data.getlist('endereco_unidade[]')) if hasattr(form_data, 'getlist') else form_data.get('endereco_unidade[]', ''),
                 'bairro_unidade': '|'.join(form_data.getlist('bairro_unidade[]')) if hasattr(form_data, 'getlist') else form_data.get('bairro_unidade[]', ''),
-                'vagas_unidade': '|'.join(form_data.getlist('vagas_unidade[]')) if hasattr(form_data, 'getlist') else form_data.get('vagas_unidade[]', ''),
+                'vagas_unidade': '|'.join([v.strip() for v in form_data.getlist('vagas_unidade[]') if v.strip()]) if hasattr(form_data, 'getlist') else form_data.get('vagas_unidade[]', '').strip(),
                 'inicio_aulas_data': '|'.join(form_data.getlist('inicio_aulas_data[]')) if hasattr(form_data, 'getlist') else form_data.get('inicio_aulas_data[]', ''),
                 'fim_aulas_data': '|'.join(form_data.getlist('fim_aulas_data[]')) if hasattr(form_data, 'getlist') else form_data.get('fim_aulas_data[]', ''),
                 'horario_inicio': '|'.join([h for h in form_data.getlist('horario_inicio[]') if h.strip()]) if hasattr(form_data, 'getlist') else form_data.get('horario_inicio[]', ''),

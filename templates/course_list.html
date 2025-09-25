@@ -799,7 +799,7 @@
                                                     {% if vagas[i] %}
                                                     <div class="info-row">
                                                         <i class="fas fa-user-plus"></i>
-                                                        <span><strong>Vagas:</strong> {{ vagas[i].strip() }}</span>
+                                                        <span><strong>Vagas:</strong> {{ vagas[i].strip().replace(',', '') }}</span>
                                                     </div>
                                                     {% endif %}
                                                     
@@ -861,7 +861,7 @@
                                                     {% set vagas_lista = course.vagas_unidade.split('|') %}
                                                     {% set vagas_numericas = [] %}
                                                     {% for vaga in vagas_lista %}
-                                                        {% set vaga_limpa = vaga.strip() %}
+                                                        {% set vaga_limpa = vaga.strip().replace(',', '') %}
                                                         {% if vaga_limpa and vaga_limpa.isdigit() %}
                                                             {% set _ = vagas_numericas.append(vaga_limpa|int) %}
                                                         {% endif %}
