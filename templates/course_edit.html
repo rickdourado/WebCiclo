@@ -200,11 +200,11 @@
                         <div class="data-group">
                             <div class="data-field">
                                 <label>Início das aulas*</label>
-                                <input type="date" name="inicio_aulas_data[]" required value="{{ course.inicio_aulas_data|split(',')[0]|trim }}">
+                                <input type="date" name="inicio_aulas_data[]" required value="{{ course.inicio_aulas_data.split(',')[0] if course.inicio_aulas_data and ',' in course.inicio_aulas_data else course.inicio_aulas_data }}">
                             </div>
                             <div class="data-field">
                                 <label>Fim das aulas*</label>
-                                <input type="date" name="fim_aulas_data[]" required value="{{ course.fim_aulas_data|split(',')[0]|trim }}">
+                                <input type="date" name="fim_aulas_data[]" required value="{{ course.fim_aulas_data.split(',')[0] if course.fim_aulas_data and ',' in course.fim_aulas_data else course.fim_aulas_data }}">
                             </div>
                         </div>
                                              <div class="horario-group">
@@ -329,11 +329,11 @@
                         <div class="data-group" id="horarios_online_container">
                             <div class="data-field">
                                 <label>Início das aulas</label>
-                                <input type="date" id="inicio_aulas_online" name="inicio_aulas_data[]" value="{{ course.inicio_aulas_online|split(',')[0]|trim }}">
+                                <input type="date" id="inicio_aulas_online" name="inicio_aulas_data[]" value="{{ course.inicio_aulas_online.split(',')[0] if course.inicio_aulas_online and ',' in course.inicio_aulas_online else course.inicio_aulas_online }}">
                             </div>
                             <div class="data-field">
                                 <label>Fim das aulas</label>
-                                <input type="date" id="fim_aulas_online" name="fim_aulas_data[]" value="{{ course.fim_aulas_online|split(',')[0]|trim }}">
+                                <input type="date" id="fim_aulas_online" name="fim_aulas_data[]" value="{{ course.fim_aulas_online.split(',')[0] if course.fim_aulas_online and ',' in course.fim_aulas_online else course.fim_aulas_online }}">
                             </div>
                         </div>
                                              <div id="horarios_detalhados_online_container" style="display: {% if course.aulas_assincronas == 'nao' %}block{% else %}none{% endif %};">
