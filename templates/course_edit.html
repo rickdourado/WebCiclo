@@ -130,17 +130,17 @@
                             
                             <div class="form-group full-width">
                                  <label for="orgao" class="required">Órgão (Quem oferece o curso)</label>
-                                 <select id="orgao" name="orgao" required>
+                                <select id="orgao" name="orgao" required>
                                      <option value="">Selecione um órgão</option>
-                                     {% for orgao in orgaos %}
-                                         <option value="{{ orgao }}" {% if course.orgao == orgao %}selected{% endif %}>{{ orgao }}</option>
-                                     {% endfor %}
-                                 </select>
-                             </div>
-
+                                    {% for orgao in orgaos %}
+                                        <option value="{{ orgao }}" {% if course.orgao == orgao %}selected{% endif %}>{{ orgao }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            
                              
                              <div class="form-group full-width">
-                                 <label for="tema" class="required">Categoria</label>
+                                <label for="tema" class="required">Categoria</label>
                                  <select id="tema" name="tema" required>
                                      <option value="">Selecione a categoria</option>
                                      <option value="Tech" {% if course.tema == 'Tech' %}selected{% endif %}>Tech</option>
@@ -164,18 +164,18 @@
                                      <option value="Cultura" {% if course.tema == 'Cultura' %}selected{% endif %}>Cultura</option>
                                      <option value="Astronomia" {% if course.tema == 'Astronomia' %}selected{% endif %}>Astronomia</option>
                                  </select>
-                             </div>
+                            </div>
                             
                              <div class="form-group full-width">
-                                 <label for="modalidade" class="required">Modalidade</label>
-                                 <select id="modalidade" name="modalidade" required>
+                                <label for="modalidade" class="required">Modalidade</label>
+                                <select id="modalidade" name="modalidade" required>
                                      <option value="">Selecione a modalidade</option>
-                                     <option value="Presencial" {% if course.modalidade == 'Presencial' %}selected{% endif %}>Presencial</option>
-                                     <option value="Online" {% if course.modalidade == 'Online' %}selected{% endif %}>Online</option>
-                                     <option value="Híbrido" {% if course.modalidade == 'Híbrido' %}selected{% endif %}>Híbrido</option>
-                                 </select>
-                             </div>
-                             
+                                    <option value="Presencial" {% if course.modalidade == 'Presencial' %}selected{% endif %}>Presencial</option>
+                                    <option value="Online" {% if course.modalidade == 'Online' %}selected{% endif %}>Online</option>
+                                    <option value="Híbrido" {% if course.modalidade == 'Híbrido' %}selected{% endif %}>Híbrido</option>
+                                </select>
+                            </div>
+                            
                              <!-- Subformulário para Presencial/Híbrido -->
                              <div class="form-group full-width" id="unidades_container" style="display:{% if course.modalidade == 'Presencial' or course.modalidade == 'Híbrido' %}block{% else %}none{% endif %};">
                                  <fieldset class="unidade-fieldset">
@@ -432,7 +432,7 @@
                                      
                                      <button type="button" class="btn btn-outline add-plataforma-btn">+ Adicionar outra plataforma</button>
                                  </fieldset>
-                             </div>
+                            </div>
                             
                             <div class="form-group full-width">
                                 <label for="acessibilidade" class="required">Acessibilidade</label>
@@ -961,7 +961,7 @@
                             </label>
                         </div>
                     </div>
-                </div>
+    </div>
             `;
             
             plataformaList.insertAdjacentHTML('beforeend', newPlataformaHTML);
@@ -1060,5 +1060,73 @@
                     });
                 });
             }
+
+            // Configurar upload de capa do curso
+            setupCourseCoverUpload();
         });
+
+        // Função para gerenciar upload de capa do curso
+        function setupCourseCoverUpload() {
+            const fileInput = document.getElementById('capa_curso');
+            const fileDisplay = document.querySelector('.file-upload-display');
+            const fileText = document.querySelector('.file-upload-text');
+            
+            if (fileInput && fileDisplay && fileText) {
+                fileInput.addEventListener('change', function(e) {
+                    const file = e.target.files[0];
+                    if (file) {
+                        // Validar formato do arquivo
+                        const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/bmp'];
+                        if (!allowedTypes.includes(file.type)) {
+                            alert('Formato de arquivo não suportado. Use JPEG, PNG, JPG ou BMP.');
+                            fileInput.value = '';
+                            return;
+                        }
+                        
+                        // Validar tamanho do arquivo (máximo 5MB)
+                        const maxSize = 5 * 1024 * 1024; // 5MB
+                        if (file.size > maxSize) {
+                            alert('Arquivo muito grande. Tamanho máximo: 5MB');
+                            fileInput.value = '';
+                            return;
+                        }
+                        
+                        // Atualizar display
+                        fileDisplay.classList.add('has-file');
+                        fileText.textContent = `Arquivo selecionado: ${file.name}`;
+                        
+                        // Mostrar preview da imagem
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            // Remover preview anterior se existir
+                            const existingPreview = fileDisplay.querySelector('.image-preview');
+                            if (existingPreview) {
+                                existingPreview.remove();
+                            }
+                            
+                            // Criar preview
+                            const preview = document.createElement('img');
+                            preview.className = 'image-preview';
+                            preview.src = e.target.result;
+                            preview.style.maxWidth = '200px';
+                            preview.style.maxHeight = '150px';
+                            preview.style.borderRadius = '4px';
+                            preview.style.marginTop = '10px';
+                            preview.style.objectFit = 'cover';
+                            
+                            fileDisplay.appendChild(preview);
+                        };
+                        reader.readAsDataURL(file);
+                    } else {
+                        // Remover preview se não há arquivo
+                        const existingPreview = fileDisplay.querySelector('.image-preview');
+                        if (existingPreview) {
+                            existingPreview.remove();
+                        }
+                        fileDisplay.classList.remove('has-file');
+                        fileText.textContent = 'Clique para selecionar uma imagem';
+                    }
+                });
+            }
+        }
     </script>

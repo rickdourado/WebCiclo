@@ -849,6 +849,28 @@ input[type="radio"].error, input[type="checkbox"].error {
     font-style: italic;
 }
 
+/* Estilos para preview da imagem */
+.image-preview {
+    max-width: 200px;
+    max-height: 150px;
+    border-radius: 8px;
+    margin-top: 15px;
+    object-fit: cover;
+    border: 2px solid #e5e7eb;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.image-preview:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.file-upload-display.has-file .file-upload-text {
+    color: #10b981;
+    font-weight: 600;
+}
+
 /* Responsividade para o grid do parceiro */
 @media (max-width: 768px) {
     .parceiro-grid {
