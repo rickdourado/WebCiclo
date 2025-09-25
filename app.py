@@ -331,6 +331,55 @@ def _prepare_course_for_edit_form(course):
     else:
         course['fim_inscricoes_data'] = ''
     
+    # Mapear campos de modalidade e unidades
+    if course.get('modalidade') == 'Presencial' or course.get('modalidade') == 'Híbrido':
+        # Campos de unidade presencial
+        course['endereco_unidade'] = course.get('endereco_unidade', '')
+        course['bairro_unidade'] = course.get('bairro_unidade', '')
+        course['vagas_unidade'] = course.get('vagas_unidade', '')
+        course['inicio_aulas_data'] = course.get('inicio_aulas_data', '')
+        course['fim_aulas_data'] = course.get('fim_aulas_data', '')
+        course['horario_inicio'] = course.get('horario_inicio', '')
+        course['horario_fim'] = course.get('horario_fim', '')
+        course['dias_aula'] = course.get('dias_aula', '')
+    elif course.get('modalidade') == 'Online':
+        # Campos de plataforma online
+        course['plataforma_digital'] = course.get('plataforma_digital', '')
+        course['aulas_assincronas'] = course.get('aulas_assincronas', 'sim')
+        course['vagas_online'] = course.get('vagas_unidade', '')
+        course['inicio_aulas_online'] = course.get('inicio_aulas_data', '')
+        course['fim_aulas_online'] = course.get('fim_aulas_data', '')
+        course['horario_inicio_online'] = course.get('horario_inicio', '')
+        course['horario_fim_online'] = course.get('horario_fim', '')
+    
+    # Mapear campos de valores e certificado
+    course['curso_gratuito'] = course.get('curso_gratuito', 'sim')
+    course['valor_curso_inteira'] = course.get('valor_curso_inteira', '')
+    course['valor_curso_meia'] = course.get('valor_curso_meia', '')
+    course['requisitos_meia'] = course.get('requisitos_meia', '')
+    course['oferece_certificado'] = course.get('oferece_certificado', 'nao')
+    course['pre_requisitos'] = course.get('pre_requisitos', '')
+    
+    # Mapear campos de bolsa
+    course['oferece_bolsa'] = course.get('oferece_bolsa', 'nao')
+    course['valor_bolsa'] = course.get('valor_bolsa', '')
+    course['requisitos_bolsa'] = course.get('requisitos_bolsa', '')
+    
+    # Mapear campos de acessibilidade
+    course['acessibilidade'] = course.get('acessibilidade', 'nao_acessivel')
+    course['recursos_acessibilidade'] = course.get('recursos_acessibilidade', '')
+    
+    # Mapear campos de parceiro externo
+    course['parceiro_externo'] = course.get('parceiro_externo', 'nao')
+    course['parceiro_nome'] = course.get('parceiro_nome', '')
+    course['parceiro_link'] = course.get('parceiro_link', '')
+    course['parceiro_logo'] = course.get('parceiro_logo', '')
+    
+    # Mapear informações adicionais
+    course['info_adicionais_opcao'] = 'nao'  # Padrão para não mostrar campo adicional
+    if course.get('info_complementares') and course.get('info_complementares').strip():
+        course['info_adicionais_opcao'] = 'sim'
+    
     return course
 
 @app.route('/course_edit_success/<int:course_id>')

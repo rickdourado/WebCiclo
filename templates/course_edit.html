@@ -186,10 +186,10 @@
                                 <label class="required">O curso é gratuito?</label>
                                 <div class="radio-group">
                                     <label class="radio-label">
-                                        <input type="radio" name="curso_gratuito" value="sim" required onclick="toggleValorCurso(false)"> SIM
+                                        <input type="radio" name="curso_gratuito" value="sim" required onclick="toggleValorCurso(false)" {% if course.curso_gratuito == 'sim' %}checked{% endif %}> SIM
                                     </label>
                                     <label class="radio-label">
-                                        <input type="radio" name="curso_gratuito" value="nao" required onclick="toggleValorCurso(true)"> NÃO
+                                        <input type="radio" name="curso_gratuito" value="nao" required onclick="toggleValorCurso(true)" {% if course.curso_gratuito == 'nao' %}checked{% endif %}> NÃO
                                     </label>
                                 </div>
                             </div>
@@ -198,15 +198,15 @@
                                 <label class="required">Oferece Certificado</label>
                                 <div class="radio-group">
                                     <label class="radio-label">
-                                        <input type="radio" name="oferece_certificado" value="sim" required onclick="togglePreRequisitos(true)"> SIM
+                                        <input type="radio" name="oferece_certificado" value="sim" required onclick="togglePreRequisitos(true)" {% if course.oferece_certificado == 'sim' %}checked{% endif %}> SIM
                                     </label>
                                     <label class="radio-label">
-                                        <input type="radio" name="oferece_certificado" value="nao" required onclick="togglePreRequisitos(false)"> NÃO
+                                        <input type="radio" name="oferece_certificado" value="nao" required onclick="togglePreRequisitos(false)" {% if course.oferece_certificado == 'nao' %}checked{% endif %}> NÃO
                                     </label>
                                 </div>
                             </div>
 
-                            <div class="form-group full-width" id="pre_requisitos_container" style="display: none;">
+                            <div class="form-group full-width" id="pre_requisitos_container" style="display: {% if course.oferece_certificado == 'sim' %}block{% else %}none{% endif %};">
                                 <label for="pre_requisitos" class="required">Pré-requisitos para Recebimento de Certificados</label>
                                 <textarea id="pre_requisitos" name="pre_requisitos" rows="3"
                                           placeholder="Ex: Frequência mínima de 75%, entrega de trabalho final, aprovação em avaliação...">{{ course.pre_requisitos }}</textarea>
@@ -314,6 +314,23 @@
         }
 
         document.addEventListener('DOMContentLoaded', function() {
-            toggleUnidades();
+            // Não chamar toggleUnidades automaticamente para evitar resetar campos
+            // toggleUnidades();
+            
+            // Apenas inicializar campos condicionais se necessário
+            const modalidade = document.getElementById('modalidade');
+            if (modalidade && modalidade.value) {
+                // Mostrar containers apropriados baseado na modalidade atual
+                const unidadesContainer = document.getElementById('unidades_container');
+                const plataformaContainer = document.getElementById('plataforma_container');
+                
+                if (modalidade.value === 'Presencial' || modalidade.value === 'Híbrido') {
+                    if (unidadesContainer) unidadesContainer.style.display = 'block';
+                    if (plataformaContainer) plataformaContainer.style.display = 'none';
+                } else if (modalidade.value === 'Online') {
+                    if (unidadesContainer) unidadesContainer.style.display = 'none';
+                    if (plataformaContainer) plataformaContainer.style.display = 'block';
+                }
+            }
         });
     </script>
