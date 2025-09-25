@@ -168,7 +168,7 @@
                             
                              <div class="form-group full-width">
                                  <label for="modalidade" class="required">Modalidade</label>
-                                 <select id="modalidade" name="modalidade" required onchange="toggleUnidades();">
+                                 <select id="modalidade" name="modalidade" required>
                                      <option value="">Selecione a modalidade</option>
                                      <option value="Presencial" {% if course.modalidade == 'Presencial' %}selected{% endif %}>Presencial</option>
                                      <option value="Online" {% if course.modalidade == 'Online' %}selected{% endif %}>Online</option>
@@ -309,7 +309,7 @@
                                                     placeholder="Ex: Zoom, Google Meet, Microsoft Teams" value="{{ course.plataforma_digital }}">
                                              
                                              <label>Número de vagas*</label>
-                                             <input type="number" id="vagas_online" name="vagas_unidade[]" min="1" required value="{{ course.vagas_online|replace(',', '')|replace('.', '') }}">
+                                             <input type="number" id="vagas_online" name="vagas_unidade[]" min="1" value="{{ course.vagas_online|replace(',', '')|replace('.', '') }}">
                                              
                                              <label for="carga_horaria_online" class="required">Carga Horária</label>
                                              <input type="text" id="carga_horaria_online" name="carga_horaria" required 
@@ -319,10 +319,10 @@
                                              <label class="required">Aulas Assíncronas?</label>
                                              <div class="radio-group">
                                                  <label class="radio-label">
-                                                     <input type="radio" name="aulas_assincronas" value="sim" required onclick="toggleAulasAssincronas(true)" {% if course.aulas_assincronas == 'sim' %}checked{% endif %}> SIM
+                                                     <input type="radio" name="aulas_assincronas" value="sim" onclick="toggleAulasAssincronas(true)" {% if course.aulas_assincronas == 'sim' %}checked{% endif %}> SIM
                                                  </label>
                                                  <label class="radio-label">
-                                                     <input type="radio" name="aulas_assincronas" value="nao" required onclick="toggleAulasAssincronas(false)" {% if course.aulas_assincronas == 'nao' %}checked{% endif %}> NÃO
+                                                     <input type="radio" name="aulas_assincronas" value="nao" onclick="toggleAulasAssincronas(false)" {% if course.aulas_assincronas == 'nao' %}checked{% endif %}> NÃO
                                                  </label>
                                              </div>
                                              
@@ -648,13 +648,34 @@
             const unidadesContainer = document.getElementById('unidades_container');
             const plataformaContainer = document.getElementById('plataforma_container');
             
+            // Esconder ambos os containers primeiro
             if (unidadesContainer) unidadesContainer.style.display = 'none';
             if (plataformaContainer) plataformaContainer.style.display = 'none';
             
+            // Remover required de todos os campos de modalidade
+            const allModalidadeFields = document.querySelectorAll('#unidades_container input, #unidades_container select, #plataforma_container input, #plataforma_container select');
+            allModalidadeFields.forEach(field => {
+                field.removeAttribute('required');
+            });
+            
             if (modalidade === 'Presencial' || modalidade === 'Híbrido') {
-                if (unidadesContainer) unidadesContainer.style.display = 'block';
+                if (unidadesContainer) {
+                    unidadesContainer.style.display = 'block';
+                    // Adicionar required apenas aos campos visíveis
+                    const unidadesFields = unidadesContainer.querySelectorAll('input[required], select[required]');
+                    unidadesFields.forEach(field => {
+                        field.setAttribute('required', 'required');
+                    });
+                }
             } else if (modalidade === 'Online') {
-                if (plataformaContainer) plataformaContainer.style.display = 'block';
+                if (plataformaContainer) {
+                    plataformaContainer.style.display = 'block';
+                    // Adicionar required apenas aos campos visíveis
+                    const plataformaFields = plataformaContainer.querySelectorAll('input[required], select[required]');
+                    plataformaFields.forEach(field => {
+                        field.setAttribute('required', 'required');
+                    });
+                }
             }
         }
 
@@ -995,23 +1016,15 @@
         }
 
         document.addEventListener('DOMContentLoaded', function() {
-            // Não chamar toggleUnidades automaticamente para evitar resetar campos
-            // toggleUnidades();
-            
-            // Apenas inicializar campos condicionais se necessário
+            // Inicializar campos condicionais baseado na modalidade atual
             const modalidade = document.getElementById('modalidade');
             if (modalidade && modalidade.value) {
-                // Mostrar containers apropriados baseado na modalidade atual
-                const unidadesContainer = document.getElementById('unidades_container');
-                const plataformaContainer = document.getElementById('plataforma_container');
-                
-                if (modalidade.value === 'Presencial' || modalidade.value === 'Híbrido') {
-                    if (unidadesContainer) unidadesContainer.style.display = 'block';
-                    if (plataformaContainer) plataformaContainer.style.display = 'none';
-                } else if (modalidade.value === 'Online') {
-                    if (unidadesContainer) unidadesContainer.style.display = 'none';
-                    if (plataformaContainer) plataformaContainer.style.display = 'block';
-                }
+                toggleUnidades();
+            }
+            
+            // Adicionar event listener para mudanças na modalidade
+            if (modalidade) {
+                modalidade.addEventListener('change', toggleUnidades);
             }
 
             // Adicionar event listeners para botões de adicionar unidades e plataformas
