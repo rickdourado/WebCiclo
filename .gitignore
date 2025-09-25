@@ -14,6 +14,10 @@ __pycache__/
 *.csv
 *.pdf
 
+# Diretórios de dados do sistema (não versionar)
+CSV/
+PDF/
+
 # Distribution / packaging
 .Python
 build/
@@ -187,9 +191,3 @@ cython_debug/
 #  refer to https://docs.cursor.com/context/ignore-files
 .cursorignore
 .cursorindexingignore
-CSV/20250916_Curso_dde_beber_na_faculdade.csv
-CSV/20250916_Curso_de_cuidador_de_pessoas_cegas.csv
-CSV/20250916_CUrso_de_introdução_a_bolsas_de_estudos.csv
-PDF/20250916_Curso_dde_beber_na_faculdade.pdf
-PDF/20250916_Curso_de_cuidador_de_pessoas_cegas.pdf
-PDF/20250916_CUrso_de_introdução_a_bolsas_de_estudos.pdf
