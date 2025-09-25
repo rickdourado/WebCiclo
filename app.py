@@ -249,7 +249,6 @@ def admin_dashboard():
 # -----------------------------
 
 @app.route('/edit_course/<int:course_id>', methods=['GET', 'POST'])
-@login_required
 def edit_course(course_id):
     """Editar um curso existente"""
     try:
