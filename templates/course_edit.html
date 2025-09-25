@@ -177,6 +177,22 @@
                              </div>
                             
                             <div class="form-group full-width">
+                                <label for="acessibilidade" class="required">Acessibilidade</label>
+                                <select id="acessibilidade" name="acessibilidade" required onchange="toggleRecursosAcessibilidade()">
+                                    <option value="">Selecione uma opção</option>
+                                    <option value="acessivel" {% if course.acessibilidade == 'acessivel' %}selected{% endif %}>Acessível para pessoas com deficiência</option>
+                                    <option value="exclusivo" {% if course.acessibilidade == 'exclusivo' %}selected{% endif %}>Exclusivo para pessoas com deficiência</option>
+                                    <option value="nao_acessivel" {% if course.acessibilidade == 'nao_acessivel' %}selected{% endif %}>Não acessível para Pessoas com Deficiência</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group full-width" id="recursos_acessibilidade_container" style="display: {% if course.acessibilidade == 'acessivel' or course.acessibilidade == 'exclusivo' %}block{% else %}none{% endif %};">
+                                <label for="recursos_acessibilidade" class="required">Recursos de Acessibilidade</label>
+                                <textarea id="recursos_acessibilidade" name="recursos_acessibilidade" rows="3"
+                                          placeholder="Ex: Intérprete de Libras, material em Braille, rampa de acesso, elevador...">{{ course.recursos_acessibilidade }}</textarea>
+                            </div>
+
+                            <div class="form-group full-width">
                                 <label for="publico_alvo" class="required">Público-alvo</label>
                                 <textarea id="publico_alvo" name="publico_alvo" required rows="3"
                                           placeholder="Ex: Servidores públicos, estudantes, profissionais da área de tecnologia...">{{ course.publico_alvo }}</textarea>
@@ -193,6 +209,26 @@
                                     </label>
                                 </div>
                             </div>
+
+                            <div class="form-group full-width" id="valor_curso_container" style="display: {% if course.curso_gratuito == 'nao' %}block{% else %}none{% endif %};">
+                                <div class="valor-curso-row">
+                                    <div class="valor-curso-col">
+                                        <label for="valor_curso_inteira" class="required">Valor INTEIRA (R$)</label>
+                                        <input type="text" id="valor_curso_inteira" name="valor_curso_inteira" step="0.01" min="0"
+                                            placeholder="Digite o valor integral (ex: 100,00)" oninput="formatarValor(this)" value="{{ course.valor_curso_inteira }}">
+                                    </div>
+                                    <div class="valor-curso-col">
+                                        <label for="valor_curso_meia">Valor MEIA (R$)</label>
+                                        <input type="text" id="valor_curso_meia" name="valor_curso_meia" step="0.01" min="0"
+                                            placeholder="Digite o valor da meia (ex: 50,00)" oninput="formatarValor(this); toggleRequisitos()" value="{{ course.valor_curso_meia }}">
+                                    </div>
+                                </div>
+                                <div id="requisitos_meia_container" style="display: {% if course.valor_curso_meia %}block{% else %}none{% endif %};">
+                                    <label for="requisitos_meia" class="required">Condições para obtenção de meia-entrada</label>
+                                    <textarea id="requisitos_meia" name="requisitos_meia" rows="2" required
+                                        placeholder="Ex: Estudantes, idosos, pessoas com deficiência...">{{ course.requisitos_meia }}</textarea>
+                                </div>
+                             </div>
 
                             <div class="form-group full-width">
                                 <label class="required">Oferece Certificado</label>
@@ -213,10 +249,91 @@
                             </div>
 
                             <div class="form-group full-width">
+                                <label class="required">Oferece Bolsa</label>
+                                <div class="radio-group">
+                                    <label class="radio-label">
+                                        <input type="radio" name="oferece_bolsa" value="sim" required onclick="toggleValorBolsa(true)" {% if course.oferece_bolsa == 'sim' %}checked{% endif %}> SIM
+                                    </label>
+                                    <label class="radio-label">
+                                        <input type="radio" name="oferece_bolsa" value="nao" required onclick="toggleValorBolsa(false)" {% if course.oferece_bolsa == 'nao' %}checked{% endif %}> NÃO
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="form-group full-width" id="valor_bolsa_container" style="display: {% if course.oferece_bolsa == 'sim' %}block{% else %}none{% endif %};">
+                                <label for="valor_bolsa" class="required">Valor da Bolsa (R$)</label>
+                                <input type="text" id="valor_bolsa" name="valor_bolsa" step="0.01" min="0"
+                                       placeholder="Digite o valor da bolsa (ex: 100,00)" oninput="formatarValor(this)" value="{{ course.valor_bolsa }}">
+                            </div>
+                            
+                            <div class="form-group full-width" id="requisitos_bolsa_container" style="display: {% if course.oferece_bolsa == 'sim' %}block{% else %}none{% endif %};">
+                                <label for="requisitos_bolsa" class="required">Requisitos para a Obtenção da Bolsa</label>
+                                <textarea id="requisitos_bolsa" name="requisitos_bolsa" rows="3"
+                                          placeholder="Descreva os requisitos necessários para obtenção da bolsa">{{ course.requisitos_bolsa }}</textarea>
+                            </div>
+                            
+                            <div class="form-group full-width">
                                 <label for="info_complementares">Informações Complementares para inscrição de participantes</label>
                                 <span style="color:red; font-size:0.9em; display:block; margin:4px 0 8px;">OBS: Com o acesso via gov.br, já teremos o Nome e CPF do candidato.</span>
                                 <textarea id="info_complementares" name="info_complementares" rows="4"
                                           placeholder="Informe quais dados serão necessários para inscrição dos participantes (Ex: Escolaridade, Idade, Bairro, etc.)">{{ course.info_complementares }}</textarea>                        
+                            </div>
+
+                            <!-- Pergunta: Informações adicionais do curso? -->
+                            <div class="form-group full-width">
+                                <label class="required">Informações adicionais do curso?</label>
+                                <span style="color:red; font-size: 0.9em; display:block; margin:4px 0 8px;">Para divulgar o curso de forma clara e objetiva, o foco deve ser em apresentar somente as informações mais importantes. Detalhes adicionais podem ser comunicados aos alunos que se matricularem, por isso, avalie se esses dados são realmente essenciais para o público geral no momento da divulgação.</span>
+                                <div class="radio-group">
+                                    <label class="radio-label">
+                                        <input type="radio" name="info_adicionais_opcao" value="sim" required onclick="toggleInfoAdicionais(true)" {% if course.info_adicionais_opcao == 'sim' %}checked{% endif %}> SIM
+                                    </label>
+                                    <label class="radio-label">
+                                        <input type="radio" name="info_adicionais_opcao" value="nao" required onclick="toggleInfoAdicionais(false)" {% if course.info_adicionais_opcao == 'nao' %}checked{% endif %}> NÃO
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="form-group full-width" id="info_adicionais_container" style="display: {% if course.info_adicionais_opcao == 'sim' %}block{% else %}none{% endif %};">
+                                <label for="info_adicionais" class="required">Informações Adicionais do Curso</label>
+                                <textarea id="info_adicionais" name="info_complementares" rows="4" placeholder="Digite informações adicionais, como recursos utilizados, facilitador, etc">{{ course.info_complementares }}</textarea>
+                            </div>
+                            
+                            <!-- Parceiro Externo -->
+                            <div class="form-group full-width">
+                                <label class="required">CURSO OFERECIDO POR PARCEIRO EXTERNO?</label>
+                                <div class="radio-group">
+                                    <label class="radio-label">
+                                        <input type="radio" name="parceiro_externo" value="sim" required onclick="toggleParceiroExterno(true)" {% if course.parceiro_externo == 'sim' %}checked{% endif %}> SIM
+                                    </label>
+                                    <label class="radio-label">
+                                        <input type="radio" name="parceiro_externo" value="nao" required onclick="toggleParceiroExterno(false)" {% if course.parceiro_externo == 'nao' %}checked{% endif %}> NÃO
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group full-width" id="parceiro_externo_container" style="display: {% if course.parceiro_externo == 'sim' %}block{% else %}none{% endif %};">
+                                <fieldset class="unidade-fieldset">
+                                    <legend>Informações do Parceiro</legend>
+                                    
+                                    <div class="parceiro-grid">
+                                        <div class="parceiro-item">
+                                            <label for="parceiro_nome" class="required">Nome do Parceiro</label>
+                                            <input type="text" id="parceiro_nome" name="parceiro_nome" placeholder="Ex: Fundação Exemplo" value="{{ course.parceiro_nome }}">
+                                        </div>
+                                        
+                                        <div class="parceiro-item">
+                                            <label for="parceiro_logo">Logo do Parceiro</label>
+                                            <input type="file" id="parceiro_logo" name="parceiro_logo" accept=".png,.jpg,.jpeg,image/*">
+                                            <small class="file-hint">Formatos aceitos: PNG, JPG, JPEG</small>
+                                        </div>
+                                        
+                                        <div class="parceiro-item full-width">
+                                            <label for="parceiro_link">Link do Parceiro</label>
+                                            <input type="text" id="parceiro_link" name="parceiro_link" placeholder="https://exemplo.org" value="{{ course.parceiro_link }}">
+                                            <small class="help-text-red">Link da página web para onde o usuário será redirecionado para fins de inscrição na plataforma do parceiro</small>
+                                        </div>
+                                    </div>
+                                </fieldset>
                             </div>
                         </div>
                     </div>
@@ -311,6 +428,27 @@
                 valor = partes[0] + ',' + partes[1].substring(0, 2);
             }
             input.value = valor;
+        }
+
+        function toggleRequisitos() {
+            const valorMeia = document.getElementById('valor_curso_meia');
+            const requisitosContainer = document.getElementById('requisitos_meia_container');
+            const requisitosField = document.getElementById('requisitos_meia');
+            
+            if (valorMeia && requisitosContainer && requisitosField) {
+                const valor = valorMeia.value.trim();
+                
+                if (valor !== '') {
+                    // Se há valor na meia, mostrar campo de requisitos
+                    requisitosContainer.style.display = 'block';
+                    requisitosField.setAttribute('required', 'required');
+                } else {
+                    // Se não há valor na meia, esconder campo de requisitos
+                    requisitosContainer.style.display = 'none';
+                    requisitosField.removeAttribute('required');
+                    requisitosField.value = '';
+                }
+            }
         }
 
         document.addEventListener('DOMContentLoaded', function() {
