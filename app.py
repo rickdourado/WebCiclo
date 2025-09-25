@@ -332,15 +332,35 @@ def _prepare_course_for_edit_form(course):
     
     # Mapear campos de modalidade e unidades
     if course.get('modalidade') == 'Presencial' or course.get('modalidade') == 'Híbrido':
-        # Campos de unidade presencial
-        course['endereco_unidade'] = course.get('endereco_unidade', '')
-        course['bairro_unidade'] = course.get('bairro_unidade', '')
-        course['vagas_unidade'] = course.get('vagas_unidade', '')
-        course['inicio_aulas_data'] = course.get('inicio_aulas_data', '')
-        course['fim_aulas_data'] = course.get('fim_aulas_data', '')
-        course['horario_inicio'] = course.get('horario_inicio', '')
-        course['horario_fim'] = course.get('horario_fim', '')
-        course['dias_aula'] = course.get('dias_aula', '')
+        # Processar dados de múltiplas unidades separados por |
+        enderecos = course.get('endereco_unidade', '').split('|') if course.get('endereco_unidade') else ['']
+        bairros = course.get('bairro_unidade', '').split('|') if course.get('bairro_unidade') else ['']
+        vagas = course.get('vagas_unidade', '').split('|') if course.get('vagas_unidade') else ['']
+        inicio_aulas = course.get('inicio_aulas_data', '').split('|') if course.get('inicio_aulas_data') else ['']
+        fim_aulas = course.get('fim_aulas_data', '').split('|') if course.get('fim_aulas_data') else ['']
+        horario_inicio = course.get('horario_inicio', '').split('|') if course.get('horario_inicio') else ['']
+        horario_fim = course.get('horario_fim', '').split('|') if course.get('horario_fim') else ['']
+        dias_aula = course.get('dias_aula', '').split('|') if course.get('dias_aula') else ['']
+        
+        # Campos de unidade presencial (primeira unidade para compatibilidade)
+        course['endereco_unidade'] = enderecos[0] if enderecos else ''
+        course['bairro_unidade'] = bairros[0] if bairros else ''
+        course['vagas_unidade'] = vagas[0] if vagas else ''
+        course['inicio_aulas_data'] = inicio_aulas[0] if inicio_aulas else ''
+        course['fim_aulas_data'] = fim_aulas[0] if fim_aulas else ''
+        course['horario_inicio'] = horario_inicio[0] if horario_inicio else ''
+        course['horario_fim'] = horario_fim[0] if horario_fim else ''
+        course['dias_aula'] = dias_aula[0] if dias_aula else ''
+        
+        # Arrays para múltiplas unidades
+        course['enderecos_unidades'] = enderecos
+        course['bairros_unidades'] = bairros
+        course['vagas_unidades'] = vagas
+        course['inicio_aulas_unidades'] = inicio_aulas
+        course['fim_aulas_unidades'] = fim_aulas
+        course['horario_inicio_unidades'] = horario_inicio
+        course['horario_fim_unidades'] = horario_fim
+        course['dias_aula_unidades'] = dias_aula
     elif course.get('modalidade') == 'Online':
         # Campos de plataforma online
         course['plataforma_digital'] = course.get('plataforma_digital', '')
