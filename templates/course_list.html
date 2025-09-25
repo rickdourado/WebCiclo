@@ -286,8 +286,8 @@
         /* Estilos para seção de ações administrativas */
         .action-buttons-section {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 12px;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 8px;
             margin-top: 15px;
             padding-top: 15px;
             border-top: 1px solid #e2e8f0;
@@ -296,8 +296,8 @@
         .action-buttons-section .btn-secondary {
             text-align: center;
             transition: all 0.3s ease;
-            padding: 10px 12px;
-            font-size: 0.85rem;
+            padding: 8px 10px;
+            font-size: 0.8rem;
             white-space: nowrap;
         }
         
@@ -1060,7 +1060,7 @@
                                             
                                             <div class="action-buttons-section">
                                                 <a href="{{ url_for('edit_course', course_id=course.id) }}" class="btn-secondary btn-sm" onclick="event.stopPropagation();">
-                                                    <i class="fas fa-edit"></i> Editar Curso
+                                                    <i class="fas fa-edit"></i> Editar
                                                 </a>
                                                 
                                                 <!-- Botões de Download -->
@@ -1068,26 +1068,39 @@
                                                 <a href="{{ url_for('download_file', filename=course.source_file) }}" 
                                                    class="btn-secondary btn-sm download-btn" 
                                                    style="background-color: #38a169;" onclick="event.stopPropagation();">
-                                                    <i class="fas fa-download"></i> Download CSV
+                                                    <i class="fas fa-download"></i> CSV
                                                 </a>
                                                 
                                                 <a href="{{ url_for('download_file', filename=course.source_file.replace('.csv', '.pdf')) }}" 
                                                    class="btn-secondary btn-sm download-btn" 
                                                    style="background-color: #3182ce;" onclick="event.stopPropagation();">
-                                                    <i class="fas fa-file-pdf"></i> Download PDF
+                                                    <i class="fas fa-file-pdf"></i> PDF
                                                 </a>
                                                 {% else %}
                                                 <button class="btn-secondary btn-sm" style="background-color: #718096;" disabled>
-                                                    <i class="fas fa-download"></i> CSV Indisponível
+                                                    <i class="fas fa-download"></i> CSV
                                                 </button>
                                                 
                                                 <button class="btn-secondary btn-sm" style="background-color: #718096;" disabled>
-                                                    <i class="fas fa-file-pdf"></i> PDF Indisponível
+                                                    <i class="fas fa-file-pdf"></i> PDF
+                                                </button>
+                                                {% endif %}
+                                                
+                                                <!-- Botão de Download da Imagem -->
+                                                {% if course.capa_curso %}
+                                                <a href="{{ url_for('static', filename='images/IMAGENSCURSOS/' + course.capa_curso) }}" 
+                                                   class="btn-secondary btn-sm download-btn" 
+                                                   style="background-color: #805ad5;" onclick="event.stopPropagation();" download>
+                                                    <i class="fas fa-image"></i> Imagem
+                                                </a>
+                                                {% else %}
+                                                <button class="btn-secondary btn-sm" style="background-color: #718096;" disabled>
+                                                    <i class="fas fa-image"></i> Imagem
                                                 </button>
                                                 {% endif %}
                                                 
                                                 <button class="btn-secondary btn-sm delete-course-btn" style="background-color: #e53e3e;" data-course-id="{{ course.id }}" data-course-title="{{ course.titulo }}" onclick="event.stopPropagation();">
-                                                    <i class="fas fa-trash"></i> Deletar Curso
+                                                    <i class="fas fa-trash"></i> Deletar
                                                 </button>
                                             </div>
                                         </div>
