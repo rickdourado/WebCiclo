@@ -871,6 +871,51 @@ input[type="radio"].error, input[type="checkbox"].error {
     font-weight: 600;
 }
 
+/* Estilos para instruções de imagem */
+.image-instructions {
+    margin-top: 15px;
+    padding: 15px;
+    background-color: #fef2f2;
+    border: 1px solid #fca5a5;
+    border-radius: 8px;
+    color: #dc2626;
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+.image-instructions .instruction-title {
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: #b91c1c;
+    font-size: 14px;
+}
+
+.image-instructions .instruction-list p {
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #b91c1c;
+}
+
+.image-instructions ul {
+    margin: 0;
+    padding-left: 20px;
+    list-style-type: disc;
+}
+
+.image-instructions li {
+    margin-bottom: 4px;
+    color: #dc2626;
+}
+
+.image-instructions li:last-child {
+    margin-bottom: 0;
+}
+
+/* Esconder instruções quando arquivo é selecionado */
+.file-upload-display.has-file .image-instructions {
+    display: none;
+}
+
 /* Responsividade para o grid do parceiro */
 @media (max-width: 768px) {
     .parceiro-grid {
