@@ -98,7 +98,7 @@ class AIService:
             import PIL.Image
             img = PIL.Image.open(image_path)
             
-            model = genai.GenerativeModel(model_name='gemini-2.0-flash-exp')
+            model = genai.GenerativeModel(model_name='gemini-1.5-flash')
             
             # Prompt para análise
             context = f" para o curso '{course_title}'" if course_title else ""
