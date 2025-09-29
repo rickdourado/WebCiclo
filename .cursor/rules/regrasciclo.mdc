@@ -4,8 +4,10 @@ globs:
 alwaysApply: true
 ---
 # Regras do Projeto WebCiclo
-- Execute um comando no terminal por vez, ao invés de utilizar &&, para evitar erros.
-- O ambiente virtual de desenvolvimento é intitulado 'ciclo', usado pelo Anaconda
+- **SEMPRE** Execute um comando no terminal por vez, ao invés de utilizar &&, para evitar erros.
+- **SEMPRE** Execute o comando conda activate ciclo quando um terminal for aberto.
+
+
 
 ## Visão Geral
 
