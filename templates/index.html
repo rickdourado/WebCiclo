@@ -266,6 +266,44 @@
     </script>
 </head>
 <body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-container">
+            <div class="loading-spinner">
+                <div class="spinner-ring"></div>
+            </div>
+            <div class="loading-text">Processando Curso...</div>
+            <div class="loading-description">
+                Aguarde enquanto processamos as informações do curso
+            </div>
+            <div class="loading-progress">
+                <div class="loading-progress-bar" id="loadingProgressBar"></div>
+            </div>
+            <div class="loading-steps">
+                <div class="loading-step" id="step1">
+                    <div class="step-icon">1</div>
+                    <span>Validando informações</span>
+                </div>
+                <div class="loading-step" id="step2">
+                    <div class="step-icon">2</div>
+                    <span>Processando imagens</span>
+                </div>
+                <div class="loading-step" id="step3">
+                    <div class="step-icon">3</div>
+                    <span>Melhorando descrição com IA</span>
+                </div>
+                <div class="loading-step" id="step4">
+                    <div class="step-icon">4</div>
+                    <span>Gerando arquivos CSV e PDF</span>
+                </div>
+                <div class="loading-step" id="step5">
+                    <div class="step-icon">5</div>
+                    <span>Finalizando cadastro</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="container">
         <!-- Header -->
         <header class="header">
@@ -1631,6 +1669,7 @@
      </script>
      
      <!-- Scripts JavaScript modulares -->
+     <script src="{{ url_for('static', filename='js/loading-manager.js') }}"></script>
      <script src="{{ url_for('static', filename='js/form-validator.js') }}"></script>
      <script src="{{ url_for('static', filename='js/form-manager.js') }}"></script>
      <script src="{{ url_for('static', filename='js/image-resizer.js') }}"></script>
