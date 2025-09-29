@@ -248,14 +248,32 @@ class CourseService:
                 if logo_filename:
                     course_data['parceiro_logo'] = logo_filename
         
-        # Processar capa do curso
+        # Processar capa do curso (com redimensionamento e análise de IA)
         cover_file = files.get('capa_curso')
         if cover_file:
             course_title = course_data.get('titulo', '')
             if course_title:
-                cover_filename = self.file_service.save_course_cover(cover_file, course_title)
+                # Salvar, redimensionar e analisar imagem
+                cover_filename, analysis_result = self.file_service.save_course_cover(
+                    cover_file, 
+                    course_title,
+                    analyze_with_ai=True  # Habilitar análise com Gemini
+                )
+                
                 if cover_filename:
                     course_data['capa_curso'] = cover_filename
+                    
+                    # Log da análise se disponível
+                    if analysis_result and analysis_result.get('summary'):
+                        print(f"\n📊 Análise da imagem: {analysis_result['summary']}")
+                        if not analysis_result.get('is_suitable', True):
+                            print(f"⚠️  Atenção: Imagem pode não ser adequada")
+                        if analysis_result.get('suggestions'):
+                            print(f"💡 Sugestões: {', '.join(analysis_result['suggestions'])}")
+                else:
+                    # Se houver erro na análise, registrar
+                    if analysis_result and analysis_result.get('error'):
+                        print(f"❌ Erro ao processar imagem: {analysis_result['error']}")
     
     def _enhance_description(self, course_data: Dict) -> Dict:
         """Melhora a descrição usando IA"""

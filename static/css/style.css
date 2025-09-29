@@ -916,6 +916,59 @@ input[type="radio"].error, input[type="checkbox"].error {
     display: none;
 }
 
+/* Estilos para loading de upload */
+.upload-loading {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px;
+    margin-top: 15px;
+    background-color: #f0f9ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 8px;
+    color: #1e40af;
+    font-size: 14px;
+}
+
+.upload-loading i {
+    font-size: 18px;
+}
+
+/* Estilos para notificações de upload */
+.upload-notification {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    margin-top: 12px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: opacity 0.3s ease;
+}
+
+.upload-notification i {
+    font-size: 18px;
+}
+
+.upload-notification-success {
+    background-color: #f0fdf4;
+    border: 1px solid #86efac;
+    color: #166534;
+}
+
+.upload-notification-error {
+    background-color: #fef2f2;
+    border: 1px solid #fca5a5;
+    color: #991b1b;
+}
+
+.upload-notification-info {
+    background-color: #eff6ff;
+    border: 1px solid #93c5fd;
+    color: #1e40af;
+}
+
 /* Responsividade para o grid do parceiro */
 @media (max-width: 768px) {
     .parceiro-grid {
