@@ -248,32 +248,19 @@ class CourseService:
                 if logo_filename:
                     course_data['parceiro_logo'] = logo_filename
         
-        # Processar capa do curso (com redimensionamento e análise de IA)
+        # Processar capa do curso (com redimensionamento)
         cover_file = files.get('capa_curso')
         if cover_file:
             course_title = course_data.get('titulo', '')
             if course_title:
-                # Salvar, redimensionar e analisar imagem
-                cover_filename, analysis_result = self.file_service.save_course_cover(
-                    cover_file, 
-                    course_title,
-                    analyze_with_ai=True  # Habilitar análise com Gemini
-                )
+                # Salvar e redimensionar imagem
+                cover_filename = self.file_service.save_course_cover(cover_file, course_title)
                 
                 if cover_filename:
                     course_data['capa_curso'] = cover_filename
-                    
-                    # Log da análise se disponível
-                    if analysis_result and analysis_result.get('summary'):
-                        print(f"\n📊 Análise da imagem: {analysis_result['summary']}")
-                        if not analysis_result.get('is_suitable', True):
-                            print(f"⚠️  Atenção: Imagem pode não ser adequada")
-                        if analysis_result.get('suggestions'):
-                            print(f"💡 Sugestões: {', '.join(analysis_result['suggestions'])}")
+                    print(f"✅ Capa do curso salva: {cover_filename}")
                 else:
-                    # Se houver erro na análise, registrar
-                    if analysis_result and analysis_result.get('error'):
-                        print(f"❌ Erro ao processar imagem: {analysis_result['error']}")
+                    print(f"❌ Erro ao salvar capa do curso")
     
     def _enhance_description(self, course_data: Dict) -> Dict:
         """Melhora a descrição usando IA"""

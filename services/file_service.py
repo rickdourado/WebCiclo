@@ -147,17 +147,16 @@ class FileService:
             print(f"Erro ao criar diretório {directory_path}: {str(e)}")
             return False
     
-    def save_course_cover(self, file, course_title: str, analyze_with_ai: bool = True) -> tuple:
+    def save_course_cover(self, file, course_title: str) -> str:
         """
-        Salva a capa do curso com redimensionamento automático e análise de IA
+        Salva a capa do curso com redimensionamento automático
         
         Args:
             file: Arquivo de imagem enviado
             course_title: Título do curso para renomear o arquivo
-            analyze_with_ai: Se True, analisa a imagem com Gemini
             
         Returns:
-            tuple: (filename, analysis_result) ou (None, None) se houver erro
+            str: Nome do arquivo salvo ou None se houver erro
         """
         print(f"\n=== SALVANDO CAPA DO CURSO ===")
         print(f"File: {file}")
@@ -166,36 +165,34 @@ class FileService:
         
         if not file or not file.filename:
             print("Nenhum arquivo de capa fornecido")
-            return None, None
+            return None
         
         try:
-            # Importar serviços necessários
+            # Importar serviço de imagem
             from services.image_service import ImageService
-            from services.ai_service import AIService
             
             image_service = ImageService()
-            ai_service = AIService() if analyze_with_ai else None
             
-            # 1. VALIDAÇÃO (Camada 1)
+            # 1. VALIDAÇÃO
             print("\n1. Validando imagem...")
             is_valid, error_message = image_service.validate_image(file)
             if not is_valid:
                 print(f"Validação falhou: {error_message}")
-                return None, {'error': error_message}
+                return None
             
-            # 2. REDIMENSIONAMENTO (Camada 2)
+            # 2. REDIMENSIONAMENTO
             print("\n2. Redimensionando imagem para 1080x1080...")
             
             # Criar pasta static/images/IMAGENSCURSOS se não existir
             images_folder = os.path.join(os.getcwd(), 'static', 'images', 'IMAGENSCURSOS')
             if not self.ensure_directory(images_folder):
                 print(f"Erro ao criar diretório {images_folder}")
-                return None, None
+                return None
             
             # Validar extensão do arquivo
             if not self._allowed_file(file.filename):
                 print(f"Extensão não permitida: {file.filename}")
-                return None, None
+                return None
             
             # Criar nome do arquivo baseado no título do curso
             safe_title = self._sanitize_filename(course_title)
@@ -218,39 +215,16 @@ class FileService:
             image_service.resize_image(file, output_path=file_path)
             print(f"Imagem redimensionada e salva com sucesso!")
             
-            # 3. ANÁLISE COM IA (Camada 3)
-            analysis_result = None
-            if analyze_with_ai and ai_service and ai_service.is_available():
-                print("\n3. Analisando imagem com Gemini...")
-                analysis_result = ai_service.analyze_course_image(file_path, course_title)
-                
-                # Log dos resultados da análise
-                if analysis_result:
-                    print(f"Análise completa!")
-                    print(f"  - Adequada: {analysis_result.get('is_suitable', 'N/A')}")
-                    print(f"  - Confiança: {analysis_result.get('confidence', 0)}%")
-                    if analysis_result.get('issues'):
-                        print(f"  - Problemas: {', '.join(analysis_result['issues'])}")
-                    if analysis_result.get('suggestions'):
-                        print(f"  - Sugestões: {', '.join(analysis_result['suggestions'])}")
-            else:
-                print("\n3. Análise com IA desabilitada ou não disponível")
-                analysis_result = {
-                    'is_suitable': True,
-                    'confidence': 0,
-                    'message': 'Análise não realizada'
-                }
-            
             print(f"\n=== CAPA DO CURSO PROCESSADA COM SUCESSO ===")
             print(f"Nome do arquivo: {new_filename}")
             
-            return new_filename, analysis_result
+            return new_filename
             
         except Exception as e:
             print(f"Erro ao processar capa do curso: {str(e)}")
             import traceback
             print(f"Traceback: {traceback.format_exc()}")
-            return None, {'error': str(e)}
+            return None
     
     def _sanitize_filename(self, filename: str) -> str:
         """
