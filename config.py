@@ -27,7 +27,7 @@ class Config:
     
     # Configurações de API
     GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY')
-    GEMINI_MODEL = 'gemini-1.5-pro'
+    GEMINI_MODEL = 'gemini-2.5-pro'  # Stable Pro version (June 2025) - TESTADO E FUNCIONANDO
     
     # Configurações de autenticação
     ADMIN_USERNAME = os.environ.get('ADMIN_USERNAME')
