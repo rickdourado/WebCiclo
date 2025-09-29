@@ -27,7 +27,7 @@ class Config:
     
     # Configurações de API
     GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY')
-    GEMINI_MODEL = 'gemini-2.5-flash'
+    GEMINI_MODEL = 'gemini-1.5-flash'
     
     # Configurações de autenticação
     ADMIN_USERNAME = os.environ.get('ADMIN_USERNAME')
