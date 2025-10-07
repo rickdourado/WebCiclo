@@ -1,0 +1,61 @@
+id,orgao,sigla,categoria
+1,Secretaria Municipal da Casa Civil - CVL,CVL,Secretaria Municipal
+2,Secretaria Municipal de Coordenação Governamental - SMCG,SMCG,Secretaria Municipal
+3,Secretaria Municipal de Fazenda - SMF,SMF,Secretaria Municipal
+4,Secretaria Municipal de Integridade Transparência e Proteção de Dados - SMIT,SMIT,Secretaria Municipal
+5,Secretaria Municipal de Desenvolvimento Urbano e Licenciamento - SMDU,SMDU,Secretaria Municipal
+6,Secretaria Municipal de Desenvolvimento Econômico – SMDE,SMDE,Secretaria Municipal
+7,Secretaria Municipal de Infraestrutura - SMI,SMI,Secretaria Municipal
+8,Secretaria Municipal de Transportes - SMTR,SMTR,Secretaria Municipal
+9,Secretaria Municipal de Conservação - SECONSERVA,SECONSERVA,Secretaria Municipal
+10,Secretaria Municipal de Educação - SME,SME,Secretaria Municipal
+11,Secretaria Municipal de Assistência Social - SMAS,SMAS,Secretaria Municipal
+12,Secretaria Municipal de Saúde - SMS,SMS,Secretaria Municipal
+13,Secretaria Municipal de Administração - SMA,SMA,Secretaria Municipal
+14,Secretaria Municipal de Trabalho e Renda - SMTE,SMTE,Secretaria Municipal
+15,Secretaria Municipal de Cultura - SMC,SMC,Secretaria Municipal
+16,Secretaria Municipal da Pessoa com Deficiência - SMPD,SMPD,Secretaria Municipal
+17,Secretaria Municipal do Ambiente e Clima - SMAC,SMAC,Secretaria Municipal
+18,Secretaria de Esportes - SMEL,SMEL,Secretaria Municipal
+19,Secretaria Municipal de Habitação - SMH,SMH,Secretaria Municipal
+20,Secretaria Municipal de Ciência Tecnologia e Inovação - SMCT,SMCT,Secretaria Municipal
+21,Secretaria Municipal do Envelhecimento Saudável e Qualidade de Vida - SEMESQV,SEMESQV,Secretaria Municipal
+22,Secretaria Municipal de Ordem Pública - SEOP,SEOP,Secretaria Municipal
+23,Secretaria Municipal de Proteção e Defesa dos Animais - SMPDA,SMPDA,Secretaria Municipal
+24,Secretaria Municipal de Turismo - SMTUR-RIO,SMTUR-RIO,Secretaria Municipal
+25,Secretaria Especial de Proteção e Defesa do Consumidor - SEDECON,SEDECON,Secretaria Especial
+26,Secretaria Especial de Políticas para Mulheres e Cuidados - SPM-RIO,SPM-RIO,Secretaria Especial
+27,Secretaria Especial da Juventude Carioca - JUV-RIO,JUV-RIO,Secretaria Especial
+28,Secretaria Especial de Ação Comunitária - SEAC-RIO,SEAC-RIO,Secretaria Especial
+29,Secretaria Especial de Cidadania e Família - SECID,SECID,Secretaria Especial
+30,Secretaria Especial de Integração Metropolitana - SEIM,SEIM,Secretaria Especial
+31,Secretaria Especial de Economia Solidária - SES-RIO,SES-RIO,Secretaria Especial
+32,Secretaria Especial de Direitos Humanos e Igualdade Racial - SEDHIR,SEDHIR,Secretaria Especial
+33,Secretaria Especial de Inclusão - SINC-RIO,SINC-RIO,Secretaria Especial
+34,Controladoria Geral do Município - CGM-RIO,CGM-RIO,Controladoria
+35,Procuradoria Geral do Município - PGM,PGM,Procuradoria
+36,Instituto de Previdência e Assistência - PREVI-RIO,PREVI-RIO,Instituto
+37,Instituto Municipal de Urbanismo Pereira Passos - IPP,IPP,Instituto
+38,Guarda Municipal do Rio de Janeiro - GM-RIO,GM-RIO,Guarda Municipal
+39,Fundacao Instituto de Geotecnica do Municipio do Rio de Janeiro – GEO-RIO,GEO-RIO,Fundacao
+40,Fundacao Instituto das Aguas do Municipio do Rio de Janeiro - RIO-AGUAS,RIO-AGUAS,Fundacao
+41,Fundacao Parques e Jardins - FPJ,FPJ,Fundacao
+42,Fundacao Planetario da Cidade do Rio de Janeiro - PLANETARIO,PLANETARIO,Fundacao
+43,Fundacao Jardim Zoologico da Cidade do Rio de Janeiro - RIO-ZOO,RIO-ZOO,Fundacao
+44,Fundacao Cidade das Artes - CIDADE DAS ARTES,CIDADE DAS ARTES,Fundacao
+45,Empresa Municipal de Multimeios S.A. - MULTIRIO,MULTIRIO,Empresa Municipal
+46,Distribuidora de Filmes S.A. - RIOFILME,RIOFILME,Empresa Municipal
+47,Empresa Municipal de Informatica - IPLANRIO,IPLANRIO,Empresa Municipal
+48,Empresa Municipal de Artes Graficas - IMPRENSA DA CIDADE,IMPRENSA DA CIDADE,Empresa Municipal
+49,Companhia Carioca de Parcerias e Investimentos - CCPAR,CCPAR,Companhia
+50,Empresa Municipal de Urbanizacao - RIO-URBE,RIO-URBE,Empresa Municipal
+51,Empresa de Turismo do Municipio do Rio de Janeiro - RIOTUR,RIOTUR,Empresa Municipal
+52,Empresa Publica de Saude do Rio de Janeiro – RIOSAUDE,RIOSAUDE,Empresa Publica
+53,Companhia Municipal de Energia e Iluminacao - RIOLUZ,RIOLUZ,Companhia Municipal
+54,Companhia Municipal de Limpeza Urbana – COMLURB,COMLURB,Companhia Municipal
+55,Companhia de Engenharia de Trafego do RJ - CET-RIO,CET-RIO,Companhia Municipal
+56,Companhia Municipal de Transportes Coletivos - CMTC-RIO,CMTC-RIO,Companhia Municipal
+57,Riocentro S.A. - Centro de Feiras Exposicoes e Congressos do Rio de Janeiro - RIOCENTRO,RIOCENTRO,Empresa Privada
+58,Agencia de Fomento do Municipio do Rio de Janeiro S.A. - INVEST.RIO,INVEST.RIO,Agencia de Fomento
+59,Empresa de Eventos do Municipio do Rio de Janeiro - RIOEVENTOS,RIOEVENTOS,Empresa Municipal
+60,Instituto Rio Patrimonio da Humanidade - IRPH,IRPH,Instituto
