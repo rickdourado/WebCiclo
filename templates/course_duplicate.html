@@ -136,13 +136,13 @@
                             <div class="form-group full-width">
                                 <label for="titulo" class="required">Nome do Curso</label>
                                 <input type="text" id="titulo" name="titulo" required 
-                                       placeholder="Digite o título do curso" value="{{ duplicate_data.titulo_original if duplicate_data else '' }}">
+                                       placeholder="Digite o título do curso" value="{{ duplicate_data.titulo if duplicate_data else '' }}">
                             </div>
                             
                             <div class="form-group full-width">
                                 <label for="descricao" class="required">Descrição</label>
                                 <textarea id="descricao" name="descricao" rows="6" required
-                                          placeholder="Digite a descrição do curso">{{ duplicate_data.descricao_original if duplicate_data else '' }}</textarea>
+                                          placeholder="Digite a descrição do curso">{{ duplicate_data.descricao if duplicate_data else '' }}</textarea>
                             </div>
                             
                             <div class="form-group full-width">

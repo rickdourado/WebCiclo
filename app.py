@@ -252,20 +252,23 @@ def duplicate_course(course_id):
         # Preparar dados igual ao formulário de edição
         course_data = _prepare_course_for_edit_form(course_data)
         
+        # Preparar dados para duplicação
+        duplicate_data = course_data.copy()
+        
         # Limpar campos que não devem ser copiados na duplicação
         fields_to_clear = [
-            'id', 'titulo', 'descricao_original', 'descricao', 
-            'created_at', 'csv_file', 'pdf_file', 'capa_curso'
+            'id', 'created_at', 'csv_file', 'pdf_file', 'capa_curso'
         ]
         
-        duplicate_data = course_data.copy()
         for field in fields_to_clear:
             duplicate_data[field] = ''
         
-        # Adicionar prefixo ao título para indicar que é uma cópia
+        # Preparar título para duplicação
         original_title = course_data.get('titulo', '')
         if original_title:
-            duplicate_data['titulo_original'] = f"Cópia de: {original_title}"
+            duplicate_data['titulo_original'] = f"Cópia de {original_title}"
+            duplicate_data['titulo'] = f"Cópia de {original_title}"  # Para preencher o campo
+            duplicate_data['descricao_original'] = course_data.get('descricao', '')  # Para exibir na interface
         
 
         
