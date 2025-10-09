@@ -276,3 +276,143 @@ class CourseService:
             course_data['descricao'] = course_data.get('descricao_original', '')
         
         return course_data
+    def get_course_by_id(self, course_id: int) -> Optional[Dict]:
+        """
+        Busca um curso pelo ID
+        
+        Args:
+            course_id: ID do curso
+            
+        Returns:
+            Dict ou None: Dados do curso se encontrado
+        """
+        try:
+            return self.repository.find_by_id(course_id)
+        except Exception as e:
+            print(f"Erro ao buscar curso {course_id}: {str(e)}")
+            return None
+    
+    def prepare_course_for_duplication(self, course_data: Dict) -> Dict:
+        """
+        Prepara dados de um curso para duplicação, removendo campos que não devem ser copiados
+        
+        Args:
+            course_data: Dados do curso original
+            
+        Returns:
+            Dict: Dados preparados para duplicação
+        """
+        if not course_data:
+            return {}
+        
+        # Campos que NÃO devem ser copiados (ficarão em branco)
+        fields_to_clear = [
+            'id', 'titulo', 'descricao_original', 'descricao', 
+            'created_at', 'csv_file', 'pdf_file',
+            'capa_curso'  # Logo pode ser mantido se quiserem
+        ]
+        
+        # Criar cópia dos dados
+        duplicate_data = course_data.copy()
+        
+        # Limpar campos que não devem ser copiados
+        for field in fields_to_clear:
+            duplicate_data[field] = ''
+        
+        # Adicionar prefixo ao título para indicar que é uma cópia
+        original_title = course_data.get('titulo', '')
+        if original_title:
+            duplicate_data['titulo_original'] = f"Cópia de: {original_title}"
+        
+        # Processar dados de múltiplas unidades (igual ao template de edição)
+        modalidade = duplicate_data.get('modalidade', '').lower()
+        if modalidade == 'presencial' or modalidade == 'híbrido':
+            # Processar dados de múltiplas unidades separados por |
+            enderecos = duplicate_data.get('endereco_unidade', '').split('|') if duplicate_data.get('endereco_unidade') else ['']
+            bairros = duplicate_data.get('bairro_unidade', '').split('|') if duplicate_data.get('bairro_unidade') else ['']
+            vagas = duplicate_data.get('vagas_unidade', '').split('|') if duplicate_data.get('vagas_unidade') else ['']
+            inicio_aulas = duplicate_data.get('inicio_aulas_data', '').split('|') if duplicate_data.get('inicio_aulas_data') else ['']
+            fim_aulas = duplicate_data.get('fim_aulas_data', '').split('|') if duplicate_data.get('fim_aulas_data') else ['']
+            horario_inicio = duplicate_data.get('horario_inicio', '').split('|') if duplicate_data.get('horario_inicio') else ['']
+            horario_fim = duplicate_data.get('horario_fim', '').split('|') if duplicate_data.get('horario_fim') else ['']
+            dias_aula = duplicate_data.get('dias_aula', '').split('|') if duplicate_data.get('dias_aula') else ['']
+            
+            # Arrays para múltiplas unidades (usado pelo template)
+            duplicate_data['enderecos_unidades'] = enderecos
+            duplicate_data['bairros_unidades'] = bairros
+            duplicate_data['vagas_unidades'] = vagas
+            duplicate_data['inicio_aulas_unidades'] = inicio_aulas
+            duplicate_data['fim_aulas_unidades'] = fim_aulas
+            duplicate_data['horario_inicio_unidades'] = horario_inicio
+            duplicate_data['horario_fim_unidades'] = horario_fim
+            duplicate_data['dias_aula_unidades'] = dias_aula
+            
+            # Converter datas para formato HTML (YYYY-MM-DD)
+            inicio_aulas_converted = []
+            fim_aulas_converted = []
+            
+            for data in inicio_aulas:
+                if data:
+                    converted = self._convert_date_to_html_format(data)
+                    inicio_aulas_converted.append(converted)
+                else:
+                    inicio_aulas_converted.append('')
+            
+            for data in fim_aulas:
+                if data:
+                    converted = self._convert_date_to_html_format(data)
+                    fim_aulas_converted.append(converted)
+                else:
+                    fim_aulas_converted.append('')
+            
+            # Atualizar arrays com datas convertidas
+            duplicate_data['inicio_aulas_unidades'] = inicio_aulas_converted
+            duplicate_data['fim_aulas_unidades'] = fim_aulas_converted
+            
+            print(f"🔄 Preparando {len(enderecos)} unidades para duplicação:")
+            for i, endereco in enumerate(enderecos):
+                print(f"   Unidade {i+1}: {endereco} - {bairros[i] if i < len(bairros) else ''}")
+                print(f"      Início: {inicio_aulas_converted[i] if i < len(inicio_aulas_converted) else ''}")
+                print(f"      Fim: {fim_aulas_converted[i] if i < len(fim_aulas_converted) else ''}")
+        
+        return duplicate_data 
+   
+    def _convert_date_to_html_format(self, date_string: str) -> str:
+        """
+        Converte data para formato HTML (YYYY-MM-DD)
+        
+        Args:
+            date_string: Data em formato DD/MM/YYYY ou YYYY-MM-DD
+            
+        Returns:
+            str: Data no formato YYYY-MM-DD
+        """
+        if not date_string:
+            return ''
+        
+        # Se já está no formato correto (YYYY-MM-DD)
+        import re
+        if re.match(r'^\d{4}-\d{2}-\d{2}$', date_string):
+            return date_string
+        
+        # Se está no formato DD/MM/YYYY
+        if '/' in date_string:
+            try:
+                parts = date_string.split('/')
+                if len(parts) == 3:
+                    dia, mes, ano = parts
+                    return f"{ano}-{mes.zfill(2)}-{dia.zfill(2)}"
+            except:
+                pass
+        
+        # Se está no formato DD-MM-YYYY
+        if '-' in date_string and len(date_string.split('-')[0]) <= 2:
+            try:
+                parts = date_string.split('-')
+                if len(parts) == 3:
+                    dia, mes, ano = parts
+                    return f"{ano}-{mes.zfill(2)}-{dia.zfill(2)}"
+            except:
+                pass
+        
+        return date_string

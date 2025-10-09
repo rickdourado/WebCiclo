@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cursos Disponíveis - Ciclo Carioca</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .list-container {
+            padding: 40px;
+        }
+        
+        .list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .list-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2d3748;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .course-stats {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 12px;
+            text-align: center;
+            min-width: 120px;
+        }
+        
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 700;
+            display: block;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        .courses-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .course-item {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: box-shadow 0.2s;
+        }
+        
+        .course-item:hover {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+        
+        .course-header-row {
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .course-header-row:hover {
+            background-color: #edf2f7;
+        }
+        
+        .course-basic-info {
+            flex: 1;
+        }
+        
+        .course-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 4px;
+        }
+        
+        .course-meta {
+            display: flex;
+            gap: 20px;
+            font-size: 0.9rem;
+            color: #718096;
+        }
+        
+        .course-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .btn-duplicate {
+            background: linear-gradient(135deg, #48bb78, #38a169);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .btn-duplicate:hover {
+            background: linear-gradient(135deg, #38a169, #2f855a);
+            transform: translateY(-1px);
+        }
+        
+        .course-details {
+            padding: 20px 24px;
+            background-color: white;
+            display: none;
+        }
+        
+        .course-item.active .course-details {
+            display: block;
+        }
+        
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .detail-group h4 {
+            color: #2d3748;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .detail-group p {
+            color: #4a5568;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            margin: 0;
+        }
+        
+        .back-button {
+            background: linear-gradient(135deg, #4299e1, #3182ce);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .back-button:hover {
+            background: linear-gradient(135deg, #3182ce, #2c5282);
+            transform: translateY(-1px);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #718096;
+        }
+        
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+        
+        .toggle-icon {
+            transition: transform 0.2s;
+        }
+        
+        .course-item.active .toggle-icon {
+            transform: rotate(180deg);
+        }
+    </style>
+</head>
+<body>
+    <div class="list-container">
+        <div class="list-header">
+            <div>
+                <h1 class="list-title">
+                    <i class="fas fa-graduation-cap"></i>
+                    Cursos Disponíveis
+                </h1>
+                <div class="course-stats">
+                    <div class="stat-card">
+                        <span class="stat-number">{{ courses|length }}</span>
+                        <span class="stat-label">Total de Cursos</span>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <a href="{{ url_for('index') }}" class="back-button">
+                    <i class="fas fa-plus"></i>
+                    Criar Novo Curso
+                </a>
+            </div>
+        </div>
+
+        {% if courses %}
+            <div class="courses-list">
+                {% for course in courses %}
+                <div class="course-item" data-course-id="{{ course.id }}">
+                    <div class="course-header-row" onclick="toggleCourseDetails({{ course.id }})">
+                        <div class="course-basic-info">
+                            <div class="course-title">{{ course.titulo }}</div>
+                            <div class="course-meta">
+                                <span><i class="fas fa-building"></i> {{ course.orgao }}</span>
+                                <span><i class="fas fa-calendar"></i> {{ course.created_at }}</span>
+                                <span><i class="fas fa-laptop"></i> {{ course.modalidade|title }}</span>
+                            </div>
+                        </div>
+                        <div class="course-actions">
+                            <a href="{{ url_for('duplicate_course', course_id=course.id) }}" 
+                               class="btn-duplicate"
+                               title="Duplicar este curso">
+                                <i class="fas fa-copy"></i>
+                                Duplicar
+                            </a>
+                            <i class="fas fa-chevron-down toggle-icon"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="course-details">
+                        <div class="details-grid">
+                            <div class="detail-group">
+                                <h4>Descrição</h4>
+                                <p>{{ course.descricao or course.descricao_original or 'Não informado' }}</p>
+                            </div>
+                            
+                            {% if course.modalidade == 'presencial' or course.modalidade == 'hibrido' %}
+                            <div class="detail-group">
+                                <h4>Localidades</h4>
+                                <p>
+                                    {% if course.nome_unidade %}
+                                        {% set unidades = course.nome_unidade.split('|') %}
+                                        {% for unidade in unidades %}
+                                            {{ unidade }}{% if not loop.last %}, {% endif %}
+                                        {% endfor %}
+                                    {% else %}
+                                        Não informado
+                                    {% endif %}
+                                </p>
+                            </div>
+                            {% endif %}
+                            
+                            <div class="detail-group">
+                                <h4>Carga Horária</h4>
+                                <p>{{ course.carga_horaria or 'Não informado' }}</p>
+                            </div>
+                            
+                            <div class="detail-group">
+                                <h4>Gratuito</h4>
+                                <p>{{ 'Sim' if course.curso_gratuito == 'sim' else 'Não' }}</p>
+                            </div>
+                            
+                            {% if course.parceiro_externo == 'sim' %}
+                            <div class="detail-group">
+                                <h4>Parceiro</h4>
+                                <p>{{ course.parceiro_nome or 'Não informado' }}</p>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <i class="fas fa-graduation-cap"></i>
+                <h3>Nenhum curso encontrado</h3>
+                <p>Ainda não há cursos cadastrados no sistema.</p>
+                <a href="{{ url_for('index') }}" class="back-button" style="margin-top: 20px;">
+                    <i class="fas fa-plus"></i>
+                    Criar Primeiro Curso
+                </a>
+            </div>
+        {% endif %}
+    </div>
+
+    <script>
+        function toggleCourseDetails(courseId) {
+            const courseItem = document.querySelector(`[data-course-id="${courseId}"]`);
+            courseItem.classList.toggle('active');
+        }
+    </script>
+</body>
+</html>

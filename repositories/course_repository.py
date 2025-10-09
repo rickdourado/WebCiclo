@@ -207,3 +207,20 @@ class CourseRepository:
         """
         all_courses = self.find_all()
         return [course for course in all_courses if course.get('orgao') == orgao]
+    
+    def find_by_id(self, course_id: int) -> Optional[Dict]:
+        """
+        Busca um curso pelo ID
+        
+        Args:
+            course_id: ID do curso
+            
+        Returns:
+            Dict ou None: Dados do curso se encontrado
+        """
+        try:
+            from scripts.csv_reader import get_course_by_id
+            return get_course_by_id(course_id)
+        except Exception as e:
+            print(f"Erro ao buscar curso por ID {course_id}: {str(e)}")
+            return None

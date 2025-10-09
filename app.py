@@ -190,9 +190,41 @@ def course_success(course_id):
         flash('Erro ao carregar curso', 'error')
         return redirect(url_for('index'))
 
+@app.route('/courses/public')
+def public_courses():
+    """Lista pública de cursos - apenas visualização e duplicação"""
+    try:
+        # Log para debug no PythonAnywhere
+        if 'pythonanywhere' in request.host:
+            logger.info("Acessando lista pública de cursos via PythonAnywhere")
+        
+        # Usar o serviço para listar cursos
+        courses = course_service.list_courses()
+        
+        return render_template('course_list_public.html', courses=courses)
+    except Exception as e:
+        logger.error(f"Erro ao listar cursos públicos: {str(e)}")
+        flash('Erro ao carregar lista de cursos', 'error')
+        return redirect(url_for('index'))
+
+# -----------------------------
+# Decorator de autenticação
+# -----------------------------
+
+def login_required(view_func):
+    """Decorator para proteger rotas que exigem login de admin"""
+    @functools.wraps(view_func)
+    def wrapped_view(*args, **kwargs):
+        if not session.get('logged_in'):
+            flash('Faça login para acessar esta página.', 'warning')
+            return redirect(url_for('admin_login'))
+        return view_func(*args, **kwargs)
+    return wrapped_view
+
 @app.route('/courses')
+@login_required
 def list_courses():
-    """Listar todos os cursos criados"""
+    """Listar todos os cursos criados - área administrativa"""
     try:
         # Log para debug no PythonAnywhere
         if 'pythonanywhere' in request.host:
@@ -207,19 +239,50 @@ def list_courses():
         flash('Erro ao carregar lista de cursos', 'error')
         return redirect(url_for('index'))
 
-# -----------------------------
-# Rotas e helpers de autenticação admin
-# -----------------------------
+@app.route('/duplicate/<int:course_id>')
+def duplicate_course(course_id):
+    """Carrega formulário de criação com dados do curso especificado para duplicação"""
+    try:
+        # Buscar o curso a ser duplicado
+        course_data = course_service.get_course(course_id)
+        if not course_data:
+            flash('Curso não encontrado para duplicação', 'error')
+            return redirect(url_for('public_courses'))
+        
+        # Preparar dados igual ao formulário de edição
+        course_data = _prepare_course_for_edit_form(course_data)
+        
+        # Limpar campos que não devem ser copiados na duplicação
+        fields_to_clear = [
+            'id', 'titulo', 'descricao_original', 'descricao', 
+            'created_at', 'csv_file', 'pdf_file', 'capa_curso'
+        ]
+        
+        duplicate_data = course_data.copy()
+        for field in fields_to_clear:
+            duplicate_data[field] = ''
+        
+        # Adicionar prefixo ao título para indicar que é uma cópia
+        original_title = course_data.get('titulo', '')
+        if original_title:
+            duplicate_data['titulo_original'] = f"Cópia de: {original_title}"
+        
 
-def login_required(view_func):
-    """Decorator para proteger rotas que exigem login de admin"""
-    @functools.wraps(view_func)
-    def wrapped_view(*args, **kwargs):
-        if not session.get('logged_in'):
-            flash('Faça login para acessar esta página.', 'warning')
-            return redirect(url_for('admin_login'))
-        return view_func(*args, **kwargs)
-    return wrapped_view
+        
+        # Renderizar formulário com dados pré-preenchidos
+        today_date = datetime.now().strftime('%Y-%m-%d')
+        return render_template('course_duplicate.html', 
+                             orgaos=ORGAOS,
+                             duplicate_data=duplicate_data,
+                             today_date=today_date)
+    except Exception as e:
+        logger.error(f"Erro ao duplicar curso {course_id}: {str(e)}")
+        flash('Erro ao carregar dados para duplicação', 'error')
+        return redirect(url_for('public_courses'))
+
+# -----------------------------
+# Rotas de autenticação admin
+# -----------------------------
 
 @app.route('/admin/login', methods=['GET', 'POST'])
 def admin_login():

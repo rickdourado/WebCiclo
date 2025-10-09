@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Duplicar Curso - Ciclo Carioca</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Função para formatar datas no formato brasileiro
+            function formatarDataBrasileira() {
+                const camposData = document.querySelectorAll('input[type="date"]');
+                camposData.forEach(campo => {
+                    campo.addEventListener('change', function() {
+                        if (this.value) {
+                            const [ano, mes, dia] = this.value.split('-');
+                            const dataFormatada = `${dia}/${mes}/${ano}`;
+                            // Exibe a data formatada em um elemento adjacente ou tooltip
+                            this.setAttribute('title', `Data: ${dataFormatada}`);
+                        }
+                    });
+                    // Formatar datas já preenchidas
+                    if (campo.value) {
+                        const [ano, mes, dia] = campo.value.split('-');
+                        const dataFormatada = `${dia}/${mes}/${ano}`;
+                        campo.setAttribute('title', `Data: ${dataFormatada}`);
+                    }
+                });
+            }
+            
+            // Mostrar/ocultar campo de pré-requisitos com base na seleção de certificado
+            const certificadoSelect = document.getElementById('oferece_certificado');
+            const preRequisitosGroup = document.getElementById('pre_requisitos_group');
+            
+            if (certificadoSelect && preRequisitosGroup) {
+                function togglePreRequisitos() {
+                    if (certificadoSelect.value === 'sim') {
+                        preRequisitosGroup.style.display = 'block';
+                    } else {
+                        preRequisitosGroup.style.display = 'none';
+                    }
+                }
+                
+                certificadoSelect.addEventListener('change', togglePreRequisitos);
+                togglePreRequisitos(); // Executar na carga inicial
+            }
+            
+            formatarDataBrasileira();
+        });
+    </script>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-container">
+            <div class="loading-spinner">
+                <div class="spinner-ring"></div>
+            </div>
+            <div class="loading-text">Criando Curso...</div>
+            <div class="loading-description">
+                Aguarde enquanto processamos as informações do curso
+            </div>
+            <div class="loading-progress">
+                <div class="loading-progress-bar" id="loadingProgressBar"></div>
+            </div>
+            <div class="loading-steps">
+                <div class="loading-step" id="step1">
+                    <div class="step-icon">1</div>
+                    <span>Validando informações</span>
+                </div>
+                <div class="loading-step" id="step2">
+                    <div class="step-icon">2</div>
+                    <span>Processando imagens</span>
+                </div>
+                <div class="loading-step" id="step3">
+                    <div class="step-icon">3</div>
+                    <span>Melhorando descrição com IA</span>
+                </div>
+                <div class="loading-step" id="step4">
+                    <div class="step-icon">4</div>
+                    <span>Criando arquivos CSV e PDF</span>
+                </div>
+                <div class="loading-step" id="step5">
+                    <div class="step-icon">5</div>
+                    <span>Finalizando criação</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo-section">
+                    <a href="{{ url_for('index') }}" title="Ir para página inicial">
+                        <img src="{{ url_for('static', filename='images/logo_ciclocarioca..png') }}" alt="Logo Ciclo Carioca">
+                    </a>
+                    <span class="version">v2.0</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="form-container">
+                <div class="form-header">
+                    <h2><i class="fas fa-copy"></i> Duplicar Curso</h2>
+                    <p class="form-description">Formulário pré-preenchido com dados do curso selecionado. Edite as informações necessárias.</p>
+                    {% if duplicate_data and duplicate_data.titulo_original %}
+                    <div class="duplicate-notice">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>Duplicando:</strong> {{ duplicate_data.titulo_original }}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Flash Messages -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }}">
+                                <i class="fas fa-{{ 'check-circle' if category == 'success' else 'exclamation-triangle' }}"></i>
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                <form method="POST" action="{{ url_for('create_course') }}" class="course-form" enctype="multipart/form-data">
+                    <!-- Formulário de Duplicação de Curso -->
+                    <div class="form-section">
+                        <div class="form-grid">
+                            <div class="form-group full-width">
+                                <label for="titulo" class="required">Nome do Curso</label>
+                                <input type="text" id="titulo" name="titulo" required 
+                                       placeholder="Digite o título do curso" value="{{ duplicate_data.titulo_original if duplicate_data else '' }}">
+                            </div>
+                            
+                            <div class="form-group full-width">
+                                <label for="descricao" class="required">Descrição</label>
+                                <textarea id="descricao" name="descricao" rows="6" required
+                                          placeholder="Digite a descrição do curso">{{ duplicate_data.descricao_original if duplicate_data else '' }}</textarea>
+                            </div>
+                            
+                            <div class="form-group full-width">
+                                <label for="capa_curso">Capa do Curso</label>
+                                <div class="file-upload-container">
+                                    <input type="file" id="capa_curso" name="capa_curso" accept=".jpeg,.png,.jpg,.bmp,image/jpeg,image/png,image/jpg,image/bmp">
+                                    <div class="file-upload-display">
+                                        <i class="fas fa-cloud-upload-alt"></i>
+                                        <span class="file-upload-text">Clique para selecionar uma imagem</span>
+                                        <div class="image-instructions">
+                                            <div class="instruction-list">
+                                                <p><strong>Instruções para envio de imagem:</strong></p>
+                                                <ul>
+                                                    <li>Dimensão obrigatória: 1080 x 1080 px.</li>
+                                                    <li>Não utilizar grafismos, textos ou logotipos. Utilizar poucos elementos visuais e de fácil leitura.</li>
+                                                    <li>Escolha imagens que sejam representativas do curso ao qual se referem.</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="inicio_inscricoes" class="required">Início das inscrições</label>
+                                <div class="datetime-group">
+                                    <input type="date" id="inicio_inscricoes_data" name="inicio_inscricoes_data" value="{{ duplicate_data.inicio_inscricoes_data if duplicate_data else '' }}" required>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="fim_inscricoes" class="required">Fim das inscrições</label>
+                                <div class="datetime-group">
+                                    <input type="date" id="fim_inscricoes_data" name="fim_inscricoes_data" value="{{ duplicate_data.fim_inscricoes_data if duplicate_data else '' }}" required>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group full-width">
+                                 <label for="orgao" class="required">Órgão (Quem oferece o curso)</label>
+                                <select id="orgao" name="orgao" required>
+                                     <option value="">Selecione um órgão</option>
+                                    {% for orgao in orgaos %}
+                                        <option value="{{ orgao }}" {% if duplicate_data and duplicate_data.orgao == orgao %}selected{% endif %}>{{ orgao }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            
+                             
+                             <div class="form-group full-width">
+                                <label for="tema" class="required">Categoria</label>
+                                 <select id="tema" name="tema" required>
+                                     <option value="">Selecione a categoria</option>
+                                     <option value="Tech" {% if duplicate_data and duplicate_data.tema == 'Tech' %}selected{% endif %}>Tech</option>
+                                     <option value="Dados" {% if duplicate_data and duplicate_data.tema == 'Dados' %}selected{% endif %}>Dados</option>
+                                     <option value="IA" {% if duplicate_data and duplicate_data.tema == 'IA' %}selected{% endif %}>IA</option>
+                                     <option value="Design" {% if duplicate_data and duplicate_data.tema == 'Design' %}selected{% endif %}>Design</option>
+                                     <option value="Cibersegurança" {% if duplicate_data and duplicate_data.tema == 'Cibersegurança' %}selected{% endif %}>Cibersegurança</option>
+                                     <option value="Marketing" {% if duplicate_data and duplicate_data.tema == 'Marketing' %}selected{% endif %}>Marketing</option>
+                                     <option value="Finanças" {% if duplicate_data and duplicate_data.tema == 'Finanças' %}selected{% endif %}>Finanças</option>
+                                     <option value="Gestão" {% if duplicate_data and duplicate_data.tema == 'Gestão' %}selected{% endif %}>Gestão</option>
+                                     <option value="Games" {% if duplicate_data and duplicate_data.tema == 'Games' %}selected{% endif %}>Games</option>
+                                     <option value="Nutrição" {% if duplicate_data and duplicate_data.tema == 'Nutrição' %}selected{% endif %}>Nutrição</option>
+                                     <option value="Educação" {% if duplicate_data and duplicate_data.tema == 'Educação' %}selected{% endif %}>Educação</option>
+                                     <option value="Gastronomia" {% if duplicate_data and duplicate_data.tema == 'Gastronomia' %}selected{% endif %}>Gastronomia</option>
+                                     <option value="Saúde" {% if duplicate_data and duplicate_data.tema == 'Saúde' %}selected{% endif %}>Saúde</option>
+                                     <option value="Veterinária" {% if duplicate_data and duplicate_data.tema == 'Veterinária' %}selected{% endif %}>Veterinária</option>
+                                     <option value="Carreira" {% if duplicate_data and duplicate_data.tema == 'Carreira' %}selected{% endif %}>Carreira</option>
+                                     <option value="Estética" {% if duplicate_data and duplicate_data.tema == 'Estética' %}selected{% endif %}>Estética</option>
+                                     <option value="Sustentabilidade" {% if duplicate_data and duplicate_data.tema == 'Sustentabilidade' %}selected{% endif %}>Sustentabilidade</option>
+                                     <option value="Artes" {% if duplicate_data and duplicate_data.tema == 'Artes' %}selected{% endif %}>Artes</option>
+                                     <option value="Cultura" {% if duplicate_data and duplicate_data.tema == 'Cultura' %}selected{% endif %}>Cultura</option>
+                                     <option value="Astronomia" {% if duplicate_data and duplicate_data.tema == 'Astronomia' %}selected{% endif %}>Astronomia</option>
+                                 </select>
+                            </div>
+                            
+                             <div class="form-group full-width">
+                                <label for="modalidade" class="required">Modalidade</label>
+                                <select id="modalidade" name="modalidade" required onchange="toggleUnidades()">
+                                     <option value="">Selecione a modalidade</option>
+                                    <option value="Presencial" {% if duplicate_data and duplicate_data.modalidade == 'Presencial' %}selected{% endif %}>Presencial</option>
+                                    <option value="Online" {% if duplicate_data and duplicate_data.modalidade == 'Online' %}selected{% endif %}>Online</option>
+                                    <option value="Híbrido" {% if duplicate_data and duplicate_data.modalidade == 'Híbrido' %}selected{% endif %}>Híbrido</option>
+                                </select>
+                            </div>    
+                        
+                             <!-- Subformulário para Presencial/Híbrido -->
+                             <div class="form-group full-width" id="unidades_container" style="display:{% if duplicate_data and (duplicate_data.modalidade == 'Presencial' or duplicate_data.modalidade == 'Híbrido') %}block{% else %}none{% endif %};">
+                                 <fieldset class="unidade-fieldset">
+                                     <legend>Informações da Unidade 1 <button type="button" class="remove-unidade-btn" onclick="removeUnidade(this)" style="display:none;">×</button></legend>
+                                     
+                                     <!-- Container para múltiplas unidades -->
+                                     <div id="unidades_list">
+                                         {% if duplicate_data and duplicate_data.enderecos_unidades %}
+                                         {% for i in range(duplicate_data.enderecos_unidades|length) %}
+                                         <div class="unidade-item" data-unidade="{{ i }}">
+                                             <div class="unidade-header">
+                                                 <h4>Unidade {{ i + 1 }}</h4>
+                                                 {% if i > 0 %}
+                                                 <button type="button" class="btn-remove-unidade" onclick="removeUnidade({{ i }})">
+                                                     <i class="fas fa-trash"></i> Remover Unidade
+                                                 </button>
+                                                 {% endif %}
+                                             </div>
+                                             <label>Endereço da unidade*</label>
+                                             <input type="text" name="endereco_unidade[]" required value="{{ duplicate_data.enderecos_unidades[i] if i < duplicate_data.enderecos_unidades|length else '' }}">
+                                             <label>Bairro*</label>
+                                             <input type="text" name="bairro_unidade[]" required value="{{ duplicate_data.bairros_unidades[i] if i < duplicate_data.bairros_unidades|length else '' }}">
+                                             <label>Total de vagas*</label>
+                                             <input type="number" name="vagas_unidade[]" min="1" required value="{{ duplicate_data.vagas_unidades[i]|replace(',', '')|replace('.', '')|trim if i < duplicate_data.vagas_unidades|length else '' }}">
+                                             
+                                             <label for="carga_horaria_unidade" class="required">Carga Horária</label>
+                                             <input type="text" id="carga_horaria_unidade" name="carga_horaria" required 
+                                                    placeholder="Digite a carga horária (ex: 40 horas, 80h, 2 meses, etc.)" value="{{ duplicate_data.carga_horaria if duplicate_data else '' }}">
+                                             <small style="color: red; font-size: 0.9em; margin-top: 5px; display: block;">(Dê preferência a carga horária no formato de horas)</small>
+                                             
+                                             <div class="data-group">
+                                                 <div class="data-field">
+                                                     <label>Início das aulas*</label>
+                                                     <input type="date" name="inicio_aulas_data[]" required value="{{ duplicate_data.inicio_aulas_unidades[i] if duplicate_data and i < duplicate_data.inicio_aulas_unidades|length else '' }}">
+                                                 </div>
+                                                 <div class="data-field">
+                                                     <label>Fim das aulas*</label>
+                                                     <input type="date" name="fim_aulas_data[]" required value="{{ duplicate_data.fim_aulas_unidades[i] if duplicate_data and i < duplicate_data.fim_aulas_unidades|length else '' }}">
+                                                 </div>
+                                             </div>
+                                             <div class="horario-group">
+                                                 <div class="horario-field">
+                                                     <label>Horário-Início*</label>
+                                                     <select name="horario_inicio[]" required>
+                                                         <option value="">Selecione o horário</option>
+                                                         <option value="06:00" {% if duplicate_data and duplicate_data.horario_inicio_unidades[i] == '06:00' %}selected{% endif %}>06:00</option>
+                                                         <option value="07:00" {% if duplicate_data and duplicate_data.horario_inicio_unidades[i] == '07:00' %}selected{% endif %}>07:00</option>
+                                                         <option value="08:00" {% if duplicate_data and duplicate_data.horario_inicio_unidades[i] == '08:00' %}selected{% endif %}>08:00</option>
+                                                         <option value="09:00" {% if duplicate_data and duplicate_data.horario_inicio_unidades[i] == '09:00' %}selected{% endif %}>09:00</option>
+                                                         <option value="10:00" {% if duplicate_data and duplicate_data.horario_inicio_unidades[i] == '10:00' %}selected{% endif %}>10:00</option>
+                                                         <option value="11:00" {% if duplicate_data and duplicate_data.horario_inicio_unidades[i] == '11:00' %}selected{% endif %}>11:00</option>
+                                                         <option value="12:00" {% if duplicate_data and duplicate_data.horario_inicio_unidades[i] == '12:00' %}selected{% endif %}>12:00</option>
+                                                         <option value="13:00" {% if duplicate_data and duplicate_data.horario_inicio_unidades[i] == '13:00' %}selected{% endif %}>13:00</option>
+                                                         <option value="14:00" {% if duplicate_data and duplicate_data.horario_inicio_unidades[i] == '14:00' %}selected{% endif %}>14:00</option>
+                                                         <option value="15:00" {% if duplicate_data and duplicate_data.horario_inicio_unidades[i] == '15:00' %}selected{% endif %}>15:00</option>
+                                                         <option value="16:00" {% if duplicate_data and duplicate_data.horario_inicio_unidades[i] == '16:00' %}selected{% endif %}>16:00</option>
+                                                         <option value="17:00" {% if duplicate_data and duplicate_data.horario_inicio_unidades[i] == '17:00' %}selected{% endif %}>17:00</option>
+                                                         <option value="18:00" {% if duplicate_data and duplicate_data.horario_inicio_unidades[i] == '18:00' %}selected{% endif %}>18:00</option>
+                                                         <option value="19:00" {% if duplicate_data and duplicate_data.horario_inicio_unidades[i] == '19:00' %}selected{% endif %}>19:00</option>
+                                                         <option value="20:00" {% if duplicate_data and duplicate_data.horario_inicio_unidades[i] == '20:00' %}selected{% endif %}>20:00</option>
+                                                         <option value="21:00" {% if duplicate_data and duplicate_data.horario_inicio_unidades[i] == '21:00' %}selected{% endif %}>21:00</option>
+                                                         <option value="22:00" {% if duplicate_data and duplicate_data.horario_inicio_unidades[i] == '22:00' %}selected{% endif %}>22:00</option>
+                                                         <option value="23:00" {% if duplicate_data and duplicate_data.horario_inicio_unidades[i] == '23:00' %}selected{% endif %}>23:00</option>
+                                                     </select>
+                                                 </div>
+                                                 <div class="horario-field">
+                                                     <label>Horário-Fim*</label>
+                                                     <select name="horario_fim[]" required>
+                                                         <option value="">Selecione o horário</option>
+                                                         <option value="06:00" {% if duplicate_data and duplicate_data.horario_fim_unidades[i] == '06:00' %}selected{% endif %}>06:00</option>
+                                                         <option value="07:00" {% if duplicate_data and duplicate_data.horario_fim_unidades[i] == '07:00' %}selected{% endif %}>07:00</option>
+                                                         <option value="08:00" {% if duplicate_data and duplicate_data.horario_fim_unidades[i] == '08:00' %}selected{% endif %}>08:00</option>
+                                                         <option value="09:00" {% if duplicate_data and duplicate_data.horario_fim_unidades[i] == '09:00' %}selected{% endif %}>09:00</option>
+                                                         <option value="10:00" {% if duplicate_data and duplicate_data.horario_fim_unidades[i] == '10:00' %}selected{% endif %}>10:00</option>
+                                                         <option value="11:00" {% if duplicate_data and duplicate_data.horario_fim_unidades[i] == '11:00' %}selected{% endif %}>11:00</option>
+                                                         <option value="12:00" {% if duplicate_data and duplicate_data.horario_fim_unidades[i] == '12:00' %}selected{% endif %}>12:00</option>
+                                                         <option value="13:00" {% if duplicate_data and duplicate_data.horario_fim_unidades[i] == '13:00' %}selected{% endif %}>13:00</option>
+                                                         <option value="14:00" {% if duplicate_data and duplicate_data.horario_fim_unidades[i] == '14:00' %}selected{% endif %}>14:00</option>
+                                                         <option value="15:00" {% if duplicate_data and duplicate_data.horario_fim_unidades[i] == '15:00' %}selected{% endif %}>15:00</option>
+                                                         <option value="16:00" {% if duplicate_data and duplicate_data.horario_fim_unidades[i] == '16:00' %}selected{% endif %}>16:00</option>
+                                                         <option value="17:00" {% if duplicate_data and duplicate_data.horario_fim_unidades[i] == '17:00' %}selected{% endif %}>17:00</option>
+                                                         <option value="18:00" {% if duplicate_data and duplicate_data.horario_fim_unidades[i] == '18:00' %}selected{% endif %}>18:00</option>
+                                                         <option value="19:00" {% if duplicate_data and duplicate_data.horario_fim_unidades[i] == '19:00' %}selected{% endif %}>19:00</option>
+                                                         <option value="20:00" {% if duplicate_data and duplicate_data.horario_fim_unidades[i] == '20:00' %}selected{% endif %}>20:00</option>
+                                                         <option value="21:00" {% if duplicate_data and duplicate_data.horario_fim_unidades[i] == '21:00' %}selected{% endif %}>21:00</option>
+                                                         <option value="22:00" {% if duplicate_data and duplicate_data.horario_fim_unidades[i] == '22:00' %}selected{% endif %}>22:00</option>
+                                                         <option value="23:00" {% if duplicate_data and duplicate_data.horario_fim_unidades[i] == '23:00' %}selected{% endif %}>23:00</option>
+                                                     </select>
+                                                 </div>
+                                             </div>
+                                             <label>Dias de aula*</label>
+                                             <div class="checkbox-group dias-aula">
+                                                 <label class="checkbox-label">
+                                                     <input type="checkbox" name="dias_aula[]" value="Segunda-feira" {% if duplicate_data and duplicate_data.dias_aula_unidades[i] and 'Segunda-feira' in duplicate_data.dias_aula_unidades[i] %}checked{% endif %}>
+                                                     <span>Segunda-feira</span>
+                                                 </label>
+                                                 <label class="checkbox-label">
+                                                     <input type="checkbox" name="dias_aula[]" value="Terça-feira" {% if duplicate_data and duplicate_data.dias_aula_unidades[i] and 'Terça-feira' in duplicate_data.dias_aula_unidades[i] %}checked{% endif %}>
+                                                     <span>Terça-feira</span>
+                                                 </label>
+                                                 <label class="checkbox-label">
+                                                     <input type="checkbox" name="dias_aula[]" value="Quarta-feira" {% if duplicate_data and duplicate_data.dias_aula_unidades[i] and 'Quarta-feira' in duplicate_data.dias_aula_unidades[i] %}checked{% endif %}>
+                                                     <span>Quarta-feira</span>
+                                                 </label>
+                                                 <label class="checkbox-label">
+                                                     <input type="checkbox" name="dias_aula[]" value="Quinta-feira" {% if duplicate_data and duplicate_data.dias_aula_unidades[i] and 'Quinta-feira' in duplicate_data.dias_aula_unidades[i] %}checked{% endif %}>
+                                                     <span>Quinta-feira</span>
+                                                 </label>
+                                                 <label class="checkbox-label">
+                                                     <input type="checkbox" name="dias_aula[]" value="Sexta-feira" {% if duplicate_data and duplicate_data.dias_aula_unidades[i] and 'Sexta-feira' in duplicate_data.dias_aula_unidades[i] %}checked{% endif %}>
+                                                     <span>Sexta-feira</span>
+                                                 </label>
+                                                 <label class="checkbox-label">
+                                                     <input type="checkbox" name="dias_aula[]" value="Sábado" {% if duplicate_data and duplicate_data.dias_aula_unidades[i] and 'Sábado' in duplicate_data.dias_aula_unidades[i] %}checked{% endif %}>
+                                                     <span>Sábado</span>
+                                                 </label>
+                                                 <label class="checkbox-label">
+                                                     <input type="checkbox" name="dias_aula[]" value="Domingo" {% if duplicate_data and duplicate_data.dias_aula_unidades[i] and 'Domingo' in duplicate_data.dias_aula_unidades[i] %}checked{% endif %}>
+                                                     <span>Domingo</span>
+                                                 </label>
+                                             </div>
+                                         </div>
+                                     {% endfor %}
+                                     {% endif %}
+                                     
+                                     <button type="button" class="btn btn-outline add-unidade-btn">+ Adicionar outra unidade</button>
+                                 </fieldset>
+                             </div>
+
+                             <!-- Subformulário para Online -->
+                             <div class="form-group full-width" id="plataforma_container" style="display:{% if duplicate_data and duplicate_data.modalidade == 'Online' %}block{% else %}none{% endif %};">
+                                 <fieldset class="unidade-fieldset">
+                                     <legend>Informações da Plataforma <button type="button" class="remove-plataforma-btn" onclick="removePlataforma(this)" style="display:none;">×</button></legend>
+                                     
+                                     <!-- Container para plataforma online -->
+                                     <div id="plataforma_list">
+                                         <!-- Informações da plataforma online -->
+                                         <div class="plataforma-item" data-plataforma="0">
+                                             <label for="plataforma_digital">Plataforma Digital</label>
+                                             <input type="text" id="plataforma_digital" name="plataforma_digital" 
+                                                    placeholder="Ex: Zoom, Google Meet, Microsoft Teams" value="{{ duplicate_data.plataforma_digital if duplicate_data else '' }}">
+                                             
+                                             <label for="total_vagas_online">Total de vagas*</label>
+                                             <input type="number" id="total_vagas_online" name="total_vagas_online" min="1" required 
+                                                    placeholder="Digite o número total de vagas" value="{{ duplicate_data.total_vagas_online if duplicate_data else '' }}">
+                                             
+                                             <label for="carga_horaria_online" class="required">Carga Horária</label>
+                                             <input type="text" id="carga_horaria_online" name="carga_horaria" required 
+                                                    placeholder="Digite a carga horária (ex: 40 horas, 80h, 2 meses, etc.)" value="{{ duplicate_data.carga_horaria if duplicate_data else '' }}">
+                                             <small style="color: red; font-size: 0.9em; margin-top: 5px; display: block;">(Dê preferência a carga horária no formato de horas)</small>
+                                             
+                                             <div class="data-group">
+                                                 <div class="data-field">
+                                                     <label>Início das aulas*</label>
+                                                     <input type="date" name="inicio_aulas_online" required value="{{ duplicate_data.inicio_aulas_online if duplicate_data else '' }}">
+                                                 </div>
+                                                 <div class="data-field">
+                                                     <label>Fim das aulas*</label>
+                                                     <input type="date" name="fim_aulas_online" required value="{{ duplicate_data.fim_aulas_online if duplicate_data else '' }}">
+                                                 </div>
+                                             </div>
+                                             
+                                             <div class="form-group full-width">
+                                                 <label class="required">Tipo de aulas online</label>
+                                                 <div class="radio-group">
+                                                     <label class="radio-label">
+                                                         <input type="radio" name="tipo_aulas_online" value="sincronas" required onclick="toggleAulasAssincronas(false)" {% if duplicate_data and duplicate_data.tipo_aulas_online == 'sincronas' %}checked{% endif %}> Síncronas (ao vivo)
+                                                     </label>
+                                                     <label class="radio-label">
+                                                         <input type="radio" name="tipo_aulas_online" value="assincronas" required onclick="toggleAulasAssincronas(true)" {% if duplicate_data and duplicate_data.tipo_aulas_online == 'assincronas' %}checked{% endif %}> Assíncronas (gravadas)
+                                                     </label>
+                                                 </div>
+                                             </div>
+                                             
+                                             <div id="horarios_online_container" style="display: {% if duplicate_data and duplicate_data.tipo_aulas_online == 'sincronas' %}block{% else %}none{% endif %};">
+                                                 <div class="horario-group">
+                                                     <div class="horario-field">
+                                                         <label>Horário-Início</label>
+                                                         <select id="horario_inicio_online" name="horario_inicio[]">
+                                                             <option value="">Selecione o horário</option>
+                                                             <option value="06:00" {% if duplicate_data and duplicate_data.horario_inicio_online == '06:00' %}selected{% endif %}>06:00</option>
+                                                             <option value="07:00" {% if duplicate_data and duplicate_data.horario_inicio_online == '07:00' %}selected{% endif %}>07:00</option>
+                                                             <option value="08:00" {% if duplicate_data and duplicate_data.horario_inicio_online == '08:00' %}selected{% endif %}>08:00</option>
+                                                             <option value="09:00" {% if duplicate_data and duplicate_data.horario_inicio_online == '09:00' %}selected{% endif %}>09:00</option>
+                                                             <option value="10:00" {% if duplicate_data and duplicate_data.horario_inicio_online == '10:00' %}selected{% endif %}>10:00</option>
+                                                             <option value="11:00" {% if duplicate_data and duplicate_data.horario_inicio_online == '11:00' %}selected{% endif %}>11:00</option>
+                                                             <option value="12:00" {% if duplicate_data and duplicate_data.horario_inicio_online == '12:00' %}selected{% endif %}>12:00</option>
+                                                             <option value="13:00" {% if duplicate_data and duplicate_data.horario_inicio_online == '13:00' %}selected{% endif %}>13:00</option>
+                                                             <option value="14:00" {% if duplicate_data and duplicate_data.horario_inicio_online == '14:00' %}selected{% endif %}>14:00</option>
+                                                             <option value="15:00" {% if duplicate_data and duplicate_data.horario_inicio_online == '15:00' %}selected{% endif %}>15:00</option>
+                                                             <option value="16:00" {% if duplicate_data and duplicate_data.horario_inicio_online == '16:00' %}selected{% endif %}>16:00</option>
+                                                             <option value="17:00" {% if duplicate_data and duplicate_data.horario_inicio_online == '17:00' %}selected{% endif %}>17:00</option>
+                                                             <option value="18:00" {% if duplicate_data and duplicate_data.horario_inicio_online == '18:00' %}selected{% endif %}>18:00</option>
+                                                             <option value="19:00" {% if duplicate_data and duplicate_data.horario_inicio_online == '19:00' %}selected{% endif %}>19:00</option>
+                                                             <option value="20:00" {% if duplicate_data and duplicate_data.horario_inicio_online == '20:00' %}selected{% endif %}>20:00</option>
+                                                             <option value="21:00" {% if duplicate_data and duplicate_data.horario_inicio_online == '21:00' %}selected{% endif %}>21:00</option>
+                                                             <option value="22:00" {% if duplicate_data and duplicate_data.horario_inicio_online == '22:00' %}selected{% endif %}>22:00</option>
+                                                             <option value="23:00" {% if duplicate_data and duplicate_data.horario_inicio_online == '23:00' %}selected{% endif %}>23:00</option>
+                                                         </select>
+                                                     </div>
+                                                     <div class="horario-field">
+                                                         <label>Horário-Fim</label>
+                                                         <select id="horario_fim_online" name="horario_fim[]">
+                                                             <option value="">Selecione o horário</option>
+                                                             <option value="06:00" {% if duplicate_data and duplicate_data.horario_fim_online == '06:00' %}selected{% endif %}>06:00</option>
+                                                             <option value="07:00" {% if duplicate_data and duplicate_data.horario_fim_online == '07:00' %}selected{% endif %}>07:00</option>
+                                                             <option value="08:00" {% if duplicate_data and duplicate_data.horario_fim_online == '08:00' %}selected{% endif %}>08:00</option>
+                                                             <option value="09:00" {% if duplicate_data and duplicate_data.horario_fim_online == '09:00' %}selected{% endif %}>09:00</option>
+                                                             <option value="10:00" {% if duplicate_data and duplicate_data.horario_fim_online == '10:00' %}selected{% endif %}>10:00</option>
+                                                             <option value="11:00" {% if duplicate_data and duplicate_data.horario_fim_online == '11:00' %}selected{% endif %}>11:00</option>
+                                                             <option value="12:00" {% if duplicate_data and duplicate_data.horario_fim_online == '12:00' %}selected{% endif %}>12:00</option>
+                                                             <option value="13:00" {% if duplicate_data and duplicate_data.horario_fim_online == '13:00' %}selected{% endif %}>13:00</option>
+                                                             <option value="14:00" {% if duplicate_data and duplicate_data.horario_fim_online == '14:00' %}selected{% endif %}>14:00</option>
+                                                             <option value="15:00" {% if duplicate_data and duplicate_data.horario_fim_online == '15:00' %}selected{% endif %}>15:00</option>
+                                                             <option value="16:00" {% if duplicate_data and duplicate_data.horario_fim_online == '16:00' %}selected{% endif %}>16:00</option>
+                                                             <option value="17:00" {% if duplicate_data and duplicate_data.horario_fim_online == '17:00' %}selected{% endif %}>17:00</option>
+                                                             <option value="18:00" {% if duplicate_data and duplicate_data.horario_fim_online == '18:00' %}selected{% endif %}>18:00</option>
+                                                             <option value="19:00" {% if duplicate_data and duplicate_data.horario_fim_online == '19:00' %}selected{% endif %}>19:00</option>
+                                                             <option value="20:00" {% if duplicate_data and duplicate_data.horario_fim_online == '20:00' %}selected{% endif %}>20:00</option>
+                                                             <option value="21:00" {% if duplicate_data and duplicate_data.horario_fim_online == '21:00' %}selected{% endif %}>21:00</option>
+                                                             <option value="22:00" {% if duplicate_data and duplicate_data.horario_fim_online == '22:00' %}selected{% endif %}>22:00</option>
+                                                             <option value="23:00" {% if duplicate_data and duplicate_data.horario_fim_online == '23:00' %}selected{% endif %}>23:00</option>
+                                                         </select>
+                                                     </div>
+                                                 </div>
+                                                 <label>Dias de aula</label>
+                                             <div class="checkbox-group dias-aula">
+                                                 <label class="checkbox-label">
+                                                     <input type="checkbox" name="dias_aula[]" value="Segunda-feira" {% if duplicate_data and 'Segunda-feira' in duplicate_data.dias_aula %}checked{% endif %}>
+                                                     <span>Segunda-feira</span>
+                                                 </label>
+                                                 <label class="checkbox-label">
+                                                     <input type="checkbox" name="dias_aula[]" value="Terça-feira" {% if duplicate_data and 'Terça-feira' in duplicate_data.dias_aula %}checked{% endif %}>
+                                                     <span>Terça-feira</span>
+                                                 </label>
+                                                 <label class="checkbox-label">
+                                                     <input type="checkbox" name="dias_aula[]" value="Quarta-feira" {% if duplicate_data and 'Quarta-feira' in duplicate_data.dias_aula %}checked{% endif %}>
+                                                     <span>Quarta-feira</span>
+                                                 </label>
+                                                 <label class="checkbox-label">
+                                                     <input type="checkbox" name="dias_aula[]" value="Quinta-feira" {% if duplicate_data and 'Quinta-feira' in duplicate_data.dias_aula %}checked{% endif %}>
+                                                     <span>Quinta-feira</span>
+                                                 </label>
+                                                 <label class="checkbox-label">
+                                                     <input type="checkbox" name="dias_aula[]" value="Sexta-feira" {% if duplicate_data and 'Sexta-feira' in duplicate_data.dias_aula %}checked{% endif %}>
+                                                     <span>Sexta-feira</span>
+                                                 </label>
+                                                 <label class="checkbox-label">
+                                                     <input type="checkbox" name="dias_aula[]" value="Sábado" {% if duplicate_data and 'Sábado' in duplicate_data.dias_aula %}checked{% endif %}>
+                                                     <span>Sábado</span>
+                                                 </label>
+                                                 <label class="checkbox-label">
+                                                     <input type="checkbox" name="dias_aula[]" value="Domingo" {% if duplicate_data and 'Domingo' in duplicate_data.dias_aula %}checked{% endif %}>
+                                                     <span>Domingo</span>
+                                                 </label>
+                                             </div>
+                                             </div>
+                                         </div>
+                                     </div>
+                                     
+                                     <button type="button" class="btn btn-outline add-plataforma-btn">+ Adicionar outra plataforma</button>
+                                 </fieldset>
+                            </div>   
+                         
+                            <div class="form-group full-width">
+                                <label for="acessibilidade" class="required">Acessibilidade</label>
+                                <select id="acessibilidade" name="acessibilidade" required onchange="toggleRecursosAcessibilidade()">
+                                    <option value="">Selecione uma opção</option>
+                                    <option value="acessivel" {% if duplicate_data and duplicate_data.acessibilidade == 'acessivel' %}selected{% endif %}>Acessível para pessoas com deficiência</option>
+                                    <option value="exclusivo" {% if duplicate_data and duplicate_data.acessibilidade == 'exclusivo' %}selected{% endif %}>Exclusivo para pessoas com deficiência</option>
+                                    <option value="nao_acessivel" {% if duplicate_data and duplicate_data.acessibilidade == 'nao_acessivel' %}selected{% endif %}>Não acessível para Pessoas com Deficiência</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group full-width" id="recursos_acessibilidade_container" style="display: {% if duplicate_data and (duplicate_data.acessibilidade == 'acessivel' or duplicate_data.acessibilidade == 'exclusivo') %}block{% else %}none{% endif %};">
+                                <label for="recursos_acessibilidade" class="required">Recursos de Acessibilidade</label>
+                                <textarea id="recursos_acessibilidade" name="recursos_acessibilidade" rows="3"
+                                          placeholder="Ex: Intérprete de Libras, material em Braille, rampa de acesso, elevador...">{{ duplicate_data.recursos_acessibilidade if duplicate_data else '' }}</textarea>
+                            </div>
+
+                            <div class="form-group full-width">
+                                <label for="publico_alvo" class="required">Público-alvo</label>
+                                <textarea id="publico_alvo" name="publico_alvo" required rows="3"
+                                          placeholder="Ex: Servidores públicos, estudantes, profissionais da área de tecnologia...">{{ duplicate_data.publico_alvo if duplicate_data else '' }}</textarea>
+                            </div>
+
+                            <div class="form-group full-width">
+                                <label class="required">O curso é gratuito?</label>
+                                <div class="radio-group">
+                                    <label class="radio-label">
+                                        <input type="radio" name="curso_gratuito" value="sim" required onclick="toggleValorCurso(false)" {% if duplicate_data and duplicate_data.curso_gratuito == 'sim' %}checked{% endif %}> SIM
+                                    </label>
+                                    <label class="radio-label">
+                                        <input type="radio" name="curso_gratuito" value="nao" required onclick="toggleValorCurso(true)" {% if duplicate_data and duplicate_data.curso_gratuito == 'nao' %}checked{% endif %}> NÃO
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="form-group full-width" id="valor_curso_container" style="display: {% if duplicate_data and duplicate_data.curso_gratuito == 'nao' %}block{% else %}none{% endif %};">
+                                <div class="valor-curso-row">
+                                    <div class="valor-curso-col">
+                                        <label for="valor_curso_inteira" class="required">Valor INTEIRA (R$)</label>
+                                        <input type="text" id="valor_curso_inteira" name="valor_curso_inteira" step="0.01" min="0"
+                                            placeholder="Digite o valor integral (ex: 100,00)" oninput="formatarValor(this)" value="{{ duplicate_data.valor_curso_inteira if duplicate_data else '' }}">
+                                    </div>
+                                    <div class="valor-curso-col">
+                                        <label for="valor_curso_meia">Valor MEIA (R$)</label>
+                                        <input type="text" id="valor_curso_meia" name="valor_curso_meia" step="0.01" min="0"
+                                            placeholder="Digite o valor da meia (ex: 50,00)" oninput="formatarValor(this); toggleRequisitos()" value="{{ duplicate_data.valor_curso_meia if duplicate_data else '' }}">
+                                    </div>
+                                </div>
+                                <div id="requisitos_meia_container" style="display: {% if duplicate_data and duplicate_data.valor_curso_meia %}block{% else %}none{% endif %};">
+                                    <label for="requisitos_meia" class="required">Condições para obtenção de meia-entrada</label>
+                                    <textarea id="requisitos_meia" name="requisitos_meia" rows="2"
+                                        placeholder="Ex: Estudantes, idosos, pessoas com deficiência...">{{ duplicate_data.requisitos_meia if duplicate_data else '' }}</textarea>
+                                </div>
+                             </div>
+
+                            <div class="form-group full-width">
+                                <label class="required">Oferece Certificado</label>
+                                <div class="radio-group">
+                                    <label class="radio-label">
+                                        <input type="radio" name="oferece_certificado" value="sim" required onclick="togglePreRequisitos(true)" {% if duplicate_data and duplicate_data.oferece_certificado == 'sim' %}checked{% endif %}> SIM
+                                    </label>
+                                    <label class="radio-label">
+                                        <input type="radio" name="oferece_certificado" value="nao" required onclick="togglePreRequisitos(false)" {% if duplicate_data and duplicate_data.oferece_certificado == 'nao' %}checked{% endif %}> NÃO
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="form-group full-width" id="pre_requisitos_container" style="display: {% if duplicate_data and duplicate_data.oferece_certificado == 'sim' %}block{% else %}none{% endif %};">
+                                <label for="pre_requisitos" class="required">Pré-requisitos para Recebimento de Certificados</label>
+                                <textarea id="pre_requisitos" name="pre_requisitos" rows="3"
+                                          placeholder="Ex: Frequência mínima de 75%, entrega de trabalho final, aprovação em avaliação...">{{ duplicate_data.pre_requisitos if duplicate_data else '' }}</textarea>
+                            </div>
+
+                            <div class="form-group full-width">
+                                <label class="required">Oferece Bolsa</label>
+                                <div class="radio-group">
+                                    <label class="radio-label">
+                                        <input type="radio" name="oferece_bolsa" value="sim" required onclick="toggleValorBolsa(true)" {% if duplicate_data and duplicate_data.oferece_bolsa == 'sim' %}checked{% endif %}> SIM
+                                    </label>
+                                    <label class="radio-label">
+                                        <input type="radio" name="oferece_bolsa" value="nao" required onclick="toggleValorBolsa(false)" {% if duplicate_data and duplicate_data.oferece_bolsa == 'nao' %}checked{% endif %}> NÃO
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="form-group full-width" id="valor_bolsa_container" style="display: {% if duplicate_data and duplicate_data.oferece_bolsa == 'sim' %}block{% else %}none{% endif %};">
+                                <label for="valor_bolsa">Valor da Bolsa (R$)</label>
+                                <input type="text" id="valor_bolsa" name="valor_bolsa" step="0.01" min="0"
+                                       placeholder="Digite o valor da bolsa (ex: 100,00)" oninput="formatarValor(this)" value="{{ duplicate_data.valor_bolsa if duplicate_data else '' }}">
+                            </div>
+                            
+                            <div class="form-group full-width" id="requisitos_bolsa_container" style="display: {% if duplicate_data and duplicate_data.oferece_bolsa == 'sim' %}block{% else %}none{% endif %};">
+                                <label for="requisitos_bolsa">Requisitos para a Obtenção da Bolsa</label>
+                                <textarea id="requisitos_bolsa" name="requisitos_bolsa" rows="3"
+                                          placeholder="Descreva os requisitos necessários para obtenção da bolsa">{{ duplicate_data.requisitos_bolsa if duplicate_data else '' }}</textarea>
+                            </div>
+                            
+                            <div class="form-group full-width">
+                                <label for="info_complementares">Informações Complementares para inscrição de participantes</label>
+                                <span style="color:red; font-size:0.9em; display:block; margin:4px 0 8px;">OBS: Com o acesso via gov.br, já teremos o Nome e CPF do candidato.</span>
+                                <textarea id="info_complementares" name="info_complementares" rows="4"
+                                          placeholder="Informe quais dados serão necessários para inscrição dos participantes (Ex: Escolaridade, Idade, Bairro, etc.)">{{ duplicate_data.info_complementares if duplicate_data else '' }}</textarea>                        
+                            </div>
+
+                            <!-- Pergunta: Informações adicionais do curso? -->
+                            <div class="form-group full-width">
+                                <label class="required">Informações adicionais do curso?</label>
+                                <span style="color:red; font-size: 0.9em; display:block; margin:4px 0 8px;">Para divulgar o curso de forma clara e objetiva, o foco deve ser em apresentar somente as informações mais importantes. Detalhes adicionais podem ser comunicados aos alunos que se matricularem, por isso, avalie se esses dados são realmente essenciais para o público geral no momento da divulgação.</span>
+                                <div class="radio-group">
+                                    <label class="radio-label">
+                                        <input type="radio" name="info_adicionais_opcao" value="sim" required onclick="toggleInfoAdicionais(true)" {% if duplicate_data and duplicate_data.info_adicionais_opcao == 'sim' %}checked{% endif %}> SIM
+                                    </label>
+                                    <label class="radio-label">
+                                        <input type="radio" name="info_adicionais_opcao" value="nao" required onclick="toggleInfoAdicionais(false)" {% if duplicate_data and duplicate_data.info_adicionais_opcao == 'nao' %}checked{% endif %}> NÃO
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="form-group full-width" id="info_adicionais_container" style="display: {% if duplicate_data and duplicate_data.info_adicionais_opcao == 'sim' %}block{% else %}none{% endif %};">
+                                <label for="info_adicionais">Informações Adicionais do Curso</label>
+                                <textarea id="info_adicionais" name="info_complementares" rows="4" placeholder="Digite informações adicionais, como recursos utilizados, facilitador, etc">{{ duplicate_data.info_complementares if duplicate_data else '' }}</textarea>
+                            </div>
+                            
+                            <!-- Parceiro Externo -->
+                            <div class="form-group full-width">
+                                <label class="required">CURSO OFERECIDO POR PARCEIRO EXTERNO?</label>
+                                <div class="radio-group">
+                                    <label class="radio-label">
+                                        <input type="radio" name="parceiro_externo" value="sim" required onclick="toggleParceiroExterno(true)" {% if duplicate_data and duplicate_data.parceiro_externo == 'sim' %}checked{% endif %}> SIM
+                                    </label>
+                                    <label class="radio-label">
+                                        <input type="radio" name="parceiro_externo" value="nao" required onclick="toggleParceiroExterno(false)" {% if duplicate_data and duplicate_data.parceiro_externo == 'nao' %}checked{% endif %}> NÃO
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group full-width" id="parceiro_externo_container" style="display: {% if duplicate_data and duplicate_data.parceiro_externo == 'sim' %}block{% else %}none{% endif %};">
+                                <fieldset class="unidade-fieldset">
+                                    <legend>Informações do Parceiro</legend>
+                                    
+                                    <div class="parceiro-grid">
+                                        <div class="parceiro-item">
+                                            <label for="parceiro_nome">Nome do Parceiro</label>
+                                            <input type="text" id="parceiro_nome" name="parceiro_nome" placeholder="Ex: Fundação Exemplo" value="{{ duplicate_data.parceiro_nome if duplicate_data else '' }}">
+                                        </div>
+                                        
+                                        <div class="parceiro-item">
+                                            <label for="parceiro_logo">Logo do Parceiro</label>
+                                            <input type="file" id="parceiro_logo" name="parceiro_logo" accept=".png,.jpg,.jpeg,image/*">
+                                            <small class="file-hint">Formatos aceitos: PNG, JPG, JPEG</small>
+                                        </div>
+                                        
+                                        <div class="parceiro-item full-width">
+                                            <label for="parceiro_link">Link do Parceiro</label>
+                                            <input type="text" id="parceiro_link" name="parceiro_link" placeholder="https://exemplo.org" value="{{ duplicate_data.parceiro_link if duplicate_data else '' }}">
+                                            <small class="help-text-red">Link da página web para onde o usuário será redirecionado para fins de inscrição na plataforma do parceiro</small>
+                                        </div>
+                                    </div>
+                                </fieldset>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <a href="{{ url_for('public_courses') }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Voltar
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Criar Curso
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </main>    <
+/div>
+    
+    <script>
+        function toggleValorCurso(mostrar) {
+            const valorCursoContainer = document.getElementById('valor_curso_container');
+            if (valorCursoContainer) {
+                valorCursoContainer.style.display = mostrar ? 'block' : 'none';
+            }
+        }
+
+        function togglePreRequisitos(mostrar) {
+            const preRequisitosContainer = document.getElementById('pre_requisitos_container');
+            if (preRequisitosContainer) {
+                preRequisitosContainer.style.display = mostrar ? 'block' : 'none';
+            }
+        }
+
+        function toggleRecursosAcessibilidade() {
+            const acessibilidadeSelect = document.getElementById('acessibilidade');
+            const recursosContainer = document.getElementById('recursos_acessibilidade_container');
+            if (acessibilidadeSelect && recursosContainer) {
+                recursosContainer.style.display = (acessibilidadeSelect.value === 'acessivel' || acessibilidadeSelect.value === 'exclusivo') ? 'block' : 'none';
+            }
+        }
+
+        function toggleValorBolsa(mostrar) {
+            const valorBolsaContainer = document.getElementById('valor_bolsa_container');
+            const requisitosContainer = document.getElementById('requisitos_bolsa_container');
+            if (valorBolsaContainer) valorBolsaContainer.style.display = mostrar ? 'block' : 'none';
+            if (requisitosContainer) requisitosContainer.style.display = mostrar ? 'block' : 'none';
+        }
+
+        function toggleParceiroExterno(mostrar) {
+            const container = document.getElementById('parceiro_externo_container');
+            if (container) {
+                container.style.display = mostrar ? 'block' : 'none';
+            }
+        }
+
+        function toggleInfoAdicionais(mostrar) {
+            const container = document.getElementById('info_adicionais_container');
+            if (container) {
+                container.style.display = mostrar ? 'block' : 'none';
+            }
+        }
+
+        function toggleUnidades() {
+            const modalidade = document.getElementById('modalidade').value;
+            const unidadesContainer = document.getElementById('unidades_container');
+            const plataformaContainer = document.getElementById('plataforma_container');
+            
+            // Esconder ambos os containers primeiro
+            if (unidadesContainer) unidadesContainer.style.display = 'none';
+            if (plataformaContainer) plataformaContainer.style.display = 'none';
+            
+            // Remover required de todos os campos de modalidade
+            const allModalidadeFields = document.querySelectorAll('#unidades_container input, #unidades_container select, #plataforma_container input, #plataforma_container select');
+            allModalidadeFields.forEach(field => {
+                field.removeAttribute('required');
+            });
+            
+            if (modalidade === 'Presencial' || modalidade === 'Híbrido') {
+                if (unidadesContainer) {
+                    unidadesContainer.style.display = 'block';
+                    // Adicionar required apenas aos campos visíveis
+                    const unidadesFields = unidadesContainer.querySelectorAll('input[required], select[required]');
+                    unidadesFields.forEach(field => {
+                        field.setAttribute('required', 'required');
+                    });
+                }
+            } else if (modalidade === 'Online') {
+                if (plataformaContainer) {
+                    plataformaContainer.style.display = 'block';
+                    // Adicionar required apenas aos campos visíveis
+                    const plataformaFields = plataformaContainer.querySelectorAll('input[required], select[required]');
+                    plataformaFields.forEach(field => {
+                        field.setAttribute('required', 'required');
+                    });
+                }
+            }
+        }
+
+        function toggleAulasAssincronas(isAssincronas) {
+            const horariosContainer = document.getElementById('horarios_detalhados_online_container');
+            const horariosOnlineContainer = document.getElementById('horarios_online_container');
+            
+            if (horariosContainer && horariosOnlineContainer) {
+                horariosContainer.style.display = isAssincronas ? 'none' : 'block';
+                horariosOnlineContainer.style.display = isAssincronas ? 'none' : 'block';
+            }
+        }
+
+        function formatarValor(input) {
+            let valor = input.value.replace(/\D/g, '');
+            valor = (valor / 100).toFixed(2) + '';
+            valor = valor.replace(".", ",");
+            valor = valor.replace(/(\d)(\d{3})(\d{3}),/g, "$1.$2.$3,");
+            valor = valor.replace(/(\d)(\d{3}),/g, "$1.$2,");
+            input.value = valor;
+        }
+
+        function toggleRequisitos() {
+            const valorMeia = document.getElementById('valor_curso_meia');
+            const requisitosContainer = document.getElementById('requisitos_meia_container');
+            if (valorMeia && requisitosContainer) {
+                requisitosContainer.style.display = valorMeia.value ? 'block' : 'none';
+            }
+        }
+    </script>
+
+    <!-- Scripts JavaScript -->
+    <script src="{{ url_for('static', filename='js/loading-manager.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/form-validator.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/form-manager.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/image-resizer.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
