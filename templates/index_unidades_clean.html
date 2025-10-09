@@ -1,0 +1,238 @@
+                             <!-- Subformulário para Presencial/Híbrido -->
+                             <div class="form-group full-width" id="unidades_container" style="display:{% if duplicate_data and (duplicate_data.modalidade|lower == 'presencial' or duplicate_data.modalidade|lower == 'híbrido') %}block{% else %}none{% endif %};">
+                                 <fieldset class="unidade-fieldset">
+                                     <legend>Informações da Unidade 1 <button type="button" class="remove-unidade-btn" onclick="removeUnidade(this)" style="display:none;">×</button></legend>
+                                     
+                                     <!-- Container para múltiplas unidades -->
+                                     <div id="unidades_list">
+                                         {% if duplicate_data and duplicate_data.enderecos_unidades %}
+                                         {% for i in range(duplicate_data.enderecos_unidades|length) %}
+                                         <div class="unidade-item" data-unidade="{{ i }}">
+                                             <div class="unidade-header">
+                                                 <h4>Unidade {{ i + 1 }}</h4>
+                                                 {% if i > 0 %}
+                                                 <button type="button" class="btn-remove-unidade" onclick="removeUnidade({{ i }})">
+                                                     <i class="fas fa-trash"></i> Remover Unidade
+                                                 </button>
+                                                 {% endif %}
+                                             </div>
+                                             <label>Endereço da unidade*</label>
+                                             <input type="text" name="endereco_unidade[]" required value="{{ duplicate_data.enderecos_unidades[i] if i < duplicate_data.enderecos_unidades|length else '' }}">
+                                             <label>Bairro*</label>
+                                             <input type="text" name="bairro_unidade[]" required value="{{ duplicate_data.bairros_unidades[i] if i < duplicate_data.bairros_unidades|length else '' }}">
+                                             <label>Total de vagas*</label>
+                                             <input type="number" name="vagas_unidade[]" min="1" required value="{{ duplicate_data.vagas_unidades[i]|replace(',', '')|replace('.', '')|trim if i < duplicate_data.vagas_unidades|length else '' }}">
+                                             
+                                             <label for="carga_horaria_unidade" class="required">Carga Horária</label>
+                                             <input type="text" id="carga_horaria_unidade" name="carga_horaria" required 
+                                                    placeholder="Digite a carga horária (ex: 40 horas, 80h, 2 meses, etc.)" value="{{ duplicate_data.carga_horaria }}">
+                                             <small style="color: red; font-size: 0.9em; margin-top: 5px; display: block;">(Dê preferência a carga horária no formato de horas)</small>
+                                             
+                                             <div class="data-group">
+                                                 <div class="data-field">
+                                                     <label>Início das aulas*</label>
+                                                     <input type="date" name="inicio_aulas_data[]" required value="{{ duplicate_data.inicio_aulas_unidades[i] if i < duplicate_data.inicio_aulas_unidades|length else '' }}">
+                                                 </div>
+                                                 <div class="data-field">
+                                                     <label>Fim das aulas*</label>
+                                                     <input type="date" name="fim_aulas_data[]" required value="{{ duplicate_data.fim_aulas_unidades[i] if i < duplicate_data.fim_aulas_unidades|length else '' }}">
+                                                 </div>
+                                             </div>
+                                             <div class="horario-group">
+                                                 <div class="horario-field">
+                                                     <label>Horário-Início*</label>
+                                                     <select name="horario_inicio[]" required>
+                                                         <option value="">Selecione o horário</option>
+                                                         <option value="06:00" {% if duplicate_data.horario_inicio_unidades[i] == '06:00' %}selected{% endif %}>06:00</option>
+                                                         <option value="07:00" {% if duplicate_data.horario_inicio_unidades[i] == '07:00' %}selected{% endif %}>07:00</option>
+                                                         <option value="08:00" {% if duplicate_data.horario_inicio_unidades[i] == '08:00' %}selected{% endif %}>08:00</option>
+                                                         <option value="09:00" {% if duplicate_data.horario_inicio_unidades[i] == '09:00' %}selected{% endif %}>09:00</option>
+                                                         <option value="10:00" {% if duplicate_data.horario_inicio_unidades[i] == '10:00' %}selected{% endif %}>10:00</option>
+                                                         <option value="11:00" {% if duplicate_data.horario_inicio_unidades[i] == '11:00' %}selected{% endif %}>11:00</option>
+                                                         <option value="12:00" {% if duplicate_data.horario_inicio_unidades[i] == '12:00' %}selected{% endif %}>12:00</option>
+                                                         <option value="13:00" {% if duplicate_data.horario_inicio_unidades[i] == '13:00' %}selected{% endif %}>13:00</option>
+                                                         <option value="14:00" {% if duplicate_data.horario_inicio_unidades[i] == '14:00' %}selected{% endif %}>14:00</option>
+                                                         <option value="15:00" {% if duplicate_data.horario_inicio_unidades[i] == '15:00' %}selected{% endif %}>15:00</option>
+                                                         <option value="16:00" {% if duplicate_data.horario_inicio_unidades[i] == '16:00' %}selected{% endif %}>16:00</option>
+                                                         <option value="17:00" {% if duplicate_data.horario_inicio_unidades[i] == '17:00' %}selected{% endif %}>17:00</option>
+                                                         <option value="18:00" {% if duplicate_data.horario_inicio_unidades[i] == '18:00' %}selected{% endif %}>18:00</option>
+                                                         <option value="19:00" {% if duplicate_data.horario_inicio_unidades[i] == '19:00' %}selected{% endif %}>19:00</option>
+                                                         <option value="20:00" {% if duplicate_data.horario_inicio_unidades[i] == '20:00' %}selected{% endif %}>20:00</option>
+                                                         <option value="21:00" {% if duplicate_data.horario_inicio_unidades[i] == '21:00' %}selected{% endif %}>21:00</option>
+                                                         <option value="22:00" {% if duplicate_data.horario_inicio_unidades[i] == '22:00' %}selected{% endif %}>22:00</option>
+                                                         <option value="23:00" {% if duplicate_data.horario_inicio_unidades[i] == '23:00' %}selected{% endif %}>23:00</option>
+                                                     </select>
+                                                 </div>
+                                                 <div class="horario-field">
+                                                     <label>Horário-Fim*</label>
+                                                     <select name="horario_fim[]" required>
+                                                         <option value="">Selecione o horário</option>
+                                                         <option value="06:00" {% if duplicate_data.horario_fim_unidades[i] == '06:00' %}selected{% endif %}>06:00</option>
+                                                         <option value="07:00" {% if duplicate_data.horario_fim_unidades[i] == '07:00' %}selected{% endif %}>07:00</option>
+                                                         <option value="08:00" {% if duplicate_data.horario_fim_unidades[i] == '08:00' %}selected{% endif %}>08:00</option>
+                                                         <option value="09:00" {% if duplicate_data.horario_fim_unidades[i] == '09:00' %}selected{% endif %}>09:00</option>
+                                                         <option value="10:00" {% if duplicate_data.horario_fim_unidades[i] == '10:00' %}selected{% endif %}>10:00</option>
+                                                         <option value="11:00" {% if duplicate_data.horario_fim_unidades[i] == '11:00' %}selected{% endif %}>11:00</option>
+                                                         <option value="12:00" {% if duplicate_data.horario_fim_unidades[i] == '12:00' %}selected{% endif %}>12:00</option>
+                                                         <option value="13:00" {% if duplicate_data.horario_fim_unidades[i] == '13:00' %}selected{% endif %}>13:00</option>
+                                                         <option value="14:00" {% if duplicate_data.horario_fim_unidades[i] == '14:00' %}selected{% endif %}>14:00</option>
+                                                         <option value="15:00" {% if duplicate_data.horario_fim_unidades[i] == '15:00' %}selected{% endif %}>15:00</option>
+                                                         <option value="16:00" {% if duplicate_data.horario_fim_unidades[i] == '16:00' %}selected{% endif %}>16:00</option>
+                                                         <option value="17:00" {% if duplicate_data.horario_fim_unidades[i] == '17:00' %}selected{% endif %}>17:00</option>
+                                                         <option value="18:00" {% if duplicate_data.horario_fim_unidades[i] == '18:00' %}selected{% endif %}>18:00</option>
+                                                         <option value="19:00" {% if duplicate_data.horario_fim_unidades[i] == '19:00' %}selected{% endif %}>19:00</option>
+                                                         <option value="20:00" {% if duplicate_data.horario_fim_unidades[i] == '20:00' %}selected{% endif %}>20:00</option>
+                                                         <option value="21:00" {% if duplicate_data.horario_fim_unidades[i] == '21:00' %}selected{% endif %}>21:00</option>
+                                                         <option value="22:00" {% if duplicate_data.horario_fim_unidades[i] == '22:00' %}selected{% endif %}>22:00</option>
+                                                         <option value="23:00" {% if duplicate_data.horario_fim_unidades[i] == '23:00' %}selected{% endif %}>23:00</option>
+                                                     </select>
+                                                 </div>
+                                             </div>
+                                             <label>Dias de aula*</label>
+                                             <div class="checkbox-group dias-aula">
+                                                 <label class="checkbox-label">
+                                                     <input type="checkbox" name="dias_aula[]" value="Segunda-feira" {% if duplicate_data.dias_aula_unidades[i] and 'Segunda-feira' in duplicate_data.dias_aula_unidades[i] %}checked{% endif %}>
+                                                     <span>Segunda-feira</span>
+                                                 </label>
+                                                 <label class="checkbox-label">
+                                                     <input type="checkbox" name="dias_aula[]" value="Terça-feira" {% if duplicate_data.dias_aula_unidades[i] and 'Terça-feira' in duplicate_data.dias_aula_unidades[i] %}checked{% endif %}>
+                                                     <span>Terça-feira</span>
+                                                 </label>
+                                                 <label class="checkbox-label">
+                                                     <input type="checkbox" name="dias_aula[]" value="Quarta-feira" {% if duplicate_data.dias_aula_unidades[i] and 'Quarta-feira' in duplicate_data.dias_aula_unidades[i] %}checked{% endif %}>
+                                                     <span>Quarta-feira</span>
+                                                 </label>
+                                                 <label class="checkbox-label">
+                                                     <input type="checkbox" name="dias_aula[]" value="Quinta-feira" {% if duplicate_data.dias_aula_unidades[i] and 'Quinta-feira' in duplicate_data.dias_aula_unidades[i] %}checked{% endif %}>
+                                                     <span>Quinta-feira</span>
+                                                 </label>
+                                                 <label class="checkbox-label">
+                                                     <input type="checkbox" name="dias_aula[]" value="Sexta-feira" {% if duplicate_data.dias_aula_unidades[i] and 'Sexta-feira' in duplicate_data.dias_aula_unidades[i] %}checked{% endif %}>
+                                                     <span>Sexta-feira</span>
+                                                 </label>
+                                                 <label class="checkbox-label">
+                                                     <input type="checkbox" name="dias_aula[]" value="Sábado" {% if duplicate_data.dias_aula_unidades[i] and 'Sábado' in duplicate_data.dias_aula_unidades[i] %}checked{% endif %}>
+                                                     <span>Sábado</span>
+                                                 </label>
+                                                 <label class="checkbox-label">
+                                                     <input type="checkbox" name="dias_aula[]" value="Domingo" {% if duplicate_data.dias_aula_unidades[i] and 'Domingo' in duplicate_data.dias_aula_unidades[i] %}checked{% endif %}>
+                                                     <span>Domingo</span>
+                                                 </label>
+                                             </div>
+                                         </div>
+                                         {% endfor %}
+                                         {% else %}
+                                         <!-- Primeira unidade padrão (quando não há duplicação) -->
+                                         <div class="unidade-item" data-unidade="0">
+                                             <label>Endereço da unidade*</label>
+                                             <input type="text" name="endereco_unidade[]" required>
+                                             <label>Bairro*</label>
+                                             <input type="text" name="bairro_unidade[]" required>
+                                             <label>Total de vagas*</label>
+                                             <input type="number" name="vagas_unidade[]" min="1" required>
+                                             
+                                             <label for="carga_horaria_unidade" class="required">Carga Horária</label>
+                                             <input type="text" id="carga_horaria_unidade" name="carga_horaria" required 
+                                                    placeholder="Digite a carga horária (ex: 40 horas, 80h, 2 meses, etc.)">
+                                             <small style="color: red; font-size: 0.9em; margin-top: 5px; display: block;">(Dê preferência a carga horária no formato de horas)</small>
+                                             
+                                             <div class="data-group">
+                                                 <div class="data-field">
+                                                     <label>Início das aulas*</label>
+                                                     <input type="date" name="inicio_aulas_data[]" value="{{ today_date }}" required>
+                                                 </div>
+                                                 <div class="data-field">
+                                                     <label>Fim das aulas*</label>
+                                                     <input type="date" name="fim_aulas_data[]" value="{{ today_date }}" required>
+                                                 </div>
+                                             </div>
+                                             
+                                             <div class="horario-group">
+                                                 <div class="horario-field">
+                                                     <label>Horário-Início*</label>
+                                                     <select name="horario_inicio[]" required>
+                                                         <option value="">Selecione o horário</option>
+                                                         <option value="06:00">06:00</option>
+                                                         <option value="07:00">07:00</option>
+                                                         <option value="08:00">08:00</option>
+                                                         <option value="09:00">09:00</option>
+                                                         <option value="10:00">10:00</option>
+                                                         <option value="11:00">11:00</option>
+                                                         <option value="12:00">12:00</option>
+                                                         <option value="13:00">13:00</option>
+                                                         <option value="14:00">14:00</option>
+                                                         <option value="15:00">15:00</option>
+                                                         <option value="16:00">16:00</option>
+                                                         <option value="17:00">17:00</option>
+                                                         <option value="18:00">18:00</option>
+                                                         <option value="19:00">19:00</option>
+                                                         <option value="20:00">20:00</option>
+                                                         <option value="21:00">21:00</option>
+                                                         <option value="22:00">22:00</option>
+                                                         <option value="23:00">23:00</option>
+                                                     </select>
+                                                 </div>
+                                                 <div class="horario-field">
+                                                     <label>Horário-Fim*</label>
+                                                     <select name="horario_fim[]" required>
+                                                         <option value="">Selecione o horário</option>
+                                                         <option value="06:00">06:00</option>
+                                                         <option value="07:00">07:00</option>
+                                                         <option value="08:00">08:00</option>
+                                                         <option value="09:00">09:00</option>
+                                                         <option value="10:00">10:00</option>
+                                                         <option value="11:00">11:00</option>
+                                                         <option value="12:00">12:00</option>
+                                                         <option value="13:00">13:00</option>
+                                                         <option value="14:00">14:00</option>
+                                                         <option value="15:00">15:00</option>
+                                                         <option value="16:00">16:00</option>
+                                                         <option value="17:00">17:00</option>
+                                                         <option value="18:00">18:00</option>
+                                                         <option value="19:00">19:00</option>
+                                                         <option value="20:00">20:00</option>
+                                                         <option value="21:00">21:00</option>
+                                                         <option value="22:00">22:00</option>
+                                                         <option value="23:00">23:00</option>
+                                                     </select>
+                                                 </div>
+                                             </div>
+                                             
+                                             <label>Dias de aula*</label>
+                                             <div class="checkbox-group dias-aula">
+                                                 <label class="checkbox-label">
+                                                     <input type="checkbox" name="dias_aula[]" value="Segunda-feira">
+                                                     <span>Segunda-feira</span>
+                                                 </label>
+                                                 <label class="checkbox-label">
+                                                     <input type="checkbox" name="dias_aula[]" value="Terça-feira">
+                                                     <span>Terça-feira</span>
+                                                 </label>
+                                                 <label class="checkbox-label">
+                                                     <input type="checkbox" name="dias_aula[]" value="Quarta-feira">
+                                                     <span>Quarta-feira</span>
+                                                 </label>
+                                                 <label class="checkbox-label">
+                                                     <input type="checkbox" name="dias_aula[]" value="Quinta-feira">
+                                                     <span>Quinta-feira</span>
+                                                 </label>
+                                                 <label class="checkbox-label">
+                                                     <input type="checkbox" name="dias_aula[]" value="Sexta-feira">
+                                                     <span>Sexta-feira</span>
+                                                 </label>
+                                                 <label class="checkbox-label">
+                                                     <input type="checkbox" name="dias_aula[]" value="Sábado">
+                                                     <span>Sábado</span>
+                                                 </label>
+                                                 <label class="checkbox-label">
+                                                     <input type="checkbox" name="dias_aula[]" value="Domingo">
+                                                     <span>Domingo</span>
+                                                 </label>
+                                             </div>
+                                         </div>
+                                         {% endif %}
+                                     </div>
+                                     
+                                     <button type="button" class="btn btn-outline add-unidade-btn">+ Adicionar outra unidade</button>
+                                 </fieldset>
+                             </div>

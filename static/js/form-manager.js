@@ -146,6 +146,10 @@ class FormManager {
         const unidadesContainer = document.getElementById('unidades_container');
         const plataformaContainer = document.getElementById('plataforma_container');
         
+        // Verificar se há dados de duplicação (unidades já renderizadas pelo servidor)
+        const unidadesList = document.getElementById('unidades_list');
+        const hasPreRenderedUnits = unidadesList && unidadesList.querySelectorAll('.unidade-item').length > 1;
+        
         if (modalidade === 'Presencial' || modalidade === 'Híbrido') {
             // Para Presencial e Híbrido: mostrar apenas unidades
             if (unidadesContainer) {
@@ -157,8 +161,10 @@ class FormManager {
                 this.setFieldsRequired(plataformaContainer, false);
             }
             
-            // Atualizar todas as unidades existentes
-            this.updateExistingUnits(modalidade);
+            // Só atualizar unidades existentes se não há unidades pré-renderizadas
+            if (!hasPreRenderedUnits) {
+                this.updateExistingUnits(modalidade);
+            }
         } else if (modalidade === 'Online') {
             // Para Online: mostrar apenas plataforma
             if (unidadesContainer) {

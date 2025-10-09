@@ -314,6 +314,12 @@
                     </a>
                     <span class="version">v2.0</span>
                 </div>
+                <div class="nav-section">
+                    <a href="{{ url_for('public_courses') }}" class="nav-link">
+                        <i class="fas fa-list"></i>
+                        Ver Cursos
+                    </a>
+                </div>
             </div>
         </header>
 
@@ -321,8 +327,17 @@
         <main class="main-content">
             <div class="form-container">
                 <div class="form-header">
+                    {% if duplicate_data %}
+                    <h2><i class="fas fa-copy"></i> Duplicar Curso</h2>
+                    <p class="form-description">Formulário pré-preenchido com dados do curso selecionado. Edite as informações necessárias.</p>
+                    <div class="duplicate-notice">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>Duplicando:</strong> {{ duplicate_data.titulo_original or 'Curso selecionado' }}
+                    </div>
+                    {% else %}
                     <h2><i class="fas fa-plus-circle"></i> Criar Novo Curso</h2>
                     <p class="form-description">Preencha as informações abaixo para criar um novo curso na plataforma</p>
+                    {% endif %}
                 </div>
 
                 <!-- Flash Messages -->
@@ -355,13 +370,20 @@
                             <div class="form-group full-width">
                                 <label for="titulo" class="required">Nome do Curso</label>
                                 <input type="text" id="titulo" name="titulo" required 
-                                       placeholder="Digite o título do curso">
+                                       placeholder="Digite o título do curso"
+                                       value="{{ duplicate_data.titulo if duplicate_data else '' }}">
+                                {% if duplicate_data and duplicate_data.titulo_original %}
+                                <small class="form-help">
+                                    <i class="fas fa-info-circle"></i>
+                                    {{ duplicate_data.titulo_original }}
+                                </small>
+                                {% endif %}
                             </div>
                             
                             <div class="form-group full-width">
                                 <label for="descricao" class="required">Descrição</label>
                                 <textarea id="descricao" name="descricao" rows="6" required
-                                          placeholder="Digite a descrição do curso"></textarea>
+                                          placeholder="Digite a descrição do curso">{{ duplicate_data.descricao_original if duplicate_data else '' }}</textarea>
                             </div>
                             
                             <div class="form-group full-width">
@@ -404,7 +426,10 @@
                                  <select id="orgao" name="orgao" required>
                                      <option value="">Selecione um órgão</option>
                                      {% for orgao in orgaos %}
-                                         <option value="{{ orgao }}">{{ orgao }}</option>
+                                         <option value="{{ orgao }}" 
+                                                 {% if duplicate_data and duplicate_data.orgao == orgao %}selected{% endif %}>
+                                             {{ orgao }}
+                                         </option>
                                      {% endfor %}
                                  </select>
                              </div>
@@ -449,13 +474,114 @@
                              </div>
                              
                              <!-- Subformulário para Presencial/Híbrido -->
-                             <div class="form-group full-width" id="unidades_container" style="display:none;">
+                             <div class="form-group full-width" id="unidades_container" style="display:{% if duplicate_data and (duplicate_data.modalidade|lower == 'presencial' or duplicate_data.modalidade|lower == 'híbrido') %}block{% else %}none{% endif %};">
                                  <fieldset class="unidade-fieldset">
-                                     <legend>Informações da Unidade 1 <button type="button" class="remove-unidade-btn" onclick="removeUnidade(this)" style="display:none;">×</button></legend>
+                                     <legend>Informações das Unidades <button type="button" class="remove-unidade-btn" onclick="removeUnidade(this)" style="display:none;">×</button></legend>
                                      
                                      <!-- Container para múltiplas unidades -->
                                      <div id="unidades_list">
-                                         <!-- Primeira unidade (sempre presente) -->
+                                         {% if duplicate_data and duplicate_data.enderecos_unidades %}
+                                         <!-- Renderizar unidades existentes na duplicação -->
+                                         {% for i in range(duplicate_data.enderecos_unidades|length) %}
+                                         <div class="unidade-item" data-unidade="{{ i }}">
+                                             <div class="unidade-header">
+                                                 <h4>Unidade {{ i + 1 }}</h4>
+                                                 {% if i > 0 %}
+                                                 <button type="button" class="btn-remove-unidade" onclick="removeUnidade({{ i }})">
+                                                     <i class="fas fa-trash"></i> Remover Unidade
+                                                 </button>
+                                                 {% endif %}
+                                             </div>
+                                             <label>Endereço da unidade*</label>
+                                             <input type="text" name="endereco_unidade[]" required value="{{ duplicate_data.enderecos_unidades[i] if i < duplicate_data.enderecos_unidades|length else '' }}">
+                                             <label>Bairro*</label>
+                                             <input type="text" name="bairro_unidade[]" required value="{{ duplicate_data.bairros_unidades[i] if i < duplicate_data.bairros_unidades|length else '' }}">
+                                             <label>Total de vagas*</label>
+                                             <input type="number" name="vagas_unidade[]" min="1" required value="{{ duplicate_data.vagas_unidades[i] if i < duplicate_data.vagas_unidades|length else '' }}">
+                                             
+                                             <label for="carga_horaria_unidade_{{ i }}" class="required">Carga Horária</label>
+                                             <input type="text" id="carga_horaria_unidade_{{ i }}" name="carga_horaria" required 
+                                                    placeholder="Digite a carga horária (ex: 40 horas, 80h, 2 meses, etc.)" 
+                                                    value="{{ duplicate_data.carga_horaria if i == 0 else '' }}">
+                                             <small style="color: red; font-size: 0.9em; margin-top: 5px; display: block;">(Dê preferência a carga horária no formato de horas)</small>
+                                             
+                                             <div class="data-group">
+                                                 <div class="data-field">
+                                                     <label>Início das aulas*</label>
+                                                     <input type="date" name="inicio_aulas_data[]" required value="{{ duplicate_data.inicio_aulas_unidades[i] if i < duplicate_data.inicio_aulas_unidades|length else today_date }}">
+                                                 </div>
+                                                 <div class="data-field">
+                                                     <label>Fim das aulas*</label>
+                                                     <input type="date" name="fim_aulas_data[]" required value="{{ duplicate_data.fim_aulas_unidades[i] if i < duplicate_data.fim_aulas_unidades|length else today_date }}">
+                                                 </div>
+                                             </div>
+                                             
+                                             <div class="horario-group">
+                                                 <div class="horario-field">
+                                                     <label>Horário-Início*</label>
+                                                     <select name="horario_inicio[]" required>
+                                                         <option value="">Selecione o horário</option>
+                                                         <option value="06:00" {% if duplicate_data.horario_inicio_unidades[i] == '06:00' %}selected{% endif %}>06:00</option>
+                                                         <option value="07:00" {% if duplicate_data.horario_inicio_unidades[i] == '07:00' %}selected{% endif %}>07:00</option>
+                                                         <option value="08:00" {% if duplicate_data.horario_inicio_unidades[i] == '08:00' %}selected{% endif %}>08:00</option>
+                                                         <option value="09:00" {% if duplicate_data.horario_inicio_unidades[i] == '09:00' %}selected{% endif %}>09:00</option>
+                                                         <option value="10:00" {% if duplicate_data.horario_inicio_unidades[i] == '10:00' %}selected{% endif %}>10:00</option>
+                                                         <option value="11:00" {% if duplicate_data.horario_inicio_unidades[i] == '11:00' %}selected{% endif %}>11:00</option>
+                                                         <option value="12:00" {% if duplicate_data.horario_inicio_unidades[i] == '12:00' %}selected{% endif %}>12:00</option>
+                                                         <option value="13:00" {% if duplicate_data.horario_inicio_unidades[i] == '13:00' %}selected{% endif %}>13:00</option>
+                                                         <option value="14:00" {% if duplicate_data.horario_inicio_unidades[i] == '14:00' %}selected{% endif %}>14:00</option>
+                                                         <option value="15:00" {% if duplicate_data.horario_inicio_unidades[i] == '15:00' %}selected{% endif %}>15:00</option>
+                                                         <option value="16:00" {% if duplicate_data.horario_inicio_unidades[i] == '16:00' %}selected{% endif %}>16:00</option>
+                                                         <option value="17:00" {% if duplicate_data.horario_inicio_unidades[i] == '17:00' %}selected{% endif %}>17:00</option>
+                                                         <option value="18:00" {% if duplicate_data.horario_inicio_unidades[i] == '18:00' %}selected{% endif %}>18:00</option>
+                                                         <option value="19:00" {% if duplicate_data.horario_inicio_unidades[i] == '19:00' %}selected{% endif %}>19:00</option>
+                                                         <option value="20:00" {% if duplicate_data.horario_inicio_unidades[i] == '20:00' %}selected{% endif %}>20:00</option>
+                                                         <option value="21:00" {% if duplicate_data.horario_inicio_unidades[i] == '21:00' %}selected{% endif %}>21:00</option>
+                                                         <option value="22:00" {% if duplicate_data.horario_inicio_unidades[i] == '22:00' %}selected{% endif %}>22:00</option>
+                                                         <option value="23:00" {% if duplicate_data.horario_inicio_unidades[i] == '23:00' %}selected{% endif %}>23:00</option>
+                                                     </select>
+                                                 </div>
+                                                 <div class="horario-field">
+                                                     <label>Horário-Fim*</label>
+                                                     <select name="horario_fim[]" required>
+                                                         <option value="">Selecione o horário</option>
+                                                         <option value="06:00" {% if duplicate_data.horario_fim_unidades[i] == '06:00' %}selected{% endif %}>06:00</option>
+                                                         <option value="07:00" {% if duplicate_data.horario_fim_unidades[i] == '07:00' %}selected{% endif %}>07:00</option>
+                                                         <option value="08:00" {% if duplicate_data.horario_fim_unidades[i] == '08:00' %}selected{% endif %}>08:00</option>
+                                                         <option value="09:00" {% if duplicate_data.horario_fim_unidades[i] == '09:00' %}selected{% endif %}>09:00</option>
+                                                         <option value="10:00" {% if duplicate_data.horario_fim_unidades[i] == '10:00' %}selected{% endif %}>10:00</option>
+                                                         <option value="11:00" {% if duplicate_data.horario_fim_unidades[i] == '11:00' %}selected{% endif %}>11:00</option>
+                                                         <option value="12:00" {% if duplicate_data.horario_fim_unidades[i] == '12:00' %}selected{% endif %}>12:00</option>
+                                                         <option value="13:00" {% if duplicate_data.horario_fim_unidades[i] == '13:00' %}selected{% endif %}>13:00</option>
+                                                         <option value="14:00" {% if duplicate_data.horario_fim_unidades[i] == '14:00' %}selected{% endif %}>14:00</option>
+                                                         <option value="15:00" {% if duplicate_data.horario_fim_unidades[i] == '15:00' %}selected{% endif %}>15:00</option>
+                                                         <option value="16:00" {% if duplicate_data.horario_fim_unidades[i] == '16:00' %}selected{% endif %}>16:00</option>
+                                                         <option value="17:00" {% if duplicate_data.horario_fim_unidades[i] == '17:00' %}selected{% endif %}>17:00</option>
+                                                         <option value="18:00" {% if duplicate_data.horario_fim_unidades[i] == '18:00' %}selected{% endif %}>18:00</option>
+                                                         <option value="19:00" {% if duplicate_data.horario_fim_unidades[i] == '19:00' %}selected{% endif %}>19:00</option>
+                                                         <option value="20:00" {% if duplicate_data.horario_fim_unidades[i] == '20:00' %}selected{% endif %}>20:00</option>
+                                                         <option value="21:00" {% if duplicate_data.horario_fim_unidades[i] == '21:00' %}selected{% endif %}>21:00</option>
+                                                         <option value="22:00" {% if duplicate_data.horario_fim_unidades[i] == '22:00' %}selected{% endif %}>22:00</option>
+                                                         <option value="23:00" {% if duplicate_data.horario_fim_unidades[i] == '23:00' %}selected{% endif %}>23:00</option>
+                                                     </select>
+                                                 </div>
+                                             </div>
+                                             
+                                             <label>Dias da semana*</label>
+                                             <select name="dias_aula[]" required>
+                                                 <option value="">Selecione os dias</option>
+                                                 <option value="Segunda-feira" {% if duplicate_data.dias_aula_unidades[i] == 'Segunda-feira' %}selected{% endif %}>Segunda-feira</option>
+                                                 <option value="Terça-feira" {% if duplicate_data.dias_aula_unidades[i] == 'Terça-feira' %}selected{% endif %}>Terça-feira</option>
+                                                 <option value="Quarta-feira" {% if duplicate_data.dias_aula_unidades[i] == 'Quarta-feira' %}selected{% endif %}>Quarta-feira</option>
+                                                 <option value="Quinta-feira" {% if duplicate_data.dias_aula_unidades[i] == 'Quinta-feira' %}selected{% endif %}>Quinta-feira</option>
+                                                 <option value="Sexta-feira" {% if duplicate_data.dias_aula_unidades[i] == 'Sexta-feira' %}selected{% endif %}>Sexta-feira</option>
+                                                 <option value="Sábado" {% if duplicate_data.dias_aula_unidades[i] == 'Sábado' %}selected{% endif %}>Sábado</option>
+                                                 <option value="Domingo" {% if duplicate_data.dias_aula_unidades[i] == 'Domingo' %}selected{% endif %}>Domingo</option>
+                                             </select>
+                                         </div>
+                                         {% endfor %}
+                                         {% else %}
+                                         <!-- Primeira unidade padrão (quando não há duplicação) -->
                                          <div class="unidade-item" data-unidade="0">
                                              <label>Endereço da unidade*</label>
                                              <input type="text" name="endereco_unidade[]" required>
@@ -463,6 +589,7 @@
                                              <input type="text" name="bairro_unidade[]" required>
                                              <label>Total de vagas*</label>
                                              <input type="number" name="vagas_unidade[]" min="1" required>
+                                         {% endif %}
                                              
                                              <label for="carga_horaria_unidade" class="required">Carga Horária</label>
                                              <input type="text" id="carga_horaria_unidade" name="carga_horaria" required 
@@ -724,10 +851,12 @@
                                  <label class="required">O curso é gratuito?</label>
                                  <div class="radio-group">
                                      <label class="radio-label">
-                                         <input type="radio" name="curso_gratuito" value="sim" required onclick="toggleValorCurso(false)"> SIM
+                                         <input type="radio" name="curso_gratuito" value="sim" required onclick="toggleValorCurso(false)" 
+                                                {% if duplicate_data and duplicate_data.curso_gratuito == 'sim' %}checked{% endif %}> SIM
                                      </label>
                                      <label class="radio-label">
-                                         <input type="radio" name="curso_gratuito" value="nao" required onclick="toggleValorCurso(true)"> NÃO
+                                         <input type="radio" name="curso_gratuito" value="nao" required onclick="toggleValorCurso(true)"
+                                                {% if duplicate_data and duplicate_data.curso_gratuito == 'nao' %}checked{% endif %}> NÃO
                                      </label>
                                  </div>
                              </div>
@@ -1673,4 +1802,341 @@
      <script src="{{ url_for('static', filename='js/form-validator.js') }}"></script>
      <script src="{{ url_for('static', filename='js/form-manager.js') }}"></script>
      <script src="{{ url_for('static', filename='js/image-resizer.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>   
+    
+    {% if duplicate_data %}
+    <script>
+        // JAVASCRIPT DE DUPLICAÇÃO DESABILITADO PARA TESTE
+        // Script para pré-preencher campos na duplicação
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🔄 JavaScript de duplicação DESABILITADO para teste');
+            
+            // Dados de duplicação do servidor
+            const duplicateData = {{ duplicate_data | tojson | safe }};
+            
+            // DESABILITADO - Pré-preencher modalidade (sem disparar evento change que interfere com unidades)
+            // if (duplicateData.modalidade) {
+            //     const modalidadeSelect = document.getElementById('modalidade');
+            //     if (modalidadeSelect) {
+            //         modalidadeSelect.value = duplicateData.modalidade;
+            //         // NÃO disparar evento change para não interferir com unidades pré-renderizadas
+            //         // modalidadeSelect.dispatchEvent(new Event('change'));
+            //     }
+            // }
+            
+            // Aguardar um pouco para os campos condicionais carregarem
+            setTimeout(function() {
+                // Pré-preencher campos específicos da modalidade
+                if (duplicateData.modalidade === 'presencial' || duplicateData.modalidade === 'hibrido') {
+                    preencherCamposPresencial(duplicateData);
+                }
+                
+                if (duplicateData.modalidade === 'online' || duplicateData.modalidade === 'hibrido') {
+                    preencherCamposOnline(duplicateData);
+                }
+                
+                // Pré-preencher campos comuns
+                preencherCamposComuns(duplicateData);
+                
+                console.log('✅ Dados de duplicação carregados com sucesso');
+            }, 500);
+        });
+        
+        function preencherCamposPresencial(data) {
+            // Pré-preencher localidades se existirem
+            if (data.nome_unidade) {
+                const unidades = data.nome_unidade.split('|');
+                const enderecos = data.endereco_unidade ? data.endereco_unidade.split('|') : [];
+                const bairros = data.bairro_unidade ? data.bairro_unidade.split('|') : [];
+                const vagas = data.vagas_unidade ? data.vagas_unidade.split('|') : [];
+                const inicioAulas = data.inicio_aulas_data ? data.inicio_aulas_data.split('|') : [];
+                const fimAulas = data.fim_aulas_data ? data.fim_aulas_data.split('|') : [];
+                const horarioInicio = data.horario_inicio ? data.horario_inicio.split('|') : [];
+                const horarioFim = data.horario_fim ? data.horario_fim.split('|') : [];
+                const diasAula = data.dias_aula ? data.dias_aula.split('|') : [];
+                
+                console.log('📍 Preenchendo', unidades.length, 'unidades');
+                
+                // Primeiro, criar todas as unidades necessárias
+                for (let i = 1; i < unidades.length; i++) {
+                    const addButton = document.querySelector('.add-location-btn');
+                    if (addButton) {
+                        console.log('➕ Adicionando unidade', i + 1);
+                        addButton.click();
+                    }
+                }
+                
+                // Aguardar um pouco para as unidades serem criadas, então preencher
+                setTimeout(function() {
+                    for (let i = 0; i < unidades.length; i++) {
+                        console.log('📝 Preenchendo unidade', i + 1, ':', unidades[i]);
+                        
+                        const enderecoInputs = document.querySelectorAll('input[name="endereco_unidade[]"]');
+                        const bairroInputs = document.querySelectorAll('input[name="bairro_unidade[]"]');
+                        const vagasInputs = document.querySelectorAll('input[name="vagas_unidade[]"]');
+                        const inicioInputs = document.querySelectorAll('input[name="inicio_aulas_data[]"]');
+                        const fimInputs = document.querySelectorAll('input[name="fim_aulas_data[]"]');
+                        const horarioInicioSelects = document.querySelectorAll('select[name="horario_inicio[]"]');
+                        const horarioFimSelects = document.querySelectorAll('select[name="horario_fim[]"]');
+                        const diasAulaSelects = document.querySelectorAll('select[name="dias_aula[]"]');
+                        
+                        // Preencher campos básicos
+                        if (enderecoInputs[i]) enderecoInputs[i].value = enderecos[i] || '';
+                        if (bairroInputs[i]) bairroInputs[i].value = bairros[i] || '';
+                        if (vagasInputs[i]) vagasInputs[i].value = vagas[i] || '';
+                        
+                        // Preencher datas (converter formato se necessário)
+                        if (inicioInputs[i] && inicioAulas[i]) {
+                            const dataInicio = converterDataParaInput(inicioAulas[i]);
+                            inicioInputs[i].value = dataInicio;
+                        }
+                        if (fimInputs[i] && fimAulas[i]) {
+                            const dataFim = converterDataParaInput(fimAulas[i]);
+                            fimInputs[i].value = dataFim;
+                        }
+                        
+                        // Preencher horários
+                        if (horarioInicioSelects[i] && horarioInicio[i]) {
+                            horarioInicioSelects[i].value = horarioInicio[i];
+                        }
+                        if (horarioFimSelects[i] && horarioFim[i]) {
+                            horarioFimSelects[i].value = horarioFim[i];
+                        }
+                        
+                        // Preencher dias da semana
+                        if (diasAulaSelects[i] && diasAula[i]) {
+                            diasAulaSelects[i].value = diasAula[i];
+                        }
+                    }
+                    
+                    console.log('✅ Todas as unidades preenchidas');
+                }, 1000); // Aguardar mais tempo para garantir que todas as unidades foram criadas
+            }
+        }
+        
+        function converterDataParaInput(dataString) {
+            // Converter data do formato DD/MM/YYYY ou YYYY-MM-DD para YYYY-MM-DD
+            if (!dataString) return '';
+            
+            // Se já está no formato correto (YYYY-MM-DD)
+            if (dataString.match(/^\d{4}-\d{2}-\d{2}$/)) {
+                return dataString;
+            }
+            
+            // Se está no formato DD/MM/YYYY
+            if (dataString.match(/^\d{2}\/\d{2}\/\d{4}$/)) {
+                const [dia, mes, ano] = dataString.split('/');
+                return `${ano}-${mes}-${dia}`;
+            }
+            
+            return dataString;
+        }
+        
+        function preencherCamposOnline(data) {
+            console.log('💻 Preenchendo campos online...');
+            
+            setTimeout(function() {
+                // Plataforma digital
+                if (data.plataforma_digital) {
+                    const plataformaInput = document.getElementById('plataforma_digital');
+                    if (plataformaInput) {
+                        plataformaInput.value = data.plataforma_digital;
+                        console.log('✓ Plataforma digital:', data.plataforma_digital);
+                    }
+                }
+                
+                // Aulas assíncronas
+                if (data.aulas_assincronas) {
+                    const assincrono = document.getElementById('aulas_assincronas');
+                    if (assincrono) {
+                        assincrono.value = data.aulas_assincronas;
+                        assincrono.dispatchEvent(new Event('change'));
+                        console.log('✓ Aulas assíncronas:', data.aulas_assincronas);
+                        
+                        // Se for "não", preencher campos de horário online
+                        if (data.aulas_assincronas === 'nao') {
+                            setTimeout(function() {
+                                // Preencher horários online se existirem
+                                if (data.horario_inicio) {
+                                    const horarioInicioOnline = document.getElementById('horario_inicio_online');
+                                    if (horarioInicioOnline) {
+                                        horarioInicioOnline.value = data.horario_inicio;
+                                        console.log('✓ Horário início online:', data.horario_inicio);
+                                    }
+                                }
+                                
+                                if (data.horario_fim) {
+                                    const horarioFimOnline = document.getElementById('horario_fim_online');
+                                    if (horarioFimOnline) {
+                                        horarioFimOnline.value = data.horario_fim;
+                                        console.log('✓ Horário fim online:', data.horario_fim);
+                                    }
+                                }
+                                
+                                if (data.dias_aula) {
+                                    const diasAulaOnline = document.getElementById('dias_aula_online');
+                                    if (diasAulaOnline) {
+                                        diasAulaOnline.value = data.dias_aula;
+                                        console.log('✓ Dias aula online:', data.dias_aula);
+                                    }
+                                }
+                                
+                                // Datas de aulas online
+                                if (data.inicio_aulas_data) {
+                                    const inicioAulasOnline = document.getElementById('inicio_aulas_data_online');
+                                    if (inicioAulasOnline) {
+                                        const dataInicio = converterDataParaInput(data.inicio_aulas_data);
+                                        inicioAulasOnline.value = dataInicio;
+                                        console.log('✓ Início aulas online:', dataInicio);
+                                    }
+                                }
+                                
+                                if (data.fim_aulas_data) {
+                                    const fimAulasOnline = document.getElementById('fim_aulas_data_online');
+                                    if (fimAulasOnline) {
+                                        const dataFim = converterDataParaInput(data.fim_aulas_data);
+                                        fimAulasOnline.value = dataFim;
+                                        console.log('✓ Fim aulas online:', dataFim);
+                                    }
+                                }
+                            }, 300);
+                        }
+                    }
+                }
+                
+                console.log('✅ Campos online preenchidos');
+            }, 200);
+        }
+        
+        function preencherCamposComuns(data) {
+            console.log('🔧 Preenchendo campos comuns...');
+            
+            // Campos de valores - curso gratuito
+            if (data.curso_gratuito) {
+                const gratuito = document.getElementById('curso_gratuito');
+                if (gratuito) {
+                    gratuito.value = data.curso_gratuito;
+                    gratuito.dispatchEvent(new Event('change'));
+                }
+            }
+            
+            // Outros campos simples
+            const camposSimples = [
+                'carga_horaria', 'publico_alvo', 'acessibilidade', 
+                'oferece_certificado', 'info_complementares', 'parceiro_externo',
+                'oferece_bolsa'
+            ];
+            
+            setTimeout(function() {
+                camposSimples.forEach(campo => {
+                    if (data[campo]) {
+                        const elemento = document.getElementById(campo);
+                        if (elemento) {
+                            elemento.value = data[campo];
+                            elemento.dispatchEvent(new Event('change'));
+                            console.log('✓ Campo preenchido:', campo, '=', data[campo]);
+                        }
+                    }
+                });
+                
+                // Aguardar campos condicionais carregarem
+                setTimeout(function() {
+                    // Campos condicionais de parceiro
+                    if (data.parceiro_externo === 'sim') {
+                        if (data.parceiro_nome) {
+                            const nomeInput = document.getElementById('parceiro_nome');
+                            if (nomeInput) {
+                                nomeInput.value = data.parceiro_nome;
+                                console.log('✓ Parceiro nome:', data.parceiro_nome);
+                            }
+                        }
+                        if (data.parceiro_link) {
+                            const linkInput = document.getElementById('parceiro_link');
+                            if (linkInput) {
+                                linkInput.value = data.parceiro_link;
+                                console.log('✓ Parceiro link:', data.parceiro_link);
+                            }
+                        }
+                    }
+                    
+                    // Campos condicionais de acessibilidade
+                    if (data.acessibilidade === 'acessivel' || data.acessibilidade === 'exclusivo') {
+                        if (data.recursos_acessibilidade) {
+                            const recursosInput = document.getElementById('recursos_acessibilidade');
+                            if (recursosInput) {
+                                recursosInput.value = data.recursos_acessibilidade;
+                                console.log('✓ Recursos acessibilidade preenchidos');
+                            }
+                        }
+                    }
+                    
+                    // Campos condicionais de certificado
+                    if (data.oferece_certificado === 'sim') {
+                        if (data.pre_requisitos) {
+                            const preRequisitosInput = document.getElementById('pre_requisitos');
+                            if (preRequisitosInput) {
+                                preRequisitosInput.value = data.pre_requisitos;
+                                console.log('✓ Pré-requisitos preenchidos');
+                            }
+                        }
+                    }
+                    
+                    // Campos condicionais de bolsa
+                    if (data.oferece_bolsa === 'sim') {
+                        if (data.valor_bolsa) {
+                            const valorBolsaInput = document.getElementById('valor_bolsa');
+                            if (valorBolsaInput) {
+                                valorBolsaInput.value = data.valor_bolsa;
+                                console.log('✓ Valor bolsa preenchido');
+                            }
+                        }
+                        if (data.requisitos_bolsa) {
+                            const requisitosBolsaInput = document.getElementById('requisitos_bolsa');
+                            if (requisitosBolsaInput) {
+                                requisitosBolsaInput.value = data.requisitos_bolsa;
+                                console.log('✓ Requisitos bolsa preenchidos');
+                            }
+                        }
+                    }
+                    
+                    // Campos condicionais de curso pago
+                    if (data.curso_gratuito === 'nao') {
+                        if (data.valor_curso) {
+                            const valorCursoInput = document.getElementById('valor_curso');
+                            if (valorCursoInput) {
+                                valorCursoInput.value = data.valor_curso;
+                                console.log('✓ Valor curso preenchido');
+                            }
+                        }
+                        if (data.valor_curso_inteira) {
+                            const valorInteiraInput = document.getElementById('valor_curso_inteira');
+                            if (valorInteiraInput) {
+                                valorInteiraInput.value = data.valor_curso_inteira;
+                                console.log('✓ Valor inteira preenchido');
+                            }
+                        }
+                        if (data.valor_curso_meia) {
+                            const valorMeiaInput = document.getElementById('valor_curso_meia');
+                            if (valorMeiaInput) {
+                                valorMeiaInput.value = data.valor_curso_meia;
+                                console.log('✓ Valor meia preenchido');
+                            }
+                        }
+                        if (data.requisitos_meia) {
+                            const requisitosMeiaInput = document.getElementById('requisitos_meia');
+                            if (requisitosMeiaInput) {
+                                requisitosMeiaInput.value = data.requisitos_meia;
+                                console.log('✓ Requisitos meia preenchidos');
+                            }
+                        }
+                    }
+                    
+                    console.log('✅ Campos comuns preenchidos completamente');
+                }, 600);
+            }, 400);
+        }
+    </script>
+    {% endif %}
+        </script>
+    </body>
+</html>
