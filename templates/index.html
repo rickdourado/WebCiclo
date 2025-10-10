@@ -2368,17 +2368,28 @@
             console.log('🔧 Script de debug carregado');
             console.log('Formulário encontrado:', !!form);
             console.log('Botão submit encontrado:', !!submitBtn);
+            console.log('Loading manager disponível:', !!window.loadingManager);
 
             if (form && submitBtn) {
-                // Adicionar listener direto no botão
-                submitBtn.addEventListener('click', function (e) {
+                // Verificar se já tem listener para evitar duplicação
+                if (!submitBtn.hasAttribute('data-debug-listener')) {
+                    submitBtn.setAttribute('data-debug-listener', 'true');
+                    
+                    // Adicionar listener direto no botão
+                    submitBtn.addEventListener('click', function (e) {
                     console.log('🚀 Botão clicado!');
 
                     // Verificar se o formulário é válido usando HTML5 validation
                     if (form.checkValidity()) {
                         console.log('✅ Formulário válido, permitindo envio...');
 
-                        // Mostrar loading
+                        // Mostrar loading overlay
+                        if (window.loadingManager) {
+                            window.loadingManager.show();
+                            console.log('🔄 Loading overlay ativado');
+                        }
+
+                        // Mostrar loading no botão também
                         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Criando Curso...';
                         submitBtn.disabled = true;
 
@@ -2398,12 +2409,19 @@
                         alert('Por favor, preencha todos os campos obrigatórios.');
                         return false;
                     }
-                });
+                    });
+                }
 
-                // Listener adicional no formulário
+                // Listener adicional no formulário como fallback
                 form.addEventListener('submit', function (e) {
                     console.log('📝 Evento submit disparado no formulário');
                     console.log('Formulário válido:', form.checkValidity());
+                    
+                    // Fallback: garantir que loading apareça mesmo se o listener do botão falhar
+                    if (form.checkValidity() && window.loadingManager) {
+                        window.loadingManager.show();
+                        console.log('🔄 Loading overlay ativado via fallback');
+                    }
 
                     // Log dos dados do formulário
                     const formData = new FormData(form);
