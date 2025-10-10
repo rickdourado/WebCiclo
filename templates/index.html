@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,7 +9,71 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
+            // FORÇAR RESET DO CAMPO MODALIDADE NA PÁGINA PRINCIPAL
+            function resetModalidadeField() {
+                // Reset do campo modalidade
+                const modalidadeSelect = document.getElementById('modalidade');
+                if (modalidadeSelect) {
+                    // Forçar seleção da opção padrão (vazia)
+                    modalidadeSelect.selectedIndex = 0;
+                    modalidadeSelect.value = '';
+
+                    // Garantir que os containers de unidades/plataforma estejam ocultos
+                    const unidadesContainer = document.getElementById('unidades_container');
+                    const plataformaContainer = document.getElementById('plataforma_container');
+
+                    if (unidadesContainer) {
+                        unidadesContainer.style.display = 'none';
+                    }
+                    if (plataformaContainer) {
+                        plataformaContainer.style.display = 'none';
+                    }
+
+                    // Chamar toggleUnidades para garantir que os containers estejam ocultos
+                    if (typeof toggleUnidades === 'function') {
+                        toggleUnidades();
+                    }
+
+                    console.log('🔄 Campo modalidade resetado para forçar nova seleção');
+                }
+
+                // Reset do campo acessibilidade
+                const acessibilidadeSelect = document.getElementById('acessibilidade');
+                if (acessibilidadeSelect) {
+                    // Forçar seleção da opção padrão (vazia)
+                    acessibilidadeSelect.selectedIndex = 0;
+                    acessibilidadeSelect.value = '';
+
+                    // Garantir que o container de recursos de acessibilidade esteja oculto
+                    const recursosContainer = document.getElementById('recursos_acessibilidade_container');
+                    if (recursosContainer) {
+                        recursosContainer.style.display = 'none';
+                    }
+
+                    // Chamar toggleRecursosAcessibilidade para garantir que o container esteja oculto
+                    if (typeof toggleRecursosAcessibilidade === 'function') {
+                        toggleRecursosAcessibilidade();
+                    }
+
+                    console.log('🔄 Campo acessibilidade resetado para forçar nova seleção');
+                }
+            }
+
+            // Executar reset imediatamente
+            resetModalidadeField();
+
+            // Executar reset novamente após um pequeno delay para garantir
+            setTimeout(resetModalidadeField, 100);
+
+            // Adicionar listener para quando a página é carregada do cache (back/forward)
+            window.addEventListener('pageshow', function (event) {
+                if (event.persisted) {
+                    console.log('🔄 Página carregada do cache, resetando modalidade...');
+                    resetModalidadeField();
+                }
+            });
+
             // Definir a data atual como valor padrão para os campos de data
             function setDataAtual() {
                 const hoje = new Date();
@@ -16,16 +81,16 @@
                 const mes = String(hoje.getMonth() + 1).padStart(2, '0');
                 const dia = String(hoje.getDate()).padStart(2, '0');
                 const dataAtual = `${ano}-${mes}-${dia}`;
-                
+
                 document.getElementById('inicio_inscricoes_data').value = dataAtual;
                 document.getElementById('fim_inscricoes_data').value = dataAtual;
             }
-            
+
             // Função para formatar datas no formato brasileiro
             function formatarDataBrasileira() {
                 const camposData = document.querySelectorAll('input[type="date"]');
                 camposData.forEach(campo => {
-                    campo.addEventListener('change', function() {
+                    campo.addEventListener('change', function () {
                         if (this.value) {
                             const [ano, mes, dia] = this.value.split('-');
                             const dataFormatada = `${dia}/${mes}/${ano}`;
@@ -41,7 +106,7 @@
                     }
                 });
             }
-            
+
             // Função para limpar todos os campos do formulário, exceto campos de data
             function limparFormulario() {
                 // Limpar campos de texto
@@ -49,19 +114,19 @@
                 camposTexto.forEach(campo => {
                     campo.value = '';
                 });
-                
+
                 // Limpar campos de número
                 const camposNumero = document.querySelectorAll('input[type="number"]');
                 camposNumero.forEach(campo => {
                     campo.value = '';
                 });
-                
+
                 // Limpar campos de tempo
                 const camposTempo = document.querySelectorAll('input[type="time"]');
                 camposTempo.forEach(campo => {
                     campo.value = '';
                 });
-                
+
                 // Limpar selects (exceto campos de data que já têm valores padrão)
                 const selects = document.querySelectorAll('select');
                 selects.forEach(select => {
@@ -70,37 +135,37 @@
                         select.selectedIndex = 0;
                     }
                 });
-                
+
                 // Limpar checkboxes
                 const checkboxes = document.querySelectorAll('input[type="checkbox"]');
                 checkboxes.forEach(checkbox => {
                     checkbox.checked = false;
                 });
-                
+
                 // Limpar radio buttons
                 const radioButtons = document.querySelectorAll('input[type="radio"]');
                 radioButtons.forEach(radio => {
                     radio.checked = false;
                 });
-                
+
                 // Limpar campos de arquivo
                 const camposArquivo = document.querySelectorAll('input[type="file"]');
                 camposArquivo.forEach(campo => {
                     campo.value = '';
                 });
-                
+
                 // Remover unidades adicionais (manter apenas a primeira)
                 const unidadesAdicionais = document.querySelectorAll('.unidade-item:not(:first-child)');
                 unidadesAdicionais.forEach(unidade => {
                     unidade.remove();
                 });
-                
+
                 // Remover plataformas adicionais (manter apenas a primeira)
                 const plataformasAdicionais = document.querySelectorAll('.plataforma-item:not(:first-child)');
                 plataformasAdicionais.forEach(plataforma => {
                     plataforma.remove();
                 });
-                
+
                 // Resetar contadores de unidades e plataformas
                 if (window.formManager) {
                     window.formManager.unidades = 1;
@@ -108,25 +173,25 @@
                     window.formManager.updateRemoveButtonsVisibility();
                     window.formManager.updateRemovePlataformaButtonsVisibility();
                 }
-                
+
                 // Limpar mensagens de erro visuais
                 const camposComErro = document.querySelectorAll('.campo-erro');
                 camposComErro.forEach(campo => {
                     campo.classList.remove('campo-erro');
                 });
-                
+
                 // Limpar tooltips de validação
                 const tooltips = document.querySelectorAll('[title*="Data:"]');
                 tooltips.forEach(tooltip => {
                     tooltip.removeAttribute('title');
                 });
-                
+
                 // Limpar campos específicos de modalidades (forçar limpeza)
                 limparCamposModalidade();
-                
+
                 console.log('Formulário limpo com sucesso!');
             }
-            
+
             // Função para limpar campos específicos de modalidades
             function limparCamposModalidade() {
                 // Campos que devem ser limpos independente da modalidade
@@ -139,11 +204,11 @@
                     'select[name="horario_inicio[]"]',
                     'select[name="horario_fim[]"]'
                 ];
-                
+
                 const camposOnline = [
                     'input[name="plataforma_digital"]'
                 ];
-                
+
                 // Limpar todos os campos de modalidade
                 [...camposPresencial, ...camposOnline].forEach(seletor => {
                     const campos = document.querySelectorAll(seletor);
@@ -155,16 +220,16 @@
                         }
                     });
                 });
-                
+
                 // Limpar checkboxes de dias da semana
                 const diasCheckboxes = document.querySelectorAll('input[name="dias_aula[]"]');
                 diasCheckboxes.forEach(checkbox => {
                     checkbox.checked = false;
                 });
-                
+
                 console.log('Campos de modalidade limpos com sucesso!');
             }
-            
+
             // Função para limpar campos baseada na modalidade selecionada
             function limparCamposPorModalidade(modalidade) {
                 if (modalidade === 'Online') {
@@ -175,14 +240,14 @@
                         'input[name="inicio_aulas_data[]"]',
                         'input[name="fim_aulas_data[]"]'
                     ];
-                    
+
                     camposPresencial.forEach(seletor => {
                         const campos = document.querySelectorAll(seletor);
                         campos.forEach(campo => {
                             campo.value = '';
                         });
                     });
-                    
+
                     // Limpar horários apenas se aulas forem assíncronas
                     const aulasAssincronasSim = document.querySelector('input[name="aulas_assincronas"][value="sim"]');
                     if (aulasAssincronasSim && aulasAssincronasSim.checked) {
@@ -190,7 +255,7 @@
                             'select[name="horario_inicio[]"]',
                             'select[name="horario_fim[]"]'
                         ];
-                        
+
                         camposHorario.forEach(seletor => {
                             const campos = document.querySelectorAll(seletor);
                             campos.forEach(campo => {
@@ -198,14 +263,14 @@
                             });
                         });
                     }
-                    
+
                     console.log('Campos de Presencial/Híbrido limpos para modalidade Online');
                 } else if (modalidade === 'Presencial' || modalidade === 'Híbrido') {
                     // Limpar campos específicos de Online
                     const camposOnline = [
                         'input[name="plataforma_digital"]'
                     ];
-                    
+
                     camposOnline.forEach(seletor => {
                         const campos = document.querySelectorAll(seletor);
                         campos.forEach(campo => {
@@ -214,11 +279,11 @@
                             }
                         });
                     });
-                    
+
                     console.log('Campos de Online limpos para modalidade Presencial/Híbrido');
                 }
             }
-            
+
             // Função para limpar horários quando aulas assíncronas são selecionadas
             function limparHorariosSeAssincronas() {
                 const aulasAssincronasSim = document.querySelector('input[name="aulas_assincronas"][value="sim"]');
@@ -227,44 +292,48 @@
                         'select[name="horario_inicio[]"]',
                         'select[name="horario_fim[]"]'
                     ];
-                    
+
                     camposHorario.forEach(seletor => {
                         const campos = document.querySelectorAll(seletor);
                         campos.forEach(campo => {
                             campo.selectedIndex = 0; // Reset para primeira opção (vazia)
                         });
                     });
-                    
+
                     console.log('Horários limpos para aulas assíncronas');
                 }
             }
-            
+
             // Executar limpeza do formulário
             limparFormulario();
-            
+
+            // Garantir que modalidade seja resetada após limpeza
+            setTimeout(resetModalidadeField, 200);
+
             // Definir valores padrão para campos de data
             setDataAtual();
             formatarDataBrasileira();
-            
+
             // Adicionar event listener para limpar campos quando modalidade mudar
             const modalidadeSelect = document.querySelector('select[name="modalidade"]');
             if (modalidadeSelect) {
-                modalidadeSelect.addEventListener('change', function() {
+                modalidadeSelect.addEventListener('change', function () {
                     const modalidadeSelecionada = this.value;
                     limparCamposPorModalidade(modalidadeSelecionada);
                 });
             }
-            
+
             // Adicionar event listener para limpar horários quando aulas assíncronas mudar
             const aulasAssincronasRadios = document.querySelectorAll('input[name="aulas_assincronas"]');
             aulasAssincronasRadios.forEach(radio => {
-                radio.addEventListener('change', function() {
+                radio.addEventListener('change', function () {
                     limparHorariosSeAssincronas();
                 });
             });
         });
     </script>
 </head>
+
 <body>
     <!-- Loading Overlay -->
     <div class="loading-overlay" id="loadingOverlay">
@@ -310,7 +379,8 @@
             <div class="header-content">
                 <div class="logo-section">
                     <a href="{{ url_for('index') }}" title="Ir para página inicial">
-                        <img src="{{ url_for('static', filename='images/logo_ciclocarioca..png') }}" alt="Logo Ciclo Carioca">
+                        <img src="{{ url_for('static', filename='images/logo_ciclocarioca..png') }}"
+                            alt="Logo Ciclo Carioca">
                     </a>
                     <span class="version">v2.0</span>
                 </div>
@@ -329,49 +399,52 @@
                 <div class="form-header">
                     {% if duplicate_data %}
                     <h2><i class="fas fa-copy"></i> Duplicar Curso</h2>
-                    <p class="form-description">Formulário pré-preenchido com dados do curso selecionado. Edite as informações necessárias.</p>
+                    <p class="form-description">Formulário pré-preenchido com dados do curso selecionado. Edite as
+                        informações necessárias.</p>
                     <div class="duplicate-notice">
                         <i class="fas fa-info-circle"></i>
                         <strong>Duplicando:</strong> {{ duplicate_data.titulo_original or 'Curso selecionado' }}
                     </div>
                     {% else %}
                     <h2><i class="fas fa-plus-circle"></i> Criar Novo Curso</h2>
-                    <p class="form-description">Preencha as informações abaixo para criar um novo curso na plataforma</p>
+                    <p class="form-description">Preencha as informações abaixo para criar um novo curso na plataforma
+                    </p>
                     {% endif %}
                 </div>
 
                 <!-- Flash Messages -->
                 {% with messages = get_flashed_messages(with_categories=true) %}
-                    {% if messages %}
-                        {% for category, message in messages %}
-                            <div class="alert alert-{{ category }}">
-                                {% if category == 'success' %}
-                                    <i class="fas fa-check-circle"></i>
-                                    <strong>Sucesso!</strong> {{ message }}
-                                {% elif category == 'error' %}
-                                    <i class="fas fa-exclamation-triangle"></i>
-                                    <strong>Erro de Validação:</strong> {{ message }}
-                                {% elif category == 'warning' %}
-                                    <i class="fas fa-exclamation-circle"></i>
-                                    <strong>Atenção:</strong> {{ message }}
-                                {% else %}
-                                    <i class="fas fa-info-circle"></i>
-                                    {{ message }}
-                                {% endif %}
-                            </div>
-                        {% endfor %}
+                {% if messages %}
+                {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">
+                    {% if category == 'success' %}
+                    <i class="fas fa-check-circle"></i>
+                    <strong>Sucesso!</strong> {{ message }}
+                    {% elif category == 'error' %}
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <strong>Erro de Validação:</strong> {{ message }}
+                    {% elif category == 'warning' %}
+                    <i class="fas fa-exclamation-circle"></i>
+                    <strong>Atenção:</strong> {{ message }}
+                    {% else %}
+                    <i class="fas fa-info-circle"></i>
+                    {{ message }}
                     {% endif %}
+                </div>
+                {% endfor %}
+                {% endif %}
                 {% endwith %}
 
-                <form method="POST" action="{{ url_for('create_course') }}" class="course-form" enctype="multipart/form-data">
+                <form method="POST" action="{{ url_for('create_course') }}" class="course-form"
+                    enctype="multipart/form-data">
                     <!-- Formulário de Criação de Curso -->
                     <div class="form-section">
                         <div class="form-grid">
                             <div class="form-group full-width">
                                 <label for="titulo" class="required">Nome do Curso</label>
-                                <input type="text" id="titulo" name="titulo" required 
-                                       placeholder="Digite o título do curso"
-                                       value="{{ duplicate_data.titulo if duplicate_data else '' }}">
+                                <input type="text" id="titulo" name="titulo" required
+                                    placeholder="Digite o título do curso"
+                                    value="{{ duplicate_data.titulo if duplicate_data else '' }}">
                                 {% if duplicate_data and duplicate_data.titulo_original %}
                                 <small class="form-help">
                                     <i class="fas fa-info-circle"></i>
@@ -379,17 +452,18 @@
                                 </small>
                                 {% endif %}
                             </div>
-                            
+
                             <div class="form-group full-width">
                                 <label for="descricao" class="required">Descrição</label>
                                 <textarea id="descricao" name="descricao" rows="6" required
-                                          placeholder="Digite a descrição do curso">{{ duplicate_data.descricao_original if duplicate_data else '' }}</textarea>
+                                    placeholder="Digite a descrição do curso">{{ duplicate_data.descricao_original if duplicate_data else '' }}</textarea>
                             </div>
-                            
+
                             <div class="form-group full-width">
                                 <label for="capa_curso">Capa do Curso</label>
                                 <div class="file-upload-container">
-                                    <input type="file" id="capa_curso" name="capa_curso" accept=".jpeg,.png,.jpg,.bmp,image/jpeg,image/png,image/jpg,image/bmp">
+                                    <input type="file" id="capa_curso" name="capa_curso"
+                                        accept=".jpeg,.png,.jpg,.bmp,image/jpeg,image/png,image/jpg,image/bmp">
                                     <div class="file-upload-display">
                                         <i class="fas fa-cloud-upload-alt"></i>
                                         <span class="file-upload-text">Clique para selecionar uma imagem</span>
@@ -398,594 +472,740 @@
                                                 <p><strong>Instruções para envio de imagem:</strong></p>
                                                 <ul>
                                                     <li>Dimensão obrigatória: 1080 x 1080 px.</li>
-                                                    <li>Não utilizar grafismos, textos ou logotipos. Utilizar poucos elementos visuais e de fácil leitura.</li>
-                                                    <li>Escolha imagens que sejam representativas do curso ao qual se referem.</li>
+                                                    <li>Não utilizar grafismos, textos ou logotipos. Utilizar poucos
+                                                        elementos visuais e de fácil leitura.</li>
+                                                    <li>Escolha imagens que sejam representativas do curso ao qual se
+                                                        referem.</li>
                                                 </ul>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <div class="form-group">
                                 <label for="inicio_inscricoes" class="required">Início das inscrições</label>
                                 <div class="datetime-group">
-                                    <input type="date" id="inicio_inscricoes_data" name="inicio_inscricoes_data" value="{{ today_date }}" required>
+                                    <input type="date" id="inicio_inscricoes_data" name="inicio_inscricoes_data"
+                                        value="{{ today_date }}" required>
                                 </div>
                             </div>
-                            
+
                             <div class="form-group">
                                 <label for="fim_inscricoes" class="required">Fim das inscrições</label>
                                 <div class="datetime-group">
-                                    <input type="date" id="fim_inscricoes_data" name="fim_inscricoes_data" value="{{ today_date }}" required>
+                                    <input type="date" id="fim_inscricoes_data" name="fim_inscricoes_data"
+                                        value="{{ today_date }}" required>
                                 </div>
                             </div>
-                            
+
                             <div class="form-group full-width">
-                                 <label for="orgao" class="required">Órgão (Quem oferece o curso)</label>
-                                 <select id="orgao" name="orgao" required>
-                                     <option value="">Selecione um órgão</option>
-                                     {% for orgao in orgaos %}
-                                         <option value="{{ orgao }}" 
-                                                 {% if duplicate_data and duplicate_data.orgao == orgao %}selected{% endif %}>
-                                             {{ orgao }}
-                                         </option>
-                                     {% endfor %}
-                                 </select>
-                             </div>
-
-
-                             
-                             <div class="form-group full-width">
-                                 <label for="tema" class="required">Categoria</label>
-                                 <select id="tema" name="tema" required>
-                                     <option value="">Selecione a categoria</option>
-                                     <option value="Tech">Tech</option>
-                                     <option value="Dados">Dados</option>
-                                     <option value="IA">IA</option>
-                                     <option value="Design">Design</option>
-                                     <option value="Cibersegurança">Cibersegurança</option>
-                                     <option value="Marketing">Marketing</option>
-                                     <option value="Finanças">Finanças</option>
-                                     <option value="Gestão">Gestão</option>
-                                     <option value="Games">Games</option>
-                                     <option value="Nutrição">Nutrição</option>
-                                     <option value="Educação">Educação</option>
-                                     <option value="Gastronomia">Gastronomia</option>
-                                     <option value="Saúde">Saúde</option>
-                                     <option value="Veterinária">Veterinária</option>
-                                     <option value="Carreira">Carreira</option>
-                                     <option value="Estética">Estética</option>
-                                     <option value="Sustentabilidade">Sustentabilidade</option>
-                                     <option value="Artes">Artes</option>
-                                     <option value="Cultura">Cultura</option>
-                                     <option value="Astronomia">Astronomia</option>
-                                 </select>
-                             </div>
-                             
-                             <div class="form-group full-width">
-                                 <label for="modalidade" class="required">Modalidade</label>
-                                 <select id="modalidade" name="modalidade" required onchange="toggleUnidades();">
-                                     <option value="">Selecione a modalidade</option>
-                                     <option value="Presencial">Presencial</option>
-                                     <option value="Online">Online</option>
-                                     <option value="Híbrido">Híbrido</option>
-                                 </select>
-                             </div>
-                             
-                             <!-- Subformulário para Presencial/Híbrido -->
-                             <div class="form-group full-width" id="unidades_container" style="display:{% if duplicate_data and (duplicate_data.modalidade|lower == 'presencial' or duplicate_data.modalidade|lower == 'híbrido') %}block{% else %}none{% endif %};">
-                                 <fieldset class="unidade-fieldset">
-                                     <legend>Informações das Unidades <button type="button" class="remove-unidade-btn" onclick="removeUnidade(this)" style="display:none;">×</button></legend>
-                                     
-                                     <!-- Container para múltiplas unidades -->
-                                     <div id="unidades_list">
-                                         {% if duplicate_data and duplicate_data.enderecos_unidades %}
-                                         <!-- Renderizar unidades existentes na duplicação -->
-                                         {% for i in range(duplicate_data.enderecos_unidades|length) %}
-                                         <div class="unidade-item" data-unidade="{{ i }}">
-                                             <div class="unidade-header">
-                                                 <h4>Unidade {{ i + 1 }}</h4>
-                                                 {% if i > 0 %}
-                                                 <button type="button" class="btn-remove-unidade" onclick="removeUnidade({{ i }})">
-                                                     <i class="fas fa-trash"></i> Remover Unidade
-                                                 </button>
-                                                 {% endif %}
-                                             </div>
-                                             <label>Endereço da unidade*</label>
-                                             <input type="text" name="endereco_unidade[]" required value="{{ duplicate_data.enderecos_unidades[i] if i < duplicate_data.enderecos_unidades|length else '' }}">
-                                             <label>Bairro*</label>
-                                             <input type="text" name="bairro_unidade[]" required value="{{ duplicate_data.bairros_unidades[i] if i < duplicate_data.bairros_unidades|length else '' }}">
-                                             <label>Total de vagas*</label>
-                                             <input type="number" name="vagas_unidade[]" min="1" required value="{{ duplicate_data.vagas_unidades[i] if i < duplicate_data.vagas_unidades|length else '' }}">
-                                             
-                                             <label for="carga_horaria_unidade_{{ i }}" class="required">Carga Horária</label>
-                                             <input type="text" id="carga_horaria_unidade_{{ i }}" name="carga_horaria" required 
-                                                    placeholder="Digite a carga horária (ex: 40 horas, 80h, 2 meses, etc.)" 
-                                                    value="{{ duplicate_data.carga_horaria if i == 0 else '' }}">
-                                             <small style="color: red; font-size: 0.9em; margin-top: 5px; display: block;">(Dê preferência a carga horária no formato de horas)</small>
-                                             
-                                             <div class="data-group">
-                                                 <div class="data-field">
-                                                     <label>Início das aulas*</label>
-                                                     <input type="date" name="inicio_aulas_data[]" required value="{{ duplicate_data.inicio_aulas_unidades[i] if i < duplicate_data.inicio_aulas_unidades|length else today_date }}">
-                                                 </div>
-                                                 <div class="data-field">
-                                                     <label>Fim das aulas*</label>
-                                                     <input type="date" name="fim_aulas_data[]" required value="{{ duplicate_data.fim_aulas_unidades[i] if i < duplicate_data.fim_aulas_unidades|length else today_date }}">
-                                                 </div>
-                                             </div>
-                                             
-                                             <div class="horario-group">
-                                                 <div class="horario-field">
-                                                     <label>Horário-Início*</label>
-                                                     <select name="horario_inicio[]" required>
-                                                         <option value="">Selecione o horário</option>
-                                                         <option value="06:00" {% if duplicate_data.horario_inicio_unidades[i] == '06:00' %}selected{% endif %}>06:00</option>
-                                                         <option value="07:00" {% if duplicate_data.horario_inicio_unidades[i] == '07:00' %}selected{% endif %}>07:00</option>
-                                                         <option value="08:00" {% if duplicate_data.horario_inicio_unidades[i] == '08:00' %}selected{% endif %}>08:00</option>
-                                                         <option value="09:00" {% if duplicate_data.horario_inicio_unidades[i] == '09:00' %}selected{% endif %}>09:00</option>
-                                                         <option value="10:00" {% if duplicate_data.horario_inicio_unidades[i] == '10:00' %}selected{% endif %}>10:00</option>
-                                                         <option value="11:00" {% if duplicate_data.horario_inicio_unidades[i] == '11:00' %}selected{% endif %}>11:00</option>
-                                                         <option value="12:00" {% if duplicate_data.horario_inicio_unidades[i] == '12:00' %}selected{% endif %}>12:00</option>
-                                                         <option value="13:00" {% if duplicate_data.horario_inicio_unidades[i] == '13:00' %}selected{% endif %}>13:00</option>
-                                                         <option value="14:00" {% if duplicate_data.horario_inicio_unidades[i] == '14:00' %}selected{% endif %}>14:00</option>
-                                                         <option value="15:00" {% if duplicate_data.horario_inicio_unidades[i] == '15:00' %}selected{% endif %}>15:00</option>
-                                                         <option value="16:00" {% if duplicate_data.horario_inicio_unidades[i] == '16:00' %}selected{% endif %}>16:00</option>
-                                                         <option value="17:00" {% if duplicate_data.horario_inicio_unidades[i] == '17:00' %}selected{% endif %}>17:00</option>
-                                                         <option value="18:00" {% if duplicate_data.horario_inicio_unidades[i] == '18:00' %}selected{% endif %}>18:00</option>
-                                                         <option value="19:00" {% if duplicate_data.horario_inicio_unidades[i] == '19:00' %}selected{% endif %}>19:00</option>
-                                                         <option value="20:00" {% if duplicate_data.horario_inicio_unidades[i] == '20:00' %}selected{% endif %}>20:00</option>
-                                                         <option value="21:00" {% if duplicate_data.horario_inicio_unidades[i] == '21:00' %}selected{% endif %}>21:00</option>
-                                                         <option value="22:00" {% if duplicate_data.horario_inicio_unidades[i] == '22:00' %}selected{% endif %}>22:00</option>
-                                                         <option value="23:00" {% if duplicate_data.horario_inicio_unidades[i] == '23:00' %}selected{% endif %}>23:00</option>
-                                                     </select>
-                                                 </div>
-                                                 <div class="horario-field">
-                                                     <label>Horário-Fim*</label>
-                                                     <select name="horario_fim[]" required>
-                                                         <option value="">Selecione o horário</option>
-                                                         <option value="06:00" {% if duplicate_data.horario_fim_unidades[i] == '06:00' %}selected{% endif %}>06:00</option>
-                                                         <option value="07:00" {% if duplicate_data.horario_fim_unidades[i] == '07:00' %}selected{% endif %}>07:00</option>
-                                                         <option value="08:00" {% if duplicate_data.horario_fim_unidades[i] == '08:00' %}selected{% endif %}>08:00</option>
-                                                         <option value="09:00" {% if duplicate_data.horario_fim_unidades[i] == '09:00' %}selected{% endif %}>09:00</option>
-                                                         <option value="10:00" {% if duplicate_data.horario_fim_unidades[i] == '10:00' %}selected{% endif %}>10:00</option>
-                                                         <option value="11:00" {% if duplicate_data.horario_fim_unidades[i] == '11:00' %}selected{% endif %}>11:00</option>
-                                                         <option value="12:00" {% if duplicate_data.horario_fim_unidades[i] == '12:00' %}selected{% endif %}>12:00</option>
-                                                         <option value="13:00" {% if duplicate_data.horario_fim_unidades[i] == '13:00' %}selected{% endif %}>13:00</option>
-                                                         <option value="14:00" {% if duplicate_data.horario_fim_unidades[i] == '14:00' %}selected{% endif %}>14:00</option>
-                                                         <option value="15:00" {% if duplicate_data.horario_fim_unidades[i] == '15:00' %}selected{% endif %}>15:00</option>
-                                                         <option value="16:00" {% if duplicate_data.horario_fim_unidades[i] == '16:00' %}selected{% endif %}>16:00</option>
-                                                         <option value="17:00" {% if duplicate_data.horario_fim_unidades[i] == '17:00' %}selected{% endif %}>17:00</option>
-                                                         <option value="18:00" {% if duplicate_data.horario_fim_unidades[i] == '18:00' %}selected{% endif %}>18:00</option>
-                                                         <option value="19:00" {% if duplicate_data.horario_fim_unidades[i] == '19:00' %}selected{% endif %}>19:00</option>
-                                                         <option value="20:00" {% if duplicate_data.horario_fim_unidades[i] == '20:00' %}selected{% endif %}>20:00</option>
-                                                         <option value="21:00" {% if duplicate_data.horario_fim_unidades[i] == '21:00' %}selected{% endif %}>21:00</option>
-                                                         <option value="22:00" {% if duplicate_data.horario_fim_unidades[i] == '22:00' %}selected{% endif %}>22:00</option>
-                                                         <option value="23:00" {% if duplicate_data.horario_fim_unidades[i] == '23:00' %}selected{% endif %}>23:00</option>
-                                                     </select>
-                                                 </div>
-                                             </div>
-                                             
-                                             <label>Dias da semana*</label>
-                                             <select name="dias_aula[]" required>
-                                                 <option value="">Selecione os dias</option>
-                                                 <option value="Segunda-feira" {% if duplicate_data.dias_aula_unidades[i] == 'Segunda-feira' %}selected{% endif %}>Segunda-feira</option>
-                                                 <option value="Terça-feira" {% if duplicate_data.dias_aula_unidades[i] == 'Terça-feira' %}selected{% endif %}>Terça-feira</option>
-                                                 <option value="Quarta-feira" {% if duplicate_data.dias_aula_unidades[i] == 'Quarta-feira' %}selected{% endif %}>Quarta-feira</option>
-                                                 <option value="Quinta-feira" {% if duplicate_data.dias_aula_unidades[i] == 'Quinta-feira' %}selected{% endif %}>Quinta-feira</option>
-                                                 <option value="Sexta-feira" {% if duplicate_data.dias_aula_unidades[i] == 'Sexta-feira' %}selected{% endif %}>Sexta-feira</option>
-                                                 <option value="Sábado" {% if duplicate_data.dias_aula_unidades[i] == 'Sábado' %}selected{% endif %}>Sábado</option>
-                                                 <option value="Domingo" {% if duplicate_data.dias_aula_unidades[i] == 'Domingo' %}selected{% endif %}>Domingo</option>
-                                             </select>
-                                         </div>
-                                         {% endfor %}
-                                         {% else %}
-                                         <!-- Primeira unidade padrão (quando não há duplicação) -->
-                                         <div class="unidade-item" data-unidade="0">
-                                             <label>Endereço da unidade*</label>
-                                             <input type="text" name="endereco_unidade[]" required>
-                                             <label>Bairro*</label>
-                                             <input type="text" name="bairro_unidade[]" required>
-                                             <label>Total de vagas*</label>
-                                             <input type="number" name="vagas_unidade[]" min="1" required>
-                                         {% endif %}
-                                             
-                                             <label for="carga_horaria_unidade" class="required">Carga Horária</label>
-                                             <input type="text" id="carga_horaria_unidade" name="carga_horaria" required 
-                                                    placeholder="Digite a carga horária (ex: 40 horas, 80h, 2 meses, etc.)">
-                                             <small style="color: red; font-size: 0.9em; margin-top: 5px; display: block;">(Dê preferência a carga horária no formato de horas)</small>
-                                             
-                        <div class="data-group">
-                            <div class="data-field">
-                                <label>Início das aulas*</label>
-                                <input type="date" name="inicio_aulas_data[]" value="{{ today_date }}" required>
+                                <label for="orgao" class="required">Órgão (Quem oferece o curso)</label>
+                                <select id="orgao" name="orgao" required>
+                                    <option value="">Selecione um órgão</option>
+                                    {% for orgao in orgaos %}
+                                    <option value="{{ orgao }}" {% if duplicate_data and duplicate_data.orgao==orgao
+                                        %}selected{% endif %}>
+                                        {{ orgao }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
                             </div>
-                            <div class="data-field">
-                                <label>Fim das aulas*</label>
-                                <input type="date" name="fim_aulas_data[]" value="{{ today_date }}" required>
+
+
+
+                            <div class="form-group full-width">
+                                <label for="tema" class="required">Categoria</label>
+                                <select id="tema" name="tema" required>
+                                    <option value="">Selecione a categoria</option>
+                                    <option value="Tech">Tech</option>
+                                    <option value="Dados">Dados</option>
+                                    <option value="IA">IA</option>
+                                    <option value="Design">Design</option>
+                                    <option value="Cibersegurança">Cibersegurança</option>
+                                    <option value="Marketing">Marketing</option>
+                                    <option value="Finanças">Finanças</option>
+                                    <option value="Gestão">Gestão</option>
+                                    <option value="Games">Games</option>
+                                    <option value="Nutrição">Nutrição</option>
+                                    <option value="Educação">Educação</option>
+                                    <option value="Gastronomia">Gastronomia</option>
+                                    <option value="Saúde">Saúde</option>
+                                    <option value="Veterinária">Veterinária</option>
+                                    <option value="Carreira">Carreira</option>
+                                    <option value="Estética">Estética</option>
+                                    <option value="Sustentabilidade">Sustentabilidade</option>
+                                    <option value="Artes">Artes</option>
+                                    <option value="Cultura">Cultura</option>
+                                    <option value="Astronomia">Astronomia</option>
+                                </select>
                             </div>
-                        </div>
-                                             <div class="horario-group">
-                                                 <div class="horario-field">
-                                                     <label>Horário-Início*</label>
-                                                     <select name="horario_inicio[]" required>
-                                                         <option value="">Selecione o horário</option>
-                                                         <option value="06:00">06:00</option>
-                                                         <option value="07:00">07:00</option>
-                                                         <option value="08:00">08:00</option>
-                                                         <option value="09:00">09:00</option>
-                                                         <option value="10:00">10:00</option>
-                                                         <option value="11:00">11:00</option>
-                                                         <option value="12:00">12:00</option>
-                                                         <option value="13:00">13:00</option>
-                                                         <option value="14:00">14:00</option>
-                                                         <option value="15:00">15:00</option>
-                                                         <option value="16:00">16:00</option>
-                                                         <option value="17:00">17:00</option>
-                                                         <option value="18:00">18:00</option>
-                                                         <option value="19:00">19:00</option>
-                                                         <option value="20:00">20:00</option>
-                                                         <option value="21:00">21:00</option>
-                                                         <option value="22:00">22:00</option>
-                                                         <option value="23:00">23:00</option>
-                                                     </select>
-                                                 </div>
-                                                 <div class="horario-field">
-                                                     <label>Horário-Fim*</label>
-                                                     <select name="horario_fim[]" required>
-                                                         <option value="">Selecione o horário</option>
-                                                         <option value="06:00">06:00</option>
-                                                         <option value="07:00">07:00</option>
-                                                         <option value="08:00">08:00</option>
-                                                         <option value="09:00">09:00</option>
-                                                         <option value="10:00">10:00</option>
-                                                         <option value="11:00">11:00</option>
-                                                         <option value="12:00">12:00</option>
-                                                         <option value="13:00">13:00</option>
-                                                         <option value="14:00">14:00</option>
-                                                         <option value="15:00">15:00</option>
-                                                         <option value="16:00">16:00</option>
-                                                         <option value="17:00">17:00</option>
-                                                         <option value="18:00">18:00</option>
-                                                         <option value="19:00">19:00</option>
-                                                         <option value="20:00">20:00</option>
-                                                         <option value="21:00">21:00</option>
-                                                         <option value="22:00">22:00</option>
-                                                         <option value="23:00">23:00</option>
-                                                     </select>
-                                                 </div>
-                                             </div>
-                                             <label>Dias de aula*</label>
-                                             <div class="checkbox-group dias-aula">
-                                                 <label class="checkbox-label">
-                                                     <input type="checkbox" name="dias_aula[]" value="Segunda-feira">
-                                                     <span>Segunda-feira</span>
-                                                 </label>
-                                                 <label class="checkbox-label">
-                                                     <input type="checkbox" name="dias_aula[]" value="Terça-feira">
-                                                     <span>Terça-feira</span>
-                                                 </label>
-                                                 <label class="checkbox-label">
-                                                     <input type="checkbox" name="dias_aula[]" value="Quarta-feira">
-                                                     <span>Quarta-feira</span>
-                                                 </label>
-                                                 <label class="checkbox-label">
-                                                     <input type="checkbox" name="dias_aula[]" value="Quinta-feira">
-                                                     <span>Quinta-feira</span>
-                                                 </label>
-                                                 <label class="checkbox-label">
-                                                     <input type="checkbox" name="dias_aula[]" value="Sexta-feira">
-                                                     <span>Sexta-feira</span>
-                                                 </label>
-                                                 <label class="checkbox-label">
-                                                     <input type="checkbox" name="dias_aula[]" value="Sábado">
-                                                     <span>Sábado</span>
-                                                 </label>
-                                                 <label class="checkbox-label">
-                                                     <input type="checkbox" name="dias_aula[]" value="Domingo">
-                                                     <span>Domingo</span>
-                                                 </label>
-                                             </div>
-                                         </div>
-                                     </div>
-                                     
-                                     <button type="button" class="btn btn-outline add-unidade-btn">+ Adicionar outra unidade</button>
-                                 </fieldset>
-                             </div>
 
-                             <!-- Subformulário para Online -->
-                             <div class="form-group full-width" id="plataforma_container" style="display:none;">
-                                 <fieldset class="unidade-fieldset">
-                                     <legend>Informações da Plataforma <button type="button" class="remove-plataforma-btn" onclick="removePlataforma(this)" style="display:none;">×</button></legend>
-                                     
-                                     <!-- Container para plataforma online -->
-                                     <div id="plataforma_list">
-                                         <!-- Informações da plataforma online -->
-                                         <div class="plataforma-item" data-plataforma="0">
-                                             <label for="plataforma_digital">Plataforma Digital</label>
-                                             <input type="text" id="plataforma_digital" name="plataforma_digital" 
-                                                    placeholder="Ex: Zoom, Google Meet, Microsoft Teams">
-                                             
-                                             <label>Total de vagas*</label>
-                                             <input type="number" id="vagas_online" name="vagas_unidade[]" min="1" required>
-                                             
-                                             <label for="carga_horaria_online" class="required">Carga Horária</label>
-                                             <input type="text" id="carga_horaria_online" name="carga_horaria" required 
-                                                    placeholder="Digite a carga horária (ex: 40 horas, 80h, 2 meses, etc.)">
-                                             <small style="color: red; font-size: 0.9em; margin-top: 5px; display: block;">(Dê preferência a carga horária no formato de horas)</small>
-                                             
-                                             <label class="required">Aulas Assíncronas?</label>
-                                             <div class="radio-group">
-                                                 <label class="radio-label">
-                                                     <input type="radio" name="aulas_assincronas" value="sim" required checked onclick="toggleAulasAssincronas(true)"> SIM
-                                                 </label>
-                                                 <label class="radio-label">
-                                                     <input type="radio" name="aulas_assincronas" value="nao" required onclick="toggleAulasAssincronas(false)"> NÃO
-                                                 </label>
-                                             </div>
-                                             
-                        <div class="data-group" id="horarios_online_container">
-                            <div class="data-field">
-                                <label>Início das aulas</label>
-                                <input type="date" id="inicio_aulas_online" name="inicio_aulas_data[]" value="{{ today_date }}">
+                            <div class="form-group full-width">
+                                <label for="modalidade" class="required">Modalidade</label>
+                                <select id="modalidade" name="modalidade" required onchange="toggleUnidades();"
+                                    autocomplete="off">
+                                    <option value="">Selecione a modalidade</option>
+                                    <option value="Presencial">Presencial</option>
+                                    <option value="Online">Online</option>
+                                    <option value="Híbrido">Híbrido</option>
+                                </select>
                             </div>
-                            <div class="data-field">
-                                <label>Fim das aulas</label>
-                                <input type="date" id="fim_aulas_online" name="fim_aulas_data[]" value="{{ today_date }}">
+
+                            <!-- Subformulário para Presencial/Híbrido -->
+                            <div class="form-group full-width" id="unidades_container"
+                                style="display:{% if duplicate_data and (duplicate_data.modalidade|lower == 'presencial' or duplicate_data.modalidade|lower == 'híbrido') %}block{% else %}none{% endif %};">
+                                <fieldset class="unidade-fieldset">
+                                    <legend>Informações das Unidades <button type="button" class="remove-unidade-btn"
+                                            onclick="removeUnidade(this)" style="display:none;">×</button></legend>
+
+                                    <!-- Container para múltiplas unidades -->
+                                    <div id="unidades_list">
+                                        {% if duplicate_data and duplicate_data.enderecos_unidades %}
+                                        <!-- Renderizar unidades existentes na duplicação -->
+                                        {% for i in range(duplicate_data.enderecos_unidades|length) %}
+                                        <div class="unidade-item" data-unidade="{{ i }}">
+                                            <div class="unidade-header">
+                                                <h4>Unidade {{ i + 1 }}</h4>
+                                                {% if i > 0 %}
+                                                <button type="button" class="btn-remove-unidade"
+                                                    onclick="removeUnidade({{ i }})">
+                                                    <i class="fas fa-trash"></i> Remover Unidade
+                                                </button>
+                                                {% endif %}
+                                            </div>
+                                            <label>Endereço da unidade*</label>
+                                            <input type="text" name="endereco_unidade[]" required
+                                                value="{{ duplicate_data.enderecos_unidades[i] if i < duplicate_data.enderecos_unidades|length else '' }}">
+                                            <label>Bairro*</label>
+                                            <input type="text" name="bairro_unidade[]" required
+                                                value="{{ duplicate_data.bairros_unidades[i] if i < duplicate_data.bairros_unidades|length else '' }}">
+                                            <label>Total de vagas*</label>
+                                            <input type="number" name="vagas_unidade[]" min="1" required
+                                                value="{{ duplicate_data.vagas_unidades[i] if i < duplicate_data.vagas_unidades|length else '' }}">
+
+                                            <label for="carga_horaria_unidade_{{ i }}" class="required">Carga
+                                                Horária</label>
+                                            <input type="text" id="carga_horaria_unidade_{{ i }}" name="carga_horaria"
+                                                required
+                                                placeholder="Digite a carga horária (ex: 40 horas, 80h, 2 meses, etc.)"
+                                                value="{{ duplicate_data.carga_horaria if i == 0 else '' }}">
+                                            <small
+                                                style="color: red; font-size: 0.9em; margin-top: 5px; display: block;">(Dê
+                                                preferência a carga horária no formato de horas)</small>
+
+                                            <div class="data-group">
+                                                <div class="data-field">
+                                                    <label>Início das aulas*</label>
+                                                    <input type="date" name="inicio_aulas_data[]" required
+                                                        value="{{ duplicate_data.inicio_aulas_unidades[i] if i < duplicate_data.inicio_aulas_unidades|length else today_date }}">
+                                                </div>
+                                                <div class="data-field">
+                                                    <label>Fim das aulas*</label>
+                                                    <input type="date" name="fim_aulas_data[]" required
+                                                        value="{{ duplicate_data.fim_aulas_unidades[i] if i < duplicate_data.fim_aulas_unidades|length else today_date }}">
+                                                </div>
+                                            </div>
+
+                                            <div class="horario-group">
+                                                <div class="horario-field">
+                                                    <label>Horário-Início*</label>
+                                                    <select name="horario_inicio[]" required>
+                                                        <option value="">Selecione o horário</option>
+                                                        <option value="06:00" {% if
+                                                            duplicate_data.horario_inicio_unidades[i]=='06:00'
+                                                            %}selected{% endif %}>06:00</option>
+                                                        <option value="07:00" {% if
+                                                            duplicate_data.horario_inicio_unidades[i]=='07:00'
+                                                            %}selected{% endif %}>07:00</option>
+                                                        <option value="08:00" {% if
+                                                            duplicate_data.horario_inicio_unidades[i]=='08:00'
+                                                            %}selected{% endif %}>08:00</option>
+                                                        <option value="09:00" {% if
+                                                            duplicate_data.horario_inicio_unidades[i]=='09:00'
+                                                            %}selected{% endif %}>09:00</option>
+                                                        <option value="10:00" {% if
+                                                            duplicate_data.horario_inicio_unidades[i]=='10:00'
+                                                            %}selected{% endif %}>10:00</option>
+                                                        <option value="11:00" {% if
+                                                            duplicate_data.horario_inicio_unidades[i]=='11:00'
+                                                            %}selected{% endif %}>11:00</option>
+                                                        <option value="12:00" {% if
+                                                            duplicate_data.horario_inicio_unidades[i]=='12:00'
+                                                            %}selected{% endif %}>12:00</option>
+                                                        <option value="13:00" {% if
+                                                            duplicate_data.horario_inicio_unidades[i]=='13:00'
+                                                            %}selected{% endif %}>13:00</option>
+                                                        <option value="14:00" {% if
+                                                            duplicate_data.horario_inicio_unidades[i]=='14:00'
+                                                            %}selected{% endif %}>14:00</option>
+                                                        <option value="15:00" {% if
+                                                            duplicate_data.horario_inicio_unidades[i]=='15:00'
+                                                            %}selected{% endif %}>15:00</option>
+                                                        <option value="16:00" {% if
+                                                            duplicate_data.horario_inicio_unidades[i]=='16:00'
+                                                            %}selected{% endif %}>16:00</option>
+                                                        <option value="17:00" {% if
+                                                            duplicate_data.horario_inicio_unidades[i]=='17:00'
+                                                            %}selected{% endif %}>17:00</option>
+                                                        <option value="18:00" {% if
+                                                            duplicate_data.horario_inicio_unidades[i]=='18:00'
+                                                            %}selected{% endif %}>18:00</option>
+                                                        <option value="19:00" {% if
+                                                            duplicate_data.horario_inicio_unidades[i]=='19:00'
+                                                            %}selected{% endif %}>19:00</option>
+                                                        <option value="20:00" {% if
+                                                            duplicate_data.horario_inicio_unidades[i]=='20:00'
+                                                            %}selected{% endif %}>20:00</option>
+                                                        <option value="21:00" {% if
+                                                            duplicate_data.horario_inicio_unidades[i]=='21:00'
+                                                            %}selected{% endif %}>21:00</option>
+                                                        <option value="22:00" {% if
+                                                            duplicate_data.horario_inicio_unidades[i]=='22:00'
+                                                            %}selected{% endif %}>22:00</option>
+                                                        <option value="23:00" {% if
+                                                            duplicate_data.horario_inicio_unidades[i]=='23:00'
+                                                            %}selected{% endif %}>23:00</option>
+                                                    </select>
+                                                </div>
+                                                <div class="horario-field">
+                                                    <label>Horário-Fim*</label>
+                                                    <select name="horario_fim[]" required>
+                                                        <option value="">Selecione o horário</option>
+                                                        <option value="06:00" {% if
+                                                            duplicate_data.horario_fim_unidades[i]=='06:00' %}selected{%
+                                                            endif %}>06:00</option>
+                                                        <option value="07:00" {% if
+                                                            duplicate_data.horario_fim_unidades[i]=='07:00' %}selected{%
+                                                            endif %}>07:00</option>
+                                                        <option value="08:00" {% if
+                                                            duplicate_data.horario_fim_unidades[i]=='08:00' %}selected{%
+                                                            endif %}>08:00</option>
+                                                        <option value="09:00" {% if
+                                                            duplicate_data.horario_fim_unidades[i]=='09:00' %}selected{%
+                                                            endif %}>09:00</option>
+                                                        <option value="10:00" {% if
+                                                            duplicate_data.horario_fim_unidades[i]=='10:00' %}selected{%
+                                                            endif %}>10:00</option>
+                                                        <option value="11:00" {% if
+                                                            duplicate_data.horario_fim_unidades[i]=='11:00' %}selected{%
+                                                            endif %}>11:00</option>
+                                                        <option value="12:00" {% if
+                                                            duplicate_data.horario_fim_unidades[i]=='12:00' %}selected{%
+                                                            endif %}>12:00</option>
+                                                        <option value="13:00" {% if
+                                                            duplicate_data.horario_fim_unidades[i]=='13:00' %}selected{%
+                                                            endif %}>13:00</option>
+                                                        <option value="14:00" {% if
+                                                            duplicate_data.horario_fim_unidades[i]=='14:00' %}selected{%
+                                                            endif %}>14:00</option>
+                                                        <option value="15:00" {% if
+                                                            duplicate_data.horario_fim_unidades[i]=='15:00' %}selected{%
+                                                            endif %}>15:00</option>
+                                                        <option value="16:00" {% if
+                                                            duplicate_data.horario_fim_unidades[i]=='16:00' %}selected{%
+                                                            endif %}>16:00</option>
+                                                        <option value="17:00" {% if
+                                                            duplicate_data.horario_fim_unidades[i]=='17:00' %}selected{%
+                                                            endif %}>17:00</option>
+                                                        <option value="18:00" {% if
+                                                            duplicate_data.horario_fim_unidades[i]=='18:00' %}selected{%
+                                                            endif %}>18:00</option>
+                                                        <option value="19:00" {% if
+                                                            duplicate_data.horario_fim_unidades[i]=='19:00' %}selected{%
+                                                            endif %}>19:00</option>
+                                                        <option value="20:00" {% if
+                                                            duplicate_data.horario_fim_unidades[i]=='20:00' %}selected{%
+                                                            endif %}>20:00</option>
+                                                        <option value="21:00" {% if
+                                                            duplicate_data.horario_fim_unidades[i]=='21:00' %}selected{%
+                                                            endif %}>21:00</option>
+                                                        <option value="22:00" {% if
+                                                            duplicate_data.horario_fim_unidades[i]=='22:00' %}selected{%
+                                                            endif %}>22:00</option>
+                                                        <option value="23:00" {% if
+                                                            duplicate_data.horario_fim_unidades[i]=='23:00' %}selected{%
+                                                            endif %}>23:00</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            <label>Dias da semana*</label>
+                                            <select name="dias_aula[]" required>
+                                                <option value="">Selecione os dias</option>
+                                                <option value="Segunda-feira" {% if
+                                                    duplicate_data.dias_aula_unidades[i]=='Segunda-feira' %}selected{%
+                                                    endif %}>Segunda-feira</option>
+                                                <option value="Terça-feira" {% if
+                                                    duplicate_data.dias_aula_unidades[i]=='Terça-feira' %}selected{%
+                                                    endif %}>Terça-feira</option>
+                                                <option value="Quarta-feira" {% if
+                                                    duplicate_data.dias_aula_unidades[i]=='Quarta-feira' %}selected{%
+                                                    endif %}>Quarta-feira</option>
+                                                <option value="Quinta-feira" {% if
+                                                    duplicate_data.dias_aula_unidades[i]=='Quinta-feira' %}selected{%
+                                                    endif %}>Quinta-feira</option>
+                                                <option value="Sexta-feira" {% if
+                                                    duplicate_data.dias_aula_unidades[i]=='Sexta-feira' %}selected{%
+                                                    endif %}>Sexta-feira</option>
+                                                <option value="Sábado" {% if
+                                                    duplicate_data.dias_aula_unidades[i]=='Sábado' %}selected{% endif
+                                                    %}>Sábado</option>
+                                                <option value="Domingo" {% if
+                                                    duplicate_data.dias_aula_unidades[i]=='Domingo' %}selected{% endif
+                                                    %}>Domingo</option>
+                                            </select>
+                                        </div>
+                                        {% endfor %}
+                                        {% else %}
+                                        <!-- Primeira unidade padrão (quando não há duplicação) -->
+                                        <div class="unidade-item" data-unidade="0">
+                                            <label>Endereço da unidade*</label>
+                                            <input type="text" name="endereco_unidade[]" required>
+                                            <label>Bairro*</label>
+                                            <input type="text" name="bairro_unidade[]" required>
+                                            <label>Total de vagas*</label>
+                                            <input type="number" name="vagas_unidade[]" min="1" required>
+                                            {% endif %}
+
+                                            <label for="carga_horaria_unidade" class="required">Carga Horária</label>
+                                            <input type="text" id="carga_horaria_unidade" name="carga_horaria" required
+                                                placeholder="Digite a carga horária (ex: 40 horas, 80h, 2 meses, etc.)">
+                                            <small
+                                                style="color: red; font-size: 0.9em; margin-top: 5px; display: block;">(Dê
+                                                preferência a carga horária no formato de horas)</small>
+
+                                            <div class="data-group">
+                                                <div class="data-field">
+                                                    <label>Início das aulas*</label>
+                                                    <input type="date" name="inicio_aulas_data[]"
+                                                        value="{{ today_date }}" required>
+                                                </div>
+                                                <div class="data-field">
+                                                    <label>Fim das aulas*</label>
+                                                    <input type="date" name="fim_aulas_data[]" value="{{ today_date }}"
+                                                        required>
+                                                </div>
+                                            </div>
+                                            <div class="horario-group">
+                                                <div class="horario-field">
+                                                    <label>Horário-Início*</label>
+                                                    <select name="horario_inicio[]" required>
+                                                        <option value="">Selecione o horário</option>
+                                                        <option value="06:00">06:00</option>
+                                                        <option value="07:00">07:00</option>
+                                                        <option value="08:00">08:00</option>
+                                                        <option value="09:00">09:00</option>
+                                                        <option value="10:00">10:00</option>
+                                                        <option value="11:00">11:00</option>
+                                                        <option value="12:00">12:00</option>
+                                                        <option value="13:00">13:00</option>
+                                                        <option value="14:00">14:00</option>
+                                                        <option value="15:00">15:00</option>
+                                                        <option value="16:00">16:00</option>
+                                                        <option value="17:00">17:00</option>
+                                                        <option value="18:00">18:00</option>
+                                                        <option value="19:00">19:00</option>
+                                                        <option value="20:00">20:00</option>
+                                                        <option value="21:00">21:00</option>
+                                                        <option value="22:00">22:00</option>
+                                                        <option value="23:00">23:00</option>
+                                                    </select>
+                                                </div>
+                                                <div class="horario-field">
+                                                    <label>Horário-Fim*</label>
+                                                    <select name="horario_fim[]" required>
+                                                        <option value="">Selecione o horário</option>
+                                                        <option value="06:00">06:00</option>
+                                                        <option value="07:00">07:00</option>
+                                                        <option value="08:00">08:00</option>
+                                                        <option value="09:00">09:00</option>
+                                                        <option value="10:00">10:00</option>
+                                                        <option value="11:00">11:00</option>
+                                                        <option value="12:00">12:00</option>
+                                                        <option value="13:00">13:00</option>
+                                                        <option value="14:00">14:00</option>
+                                                        <option value="15:00">15:00</option>
+                                                        <option value="16:00">16:00</option>
+                                                        <option value="17:00">17:00</option>
+                                                        <option value="18:00">18:00</option>
+                                                        <option value="19:00">19:00</option>
+                                                        <option value="20:00">20:00</option>
+                                                        <option value="21:00">21:00</option>
+                                                        <option value="22:00">22:00</option>
+                                                        <option value="23:00">23:00</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <label>Dias de aula*</label>
+                                            <div class="checkbox-group dias-aula">
+                                                <label class="checkbox-label">
+                                                    <input type="checkbox" name="dias_aula[]" value="Segunda-feira">
+                                                    <span>Segunda-feira</span>
+                                                </label>
+                                                <label class="checkbox-label">
+                                                    <input type="checkbox" name="dias_aula[]" value="Terça-feira">
+                                                    <span>Terça-feira</span>
+                                                </label>
+                                                <label class="checkbox-label">
+                                                    <input type="checkbox" name="dias_aula[]" value="Quarta-feira">
+                                                    <span>Quarta-feira</span>
+                                                </label>
+                                                <label class="checkbox-label">
+                                                    <input type="checkbox" name="dias_aula[]" value="Quinta-feira">
+                                                    <span>Quinta-feira</span>
+                                                </label>
+                                                <label class="checkbox-label">
+                                                    <input type="checkbox" name="dias_aula[]" value="Sexta-feira">
+                                                    <span>Sexta-feira</span>
+                                                </label>
+                                                <label class="checkbox-label">
+                                                    <input type="checkbox" name="dias_aula[]" value="Sábado">
+                                                    <span>Sábado</span>
+                                                </label>
+                                                <label class="checkbox-label">
+                                                    <input type="checkbox" name="dias_aula[]" value="Domingo">
+                                                    <span>Domingo</span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <button type="button" class="btn btn-outline add-unidade-btn">+ Adicionar outra
+                                        unidade</button>
+                                </fieldset>
                             </div>
-                        </div>
-                                             <div id="horarios_detalhados_online_container" style="display: none;">
-                                                 <div class="horario-group">
-                                                     <div class="horario-field">
-                                                         <label>Horário-Início</label>
-                                                         <select id="horario_inicio_online" name="horario_inicio[]">
-                                                             <option value="">Selecione o horário</option>
-                                                             <option value="06:00">06:00</option>
-                                                             <option value="07:00">07:00</option>
-                                                             <option value="08:00">08:00</option>
-                                                             <option value="09:00">09:00</option>
-                                                             <option value="10:00">10:00</option>
-                                                             <option value="11:00">11:00</option>
-                                                             <option value="12:00">12:00</option>
-                                                             <option value="13:00">13:00</option>
-                                                             <option value="14:00">14:00</option>
-                                                             <option value="15:00">15:00</option>
-                                                             <option value="16:00">16:00</option>
-                                                             <option value="17:00">17:00</option>
-                                                             <option value="18:00">18:00</option>
-                                                             <option value="19:00">19:00</option>
-                                                             <option value="20:00">20:00</option>
-                                                             <option value="21:00">21:00</option>
-                                                             <option value="22:00">22:00</option>
-                                                             <option value="23:00">23:00</option>
-                                                         </select>
-                                                     </div>
-                                                     <div class="horario-field">
-                                                         <label>Horário-Fim</label>
-                                                         <select id="horario_fim_online" name="horario_fim[]">
-                                                             <option value="">Selecione o horário</option>
-                                                             <option value="06:00">06:00</option>
-                                                             <option value="07:00">07:00</option>
-                                                             <option value="08:00">08:00</option>
-                                                             <option value="09:00">09:00</option>
-                                                             <option value="10:00">10:00</option>
-                                                             <option value="11:00">11:00</option>
-                                                             <option value="12:00">12:00</option>
-                                                             <option value="13:00">13:00</option>
-                                                             <option value="14:00">14:00</option>
-                                                             <option value="15:00">15:00</option>
-                                                             <option value="16:00">16:00</option>
-                                                             <option value="17:00">17:00</option>
-                                                             <option value="18:00">18:00</option>
-                                                             <option value="19:00">19:00</option>
-                                                             <option value="20:00">20:00</option>
-                                                             <option value="21:00">21:00</option>
-                                                             <option value="22:00">22:00</option>
-                                                             <option value="23:00">23:00</option>
-                                                         </select>
-                                                     </div>
-                                                 </div>
-                                                 <label>Dias de aula</label>
-                                             <div class="checkbox-group dias-aula">
-                                                 <label class="checkbox-label">
-                                                     <input type="checkbox" name="dias_aula[]" value="Segunda-feira">
-                                                     <span>Segunda-feira</span>
-                                                 </label>
-                                                 <label class="checkbox-label">
-                                                     <input type="checkbox" name="dias_aula[]" value="Terça-feira">
-                                                     <span>Terça-feira</span>
-                                                 </label>
-                                                 <label class="checkbox-label">
-                                                     <input type="checkbox" name="dias_aula[]" value="Quarta-feira">
-                                                     <span>Quarta-feira</span>
-                                                 </label>
-                                                 <label class="checkbox-label">
-                                                     <input type="checkbox" name="dias_aula[]" value="Quinta-feira">
-                                                     <span>Quinta-feira</span>
-                                                 </label>
-                                                 <label class="checkbox-label">
-                                                     <input type="checkbox" name="dias_aula[]" value="Sexta-feira">
-                                                     <span>Sexta-feira</span>
-                                                 </label>
-                                                 <label class="checkbox-label">
-                                                     <input type="checkbox" name="dias_aula[]" value="Sábado">
-                                                     <span>Sábado</span>
-                                                 </label>
-                                                 <label class="checkbox-label">
-                                                     <input type="checkbox" name="dias_aula[]" value="Domingo">
-                                                     <span>Domingo</span>
-                                                 </label>
-                                             </div>
-                                             </div>
-                                         </div>
-                                     </div>
-                                     
-                                     <button type="button" class="btn btn-outline add-plataforma-btn">+ Adicionar outra plataforma</button>
-                                 </fieldset>
-                             </div>
 
-                             <div class="form-group full-width">
-                                 <label for="acessibilidade" class="required">Acessibilidade</label>
-                                 <select id="acessibilidade" name="acessibilidade" required onchange="toggleRecursosAcessibilidade()">
-                                     <option value="">Selecione uma opção</option>
-                                     <option value="acessivel">Acessível para pessoas com deficiência</option>
-                                     <option value="exclusivo">Exclusivo para pessoas com deficiência</option>
-                                     <option value="nao_acessivel">Não acessível para Pessoas com Deficiência</option>
-                                 </select>
-                             </div>
+                            <!-- Subformulário para Online -->
+                            <div class="form-group full-width" id="plataforma_container" style="display:none;">
+                                <fieldset class="unidade-fieldset">
+                                    <legend>Informações da Plataforma <button type="button"
+                                            class="remove-plataforma-btn" onclick="removePlataforma(this)"
+                                            style="display:none;">×</button></legend>
 
-                             <div class="form-group full-width" id="recursos_acessibilidade_container" style="display: none;">
-                                 <label for="recursos_acessibilidade" class="required">Recursos de Acessibilidade</label>
-                                 <textarea id="recursos_acessibilidade" name="recursos_acessibilidade" rows="3"
-                                           placeholder="Ex: Intérprete de Libras, material em Braille, rampa de acesso, elevador..."></textarea>
-                             </div>
+                                    <!-- Container para plataforma online -->
+                                    <div id="plataforma_list">
+                                        <!-- Informações da plataforma online -->
+                                        <div class="plataforma-item" data-plataforma="0">
+                                            <label for="plataforma_digital">Plataforma Digital</label>
+                                            <input type="text" id="plataforma_digital" name="plataforma_digital"
+                                                placeholder="Ex: Zoom, Google Meet, Microsoft Teams">
 
-                             <div class="form-group full-width">
-                                 <label for="publico_alvo" class="required">Público-alvo</label>
-                                 <textarea id="publico_alvo" name="publico_alvo" required rows="3"
-                                           placeholder="Ex: Servidores públicos, estudantes, profissionais da área de tecnologia..."></textarea>
-                             </div>
+                                            <label>Total de vagas*</label>
+                                            <input type="number" id="vagas_online" name="vagas_unidade[]" min="1"
+                                                required>
 
-                             <div class="form-group full-width">
-                                 <label class="required">O curso é gratuito?</label>
-                                 <div class="radio-group">
-                                     <label class="radio-label">
-                                         <input type="radio" name="curso_gratuito" value="sim" required onclick="toggleValorCurso(false)" 
-                                                {% if duplicate_data and duplicate_data.curso_gratuito == 'sim' %}checked{% endif %}> SIM
-                                     </label>
-                                     <label class="radio-label">
-                                         <input type="radio" name="curso_gratuito" value="nao" required onclick="toggleValorCurso(true)"
-                                                {% if duplicate_data and duplicate_data.curso_gratuito == 'nao' %}checked{% endif %}> NÃO
-                                     </label>
-                                 </div>
-                             </div>
+                                            <label for="carga_horaria_online" class="required">Carga Horária</label>
+                                            <input type="text" id="carga_horaria_online" name="carga_horaria" required
+                                                placeholder="Digite a carga horária (ex: 40 horas, 80h, 2 meses, etc.)">
+                                            <small
+                                                style="color: red; font-size: 0.9em; margin-top: 5px; display: block;">(Dê
+                                                preferência a carga horária no formato de horas)</small>
 
-                             <div class="form-group full-width" id="valor_curso_container" style="display: none;">
+                                            <label class="required">Aulas Assíncronas?</label>
+                                            <div class="radio-group">
+                                                <label class="radio-label">
+                                                    <input type="radio" name="aulas_assincronas" value="sim" required
+                                                        checked onclick="toggleAulasAssincronas(true)"> SIM
+                                                </label>
+                                                <label class="radio-label">
+                                                    <input type="radio" name="aulas_assincronas" value="nao" required
+                                                        onclick="toggleAulasAssincronas(false)"> NÃO
+                                                </label>
+                                            </div>
+
+                                            <div class="data-group" id="horarios_online_container">
+                                                <div class="data-field">
+                                                    <label>Início das aulas</label>
+                                                    <input type="date" id="inicio_aulas_online"
+                                                        name="inicio_aulas_data[]" value="{{ today_date }}">
+                                                </div>
+                                                <div class="data-field">
+                                                    <label>Fim das aulas</label>
+                                                    <input type="date" id="fim_aulas_online" name="fim_aulas_data[]"
+                                                        value="{{ today_date }}">
+                                                </div>
+                                            </div>
+                                            <div id="horarios_detalhados_online_container" style="display: none;">
+                                                <div class="horario-group">
+                                                    <div class="horario-field">
+                                                        <label>Horário-Início</label>
+                                                        <select id="horario_inicio_online" name="horario_inicio[]">
+                                                            <option value="">Selecione o horário</option>
+                                                            <option value="06:00">06:00</option>
+                                                            <option value="07:00">07:00</option>
+                                                            <option value="08:00">08:00</option>
+                                                            <option value="09:00">09:00</option>
+                                                            <option value="10:00">10:00</option>
+                                                            <option value="11:00">11:00</option>
+                                                            <option value="12:00">12:00</option>
+                                                            <option value="13:00">13:00</option>
+                                                            <option value="14:00">14:00</option>
+                                                            <option value="15:00">15:00</option>
+                                                            <option value="16:00">16:00</option>
+                                                            <option value="17:00">17:00</option>
+                                                            <option value="18:00">18:00</option>
+                                                            <option value="19:00">19:00</option>
+                                                            <option value="20:00">20:00</option>
+                                                            <option value="21:00">21:00</option>
+                                                            <option value="22:00">22:00</option>
+                                                            <option value="23:00">23:00</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="horario-field">
+                                                        <label>Horário-Fim</label>
+                                                        <select id="horario_fim_online" name="horario_fim[]">
+                                                            <option value="">Selecione o horário</option>
+                                                            <option value="06:00">06:00</option>
+                                                            <option value="07:00">07:00</option>
+                                                            <option value="08:00">08:00</option>
+                                                            <option value="09:00">09:00</option>
+                                                            <option value="10:00">10:00</option>
+                                                            <option value="11:00">11:00</option>
+                                                            <option value="12:00">12:00</option>
+                                                            <option value="13:00">13:00</option>
+                                                            <option value="14:00">14:00</option>
+                                                            <option value="15:00">15:00</option>
+                                                            <option value="16:00">16:00</option>
+                                                            <option value="17:00">17:00</option>
+                                                            <option value="18:00">18:00</option>
+                                                            <option value="19:00">19:00</option>
+                                                            <option value="20:00">20:00</option>
+                                                            <option value="21:00">21:00</option>
+                                                            <option value="22:00">22:00</option>
+                                                            <option value="23:00">23:00</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <label>Dias de aula</label>
+                                                <div class="checkbox-group dias-aula">
+                                                    <label class="checkbox-label">
+                                                        <input type="checkbox" name="dias_aula[]" value="Segunda-feira">
+                                                        <span>Segunda-feira</span>
+                                                    </label>
+                                                    <label class="checkbox-label">
+                                                        <input type="checkbox" name="dias_aula[]" value="Terça-feira">
+                                                        <span>Terça-feira</span>
+                                                    </label>
+                                                    <label class="checkbox-label">
+                                                        <input type="checkbox" name="dias_aula[]" value="Quarta-feira">
+                                                        <span>Quarta-feira</span>
+                                                    </label>
+                                                    <label class="checkbox-label">
+                                                        <input type="checkbox" name="dias_aula[]" value="Quinta-feira">
+                                                        <span>Quinta-feira</span>
+                                                    </label>
+                                                    <label class="checkbox-label">
+                                                        <input type="checkbox" name="dias_aula[]" value="Sexta-feira">
+                                                        <span>Sexta-feira</span>
+                                                    </label>
+                                                    <label class="checkbox-label">
+                                                        <input type="checkbox" name="dias_aula[]" value="Sábado">
+                                                        <span>Sábado</span>
+                                                    </label>
+                                                    <label class="checkbox-label">
+                                                        <input type="checkbox" name="dias_aula[]" value="Domingo">
+                                                        <span>Domingo</span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <button type="button" class="btn btn-outline add-plataforma-btn">+ Adicionar outra
+                                        plataforma</button>
+                                </fieldset>
+                            </div>
+
+                            <div class="form-group full-width">
+                                <label for="acessibilidade" class="required">Acessibilidade</label>
+                                <select id="acessibilidade" name="acessibilidade" required
+                                    onchange="toggleRecursosAcessibilidade()" autocomplete="off">
+                                    <option value="">Selecione uma opção</option>
+                                    <option value="acessivel">Acessível para pessoas com deficiência</option>
+                                    <option value="exclusivo">Exclusivo para pessoas com deficiência</option>
+                                    <option value="nao_acessivel">Não acessível para Pessoas com Deficiência</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group full-width" id="recursos_acessibilidade_container"
+                                style="display: none;">
+                                <label for="recursos_acessibilidade" class="required">Recursos de Acessibilidade</label>
+                                <textarea id="recursos_acessibilidade" name="recursos_acessibilidade" rows="3"
+                                    placeholder="Ex: Intérprete de Libras, material em Braille, rampa de acesso, elevador..."></textarea>
+                            </div>
+
+                            <div class="form-group full-width">
+                                <label for="publico_alvo" class="required">Público-alvo</label>
+                                <textarea id="publico_alvo" name="publico_alvo" required rows="3"
+                                    placeholder="Ex: Servidores públicos, estudantes, profissionais da área de tecnologia..."></textarea>
+                            </div>
+
+                            <div class="form-group full-width">
+                                <label class="required">O curso é gratuito?</label>
+                                <div class="radio-group">
+                                    <label class="radio-label">
+                                        <input type="radio" name="curso_gratuito" value="sim" required
+                                            onclick="toggleValorCurso(false)" {% if duplicate_data and
+                                            duplicate_data.curso_gratuito=='sim' %}checked{% endif %}> SIM
+                                    </label>
+                                    <label class="radio-label">
+                                        <input type="radio" name="curso_gratuito" value="nao" required
+                                            onclick="toggleValorCurso(true)" {% if duplicate_data and
+                                            duplicate_data.curso_gratuito=='nao' %}checked{% endif %}> NÃO
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="form-group full-width" id="valor_curso_container" style="display: none;">
                                 <div class="valor-curso-row">
                                     <div class="valor-curso-col">
                                         <label for="valor_curso_inteira" class="required">Valor INTEIRA (R$)</label>
-                                        <input type="text" id="valor_curso_inteira" name="valor_curso_inteira" step="0.01" min="0"
-                                            placeholder="Digite o valor integral (ex: 100,00)" oninput="formatarValor(this)">
+                                        <input type="text" id="valor_curso_inteira" name="valor_curso_inteira"
+                                            step="0.01" min="0" placeholder="Digite o valor integral (ex: 100,00)"
+                                            oninput="formatarValor(this)">
                                     </div>
                                     <div class="valor-curso-col">
                                         <label for="valor_curso_meia">Valor MEIA (R$)</label>
-                                        <input type="text" id="valor_curso_meia" name="valor_curso_meia" step="0.01" min="0"
-                                            placeholder="Digite o valor da meia (ex: 50,00)" oninput="formatarValor(this); toggleRequisitos()">
+                                        <input type="text" id="valor_curso_meia" name="valor_curso_meia" step="0.01"
+                                            min="0" placeholder="Digite o valor da meia (ex: 50,00)"
+                                            oninput="formatarValor(this); toggleRequisitos()">
                                     </div>
                                 </div>
                                 <div id="requisitos_meia_container" style="display: none;">
-                                    <label for="requisitos_meia" class="required">Condições para obtenção de meia-entrada</label>
+                                    <label for="requisitos_meia" class="required">Condições para obtenção de
+                                        meia-entrada</label>
                                     <textarea id="requisitos_meia" name="requisitos_meia" rows="2" required
                                         placeholder="Ex: Estudantes, idosos, pessoas com deficiência..."></textarea>
                                 </div>
-                             </div>
+                            </div>
 
-                             <div class="form-group full-width">
-                                 <label class="required">Oferece Certificado</label>
-                                 <div class="radio-group">
-                                     <label class="radio-label">
-                                         <input type="radio" name="oferece_certificado" value="sim" required onclick="togglePreRequisitos(true)"> SIM
-                                     </label>
-                                     <label class="radio-label">
-                                         <input type="radio" name="oferece_certificado" value="nao" required onclick="togglePreRequisitos(false)"> NÃO
-                                     </label>
-                                 </div>
-                             </div>
+                            <div class="form-group full-width">
+                                <label class="required">Oferece Certificado</label>
+                                <div class="radio-group">
+                                    <label class="radio-label">
+                                        <input type="radio" name="oferece_certificado" value="sim" required
+                                            onclick="togglePreRequisitos(true)"> SIM
+                                    </label>
+                                    <label class="radio-label">
+                                        <input type="radio" name="oferece_certificado" value="nao" required
+                                            onclick="togglePreRequisitos(false)"> NÃO
+                                    </label>
+                                </div>
+                            </div>
 
-                             <div class="form-group full-width" id="pre_requisitos_container" style="display: none;">
-                                 <label for="pre_requisitos" class="required">Pré-requisitos para Recebimento de Certificados</label>
-                                 <textarea id="pre_requisitos" name="pre_requisitos" rows="3"
-                                           placeholder="Ex: Frequência mínima de 75%, entrega de trabalho final, aprovação em avaliação..."></textarea>
-                             </div>
+                            <div class="form-group full-width" id="pre_requisitos_container" style="display: none;">
+                                <label for="pre_requisitos" class="required">Pré-requisitos para Recebimento de
+                                    Certificados</label>
+                                <textarea id="pre_requisitos" name="pre_requisitos" rows="3"
+                                    placeholder="Ex: Frequência mínima de 75%, entrega de trabalho final, aprovação em avaliação..."></textarea>
+                            </div>
 
-                             <div class="form-group full-width">
-                                 <label class="required">Oferece Bolsa</label>
-                                 <div class="radio-group">
-                                     <label class="radio-label">
-                                         <input type="radio" name="oferece_bolsa" value="sim" required onclick="toggleValorBolsa(true)"> SIM
-                                     </label>
-                                     <label class="radio-label">
-                                         <input type="radio" name="oferece_bolsa" value="nao" required onclick="toggleValorBolsa(false)"> NÃO
-                                     </label>
-                                 </div>
-                             </div>
+                            <div class="form-group full-width">
+                                <label class="required">Oferece Bolsa</label>
+                                <div class="radio-group">
+                                    <label class="radio-label">
+                                        <input type="radio" name="oferece_bolsa" value="sim" required
+                                            onclick="toggleValorBolsa(true)"> SIM
+                                    </label>
+                                    <label class="radio-label">
+                                        <input type="radio" name="oferece_bolsa" value="nao" required
+                                            onclick="toggleValorBolsa(false)"> NÃO
+                                    </label>
+                                </div>
+                            </div>
 
-                             <div class="form-group full-width" id="valor_bolsa_container" style="display: none;">
-                                 <label for="valor_bolsa" class="required">Valor da Bolsa (R$)</label>
-                                 <input type="text" id="valor_bolsa" name="valor_bolsa" step="0.01" min="0"
-                                        placeholder="Digite o valor da bolsa (ex: 100,00)" oninput="formatarValor(this)">
-                             </div>
-                             
-                             <div class="form-group full-width" id="requisitos_bolsa_container" style="display: none;">
-                                 <label for="requisitos_bolsa" class="required">Requisitos para a Obtenção da Bolsa</label>
-                                 <textarea id="requisitos_bolsa" name="requisitos_bolsa" rows="3"
-                                           placeholder="Descreva os requisitos necessários para obtenção da bolsa"></textarea>
-                             </div>
-                             
-                             <div class="form-group full-width">
-                                 <label for="info_complementares">Informações Complementares para inscrição de participantes</label>
-                                 <span style="color:red; font-size:0.9em; display:block; margin:4px 0 8px;">OBS: Com o acesso via gov.br, já teremos o Nome e CPF do candidato.</span>
-                                 <textarea id="info_complementares" name="info_complementares" rows="4"
-                                           placeholder="Informe quais dados serão necessários para inscrição dos participantes (Ex: Escolaridade, Idade, Bairro, etc.)"></textarea>                        
-                             </div>
+                            <div class="form-group full-width" id="valor_bolsa_container" style="display: none;">
+                                <label for="valor_bolsa" class="required">Valor da Bolsa (R$)</label>
+                                <input type="text" id="valor_bolsa" name="valor_bolsa" step="0.01" min="0"
+                                    placeholder="Digite o valor da bolsa (ex: 100,00)" oninput="formatarValor(this)">
+                            </div>
 
-                             <!-- Pergunta: Informações adicionais do curso? -->
-                             <div class="form-group full-width">
-                                 <label class="required">Informações adicionais do curso?</label>
-                                 <span style="color:red; font-size: 0.9em; display:block; margin:4px 0 8px;">Para divulgar o curso de forma clara e objetiva, o foco deve ser em apresentar somente as informações mais importantes. Detalhes adicionais podem ser comunicados aos alunos que se matricularem, por isso, avalie se esses dados são realmente essenciais para o público geral no momento da divulgação.</span>
-                                 <div class="radio-group">
-                                     <label class="radio-label">
-                                         <input type="radio" name="info_adicionais_opcao" value="sim" required onclick="toggleInfoAdicionais(true)"> SIM
-                                     </label>
-                                     <label class="radio-label">
-                                         <input type="radio" name="info_adicionais_opcao" value="nao" required onclick="toggleInfoAdicionais(false)"> NÃO
-                                     </label>
-                                 </div>
-                             </div>
+                            <div class="form-group full-width" id="requisitos_bolsa_container" style="display: none;">
+                                <label for="requisitos_bolsa" class="required">Requisitos para a Obtenção da
+                                    Bolsa</label>
+                                <textarea id="requisitos_bolsa" name="requisitos_bolsa" rows="3"
+                                    placeholder="Descreva os requisitos necessários para obtenção da bolsa"></textarea>
+                            </div>
 
-                             <div class="form-group full-width" id="info_adicionais_container" style="display:none;">
-                                 <label for="info_adicionais" class="required">Informações Adicionais do Curso</label>
-                                 <textarea id="info_adicionais" name="info_complementares" rows="4" placeholder="Digite informações adicionais, como recursos utilizados, facilitador, etc"></textarea>
-                             </div>
-                             
-                             <!-- Parceiro Externo -->
-                             <div class="form-group full-width">
-                                 <label class="required">CURSO OFERECIDO POR PARCEIRO EXTERNO?</label>
-                                 <div class="radio-group">
-                                     <label class="radio-label">
-                                         <input type="radio" name="parceiro_externo" value="sim" required onclick="toggleParceiroExterno(true)"> SIM
-                                     </label>
-                                     <label class="radio-label">
-                                         <input type="radio" name="parceiro_externo" value="nao" required onclick="toggleParceiroExterno(false)"> NÃO
-                                     </label>
-                                 </div>
-                             </div>
-                             
-                             <div class="form-group full-width" id="parceiro_externo_container" style="display:none;">
-                                 <fieldset class="unidade-fieldset">
-                                     <legend>Informações do Parceiro</legend>
-                                     
-                                     <div class="parceiro-grid">
-                                         <div class="parceiro-item">
-                                             <label for="parceiro_nome" class="required">Nome do Parceiro</label>
-                                             <input type="text" id="parceiro_nome" name="parceiro_nome" placeholder="Ex: Fundação Exemplo">
-                                         </div>
-                                         
-                                         <div class="parceiro-item">
-                                             <label for="parceiro_logo">Logo do Parceiro</label>
-                                             <input type="file" id="parceiro_logo" name="parceiro_logo" accept=".png,.jpg,.jpeg,image/*">
-                                             <small class="file-hint">Formatos aceitos: PNG, JPG, JPEG</small>
-                                         </div>
-                                         
-                                         <div class="parceiro-item full-width">
-                                             <label for="parceiro_link">Link do Parceiro</label>
-                                             <input type="text" id="parceiro_link" name="parceiro_link" placeholder="https://exemplo.org">
-                                             <small class="help-text-red">Link da página web para onde o usuário será redirecionado para fins de inscrição na plataforma do parceiro</small>
-                                         </div>
-                                     </div>
-                                 </fieldset>
-                             </div>
+                            <div class="form-group full-width">
+                                <label for="info_complementares">Informações Complementares para inscrição de
+                                    participantes</label>
+                                <span style="color:red; font-size:0.9em; display:block; margin:4px 0 8px;">OBS: Com o
+                                    acesso via gov.br, já teremos o Nome e CPF do candidato.</span>
+                                <textarea id="info_complementares" name="info_complementares" rows="4"
+                                    placeholder="Informe quais dados serão necessários para inscrição dos participantes (Ex: Escolaridade, Idade, Bairro, etc.)"></textarea>
+                            </div>
+
+                            <!-- Pergunta: Informações adicionais do curso? -->
+                            <div class="form-group full-width">
+                                <label class="required">Informações adicionais do curso?</label>
+                                <span style="color:red; font-size: 0.9em; display:block; margin:4px 0 8px;">Para
+                                    divulgar o curso de forma clara e objetiva, o foco deve ser em apresentar somente as
+                                    informações mais importantes. Detalhes adicionais podem ser comunicados aos alunos
+                                    que se matricularem, por isso, avalie se esses dados são realmente essenciais para o
+                                    público geral no momento da divulgação.</span>
+                                <div class="radio-group">
+                                    <label class="radio-label">
+                                        <input type="radio" name="info_adicionais_opcao" value="sim" required
+                                            onclick="toggleInfoAdicionais(true)"> SIM
+                                    </label>
+                                    <label class="radio-label">
+                                        <input type="radio" name="info_adicionais_opcao" value="nao" required
+                                            onclick="toggleInfoAdicionais(false)"> NÃO
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="form-group full-width" id="info_adicionais_container" style="display:none;">
+                                <label for="info_adicionais" class="required">Informações Adicionais do Curso</label>
+                                <textarea id="info_adicionais" name="info_complementares" rows="4"
+                                    placeholder="Digite informações adicionais, como recursos utilizados, facilitador, etc"></textarea>
+                            </div>
+
+                            <!-- Parceiro Externo -->
+                            <div class="form-group full-width">
+                                <label class="required">CURSO OFERECIDO POR PARCEIRO EXTERNO?</label>
+                                <div class="radio-group">
+                                    <label class="radio-label">
+                                        <input type="radio" name="parceiro_externo" value="sim" required
+                                            onclick="toggleParceiroExterno(true)"> SIM
+                                    </label>
+                                    <label class="radio-label">
+                                        <input type="radio" name="parceiro_externo" value="nao" required
+                                            onclick="toggleParceiroExterno(false)"> NÃO
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="form-group full-width" id="parceiro_externo_container" style="display:none;">
+                                <fieldset class="unidade-fieldset">
+                                    <legend>Informações do Parceiro</legend>
+
+                                    <div class="parceiro-grid">
+                                        <div class="parceiro-item">
+                                            <label for="parceiro_nome" class="required">Nome do Parceiro</label>
+                                            <input type="text" id="parceiro_nome" name="parceiro_nome"
+                                                placeholder="Ex: Fundação Exemplo">
+                                        </div>
+
+                                        <div class="parceiro-item">
+                                            <label for="parceiro_logo">Logo do Parceiro</label>
+                                            <input type="file" id="parceiro_logo" name="parceiro_logo"
+                                                accept=".png,.jpg,.jpeg,image/*">
+                                            <small class="file-hint">Formatos aceitos: PNG, JPG, JPEG</small>
+                                        </div>
+
+                                        <div class="parceiro-item full-width">
+                                            <label for="parceiro_link">Link do Parceiro</label>
+                                            <input type="text" id="parceiro_link" name="parceiro_link"
+                                                placeholder="https://exemplo.org">
+                                            <small class="help-text-red">Link da página web para onde o usuário será
+                                                redirecionado para fins de inscrição na plataforma do parceiro</small>
+                                        </div>
+                                    </div>
+                                </fieldset>
+                            </div>
                         </div>
                     </div>
 
@@ -1006,12 +1226,12 @@
         </main>
     </div>
 
-     <script>
+    <script>
         function toggleValorCurso(mostrar) {
             const valorCursoContainer = document.getElementById('valor_curso_container');
             const valorCursoInteira = document.getElementById('valor_curso_inteira');
             const valorCursoMeia = document.getElementById('valor_curso_meia');
-            
+
             if (mostrar) {
                 valorCursoContainer.style.display = 'block';
                 if (valorCursoInteira) valorCursoInteira.setAttribute('required', 'required');
@@ -1041,10 +1261,10 @@
             const valorMeia = document.getElementById('valor_curso_meia');
             const requisitosContainer = document.getElementById('requisitos_meia_container');
             const requisitosField = document.getElementById('requisitos_meia');
-            
+
             if (valorMeia && requisitosContainer && requisitosField) {
                 const valor = valorMeia.value.trim();
-                
+
                 if (valor !== '') {
                     // Se há valor na meia, mostrar campo de requisitos
                     requisitosContainer.style.display = 'block';
@@ -1061,127 +1281,127 @@
         function formatarValor(input) {
             // Remove tudo que não é número ou vírgula
             let valor = input.value.replace(/[^\d,]/g, '');
-            
+
             // Se há vírgula, garante que só há uma
             const partes = valor.split(',');
             if (partes.length > 2) {
                 valor = partes[0] + ',' + partes.slice(1).join('');
             }
-            
+
             // Limita a 2 casas decimais após a vírgula
             if (partes.length === 2 && partes[1].length > 2) {
                 valor = partes[0] + ',' + partes[1].substring(0, 2);
             }
-            
+
             input.value = valor;
         }
 
-         function togglePreRequisitos(mostrar) {
-             const preRequisitosContainer = document.getElementById('pre_requisitos_container');
-             if (mostrar) {
-                 preRequisitosContainer.style.display = 'block';
-                 document.getElementById('pre_requisitos').setAttribute('required', 'required');
-             } else {
-                 preRequisitosContainer.style.display = 'none';
-                 document.getElementById('pre_requisitos').removeAttribute('required');
-                 document.getElementById('pre_requisitos').value = '';
-             }
-         }
+        function togglePreRequisitos(mostrar) {
+            const preRequisitosContainer = document.getElementById('pre_requisitos_container');
+            if (mostrar) {
+                preRequisitosContainer.style.display = 'block';
+                document.getElementById('pre_requisitos').setAttribute('required', 'required');
+            } else {
+                preRequisitosContainer.style.display = 'none';
+                document.getElementById('pre_requisitos').removeAttribute('required');
+                document.getElementById('pre_requisitos').value = '';
+            }
+        }
 
-         function toggleRecursosAcessibilidade() {
-             const acessibilidadeSelect = document.getElementById('acessibilidade');
-             const recursosContainer = document.getElementById('recursos_acessibilidade_container');
-             const recursosField = document.getElementById('recursos_acessibilidade');
-             
-             if (acessibilidadeSelect.value === 'acessivel' || acessibilidadeSelect.value === 'exclusivo') {
-                 recursosContainer.style.display = 'block';
-                 recursosField.setAttribute('required', 'required');
-             } else {
-                 recursosContainer.style.display = 'none';
-                 recursosField.removeAttribute('required');
-                 recursosField.value = '';
-             }
-         }
-         
-         function toggleValorBolsa(mostrar) {
-             const valorBolsaContainer = document.getElementById('valor_bolsa_container');
-             const requisitosContainer = document.getElementById('requisitos_bolsa_container');
-             
-             if (mostrar) {
-                 valorBolsaContainer.style.display = 'block';
-                 requisitosContainer.style.display = 'block';
-                 document.getElementById('valor_bolsa').setAttribute('required', 'required');
-                 document.getElementById('requisitos_bolsa').setAttribute('required', 'required');
-             } else {
-                 valorBolsaContainer.style.display = 'none';
-                 requisitosContainer.style.display = 'none';
-                 document.getElementById('valor_bolsa').removeAttribute('required');
-                 document.getElementById('requisitos_bolsa').removeAttribute('required');
-                 document.getElementById('valor_bolsa').value = '';
-                 document.getElementById('requisitos_bolsa').value = '';
-             }
-         }
-         
-         function toggleParceiroExterno(mostrar) {
-             const container = document.getElementById('parceiro_externo_container');
-             const nome = document.getElementById('parceiro_nome');
-             const logo = document.getElementById('parceiro_logo');
-             const link = document.getElementById('parceiro_link');
-             
-             if (mostrar) {
-                 container.style.display = 'block';
-                 nome.setAttribute('required', 'required');
-             } else {
-                 container.style.display = 'none';
-                 nome.removeAttribute('required');
-                 if (logo) logo.value = '';
-                 if (link) link.value = '';
-             }
-         }
+        function toggleRecursosAcessibilidade() {
+            const acessibilidadeSelect = document.getElementById('acessibilidade');
+            const recursosContainer = document.getElementById('recursos_acessibilidade_container');
+            const recursosField = document.getElementById('recursos_acessibilidade');
 
-         // Validação do campo de link do parceiro
-         function validatePartnerLink() {
-             const linkField = document.getElementById('parceiro_link');
-             if (linkField && linkField.value.trim() !== '') {
-                 const url = linkField.value.trim();
-                 // Verificar se é uma URL válida
-                 try {
-                     new URL(url);
-                     linkField.setCustomValidity('');
-                 } catch (e) {
-                     linkField.setCustomValidity('Por favor, insira uma URL válida (ex: https://exemplo.org)');
-                 }
-             } else {
-                 if (linkField) linkField.setCustomValidity('');
-             }
-         }
+            if (acessibilidadeSelect.value === 'acessivel' || acessibilidadeSelect.value === 'exclusivo') {
+                recursosContainer.style.display = 'block';
+                recursosField.setAttribute('required', 'required');
+            } else {
+                recursosContainer.style.display = 'none';
+                recursosField.removeAttribute('required');
+                recursosField.value = '';
+            }
+        }
 
-         // Validação dos dias de aula (pelo menos um deve ser selecionado)
-         function validateDiasAula() {
-             const diasCheckboxes = document.querySelectorAll('input[name="dias_aula[]"]');
-             const unidadesContainer = document.getElementById('unidades_container');
-             
-             if (unidadesContainer && unidadesContainer.style.display !== 'none') {
-                 const algumSelecionado = Array.from(diasCheckboxes).some(cb => cb.checked);
-                 
-                 diasCheckboxes.forEach(cb => {
-                     if (!algumSelecionado) {
-                         cb.setCustomValidity('Selecione pelo menos um dia da semana');
-                     } else {
-                         cb.setCustomValidity('');
-                     }
-                 });
-             }
-         }
+        function toggleValorBolsa(mostrar) {
+            const valorBolsaContainer = document.getElementById('valor_bolsa_container');
+            const requisitosContainer = document.getElementById('requisitos_bolsa_container');
+
+            if (mostrar) {
+                valorBolsaContainer.style.display = 'block';
+                requisitosContainer.style.display = 'block';
+                document.getElementById('valor_bolsa').setAttribute('required', 'required');
+                document.getElementById('requisitos_bolsa').setAttribute('required', 'required');
+            } else {
+                valorBolsaContainer.style.display = 'none';
+                requisitosContainer.style.display = 'none';
+                document.getElementById('valor_bolsa').removeAttribute('required');
+                document.getElementById('requisitos_bolsa').removeAttribute('required');
+                document.getElementById('valor_bolsa').value = '';
+                document.getElementById('requisitos_bolsa').value = '';
+            }
+        }
+
+        function toggleParceiroExterno(mostrar) {
+            const container = document.getElementById('parceiro_externo_container');
+            const nome = document.getElementById('parceiro_nome');
+            const logo = document.getElementById('parceiro_logo');
+            const link = document.getElementById('parceiro_link');
+
+            if (mostrar) {
+                container.style.display = 'block';
+                nome.setAttribute('required', 'required');
+            } else {
+                container.style.display = 'none';
+                nome.removeAttribute('required');
+                if (logo) logo.value = '';
+                if (link) link.value = '';
+            }
+        }
+
+        // Validação do campo de link do parceiro
+        function validatePartnerLink() {
+            const linkField = document.getElementById('parceiro_link');
+            if (linkField && linkField.value.trim() !== '') {
+                const url = linkField.value.trim();
+                // Verificar se é uma URL válida
+                try {
+                    new URL(url);
+                    linkField.setCustomValidity('');
+                } catch (e) {
+                    linkField.setCustomValidity('Por favor, insira uma URL válida (ex: https://exemplo.org)');
+                }
+            } else {
+                if (linkField) linkField.setCustomValidity('');
+            }
+        }
+
+        // Validação dos dias de aula (pelo menos um deve ser selecionado)
+        function validateDiasAula() {
+            const diasCheckboxes = document.querySelectorAll('input[name="dias_aula[]"]');
+            const unidadesContainer = document.getElementById('unidades_container');
+
+            if (unidadesContainer && unidadesContainer.style.display !== 'none') {
+                const algumSelecionado = Array.from(diasCheckboxes).some(cb => cb.checked);
+
+                diasCheckboxes.forEach(cb => {
+                    if (!algumSelecionado) {
+                        cb.setCustomValidity('Selecione pelo menos um dia da semana');
+                    } else {
+                        cb.setCustomValidity('');
+                    }
+                });
+            }
+        }
 
         // Função para gerenciar upload de capa do curso
         function setupCourseCoverUpload() {
             const fileInput = document.getElementById('capa_curso');
             const fileDisplay = document.querySelector('.file-upload-display');
             const fileText = document.querySelector('.file-upload-text');
-            
+
             if (fileInput && fileDisplay && fileText) {
-                fileInput.addEventListener('change', function(e) {
+                fileInput.addEventListener('change', function (e) {
                     const file = e.target.files[0];
                     if (file) {
                         // Validar formato do arquivo
@@ -1191,7 +1411,7 @@
                             fileInput.value = '';
                             return;
                         }
-                        
+
                         // Validar tamanho do arquivo (máximo 5MB)
                         const maxSize = 5 * 1024 * 1024; // 5MB
                         if (file.size > maxSize) {
@@ -1199,20 +1419,20 @@
                             fileInput.value = '';
                             return;
                         }
-                        
+
                         // Atualizar display
                         fileDisplay.classList.add('has-file');
                         fileText.textContent = `Arquivo selecionado: ${file.name}`;
-                        
+
                         // Mostrar preview da imagem
                         const reader = new FileReader();
-                        reader.onload = function(e) {
+                        reader.onload = function (e) {
                             // Remover preview anterior se existir
                             const existingPreview = fileDisplay.querySelector('.image-preview');
                             if (existingPreview) {
                                 existingPreview.remove();
                             }
-                            
+
                             // Criar preview
                             const preview = document.createElement('img');
                             preview.className = 'image-preview';
@@ -1222,7 +1442,7 @@
                             preview.style.borderRadius = '4px';
                             preview.style.marginTop = '10px';
                             preview.style.objectFit = 'cover';
-                            
+
                             fileDisplay.appendChild(preview);
                         };
                         reader.readAsDataURL(file);
@@ -1230,7 +1450,7 @@
                         // Remover estado de arquivo selecionado
                         fileDisplay.classList.remove('has-file');
                         fileText.textContent = 'Clique para selecionar uma imagem';
-                        
+
                         // Remover preview
                         const existingPreview = fileDisplay.querySelector('.image-preview');
                         if (existingPreview) {
@@ -1242,27 +1462,27 @@
         }
 
         // Adicionar validação quando a página carregar
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const linkField = document.getElementById('parceiro_link');
             if (linkField) {
                 linkField.addEventListener('blur', validatePartnerLink);
                 linkField.addEventListener('input', validatePartnerLink);
             }
-            
+
             // Configurar upload de capa do curso
             setupCourseCoverUpload();
-            
+
             // Adicionar validação aos checkboxes de dias
             const diasCheckboxes = document.querySelectorAll('input[name="dias_aula[]"]');
             diasCheckboxes.forEach(cb => {
                 cb.addEventListener('change', validateDiasAula);
             });
-            
+
             // Scroll automático para mensagens de erro
             const errorAlert = document.querySelector('.alert-error');
             if (errorAlert) {
                 errorAlert.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                
+
                 // Destacar a mensagem de erro
                 setTimeout(() => {
                     errorAlert.style.transform = 'scale(1.02)';
@@ -1272,48 +1492,48 @@
                 }, 100);
             }
         });
-     </script>
+    </script>
 
-     <script>
-         function togglePreRequisitos(mostrar) {
-             const container = document.getElementById('pre_requisitos_container');
-             const preRequisitosField = document.getElementById('pre_requisitos');
-             
-             if (mostrar) {
-                 container.style.display = 'block';
-                 preRequisitosField.setAttribute('required', '');
-             } else {
-                 container.style.display = 'none';
-                 preRequisitosField.removeAttribute('required');
-                 preRequisitosField.value = '';
-             }
-         }
+    <script>
+        function togglePreRequisitos(mostrar) {
+            const container = document.getElementById('pre_requisitos_container');
+            const preRequisitosField = document.getElementById('pre_requisitos');
 
-         function toggleUnidades() {
-             const modalidade = document.getElementById('modalidade').value;
-             const unidadesContainer = document.getElementById('unidades_container');
-             const plataformaContainer = document.getElementById('plataforma_container');
-             
-             // Ocultar ambos os containers primeiro
-             unidadesContainer.style.display = 'none';
-             plataformaContainer.style.display = 'none';
-             
-             if (modalidade === 'Presencial' || modalidade === 'Híbrido') {
-                 // Mostrar subformulário "Informações da Unidade"
-                 unidadesContainer.style.display = 'block';
-                 setUnidadeFieldsRequired(true);
-                 setPlataformaFieldsRequired(false);
-             } else if (modalidade === 'Online') {
-                 // Mostrar subformulário "Informações da Plataforma"
-                 plataformaContainer.style.display = 'block';
-                 setUnidadeFieldsRequired(false);
-                 setPlataformaFieldsRequired(true);
-             } else {
-                 // Modalidade não selecionada
-                 setUnidadeFieldsRequired(false);
-                 setPlataformaFieldsRequired(false);
-             }
-         }
+            if (mostrar) {
+                container.style.display = 'block';
+                preRequisitosField.setAttribute('required', '');
+            } else {
+                container.style.display = 'none';
+                preRequisitosField.removeAttribute('required');
+                preRequisitosField.value = '';
+            }
+        }
+
+        function toggleUnidades() {
+            const modalidade = document.getElementById('modalidade').value;
+            const unidadesContainer = document.getElementById('unidades_container');
+            const plataformaContainer = document.getElementById('plataforma_container');
+
+            // Ocultar ambos os containers primeiro
+            unidadesContainer.style.display = 'none';
+            plataformaContainer.style.display = 'none';
+
+            if (modalidade === 'Presencial' || modalidade === 'Híbrido') {
+                // Mostrar subformulário "Informações da Unidade"
+                unidadesContainer.style.display = 'block';
+                setUnidadeFieldsRequired(true);
+                setPlataformaFieldsRequired(false);
+            } else if (modalidade === 'Online') {
+                // Mostrar subformulário "Informações da Plataforma"
+                plataformaContainer.style.display = 'block';
+                setUnidadeFieldsRequired(false);
+                setPlataformaFieldsRequired(true);
+            } else {
+                // Modalidade não selecionada
+                setUnidadeFieldsRequired(false);
+                setPlataformaFieldsRequired(false);
+            }
+        }
 
         function setUnidadeFieldsRequired(required) {
             // Selecionar todos os campos de unidade diretamente
@@ -1326,9 +1546,9 @@
                 'select[name="horario_inicio[]"], ' +
                 'select[name="horario_fim[]"]'
             );
-            
+
             const cargaHorariaUnidade = document.getElementById('carga_horaria_unidade');
-            
+
             // Processar campos de unidade
             camposUnidade.forEach(campo => {
                 if (required) {
@@ -1337,7 +1557,7 @@
                     campo.removeAttribute('required');
                 }
             });
-            
+
             // Controlar campo Carga Horária do subformulário Unidade
             if (cargaHorariaUnidade) {
                 if (required) {
@@ -1360,17 +1580,17 @@
             const fimAulasOnline = document.getElementById('fim_aulas_online');
             const horarioInicioOnline = document.getElementById('horario_inicio_online');
             const horarioFimOnline = document.getElementById('horario_fim_online');
-            
+
             // Verificar se aulas assíncronas está marcado como "SIM"
             const aulasAssincronasSim = document.querySelector('input[name="aulas_assincronas"][value="sim"]');
             const isAsync = aulasAssincronasSim && aulasAssincronasSim.checked;
-            
+
             // Campos sempre obrigatórios para modalidade Online
             const camposObrigatorios = [plataformaDigital, vagasOnline, cargaHorariaOnline];
-            
+
             // Campos condicionais (só obrigatórios se não for assíncrono)
             const camposCondicionais = [inicioAulasOnline, fimAulasOnline, horarioInicioOnline, horarioFimOnline];
-            
+
             // Processar campos obrigatórios
             camposObrigatorios.forEach(campo => {
                 if (campo) {
@@ -1384,7 +1604,7 @@
                     }
                 }
             });
-            
+
             // Processar campos condicionais
             camposCondicionais.forEach(campo => {
                 if (campo) {
@@ -1405,16 +1625,16 @@
         function removeUnidade(button) {
             const unidadesList = document.getElementById('unidades_list');
             const unidades = unidadesList.querySelectorAll('.unidade-item');
-            
+
             // Não permitir remover se só há uma unidade
             if (unidades.length <= 1) {
                 return;
             }
-            
+
             // Remover a unidade
             const unidadeItem = button.closest('.unidade-item');
             unidadeItem.remove();
-            
+
             // Renumerar as unidades restantes
             renumberUnits();
             updateRemoveButtonsVisibility();
@@ -1434,7 +1654,7 @@
         function updateRemoveButtonsVisibility() {
             const unidades = document.querySelectorAll('#unidades_list .unidade-item');
             const removeButtons = document.querySelectorAll('.remove-unidade-btn');
-            
+
             // Mostrar botão de remover apenas se há mais de uma unidade
             removeButtons.forEach(button => {
                 button.style.display = unidades.length > 1 ? 'inline-block' : 'none';
@@ -1446,12 +1666,12 @@
             const plataformaList = document.getElementById('plataforma_list');
             const plataformas = plataformaList.querySelectorAll('.unidade-item');
             const nextIndex = plataformas.length;
-            
+
             // Criar nova plataforma
             const newPlataforma = document.createElement('div');
             newPlataforma.className = 'unidade-item';
             newPlataforma.setAttribute('data-plataforma', nextIndex);
-            
+
             newPlataforma.innerHTML = `
                 <legend>Informações da Plataforma ${nextIndex + 1} <button type="button" class="remove-plataforma-btn" onclick="removePlataforma(this)">×</button></legend>
                 <label for="plataforma_digital_${nextIndex}">Plataforma Digital</label>
@@ -1566,7 +1786,7 @@
                     </label>
                 </div>
             `;
-            
+
             plataformaList.appendChild(newPlataforma);
             updateRemovePlataformaButtonsVisibility();
         }
@@ -1574,16 +1794,16 @@
         function removePlataforma(button) {
             const plataformaList = document.getElementById('plataforma_list');
             const plataformas = plataformaList.querySelectorAll('.unidade-item');
-            
+
             // Não permitir remover se só há uma plataforma
             if (plataformas.length <= 1) {
                 return;
             }
-            
+
             // Remover a plataforma
             const plataformaItem = button.closest('.unidade-item');
             plataformaItem.remove();
-            
+
             // Renumerar as plataformas restantes
             renumberPlataformas();
             updateRemovePlataformaButtonsVisibility();
@@ -1603,7 +1823,7 @@
         function updateRemovePlataformaButtonsVisibility() {
             const plataformas = document.querySelectorAll('#plataforma_list .unidade-item');
             const removeButtons = document.querySelectorAll('.remove-plataforma-btn');
-            
+
             // Mostrar botão de remover apenas se há mais de uma plataforma
             removeButtons.forEach(button => {
                 button.style.display = plataformas.length > 1 ? 'inline-block' : 'none';
@@ -1613,25 +1833,25 @@
         function toggleAulasAssincronas(isAssincronas) {
             const horariosContainer = document.getElementById('horarios_detalhados_online_container');
             const horariosOnlineContainer = document.getElementById('horarios_online_container');
-            
+
             console.log('toggleAulasAssincronas chamada com isAssincronas:', isAssincronas);
             console.log('horariosContainer encontrado:', !!horariosContainer);
             console.log('horariosOnlineContainer encontrado:', !!horariosOnlineContainer);
-            
+
             if (horariosContainer && horariosOnlineContainer) {
                 if (isAssincronas) {
                     // Aulas assíncronas - ocultar campos de horário e dias
                     horariosContainer.style.display = 'none';
                     horariosOnlineContainer.style.display = 'none';
                     console.log('Campos ocultos para aulas assíncronas');
-                    
+
                     // Remover required dos campos ocultos
                     const camposHorario = [
                         document.getElementById('horario_inicio_online'),
                         document.getElementById('horario_fim_online')
                     ];
                     const camposDias = horariosOnlineContainer.querySelectorAll('input[name="dias_aula[]"]');
-                    
+
                     camposHorario.forEach(campo => {
                         if (campo) campo.removeAttribute('required');
                     });
@@ -1645,14 +1865,14 @@
                     console.log('Campos mostrados para aulas síncronas');
                     console.log('horariosContainer.style.display:', horariosContainer.style.display);
                     console.log('horariosOnlineContainer.style.display:', horariosOnlineContainer.style.display);
-                    
+
                     // Adicionar required aos campos visíveis
                     const camposHorario = [
                         document.getElementById('horario_inicio_online'),
                         document.getElementById('horario_fim_online')
                     ];
                     const camposDias = horariosOnlineContainer.querySelectorAll('input[name="dias_aula[]"]');
-                    
+
                     camposHorario.forEach(campo => {
                         if (campo) {
                             campo.setAttribute('required', 'required');
@@ -1672,16 +1892,16 @@
             const aulasAssincronasNao = document.querySelector('input[name="aulas_assincronas"][value="nao"]');
             const horarioInicioOnline = document.getElementById('horario_inicio_online');
             const horarioFimOnline = document.getElementById('horario_fim_online');
-            
+
             console.log('garantirCamposAssincronos chamada');
             console.log('aulasAssincronasSim checked:', aulasAssincronasSim ? aulasAssincronasSim.checked : 'não encontrado');
             console.log('aulasAssincronasNao checked:', aulasAssincronasNao ? aulasAssincronasNao.checked : 'não encontrado');
-            
+
             if (aulasAssincronasSim && aulasAssincronasSim.checked) {
                 // SIM está marcado - garantir que campos de horário não sejam obrigatórios
                 if (horarioInicioOnline) horarioInicioOnline.removeAttribute('required');
                 if (horarioFimOnline) horarioFimOnline.removeAttribute('required');
-                
+
                 // Garantir que containers estejam ocultos
                 const horariosContainer = document.getElementById('horarios_detalhados_online_container');
                 const horariosOnlineContainer = document.getElementById('horarios_online_container');
@@ -1692,7 +1912,7 @@
                 // NÃO está marcado - garantir que campos de horário sejam obrigatórios e visíveis
                 if (horarioInicioOnline) horarioInicioOnline.setAttribute('required', 'required');
                 if (horarioFimOnline) horarioFimOnline.setAttribute('required', 'required');
-                
+
                 // Garantir que containers estejam visíveis
                 const horariosContainer = document.getElementById('horarios_detalhados_online_container');
                 const horariosOnlineContainer = document.getElementById('horarios_online_container');
@@ -1710,7 +1930,7 @@
             const horariosContainer = document.getElementById('horarios_detalhados_online_container');
             const horarioInicioOnline = document.getElementById('horario_inicio_online');
             const horarioFimOnline = document.getElementById('horario_fim_online');
-            
+
             console.log('=== VERIFICAÇÃO ANTES DO ENVIO ===');
             console.log('aulas_assincronas = nao:', aulasAssincronasNao ? aulasAssincronasNao.checked : 'não encontrado');
             console.log('horariosContainer encontrado:', !!horariosContainer);
@@ -1719,17 +1939,17 @@
             console.log('horarioInicioOnline.value:', horarioInicioOnline ? horarioInicioOnline.value : 'não encontrado');
             console.log('horarioFimOnline encontrado:', !!horarioFimOnline);
             console.log('horarioFimOnline.value:', horarioFimOnline ? horarioFimOnline.value : 'não encontrado');
-            
+
             // Verificar todos os campos de horário no formulário
             const todosHorariosInicio = document.querySelectorAll('select[name="horario_inicio[]"]');
             const todosHorariosFim = document.querySelectorAll('select[name="horario_fim[]"]');
-            
+
             console.log('=== TODOS OS CAMPOS DE HORÁRIO ===');
             console.log('Total campos horario_inicio[]:', todosHorariosInicio.length);
             todosHorariosInicio.forEach((campo, index) => {
                 console.log(`horario_inicio[${index}]:`, campo.value, 'visível:', campo.offsetParent !== null);
             });
-            
+
             console.log('Total campos horario_fim[]:', todosHorariosFim.length);
             todosHorariosFim.forEach((campo, index) => {
                 console.log(`horario_fim[${index}]:`, campo.value, 'visível:', campo.offsetParent !== null);
@@ -1738,26 +1958,26 @@
         }
 
         // Inicializar campos quando a página carrega
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             // Inicializar modalidade corretamente primeiro
             toggleUnidades();
-            
+
             // Inicializar campos assíncronos apenas uma vez
             setTimeout(garantirCamposAssincronos, 100);
-            
+
             // Monitorar mudanças nos radio buttons de aulas assíncronas
             const radioButtons = document.querySelectorAll('input[name="aulas_assincronas"]');
             radioButtons.forEach(radio => {
-                radio.addEventListener('change', function() {
+                radio.addEventListener('change', function () {
                     // Garantir que campos estejam corretos independente da seleção
                     setTimeout(garantirCamposAssincronos, 10);
                 });
             });
-            
+
             // Monitorar mudanças na modalidade
             const modalidadeSelect = document.getElementById('modalidade');
             if (modalidadeSelect) {
-                modalidadeSelect.addEventListener('change', function() {
+                modalidadeSelect.addEventListener('change', function () {
                     if (this.value === 'Online') {
                         // Quando modalidade Online for selecionada, garantir campos assíncronos
                         setTimeout(garantirCamposAssincronos, 10);
@@ -1766,13 +1986,13 @@
                     }
                 });
             }
-            
+
             // Verificar estado dos campos antes do envio do formulário
             const form = document.querySelector('form');
             if (form) {
-                form.addEventListener('submit', function(e) {
+                form.addEventListener('submit', function (e) {
                     verificarEstadoCampos();
-                    
+
                     // Verificar FormData antes do envio
                     const formData = new FormData(form);
                     console.log('=== FORMDATA ANTES DO ENVIO ===');
@@ -1781,7 +2001,7 @@
                     console.log('aulas_assincronas:', formData.get('aulas_assincronas'));
                     console.log('modalidade:', formData.get('modalidade'));
                     console.log('================================');
-                    
+
                     // Se campos de horário estão vazios mas deveriam estar preenchidos, forçar visibilidade
                     const aulasAssincronasNao = document.querySelector('input[name="aulas_assincronas"][value="nao"]');
                     if (aulasAssincronasNao && aulasAssincronasNao.checked) {
@@ -1795,53 +2015,54 @@
             }
         });
 
-     </script>
-     
-     <!-- Scripts JavaScript modulares -->
-     <script src="{{ url_for('static', filename='js/loading-manager.js') }}"></script>
-     <script src="{{ url_for('static', filename='js/form-validator.js') }}"></script>
-     <script src="{{ url_for('static', filename='js/form-manager.js') }}"></script>
-     <script src="{{ url_for('static', filename='js/image-resizer.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/script.js') }}"></script>   
-    
+    </script>
+
+    <!-- Scripts JavaScript modulares -->
+    <script src="{{ url_for('static', filename='js/loading-manager.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/form-validator.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/form-manager.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/image-resizer.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+
     {% if duplicate_data %}
     <script>
         // JAVASCRIPT DE DUPLICAÇÃO DESABILITADO PARA TESTE
         // Script para pré-preencher campos na duplicação
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             console.log('🔄 JavaScript de duplicação DESABILITADO para teste');
-            
+
             // Dados de duplicação do servidor
-            const duplicateData = {{ duplicate_data | tojson | safe }};
-            
-            // DESABILITADO - Pré-preencher modalidade (sem disparar evento change que interfere com unidades)
-            // if (duplicateData.modalidade) {
-            //     const modalidadeSelect = document.getElementById('modalidade');
-            //     if (modalidadeSelect) {
-            //         modalidadeSelect.value = duplicateData.modalidade;
-            //         // NÃO disparar evento change para não interferir com unidades pré-renderizadas
-            //         // modalidadeSelect.dispatchEvent(new Event('change'));
-            //     }
-            // }
-            
-            // Aguardar um pouco para os campos condicionais carregarem
-            setTimeout(function() {
-                // Pré-preencher campos específicos da modalidade
-                if (duplicateData.modalidade === 'presencial' || duplicateData.modalidade === 'hibrido') {
-                    preencherCamposPresencial(duplicateData);
-                }
-                
-                if (duplicateData.modalidade === 'online' || duplicateData.modalidade === 'hibrido') {
-                    preencherCamposOnline(duplicateData);
-                }
-                
-                // Pré-preencher campos comuns
-                preencherCamposComuns(duplicateData);
-                
-                console.log('✅ Dados de duplicação carregados com sucesso');
-            }, 500);
+            const duplicateData = {{ duplicate_data | tojson | safe
+        }};
+
+        // DESABILITADO - Pré-preencher modalidade (sem disparar evento change que interfere com unidades)
+        // if (duplicateData.modalidade) {
+        //     const modalidadeSelect = document.getElementById('modalidade');
+        //     if (modalidadeSelect) {
+        //         modalidadeSelect.value = duplicateData.modalidade;
+        //         // NÃO disparar evento change para não interferir com unidades pré-renderizadas
+        //         // modalidadeSelect.dispatchEvent(new Event('change'));
+        //     }
+        // }
+
+        // Aguardar um pouco para os campos condicionais carregarem
+        setTimeout(function () {
+            // Pré-preencher campos específicos da modalidade
+            if (duplicateData.modalidade === 'presencial' || duplicateData.modalidade === 'hibrido') {
+                preencherCamposPresencial(duplicateData);
+            }
+
+            if (duplicateData.modalidade === 'online' || duplicateData.modalidade === 'hibrido') {
+                preencherCamposOnline(duplicateData);
+            }
+
+            // Pré-preencher campos comuns
+            preencherCamposComuns(duplicateData);
+
+            console.log('✅ Dados de duplicação carregados com sucesso');
+        }, 500);
         });
-        
+
         function preencherCamposPresencial(data) {
             // Pré-preencher localidades se existirem
             if (data.nome_unidade) {
@@ -1854,9 +2075,9 @@
                 const horarioInicio = data.horario_inicio ? data.horario_inicio.split('|') : [];
                 const horarioFim = data.horario_fim ? data.horario_fim.split('|') : [];
                 const diasAula = data.dias_aula ? data.dias_aula.split('|') : [];
-                
+
                 console.log('📍 Preenchendo', unidades.length, 'unidades');
-                
+
                 // Primeiro, criar todas as unidades necessárias
                 for (let i = 1; i < unidades.length; i++) {
                     const addButton = document.querySelector('.add-location-btn');
@@ -1865,12 +2086,12 @@
                         addButton.click();
                     }
                 }
-                
+
                 // Aguardar um pouco para as unidades serem criadas, então preencher
-                setTimeout(function() {
+                setTimeout(function () {
                     for (let i = 0; i < unidades.length; i++) {
                         console.log('📝 Preenchendo unidade', i + 1, ':', unidades[i]);
-                        
+
                         const enderecoInputs = document.querySelectorAll('input[name="endereco_unidade[]"]');
                         const bairroInputs = document.querySelectorAll('input[name="bairro_unidade[]"]');
                         const vagasInputs = document.querySelectorAll('input[name="vagas_unidade[]"]');
@@ -1879,12 +2100,12 @@
                         const horarioInicioSelects = document.querySelectorAll('select[name="horario_inicio[]"]');
                         const horarioFimSelects = document.querySelectorAll('select[name="horario_fim[]"]');
                         const diasAulaSelects = document.querySelectorAll('select[name="dias_aula[]"]');
-                        
+
                         // Preencher campos básicos
                         if (enderecoInputs[i]) enderecoInputs[i].value = enderecos[i] || '';
                         if (bairroInputs[i]) bairroInputs[i].value = bairros[i] || '';
                         if (vagasInputs[i]) vagasInputs[i].value = vagas[i] || '';
-                        
+
                         // Preencher datas (converter formato se necessário)
                         if (inicioInputs[i] && inicioAulas[i]) {
                             const dataInicio = converterDataParaInput(inicioAulas[i]);
@@ -1894,7 +2115,7 @@
                             const dataFim = converterDataParaInput(fimAulas[i]);
                             fimInputs[i].value = dataFim;
                         }
-                        
+
                         // Preencher horários
                         if (horarioInicioSelects[i] && horarioInicio[i]) {
                             horarioInicioSelects[i].value = horarioInicio[i];
@@ -1902,40 +2123,40 @@
                         if (horarioFimSelects[i] && horarioFim[i]) {
                             horarioFimSelects[i].value = horarioFim[i];
                         }
-                        
+
                         // Preencher dias da semana
                         if (diasAulaSelects[i] && diasAula[i]) {
                             diasAulaSelects[i].value = diasAula[i];
                         }
                     }
-                    
+
                     console.log('✅ Todas as unidades preenchidas');
                 }, 1000); // Aguardar mais tempo para garantir que todas as unidades foram criadas
             }
         }
-        
+
         function converterDataParaInput(dataString) {
             // Converter data do formato DD/MM/YYYY ou YYYY-MM-DD para YYYY-MM-DD
             if (!dataString) return '';
-            
+
             // Se já está no formato correto (YYYY-MM-DD)
             if (dataString.match(/^\d{4}-\d{2}-\d{2}$/)) {
                 return dataString;
             }
-            
+
             // Se está no formato DD/MM/YYYY
             if (dataString.match(/^\d{2}\/\d{2}\/\d{4}$/)) {
                 const [dia, mes, ano] = dataString.split('/');
                 return `${ano}-${mes}-${dia}`;
             }
-            
+
             return dataString;
         }
-        
+
         function preencherCamposOnline(data) {
             console.log('💻 Preenchendo campos online...');
-            
-            setTimeout(function() {
+
+            setTimeout(function () {
                 // Plataforma digital
                 if (data.plataforma_digital) {
                     const plataformaInput = document.getElementById('plataforma_digital');
@@ -1944,7 +2165,7 @@
                         console.log('✓ Plataforma digital:', data.plataforma_digital);
                     }
                 }
-                
+
                 // Aulas assíncronas
                 if (data.aulas_assincronas) {
                     const assincrono = document.getElementById('aulas_assincronas');
@@ -1952,10 +2173,10 @@
                         assincrono.value = data.aulas_assincronas;
                         assincrono.dispatchEvent(new Event('change'));
                         console.log('✓ Aulas assíncronas:', data.aulas_assincronas);
-                        
+
                         // Se for "não", preencher campos de horário online
                         if (data.aulas_assincronas === 'nao') {
-                            setTimeout(function() {
+                            setTimeout(function () {
                                 // Preencher horários online se existirem
                                 if (data.horario_inicio) {
                                     const horarioInicioOnline = document.getElementById('horario_inicio_online');
@@ -1964,7 +2185,7 @@
                                         console.log('✓ Horário início online:', data.horario_inicio);
                                     }
                                 }
-                                
+
                                 if (data.horario_fim) {
                                     const horarioFimOnline = document.getElementById('horario_fim_online');
                                     if (horarioFimOnline) {
@@ -1972,7 +2193,7 @@
                                         console.log('✓ Horário fim online:', data.horario_fim);
                                     }
                                 }
-                                
+
                                 if (data.dias_aula) {
                                     const diasAulaOnline = document.getElementById('dias_aula_online');
                                     if (diasAulaOnline) {
@@ -1980,7 +2201,7 @@
                                         console.log('✓ Dias aula online:', data.dias_aula);
                                     }
                                 }
-                                
+
                                 // Datas de aulas online
                                 if (data.inicio_aulas_data) {
                                     const inicioAulasOnline = document.getElementById('inicio_aulas_data_online');
@@ -1990,7 +2211,7 @@
                                         console.log('✓ Início aulas online:', dataInicio);
                                     }
                                 }
-                                
+
                                 if (data.fim_aulas_data) {
                                     const fimAulasOnline = document.getElementById('fim_aulas_data_online');
                                     if (fimAulasOnline) {
@@ -2003,14 +2224,14 @@
                         }
                     }
                 }
-                
+
                 console.log('✅ Campos online preenchidos');
             }, 200);
         }
-        
+
         function preencherCamposComuns(data) {
             console.log('🔧 Preenchendo campos comuns...');
-            
+
             // Campos de valores - curso gratuito
             if (data.curso_gratuito) {
                 const gratuito = document.getElementById('curso_gratuito');
@@ -2019,15 +2240,15 @@
                     gratuito.dispatchEvent(new Event('change'));
                 }
             }
-            
+
             // Outros campos simples
             const camposSimples = [
-                'carga_horaria', 'publico_alvo', 'acessibilidade', 
+                'carga_horaria', 'publico_alvo', 'acessibilidade',
                 'oferece_certificado', 'info_complementares', 'parceiro_externo',
                 'oferece_bolsa'
             ];
-            
-            setTimeout(function() {
+
+            setTimeout(function () {
                 camposSimples.forEach(campo => {
                     if (data[campo]) {
                         const elemento = document.getElementById(campo);
@@ -2038,9 +2259,9 @@
                         }
                     }
                 });
-                
+
                 // Aguardar campos condicionais carregarem
-                setTimeout(function() {
+                setTimeout(function () {
                     // Campos condicionais de parceiro
                     if (data.parceiro_externo === 'sim') {
                         if (data.parceiro_nome) {
@@ -2058,7 +2279,7 @@
                             }
                         }
                     }
-                    
+
                     // Campos condicionais de acessibilidade
                     if (data.acessibilidade === 'acessivel' || data.acessibilidade === 'exclusivo') {
                         if (data.recursos_acessibilidade) {
@@ -2069,7 +2290,7 @@
                             }
                         }
                     }
-                    
+
                     // Campos condicionais de certificado
                     if (data.oferece_certificado === 'sim') {
                         if (data.pre_requisitos) {
@@ -2080,7 +2301,7 @@
                             }
                         }
                     }
-                    
+
                     // Campos condicionais de bolsa
                     if (data.oferece_bolsa === 'sim') {
                         if (data.valor_bolsa) {
@@ -2098,7 +2319,7 @@
                             }
                         }
                     }
-                    
+
                     // Campos condicionais de curso pago
                     if (data.curso_gratuito === 'nao') {
                         if (data.valor_curso) {
@@ -2130,60 +2351,60 @@
                             }
                         }
                     }
-                    
+
                     console.log('✅ Campos comuns preenchidos completamente');
                 }, 600);
             }, 400);
         }
     </script>
     {% endif %}
-    
+
     <!-- SCRIPT DE DEBUG PARA GARANTIR ENVIO DO FORMULÁRIO -->
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const form = document.querySelector('.course-form');
             const submitBtn = document.getElementById('submitBtn');
-            
+
             console.log('🔧 Script de debug carregado');
             console.log('Formulário encontrado:', !!form);
             console.log('Botão submit encontrado:', !!submitBtn);
-            
+
             if (form && submitBtn) {
                 // Adicionar listener direto no botão
-                submitBtn.addEventListener('click', function(e) {
+                submitBtn.addEventListener('click', function (e) {
                     console.log('🚀 Botão clicado!');
-                    
+
                     // Verificar se o formulário é válido usando HTML5 validation
                     if (form.checkValidity()) {
                         console.log('✅ Formulário válido, permitindo envio...');
-                        
+
                         // Mostrar loading
                         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Criando Curso...';
                         submitBtn.disabled = true;
-                        
+
                         // Permitir que o comportamento padrão continue (envio do formulário)
                         return true;
                     } else {
                         console.log('❌ Formulário inválido');
                         e.preventDefault();
-                        
+
                         // Mostrar quais campos são inválidos
                         const invalidFields = form.querySelectorAll(':invalid');
                         console.log('Campos inválidos:', invalidFields);
                         invalidFields.forEach(field => {
                             console.log(`- ${field.name}: ${field.validationMessage}`);
                         });
-                        
+
                         alert('Por favor, preencha todos os campos obrigatórios.');
                         return false;
                     }
                 });
-                
+
                 // Listener adicional no formulário
-                form.addEventListener('submit', function(e) {
+                form.addEventListener('submit', function (e) {
                     console.log('📝 Evento submit disparado no formulário');
                     console.log('Formulário válido:', form.checkValidity());
-                    
+
                     // Log dos dados do formulário
                     const formData = new FormData(form);
                     console.log('Dados do formulário:');
@@ -2194,5 +2415,6 @@
             }
         });
     </script>
-    </body>
+</body>
+
 </html>
