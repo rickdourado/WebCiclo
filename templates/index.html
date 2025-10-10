@@ -2369,6 +2369,13 @@
             console.log('Formulário encontrado:', !!form);
             console.log('Botão submit encontrado:', !!submitBtn);
             console.log('Loading manager disponível:', !!window.loadingManager);
+            
+            // Verificar se há loading ativo e fechar se necessário
+            if (window.loadingManager && window.loadingManager.overlay && 
+                window.loadingManager.overlay.classList.contains('active')) {
+                console.log('🔄 Loading ativo detectado, fechando...');
+                window.loadingManager.hide();
+            }
 
             if (form && submitBtn) {
                 // Verificar se já tem listener para evitar duplicação

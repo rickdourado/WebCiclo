@@ -24,6 +24,43 @@ class LoadingManager {
             this.overlay.classList.add('active');
             this.reset();
             this.startProgressSimulation();
+
+            // Adicionar botão de emergência após 20 segundos
+            setTimeout(() => {
+                this.addEmergencyCloseButton();
+            }, 20000);
+        }
+    }
+
+    /**
+     * Adiciona botão de emergência para fechar loading
+     */
+    addEmergencyCloseButton() {
+        if (this.overlay && this.overlay.classList.contains('active')) {
+            const container = this.overlay.querySelector('.loading-container');
+            if (container && !container.querySelector('.emergency-close')) {
+                const emergencyBtn = document.createElement('button');
+                emergencyBtn.className = 'emergency-close';
+                emergencyBtn.innerHTML = '✕ Fechar';
+                emergencyBtn.style.cssText = `
+                    position: absolute;
+                    top: 10px;
+                    right: 10px;
+                    background: #e53e3e;
+                    color: white;
+                    border: none;
+                    padding: 8px 12px;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    font-size: 12px;
+                    z-index: 10001;
+                `;
+                emergencyBtn.onclick = () => {
+                    console.log('🚨 Botão de emergência clicado, fechando loading...');
+                    this.hide();
+                };
+                container.appendChild(emergencyBtn);
+            }
         }
     }
 
@@ -34,7 +71,7 @@ class LoadingManager {
         if (this.overlay) {
             // Completar todas as etapas antes de fechar
             this.completeAllSteps();
-            
+
             // Aguardar animação de conclusão
             setTimeout(() => {
                 this.overlay.classList.remove('active');
@@ -51,14 +88,14 @@ class LoadingManager {
         if (this.progressBar) {
             this.progressBar.style.width = '0%';
         }
-        
+
         // Resetar todos os steps
         Object.values(this.steps).forEach(step => {
             if (step) {
                 step.classList.remove('active', 'completed');
             }
         });
-        
+
         if (this.progressInterval) {
             clearInterval(this.progressInterval);
             this.progressInterval = null;
@@ -83,26 +120,36 @@ class LoadingManager {
         const simulateProgress = () => {
             if (currentStepIndex < steps.length) {
                 const currentStepData = steps[currentStepIndex];
-                
+
                 // Marcar step anterior como completo
                 if (currentStepIndex > 0) {
                     this.completeStep(currentStepIndex);
                 }
-                
+
                 // Ativar step atual
                 this.activateStep(currentStepIndex + 1);
-                
+
                 // Atualizar barra de progresso
                 progress = currentStepData.progress;
                 if (this.progressBar) {
                     this.progressBar.style.width = `${progress}%`;
                 }
-                
+
                 currentStepIndex++;
-                
+
                 // Agendar próximo step
                 if (currentStepIndex < steps.length) {
                     setTimeout(simulateProgress, currentStepData.time);
+                } else {
+                    // Quando chegar ao último step, completar e fechar após um tempo
+                    setTimeout(() => {
+                        this.completeAllSteps();
+                        // Auto-fechar após 15 segundos como segurança
+                        setTimeout(() => {
+                            console.log('⚠️ Loading auto-fechado por timeout de segurança');
+                            this.hide();
+                        }, 15000);
+                    }, 1000);
                 }
             }
         };
@@ -129,7 +176,7 @@ class LoadingManager {
         if (this.steps[stepKey]) {
             this.steps[stepKey].classList.remove('active');
             this.steps[stepKey].classList.add('completed');
-            
+
             // Adicionar ícone de check
             const icon = this.steps[stepKey].querySelector('.step-icon');
             if (icon) {
@@ -145,12 +192,12 @@ class LoadingManager {
         if (this.progressBar) {
             this.progressBar.style.width = '100%';
         }
-        
+
         Object.keys(this.steps).forEach((stepKey, index) => {
             if (this.steps[stepKey]) {
                 this.steps[stepKey].classList.remove('active');
                 this.steps[stepKey].classList.add('completed');
-                
+
                 const icon = this.steps[stepKey].querySelector('.step-icon');
                 if (icon) {
                     icon.innerHTML = '✓';
@@ -184,21 +231,21 @@ class LoadingManager {
 window.loadingManager = new LoadingManager();
 
 // Interceptar submissão de formulários para mostrar loading
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const forms = document.querySelectorAll('form');
-    
+
     forms.forEach(form => {
-        form.addEventListener('submit', function(e) {
+        form.addEventListener('submit', function (e) {
             // Verificar se não é um formulário de login ou busca
-            if (!form.classList.contains('no-loading') && 
-                !form.id.includes('search') && 
+            if (!form.classList.contains('no-loading') &&
+                !form.id.includes('search') &&
                 !form.id.includes('login')) {
-                
+
                 console.log('Loading manager: Formulário sendo enviado, mostrando loading...');
-                
+
                 // Mostrar loading
                 window.loadingManager.show();
-                
+
                 // IMPORTANTE: NÃO prevenir o comportamento padrão
                 // O formulário continuará a ser enviado normalmente
                 // O loading será fechado quando a página recarregar ou
@@ -206,10 +253,33 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-    
+
     // Esconder loading ao carregar a página (caso tenha ficado ativo)
-    window.addEventListener('load', function() {
+    window.addEventListener('load', function () {
         if (window.loadingManager) {
+            console.log('🔄 Página carregada, fechando loading...');
+            window.loadingManager.hide();
+        }
+    });
+
+    // Esconder loading também no DOMContentLoaded como backup
+    window.addEventListener('DOMContentLoaded', function () {
+        // Aguardar um pouco para garantir que a página carregou completamente
+        setTimeout(() => {
+            if (window.loadingManager && window.loadingManager.overlay &&
+                window.loadingManager.overlay.classList.contains('active')) {
+                console.log('🔄 DOMContentLoaded: Fechando loading ativo...');
+                window.loadingManager.hide();
+            }
+        }, 1000);
+    });
+
+    // Esconder loading quando a página fica visível (mudança de aba)
+    document.addEventListener('visibilitychange', function () {
+        if (!document.hidden && window.loadingManager &&
+            window.loadingManager.overlay &&
+            window.loadingManager.overlay.classList.contains('active')) {
+            console.log('🔄 Página ficou visível, fechando loading...');
             window.loadingManager.hide();
         }
     });
