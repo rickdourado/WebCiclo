@@ -796,5 +796,35 @@
             });
         });
     </script>
+    
+    <!-- Script para garantir que loading seja fechado -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🎉 Página de sucesso carregada!');
+            
+            // Forçar fechamento do loading se estiver ativo
+            if (window.parent && window.parent.loadingManager) {
+                console.log('🔄 Fechando loading da janela pai...');
+                window.parent.loadingManager.hide();
+            }
+            
+            // Tentar fechar loading local também
+            if (window.loadingManager) {
+                console.log('🔄 Fechando loading local...');
+                window.loadingManager.hide();
+            }
+            
+            // Remover qualquer overlay de loading que possa estar ativo
+            const loadingOverlays = document.querySelectorAll('.loading-overlay');
+            loadingOverlays.forEach(overlay => {
+                if (overlay.classList.contains('active')) {
+                    console.log('🔄 Removendo overlay de loading...');
+                    overlay.classList.remove('active');
+                }
+            });
+            
+            console.log('✅ Página de sucesso totalmente carregada');
+        });
+    </script>
 </body>
 </html>

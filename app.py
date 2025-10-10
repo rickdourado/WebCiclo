@@ -175,14 +175,19 @@ def create_course():
 def course_success(course_id):
     """Página de sucesso após criação do curso"""
     try:
+        logger.info(f"🎉 Acessando página de sucesso para curso ID: {course_id}")
         course = course_service.get_course(course_id)
         if not course:
+            logger.warning(f"❌ Curso {course_id} não encontrado na página de sucesso")
             flash('Curso não encontrado', 'error')
             return redirect(url_for('index'))
         
         # Obter arquivos gerados
         csv_file = course.get('csv_file')
         pdf_file = course.get('pdf_file')
+        
+        logger.info(f"✅ Renderizando página de sucesso para: {course.get('titulo', 'Curso sem título')}")
+        logger.info(f"📄 Arquivos: CSV={csv_file}, PDF={pdf_file}")
         
         return render_template('course_success.html', 
                                course=course, 

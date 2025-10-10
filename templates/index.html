@@ -1216,9 +1216,6 @@
                         <button type="reset" class="btn btn-outline">
                             <i class="fas fa-undo"></i> Limpar Formulário
                         </button>
-                        <button type="button" class="btn btn-secondary" onclick="testFormSubmit()" style="margin-right: 10px;">
-                            <i class="fas fa-bug"></i> Teste Envio
-                        </button>
                         <button type="submit" class="btn btn-primary" id="submitBtn">
                             <i class="fas fa-save"></i> Criar Curso
                         </button>
@@ -2445,41 +2442,7 @@
             }
         });
         
-        // Função de teste para envio do formulário
-        function testFormSubmit() {
-            console.log('🧪 TESTE: Função de teste chamada');
-            const form = document.querySelector('.course-form');
-            
-            if (form) {
-                console.log('🧪 TESTE: Formulário encontrado');
-                console.log('🧪 TESTE: Action:', form.action);
-                console.log('🧪 TESTE: Method:', form.method);
-                
-                // Verificar se campos obrigatórios estão preenchidos
-                const titulo = form.querySelector('[name="titulo"]');
-                const modalidade = form.querySelector('[name="modalidade"]');
-                const orgao = form.querySelector('[name="orgao"]');
-                
-                console.log('🧪 TESTE: Título:', titulo ? titulo.value : 'não encontrado');
-                console.log('🧪 TESTE: Modalidade:', modalidade ? modalidade.value : 'não encontrado');
-                console.log('🧪 TESTE: Órgão:', orgao ? orgao.value : 'não encontrado');
-                
-                if (!titulo || !titulo.value.trim()) {
-                    alert('TESTE: Preencha o título para testar');
-                    return;
-                }
-                
-                console.log('🧪 TESTE: Tentando enviar formulário...');
-                try {
-                    form.submit();
-                    console.log('🧪 TESTE: form.submit() executado');
-                } catch (error) {
-                    console.error('🧪 TESTE: Erro ao enviar:', error);
-                }
-            } else {
-                console.error('🧪 TESTE: Formulário não encontrado!');
-            }
-        }
+
     </script>
 </body>
 
