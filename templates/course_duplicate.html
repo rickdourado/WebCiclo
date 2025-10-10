@@ -9,6 +9,34 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Chamar toggleUnidades na carga da página para configurar campos required corretamente
+            setTimeout(function() {
+                console.log('🔧 Chamando toggleUnidades na carga da página...');
+                toggleUnidades();
+                
+                // Verificar se ainda há campos required ocultos
+                const hiddenRequiredFields = document.querySelectorAll('input[required]:not([style*="display: none"]), select[required]:not([style*="display: none"])');
+                const actuallyHiddenRequired = [];
+                
+                hiddenRequiredFields.forEach(field => {
+                    const rect = field.getBoundingClientRect();
+                    const isHidden = rect.width === 0 && rect.height === 0;
+                    if (isHidden) {
+                        actuallyHiddenRequired.push(field);
+                    }
+                });
+                
+                if (actuallyHiddenRequired.length > 0) {
+                    console.warn('⚠️ Campos required ainda ocultos encontrados:', actuallyHiddenRequired.map(f => f.name));
+                    actuallyHiddenRequired.forEach(field => {
+                        field.removeAttribute('required');
+                        console.log('🔧 Removido required de campo oculto:', field.name);
+                    });
+                }
+                
+                console.log('✅ toggleUnidades concluído na carga da página');
+            }, 500);
+            
             // Função para formatar datas no formato brasileiro
             function formatarDataBrasileira() {
                 const camposData = document.querySelectorAll('input[type="date"]');
@@ -371,7 +399,7 @@
                                                     placeholder="Ex: Zoom, Google Meet, Microsoft Teams" value="{{ duplicate_data.plataforma_digital if duplicate_data else '' }}">
                                              
                                              <label for="total_vagas_online">Total de vagas*</label>
-                                             <input type="number" id="total_vagas_online" name="total_vagas_online" min="1" required 
+                                             <input type="number" id="total_vagas_online" name="total_vagas_online" min="1" 
                                                     placeholder="Digite o número total de vagas" value="{{ duplicate_data.total_vagas_online if duplicate_data else '' }}">
                                              
                                              <label for="carga_horaria_online" class="required">Carga Horária</label>
@@ -382,11 +410,11 @@
                                              <div class="data-group">
                                                  <div class="data-field">
                                                      <label>Início das aulas*</label>
-                                                     <input type="date" name="inicio_aulas_online" required value="{{ duplicate_data.inicio_aulas_online if duplicate_data else '' }}">
+                                                     <input type="date" name="inicio_aulas_online" value="{{ duplicate_data.inicio_aulas_online if duplicate_data else '' }}">
                                                  </div>
                                                  <div class="data-field">
                                                      <label>Fim das aulas*</label>
-                                                     <input type="date" name="fim_aulas_online" required value="{{ duplicate_data.fim_aulas_online if duplicate_data else '' }}">
+                                                     <input type="date" name="fim_aulas_online" value="{{ duplicate_data.fim_aulas_online if duplicate_data else '' }}">
                                                  </div>
                                              </div>
                                              
@@ -394,10 +422,10 @@
                                                  <label class="required">Tipo de aulas online</label>
                                                  <div class="radio-group">
                                                      <label class="radio-label">
-                                                         <input type="radio" name="tipo_aulas_online" value="sincronas" required onclick="toggleAulasAssincronas(false)" {% if duplicate_data and duplicate_data.tipo_aulas_online == 'sincronas' %}checked{% endif %}> Síncronas (ao vivo)
+                                                         <input type="radio" name="tipo_aulas_online" value="sincronas" onclick="toggleAulasAssincronas(false)" {% if duplicate_data and duplicate_data.tipo_aulas_online == 'sincronas' %}checked{% endif %}> Síncronas (ao vivo)
                                                      </label>
                                                      <label class="radio-label">
-                                                         <input type="radio" name="tipo_aulas_online" value="assincronas" required onclick="toggleAulasAssincronas(true)" {% if duplicate_data and duplicate_data.tipo_aulas_online == 'assincronas' %}checked{% endif %}> Assíncronas (gravadas)
+                                                         <input type="radio" name="tipo_aulas_online" value="assincronas" onclick="toggleAulasAssincronas(true)" {% if duplicate_data and duplicate_data.tipo_aulas_online == 'assincronas' %}checked{% endif %}> Assíncronas (gravadas)
                                                      </label>
                                                  </div>
                                              </div>
@@ -658,6 +686,9 @@
                         <a href="{{ url_for('public_courses') }}" class="btn btn-secondary">
                             <i class="fas fa-arrow-left"></i> Voltar
                         </a>
+                        <button type="button" class="btn btn-secondary" onclick="debugFormValidation()" style="margin-right: 10px;">
+                            <i class="fas fa-bug"></i> Debug Validação
+                        </button>
                         <button type="submit" class="btn btn-primary">
                             <i class="fas fa-save"></i> Criar Curso
                         </button>
@@ -716,35 +747,112 @@
             const unidadesContainer = document.getElementById('unidades_container');
             const plataformaContainer = document.getElementById('plataforma_container');
             
+            console.log('🔄 toggleUnidades chamado, modalidade:', modalidade);
+            
             // Esconder ambos os containers primeiro
             if (unidadesContainer) unidadesContainer.style.display = 'none';
             if (plataformaContainer) plataformaContainer.style.display = 'none';
             
-            // Remover required de todos os campos de modalidade
+            // Remover required de TODOS os campos de modalidade
             const allModalidadeFields = document.querySelectorAll('#unidades_container input, #unidades_container select, #plataforma_container input, #plataforma_container select');
             allModalidadeFields.forEach(field => {
                 field.removeAttribute('required');
+                console.log('❌ Removido required de:', field.name || field.id);
             });
             
             if (modalidade === 'Presencial' || modalidade === 'Híbrido') {
                 if (unidadesContainer) {
                     unidadesContainer.style.display = 'block';
-                    // Adicionar required apenas aos campos visíveis
-                    const unidadesFields = unidadesContainer.querySelectorAll('input[required], select[required]');
-                    unidadesFields.forEach(field => {
-                        field.setAttribute('required', 'required');
+                    console.log('✅ Mostrando container de unidades');
+                    
+                    // Adicionar required apenas aos campos específicos de unidades
+                    const camposObrigatoriosUnidades = [
+                        'input[name="endereco_unidade[]"]',
+                        'input[name="bairro_unidade[]"]', 
+                        'input[name="vagas_unidade[]"]',
+                        'input[name="inicio_aulas_data[]"]',
+                        'input[name="fim_aulas_data[]"]',
+                        'select[name="horario_inicio[]"]',
+                        'select[name="horario_fim[]"]'
+                    ];
+                    
+                    camposObrigatoriosUnidades.forEach(seletor => {
+                        const campos = unidadesContainer.querySelectorAll(seletor);
+                        campos.forEach(campo => {
+                            campo.setAttribute('required', 'required');
+                            console.log('✅ Adicionado required a:', campo.name);
+                        });
                     });
                 }
             } else if (modalidade === 'Online') {
                 if (plataformaContainer) {
                     plataformaContainer.style.display = 'block';
-                    // Adicionar required apenas aos campos visíveis
-                    const plataformaFields = plataformaContainer.querySelectorAll('input[required], select[required]');
-                    plataformaFields.forEach(field => {
-                        field.setAttribute('required', 'required');
+                    console.log('✅ Mostrando container de plataforma');
+                    
+                    // Adicionar required apenas aos campos específicos de plataforma
+                    const camposObrigatoriosPlataforma = [
+                        'input[name="plataforma_digital"]',
+                        'input[name="total_vagas_online"]',
+                        'input[name="inicio_aulas_online"]',
+                        'input[name="fim_aulas_online"]',
+                        'input[name="tipo_aulas_online"]'
+                    ];
+                    
+                    camposObrigatoriosPlataforma.forEach(seletor => {
+                        const campos = plataformaContainer.querySelectorAll(seletor);
+                        campos.forEach(campo => {
+                            campo.setAttribute('required', 'required');
+                            console.log('✅ Adicionado required a:', campo.name);
+                        });
                     });
                 }
             }
+            
+            console.log('🔄 toggleUnidades concluído');
+        }
+        
+        function debugFormValidation() {
+            console.log('🐛 === DEBUG VALIDAÇÃO DO FORMULÁRIO ===');
+            
+            const form = document.querySelector('.course-form');
+            console.log('Formulário encontrado:', !!form);
+            console.log('Formulário válido:', form.checkValidity());
+            
+            // Verificar campos inválidos
+            const invalidFields = form.querySelectorAll(':invalid');
+            console.log('Campos inválidos encontrados:', invalidFields.length);
+            
+            invalidFields.forEach((field, index) => {
+                console.log(`${index + 1}. Campo inválido:`, {
+                    name: field.name,
+                    id: field.id,
+                    value: field.value,
+                    required: field.hasAttribute('required'),
+                    visible: field.offsetParent !== null,
+                    validationMessage: field.validationMessage
+                });
+            });
+            
+            // Verificar campos required ocultos
+            const requiredFields = form.querySelectorAll('[required]');
+            const hiddenRequired = [];
+            
+            requiredFields.forEach(field => {
+                if (field.offsetParent === null) {
+                    hiddenRequired.push(field);
+                }
+            });
+            
+            console.log('Campos required ocultos:', hiddenRequired.length);
+            hiddenRequired.forEach((field, index) => {
+                console.log(`${index + 1}. Campo required oculto:`, {
+                    name: field.name,
+                    id: field.id,
+                    value: field.value
+                });
+            });
+            
+            console.log('🐛 === FIM DEBUG ===');
         }
 
         function toggleAulasAssincronas(isAssincronas) {
