@@ -7,82 +7,198 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        .list-container {
-            padding: 40px;
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo-section">
+                    <a href="{{ url_for('index') }}" title="Ir para página inicial">
+                        <img src="{{ url_for('static', filename='images/logo_ciclocarioca..png') }}" alt="Logo Ciclo Carioca">
+                    </a>
+                    <span class="version">v2.0</span>
+                </div>
+                <div class="nav-section">
+                    <a href="{{ url_for('index') }}" class="nav-link">
+                        <i class="fas fa-plus"></i>
+                        Criar Novo Curso
+                    </a>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="form-container">
+                <div class="form-header">
+                    <h2><i class="fas fa-graduation-cap"></i> Cursos Disponíveis</h2>
+                    <p class="form-description">Visualize e gerencie todos os cursos cadastrados na plataforma</p>
+                    <div class="course-stats">
+                        <div class="stat-card">
+                            <span class="stat-number">{{ courses|length }}</span>
+                            <span class="stat-label">Total de Cursos</span>
+                        </div>
+                    </div>
+                </div>
+
+                {% if courses %}
+                    <div class="form-section">
+                        <div class="courses-list">
+                            {% for course in courses %}
+                            <div class="course-item" data-course-id="{{ course.id }}">
+                                <div class="course-header-row" onclick="toggleCourseDetails({{ course.id }})">
+                                    <div class="course-basic-info">
+                                        <div class="course-title">{{ course.titulo }}</div>
+                                        <div class="course-meta">
+                                            <span><i class="fas fa-building"></i> {{ course.orgao }}</span>
+                                            <span><i class="fas fa-calendar"></i> {{ course.created_at }}</span>
+                                            <span><i class="fas fa-laptop"></i> {{ course.modalidade|title }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="course-actions">
+                                        <a href="{{ url_for('duplicate_course', course_id=course.id) }}" 
+                                           class="btn btn-outline"
+                                           title="Duplicar este curso">
+                                            <i class="fas fa-copy"></i>
+                                            Duplicar
+                                        </a>
+                                        <i class="fas fa-chevron-down toggle-icon"></i>
+                                    </div>
+                                </div>
+                                
+                                <div class="course-details">
+                                    <div class="details-grid">
+                                        <div class="detail-group">
+                                            <h4>Descrição</h4>
+                                            <p>{{ course.descricao or course.descricao_original or 'Não informado' }}</p>
+                                        </div>
+                                        
+                                        {% if course.modalidade == 'presencial' or course.modalidade == 'hibrido' %}
+                                        <div class="detail-group">
+                                            <h4>Localidades</h4>
+                                            <p>
+                                                {% if course.nome_unidade %}
+                                                    {% set unidades = course.nome_unidade.split('|') %}
+                                                    {% for unidade in unidades %}
+                                                        {{ unidade }}{% if not loop.last %}, {% endif %}
+                                                    {% endfor %}
+                                                {% else %}
+                                                    Não informado
+                                                {% endif %}
+                                            </p>
+                                        </div>
+                                        {% endif %}
+                                        
+                                        <div class="detail-group">
+                                            <h4>Carga Horária</h4>
+                                            <p>{{ course.carga_horaria or 'Não informado' }}</p>
+                                        </div>
+                                        
+                                        <div class="detail-group">
+                                            <h4>Gratuito</h4>
+                                            <p>{{ 'Sim' if course.curso_gratuito == 'sim' else 'Não' }}</p>
+                                        </div>
+                                        
+                                        {% if course.parceiro_externo == 'sim' %}
+                                        <div class="detail-group">
+                                            <h4>Parceiro</h4>
+                                            <p>{{ course.parceiro_nome or 'Não informado' }}</p>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="form-section">
+                        <div class="empty-state">
+                            <i class="fas fa-graduation-cap"></i>
+                            <h3>Nenhum curso encontrado</h3>
+                            <p>Ainda não há cursos cadastrados no sistema.</p>
+                            <a href="{{ url_for('index') }}" class="btn btn-primary" style="margin-top: 20px;">
+                                <i class="fas fa-plus"></i>
+                                Criar Primeiro Curso
+                            </a>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function toggleCourseDetails(courseId) {
+            const courseItem = document.querySelector(`[data-course-id="${courseId}"]`);
+            courseItem.classList.toggle('active');
         }
-        
-        .list-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 40px;
-            flex-wrap: wrap;
-            gap: 20px;
-        }
-        
-        .list-title {
-            font-size: 2rem;
-            font-weight: 700;
-            color: #2d3748;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        
+    </script>
+</body>
+</html>    
+<style>
+        /* Estilos específicos para a página de cursos */
         .course-stats {
             display: flex;
             gap: 20px;
             flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 20px;
         }
         
         .stat-card {
             background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
-            padding: 15px 20px;
+            padding: 20px 30px;
             border-radius: 12px;
             text-align: center;
-            min-width: 120px;
+            min-width: 150px;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
         }
         
         .stat-number {
-            font-size: 1.8rem;
+            font-size: 2.2rem;
             font-weight: 700;
             display: block;
+            margin-bottom: 5px;
         }
         
         .stat-label {
             font-size: 0.9rem;
             opacity: 0.9;
+            font-weight: 500;
         }
         
         .courses-list {
             display: flex;
             flex-direction: column;
-            gap: 15px;
-            margin-top: 20px;
+            gap: 20px;
         }
         
         .course-item {
             background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
             overflow: hidden;
-            transition: box-shadow 0.2s;
+            transition: all 0.3s ease;
+            border: 1px solid #e2e8f0;
         }
         
         .course-item:hover {
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+            transform: translateY(-2px);
         }
         
         .course-header-row {
-            padding: 16px 24px;
+            padding: 20px 25px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             cursor: pointer;
-            background-color: #f8f9fa;
-            border-bottom: 1px solid #e9ecef;
+            background-color: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+            transition: background-color 0.2s ease;
         }
         
         .course-header-row:hover {
@@ -94,50 +210,37 @@
         }
         
         .course-title {
-            font-size: 1.1rem;
+            font-size: 1.2rem;
             font-weight: 600;
             color: #2d3748;
-            margin-bottom: 4px;
+            margin-bottom: 8px;
         }
         
         .course-meta {
             display: flex;
-            gap: 20px;
+            gap: 25px;
             font-size: 0.9rem;
             color: #718096;
+            flex-wrap: wrap;
         }
         
-        .course-actions {
+        .course-meta span {
             display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-        
-        .btn-duplicate {
-            background: linear-gradient(135deg, #48bb78, #38a169);
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
-            font-size: 0.9rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-decoration: none;
-            display: inline-flex;
             align-items: center;
             gap: 6px;
         }
         
-        .btn-duplicate:hover {
-            background: linear-gradient(135deg, #38a169, #2f855a);
-            transform: translateY(-1px);
+        .course-actions {
+            display: flex;
+            gap: 15px;
+            align-items: center;
         }
         
         .course-details {
-            padding: 20px 24px;
+            padding: 25px;
             background-color: white;
             display: none;
+            border-top: 1px solid #e2e8f0;
         }
         
         .course-item.active .course-details {
@@ -146,171 +249,121 @@
         
         .details-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
         }
         
         .detail-group h4 {
             color: #2d3748;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             font-weight: 600;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
         
         .detail-group p {
             color: #4a5568;
-            font-size: 0.9rem;
-            line-height: 1.4;
+            font-size: 0.95rem;
+            line-height: 1.5;
             margin: 0;
-        }
-        
-        .back-button {
-            background: linear-gradient(135deg, #4299e1, #3182ce);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 6px;
-            font-size: 0.9rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .back-button:hover {
-            background: linear-gradient(135deg, #3182ce, #2c5282);
-            transform: translateY(-1px);
         }
         
         .empty-state {
             text-align: center;
-            padding: 60px 20px;
+            padding: 80px 20px;
             color: #718096;
         }
         
         .empty-state i {
-            font-size: 3rem;
-            margin-bottom: 20px;
-            opacity: 0.5;
+            font-size: 4rem;
+            margin-bottom: 25px;
+            opacity: 0.4;
+            color: #cbd5e0;
+        }
+        
+        .empty-state h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #4a5568;
+            margin-bottom: 15px;
+        }
+        
+        .empty-state p {
+            font-size: 1rem;
+            margin-bottom: 30px;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
         }
         
         .toggle-icon {
-            transition: transform 0.2s;
+            transition: transform 0.3s ease;
+            color: #718096;
+            font-size: 1.1rem;
         }
         
         .course-item.active .toggle-icon {
             transform: rotate(180deg);
+            color: #667eea;
+        }
+        
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .course-meta {
+                gap: 15px;
+                font-size: 0.85rem;
+            }
+            
+            .course-header-row {
+                padding: 15px 20px;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .course-actions {
+                align-self: flex-end;
+            }
+            
+            .course-title {
+                font-size: 1.1rem;
+            }
+            
+            .details-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .course-details {
+                padding: 20px;
+            }
+            
+            .stat-card {
+                min-width: 120px;
+                padding: 15px 20px;
+            }
+            
+            .stat-number {
+                font-size: 1.8rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .course-meta {
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            .course-header-row {
+                padding: 12px 15px;
+            }
+            
+            .course-details {
+                padding: 15px;
+            }
         }
     </style>
-</head>
-<body>
-    <div class="list-container">
-        <div class="list-header">
-            <div>
-                <h1 class="list-title">
-                    <i class="fas fa-graduation-cap"></i>
-                    Cursos Disponíveis
-                </h1>
-                <div class="course-stats">
-                    <div class="stat-card">
-                        <span class="stat-number">{{ courses|length }}</span>
-                        <span class="stat-label">Total de Cursos</span>
-                    </div>
-                </div>
-            </div>
-            <div>
-                <a href="{{ url_for('index') }}" class="back-button">
-                    <i class="fas fa-plus"></i>
-                    Criar Novo Curso
-                </a>
-            </div>
-        </div>
-
-        {% if courses %}
-            <div class="courses-list">
-                {% for course in courses %}
-                <div class="course-item" data-course-id="{{ course.id }}">
-                    <div class="course-header-row" onclick="toggleCourseDetails({{ course.id }})">
-                        <div class="course-basic-info">
-                            <div class="course-title">{{ course.titulo }}</div>
-                            <div class="course-meta">
-                                <span><i class="fas fa-building"></i> {{ course.orgao }}</span>
-                                <span><i class="fas fa-calendar"></i> {{ course.created_at }}</span>
-                                <span><i class="fas fa-laptop"></i> {{ course.modalidade|title }}</span>
-                            </div>
-                        </div>
-                        <div class="course-actions">
-                            <a href="{{ url_for('duplicate_course', course_id=course.id) }}" 
-                               class="btn-duplicate"
-                               title="Duplicar este curso">
-                                <i class="fas fa-copy"></i>
-                                Duplicar
-                            </a>
-                            <i class="fas fa-chevron-down toggle-icon"></i>
-                        </div>
-                    </div>
-                    
-                    <div class="course-details">
-                        <div class="details-grid">
-                            <div class="detail-group">
-                                <h4>Descrição</h4>
-                                <p>{{ course.descricao or course.descricao_original or 'Não informado' }}</p>
-                            </div>
-                            
-                            {% if course.modalidade == 'presencial' or course.modalidade == 'hibrido' %}
-                            <div class="detail-group">
-                                <h4>Localidades</h4>
-                                <p>
-                                    {% if course.nome_unidade %}
-                                        {% set unidades = course.nome_unidade.split('|') %}
-                                        {% for unidade in unidades %}
-                                            {{ unidade }}{% if not loop.last %}, {% endif %}
-                                        {% endfor %}
-                                    {% else %}
-                                        Não informado
-                                    {% endif %}
-                                </p>
-                            </div>
-                            {% endif %}
-                            
-                            <div class="detail-group">
-                                <h4>Carga Horária</h4>
-                                <p>{{ course.carga_horaria or 'Não informado' }}</p>
-                            </div>
-                            
-                            <div class="detail-group">
-                                <h4>Gratuito</h4>
-                                <p>{{ 'Sim' if course.curso_gratuito == 'sim' else 'Não' }}</p>
-                            </div>
-                            
-                            {% if course.parceiro_externo == 'sim' %}
-                            <div class="detail-group">
-                                <h4>Parceiro</h4>
-                                <p>{{ course.parceiro_nome or 'Não informado' }}</p>
-                            </div>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-        {% else %}
-            <div class="empty-state">
-                <i class="fas fa-graduation-cap"></i>
-                <h3>Nenhum curso encontrado</h3>
-                <p>Ainda não há cursos cadastrados no sistema.</p>
-                <a href="{{ url_for('index') }}" class="back-button" style="margin-top: 20px;">
-                    <i class="fas fa-plus"></i>
-                    Criar Primeiro Curso
-                </a>
-            </div>
-        {% endif %}
-    </div>
 
     <script>
         function toggleCourseDetails(courseId) {
