@@ -686,9 +686,6 @@
                         <a href="{{ url_for('public_courses') }}" class="btn btn-secondary">
                             <i class="fas fa-arrow-left"></i> Voltar
                         </a>
-                        <button type="button" class="btn btn-secondary" onclick="debugFormValidation()" style="margin-right: 10px;">
-                            <i class="fas fa-bug"></i> Debug Validação
-                        </button>
                         <button type="submit" class="btn btn-primary">
                             <i class="fas fa-save"></i> Criar Curso
                         </button>
@@ -811,49 +808,7 @@
             console.log('🔄 toggleUnidades concluído');
         }
         
-        function debugFormValidation() {
-            console.log('🐛 === DEBUG VALIDAÇÃO DO FORMULÁRIO ===');
-            
-            const form = document.querySelector('.course-form');
-            console.log('Formulário encontrado:', !!form);
-            console.log('Formulário válido:', form.checkValidity());
-            
-            // Verificar campos inválidos
-            const invalidFields = form.querySelectorAll(':invalid');
-            console.log('Campos inválidos encontrados:', invalidFields.length);
-            
-            invalidFields.forEach((field, index) => {
-                console.log(`${index + 1}. Campo inválido:`, {
-                    name: field.name,
-                    id: field.id,
-                    value: field.value,
-                    required: field.hasAttribute('required'),
-                    visible: field.offsetParent !== null,
-                    validationMessage: field.validationMessage
-                });
-            });
-            
-            // Verificar campos required ocultos
-            const requiredFields = form.querySelectorAll('[required]');
-            const hiddenRequired = [];
-            
-            requiredFields.forEach(field => {
-                if (field.offsetParent === null) {
-                    hiddenRequired.push(field);
-                }
-            });
-            
-            console.log('Campos required ocultos:', hiddenRequired.length);
-            hiddenRequired.forEach((field, index) => {
-                console.log(`${index + 1}. Campo required oculto:`, {
-                    name: field.name,
-                    id: field.id,
-                    value: field.value
-                });
-            });
-            
-            console.log('🐛 === FIM DEBUG ===');
-        }
+
 
         function toggleAulasAssincronas(isAssincronas) {
             const horariosContainer = document.getElementById('horarios_detalhados_online_container');
