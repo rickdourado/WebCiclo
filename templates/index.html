@@ -553,8 +553,7 @@
                             </div>
 
                             <!-- Subformulário para Presencial/Híbrido -->
-                            <div class="form-group full-width" id="unidades_container"
-                                style="display:{% if duplicate_data and (duplicate_data.modalidade|lower == 'presencial' or duplicate_data.modalidade|lower == 'híbrido') %}block{% else %}none{% endif %};">
+                            <div class="form-group full-width" id="unidades_container" style="display:none;">
                                 <fieldset class="unidade-fieldset">
                                     <legend>Informações das Unidades <button type="button" class="remove-unidade-btn"
                                             onclick="removeUnidade(this)" style="display:none;">×</button></legend>
@@ -1216,6 +1215,9 @@
                         </a>
                         <button type="reset" class="btn btn-outline">
                             <i class="fas fa-undo"></i> Limpar Formulário
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="testFormSubmit()" style="margin-right: 10px;">
+                            <i class="fas fa-bug"></i> Teste Envio
                         </button>
                         <button type="submit" class="btn btn-primary" id="submitBtn">
                             <i class="fas fa-save"></i> Criar Curso
@@ -2032,8 +2034,7 @@
             console.log('🔄 JavaScript de duplicação DESABILITADO para teste');
 
             // Dados de duplicação do servidor
-            const duplicateData = {{ duplicate_data | tojson | safe
-        }};
+            const duplicateData = {{ duplicate_data | tojson | safe if duplicate_data else '{}' }};
 
         // DESABILITADO - Pré-preencher modalidade (sem disparar evento change que interfere com unidades)
         // if (duplicateData.modalidade) {
@@ -2061,7 +2062,6 @@
 
             console.log('✅ Dados de duplicação carregados com sucesso');
         }, 500);
-        });
 
         function preencherCamposPresencial(data) {
             // Pré-preencher localidades se existirem
@@ -2370,6 +2370,13 @@
             console.log('Botão submit encontrado:', !!submitBtn);
             console.log('Loading manager disponível:', !!window.loadingManager);
             
+            if (form) {
+                console.log('📋 Detalhes do formulário:');
+                console.log('- Action:', form.action);
+                console.log('- Method:', form.method);
+                console.log('- Enctype:', form.enctype);
+            }
+            
             // Verificar se há loading ativo e fechar se necessário
             if (window.loadingManager && window.loadingManager.overlay && 
                 window.loadingManager.overlay.classList.contains('active')) {
@@ -2382,15 +2389,14 @@
                 if (!submitBtn.hasAttribute('data-debug-listener')) {
                     submitBtn.setAttribute('data-debug-listener', 'true');
                     
-                    // Adicionar listener direto no botão
+                    // Adicionar listener direto no botão - COM ENVIO FORÇADO
                     submitBtn.addEventListener('click', function (e) {
-                    console.log('🚀 Botão clicado!');
+                        console.log('🚀 Botão clicado!');
+                        
+                        // PREVENIR comportamento padrão para controlar o envio
+                        e.preventDefault();
 
-                    // Verificar se o formulário é válido usando HTML5 validation
-                    if (form.checkValidity()) {
-                        console.log('✅ Formulário válido, permitindo envio...');
-
-                        // Mostrar loading overlay
+                        // Mostrar loading overlay imediatamente
                         if (window.loadingManager) {
                             window.loadingManager.show();
                             console.log('🔄 Loading overlay ativado');
@@ -2400,45 +2406,80 @@
                         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Criando Curso...';
                         submitBtn.disabled = true;
 
-                        // Permitir que o comportamento padrão continue (envio do formulário)
-                        return true;
-                    } else {
-                        console.log('❌ Formulário inválido');
-                        e.preventDefault();
-
-                        // Mostrar quais campos são inválidos
-                        const invalidFields = form.querySelectorAll(':invalid');
-                        console.log('Campos inválidos:', invalidFields);
-                        invalidFields.forEach(field => {
-                            console.log(`- ${field.name}: ${field.validationMessage}`);
-                        });
-
-                        alert('Por favor, preencha todos os campos obrigatórios.');
-                        return false;
-                    }
+                        console.log('✅ Forçando envio do formulário...');
+                        console.log('URL de destino:', form.action);
+                        console.log('Method:', form.method);
+                        
+                        // FORÇAR ENVIO DO FORMULÁRIO
+                        setTimeout(() => {
+                            console.log('📤 Executando form.submit() agora...');
+                            try {
+                                form.submit();
+                                console.log('✅ form.submit() executado com sucesso');
+                            } catch (error) {
+                                console.error('❌ Erro ao executar form.submit():', error);
+                            }
+                        }, 500);
                     });
                 }
 
-                // Listener adicional no formulário como fallback
+                // Listener adicional no formulário - PARA LOG E BACKUP
                 form.addEventListener('submit', function (e) {
                     console.log('📝 Evento submit disparado no formulário');
-                    console.log('Formulário válido:', form.checkValidity());
-                    
-                    // Fallback: garantir que loading apareça mesmo se o listener do botão falhar
-                    if (form.checkValidity() && window.loadingManager) {
-                        window.loadingManager.show();
-                        console.log('🔄 Loading overlay ativado via fallback');
-                    }
+                    console.log('Action do formulário:', form.action);
+                    console.log('Method do formulário:', form.method);
+                    console.log('Formulário será enviado para o servidor...');
 
                     // Log dos dados do formulário
                     const formData = new FormData(form);
-                    console.log('Dados do formulário:');
+                    console.log('Dados do formulário preparados para envio');
+                    
+                    // Log de alguns campos importantes
+                    console.log('Título:', formData.get('titulo'));
+                    console.log('Modalidade:', formData.get('modalidade'));
+                    console.log('Órgão:', formData.get('orgao'));
                     for (let [key, value] of formData.entries()) {
                         if (value) console.log(`${key}: ${value}`);
                     }
                 });
             }
         });
+        
+        // Função de teste para envio do formulário
+        function testFormSubmit() {
+            console.log('🧪 TESTE: Função de teste chamada');
+            const form = document.querySelector('.course-form');
+            
+            if (form) {
+                console.log('🧪 TESTE: Formulário encontrado');
+                console.log('🧪 TESTE: Action:', form.action);
+                console.log('🧪 TESTE: Method:', form.method);
+                
+                // Verificar se campos obrigatórios estão preenchidos
+                const titulo = form.querySelector('[name="titulo"]');
+                const modalidade = form.querySelector('[name="modalidade"]');
+                const orgao = form.querySelector('[name="orgao"]');
+                
+                console.log('🧪 TESTE: Título:', titulo ? titulo.value : 'não encontrado');
+                console.log('🧪 TESTE: Modalidade:', modalidade ? modalidade.value : 'não encontrado');
+                console.log('🧪 TESTE: Órgão:', orgao ? orgao.value : 'não encontrado');
+                
+                if (!titulo || !titulo.value.trim()) {
+                    alert('TESTE: Preencha o título para testar');
+                    return;
+                }
+                
+                console.log('🧪 TESTE: Tentando enviar formulário...');
+                try {
+                    form.submit();
+                    console.log('🧪 TESTE: form.submit() executado');
+                } catch (error) {
+                    console.error('🧪 TESTE: Erro ao enviar:', error);
+                }
+            } else {
+                console.error('🧪 TESTE: Formulário não encontrado!');
+            }
+        }
     </script>
 </body>
 
