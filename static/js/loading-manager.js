@@ -24,45 +24,10 @@ class LoadingManager {
             this.overlay.classList.add('active');
             this.reset();
             this.startProgressSimulation();
-
-            // Adicionar botão de emergência após 20 segundos
-            setTimeout(() => {
-                this.addEmergencyCloseButton();
-            }, 20000);
         }
     }
 
-    /**
-     * Adiciona botão de emergência para fechar loading
-     */
-    addEmergencyCloseButton() {
-        if (this.overlay && this.overlay.classList.contains('active')) {
-            const container = this.overlay.querySelector('.loading-container');
-            if (container && !container.querySelector('.emergency-close')) {
-                const emergencyBtn = document.createElement('button');
-                emergencyBtn.className = 'emergency-close';
-                emergencyBtn.innerHTML = '✕ Fechar';
-                emergencyBtn.style.cssText = `
-                    position: absolute;
-                    top: 10px;
-                    right: 10px;
-                    background: #e53e3e;
-                    color: white;
-                    border: none;
-                    padding: 8px 12px;
-                    border-radius: 4px;
-                    cursor: pointer;
-                    font-size: 12px;
-                    z-index: 10001;
-                `;
-                emergencyBtn.onclick = () => {
-                    console.log('🚨 Botão de emergência clicado, fechando loading...');
-                    this.hide();
-                };
-                container.appendChild(emergencyBtn);
-            }
-        }
-    }
+
 
     /**
      * Esconde o loading overlay
@@ -141,14 +106,11 @@ class LoadingManager {
                 if (currentStepIndex < steps.length) {
                     setTimeout(simulateProgress, currentStepData.time);
                 } else {
-                    // Quando chegar ao último step, completar e fechar após um tempo
+                    // Quando chegar ao último step, apenas completar visualmente
+                    // NÃO fechar automaticamente - deixar para os eventos de página
                     setTimeout(() => {
                         this.completeAllSteps();
-                        // Auto-fechar após 15 segundos como segurança
-                        setTimeout(() => {
-                            console.log('⚠️ Loading auto-fechado por timeout de segurança');
-                            this.hide();
-                        }, 15000);
+                        console.log('✅ Simulação de progresso concluída - aguardando carregamento da página');
                     }, 1000);
                 }
             }
@@ -254,32 +216,10 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    // Esconder loading ao carregar a página (caso tenha ficado ativo)
+    // Esconder loading APENAS quando a nova página carregar completamente
     window.addEventListener('load', function () {
         if (window.loadingManager) {
-            console.log('🔄 Página carregada, fechando loading...');
-            window.loadingManager.hide();
-        }
-    });
-
-    // Esconder loading também no DOMContentLoaded como backup
-    window.addEventListener('DOMContentLoaded', function () {
-        // Aguardar um pouco para garantir que a página carregou completamente
-        setTimeout(() => {
-            if (window.loadingManager && window.loadingManager.overlay &&
-                window.loadingManager.overlay.classList.contains('active')) {
-                console.log('🔄 DOMContentLoaded: Fechando loading ativo...');
-                window.loadingManager.hide();
-            }
-        }, 1000);
-    });
-
-    // Esconder loading quando a página fica visível (mudança de aba)
-    document.addEventListener('visibilitychange', function () {
-        if (!document.hidden && window.loadingManager &&
-            window.loadingManager.overlay &&
-            window.loadingManager.overlay.classList.contains('active')) {
-            console.log('🔄 Página ficou visível, fechando loading...');
+            console.log('🔄 Nova página carregada, fechando loading...');
             window.loadingManager.hide();
         }
     });
