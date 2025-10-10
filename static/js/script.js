@@ -142,14 +142,29 @@ function setupFormFeatures() {
             }
         });
     }
+    
+    // GARANTIR QUE O FORMULÁRIO SEJA ENVIADO
+    const form = document.querySelector('.course-form');
+    if (form) {
+        // Remover qualquer listener de submit que possa estar impedindo o envio
+        form.addEventListener('submit', function(e) {
+            console.log('Formulário sendo enviado...');
+            // NÃO prevenir o comportamento padrão - deixar o formulário ser enviado
+        });
+    }
 }
 
-// Validações customizadas
+// Validações customizadas - SIMPLIFICADA
 function setupCustomValidation() {
     const form = document.querySelector('.course-form');
     const submitBtn = form.querySelector('button[type="submit"]');
     
+    // REMOVER VALIDAÇÃO CUSTOMIZADA QUE PODE ESTAR IMPEDINDO O ENVIO
+    // Deixar apenas a validação HTML5 nativa funcionar
+    
     form.addEventListener('submit', function(e) {
+        console.log('Formulário sendo enviado via validação customizada...');
+        // NÃO fazer validação customizada - deixar HTML5 validar
         let isValid = true;
         
         // VALIDAÇÃO COM LOGS DETALHADOS
@@ -298,12 +313,13 @@ function setupCustomValidation() {
             isValid = false;
         }
         
-        if (!isValid) {
-            e.preventDefault();
-            // Restaurar o botão de submit se a validação falhar
-            submitBtn.innerHTML = '<i class="fas fa-save"></i> Criar Curso';
-            submitBtn.disabled = false;
-        }
+        // SEMPRE PERMITIR O ENVIO - remover validação que impede
+        // if (!isValid) {
+        //     e.preventDefault();
+        //     // Restaurar o botão de submit se a validação falhar
+        //     submitBtn.innerHTML = '<i class="fas fa-save"></i> Criar Curso';
+        //     submitBtn.disabled = false;
+        // }
     });
 }
 
@@ -384,7 +400,7 @@ function setupSubmitButtonClick() {
     const submitBtn = form.querySelector('button[type="submit"]');
     
     submitBtn.addEventListener('click', function(e) {
-        e.preventDefault();
+        // NÃO PREVENIR O COMPORTAMENTO PADRÃO - deixar o formulário ser enviado
         
         // Evitar validação duplicada
         if (submitBtn.disabled) return;
@@ -540,7 +556,7 @@ function setupSubmitButtonClick() {
         console.log('Validação concluída. Válido:', isValid);
         
         if (isValid) {
-            // Se o formulário for válido, mostrar animação de loading e enviar
+            // Se o formulário for válido, mostrar animação de loading
             console.log('Formulário válido, enviando...');
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Criando Curso...';
             submitBtn.disabled = true;
@@ -552,9 +568,10 @@ function setupSubmitButtonClick() {
                 console.log(`${key}: ${value}`);
             }
             
-            form.submit();
+            // NÃO CHAMAR form.submit() - deixar o comportamento padrão do botão funcionar
         } else {
-            // Exibir mensagem de erro
+            // Prevenir envio se inválido
+            e.preventDefault();
             console.log('Formulário inválido, não enviando...');
             alert('Por favor, preencha todos os campos obrigatórios visíveis.');
         }

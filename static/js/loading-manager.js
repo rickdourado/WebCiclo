@@ -194,9 +194,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 !form.id.includes('search') && 
                 !form.id.includes('login')) {
                 
+                console.log('Loading manager: Formulário sendo enviado, mostrando loading...');
+                
                 // Mostrar loading
                 window.loadingManager.show();
                 
+                // IMPORTANTE: NÃO prevenir o comportamento padrão
                 // O formulário continuará a ser enviado normalmente
                 // O loading será fechado quando a página recarregar ou
                 // quando o servidor retornar uma resposta

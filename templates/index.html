@@ -997,7 +997,7 @@
                         <button type="reset" class="btn btn-outline">
                             <i class="fas fa-undo"></i> Limpar Formulário
                         </button>
-                        <button type="submit" class="btn btn-primary">
+                        <button type="submit" class="btn btn-primary" id="submitBtn">
                             <i class="fas fa-save"></i> Criar Curso
                         </button>
                     </div>
@@ -2137,6 +2137,62 @@
         }
     </script>
     {% endif %}
-        </script>
+    
+    <!-- SCRIPT DE DEBUG PARA GARANTIR ENVIO DO FORMULÁRIO -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('.course-form');
+            const submitBtn = document.getElementById('submitBtn');
+            
+            console.log('🔧 Script de debug carregado');
+            console.log('Formulário encontrado:', !!form);
+            console.log('Botão submit encontrado:', !!submitBtn);
+            
+            if (form && submitBtn) {
+                // Adicionar listener direto no botão
+                submitBtn.addEventListener('click', function(e) {
+                    console.log('🚀 Botão clicado!');
+                    
+                    // Verificar se o formulário é válido usando HTML5 validation
+                    if (form.checkValidity()) {
+                        console.log('✅ Formulário válido, permitindo envio...');
+                        
+                        // Mostrar loading
+                        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Criando Curso...';
+                        submitBtn.disabled = true;
+                        
+                        // Permitir que o comportamento padrão continue (envio do formulário)
+                        return true;
+                    } else {
+                        console.log('❌ Formulário inválido');
+                        e.preventDefault();
+                        
+                        // Mostrar quais campos são inválidos
+                        const invalidFields = form.querySelectorAll(':invalid');
+                        console.log('Campos inválidos:', invalidFields);
+                        invalidFields.forEach(field => {
+                            console.log(`- ${field.name}: ${field.validationMessage}`);
+                        });
+                        
+                        alert('Por favor, preencha todos os campos obrigatórios.');
+                        return false;
+                    }
+                });
+                
+                // Listener adicional no formulário
+                form.addEventListener('submit', function(e) {
+                    console.log('📝 Evento submit disparado no formulário');
+                    console.log('Formulário válido:', form.checkValidity());
+                    
+                    // Log dos dados do formulário
+                    const formData = new FormData(form);
+                    console.log('Dados do formulário:');
+                    for (let [key, value] of formData.entries()) {
+                        if (value) console.log(`${key}: ${value}`);
+                    }
+                });
+            }
+        });
+    </script>
     </body>
 </html>
