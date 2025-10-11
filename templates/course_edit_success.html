@@ -463,10 +463,10 @@
                                     </div>
                                     {% endif %}
                                     
-                                    {% if dias_aula[i] %}
+                                    {% if course.dias_aula %}
                                     <div class="info-row">
                                         <i class="fas fa-calendar-day"></i>
-                                        <span><strong>Dias da Aula:</strong> {{ dias_aula[i].strip() }}</span>
+                                        <span><strong>Dias da Aula:</strong> {{ course.dias_aula.replace('|', ', ') }}</span>
                                     </div>
                                     {% endif %}
                                 </div>

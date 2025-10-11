@@ -247,7 +247,7 @@ class FormValidator {
         
         if (aulasAssincronas && aulasAssincronas.value === 'nao') {
             // Para aulas síncronas, pelo menos um dia deve ser selecionado
-            const diasCheckboxes = this.form.querySelectorAll('input[name="dias_aula[]"]');
+            const diasCheckboxes = this.form.querySelectorAll('input[name="dias_aula_online[]"]');
             const algumDiaSelecionado = Array.from(diasCheckboxes).some(cb => cb.checked);
             
             if (!algumDiaSelecionado) {
@@ -271,7 +271,7 @@ class FormValidator {
         
         unidades.forEach((unidade, index) => {
             console.log(`Validando unidade ${index + 1}...`);
-            const diasCheckboxes = unidade.querySelectorAll('input[name="dias_aula[]"]');
+            const diasCheckboxes = unidade.querySelectorAll('input[name="dias_aula_presencial[]"]');
             console.log(`Encontrados ${diasCheckboxes.length} checkboxes de dias`);
             
             const algumDiaSelecionado = Array.from(diasCheckboxes).some(cb => cb.checked);

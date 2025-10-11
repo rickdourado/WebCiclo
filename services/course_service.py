@@ -171,7 +171,7 @@ class CourseService:
                 'plataforma_digital': form_data.get('plataforma_digital', ''),
                 'carga_horaria': form_data.get('carga_horaria', ''),
                 'aulas_assincronas': aulas_assincronas,
-                'dias_aula': '|'.join(form_data.getlist('dias_aula[]')) if hasattr(form_data, 'getlist') else form_data.get('dias_aula[]', ''),
+                'dias_aula': '|'.join(list(dict.fromkeys(form_data.getlist('dias_aula_online[]')))) if hasattr(form_data, 'getlist') else form_data.get('dias_aula_online[]', ''),
                 # Para cursos online, vagas_unidade deve vir do formulário
                 'vagas_unidade': '|'.join([v.strip() for v in form_data.getlist('vagas_unidade[]') if v.strip()]) if hasattr(form_data, 'getlist') else form_data.get('vagas_unidade[]', '').strip(),
                 # Campos de Presencial/Híbrido devem estar vazios para Online
@@ -204,7 +204,7 @@ class CourseService:
                 'fim_aulas_data': '|'.join(form_data.getlist('fim_aulas_data[]')) if hasattr(form_data, 'getlist') else form_data.get('fim_aulas_data[]', ''),
                 'horario_inicio': '|'.join([h for h in form_data.getlist('horario_inicio[]') if h.strip()]) if hasattr(form_data, 'getlist') else form_data.get('horario_inicio[]', ''),
                 'horario_fim': '|'.join([h for h in form_data.getlist('horario_fim[]') if h.strip()]) if hasattr(form_data, 'getlist') else form_data.get('horario_fim[]', ''),
-                'dias_aula': '|'.join(form_data.getlist('dias_aula[]')) if hasattr(form_data, 'getlist') else form_data.get('dias_aula[]', ''),
+                'dias_aula': '|'.join(list(dict.fromkeys(form_data.getlist('dias_aula_presencial[]')))) if hasattr(form_data, 'getlist') else form_data.get('dias_aula_presencial[]', ''),
                 'carga_horaria': form_data.get('carga_horaria', ''),
                 # Campos de Online devem estar vazios para Presencial/Híbrido
                 'plataforma_digital': '',

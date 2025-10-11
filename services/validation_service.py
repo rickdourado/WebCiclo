@@ -128,7 +128,7 @@ class CourseValidator:
             aulas_assincronas = form_data.get('aulas_assincronas')
             if aulas_assincronas == 'nao':
                 # Para aulas síncronas, pelo menos um dia deve ser selecionado
-                dias_aula = form_data.getlist('dias_aula[]') if hasattr(form_data, 'getlist') else form_data.get('dias_aula[]', [])
+                dias_aula = form_data.getlist('dias_aula_online[]') if hasattr(form_data, 'getlist') else form_data.get('dias_aula_online[]', [])
                 if not dias_aula or len(dias_aula) == 0:
                     self.errors.append("Pelo menos um dia da semana é obrigatório para aulas síncronas online")
         else:
@@ -209,7 +209,8 @@ class CourseValidator:
                 self.errors.append(f"Bairro da unidade {i} é obrigatório")
             if not unidade.get('vagas_unidade'):
                 self.errors.append(f"Número de vagas da unidade {i} é obrigatório")
-            if not unidade.get('dias_aula'):
+            dias_aula = unidade.get('dias_aula', [])
+            if not dias_aula or (isinstance(dias_aula, list) and len(dias_aula) == 0):
                 self.errors.append(f"Dias de aula da unidade {i} são obrigatórios")
     
     def _validate_dates(self, form_data: Dict):
@@ -289,7 +290,7 @@ class CourseValidator:
         enderecos = form_data.getlist('endereco_unidade[]') if hasattr(form_data, 'getlist') else form_data.get('endereco_unidade[]', [])
         bairros = form_data.getlist('bairro_unidade[]') if hasattr(form_data, 'getlist') else form_data.get('bairro_unidade[]', [])
         vagas = form_data.getlist('vagas_unidade[]') if hasattr(form_data, 'getlist') else form_data.get('vagas_unidade[]', [])
-        dias = form_data.getlist('dias_aula[]') if hasattr(form_data, 'getlist') else form_data.get('dias_aula[]', [])
+        dias = form_data.getlist('dias_aula_presencial[]') if hasattr(form_data, 'getlist') else form_data.get('dias_aula_presencial[]', [])
         
         # Determinar número de unidades presenciais
         # Usar apenas os campos que realmente pertencem às unidades presenciais
@@ -307,7 +308,7 @@ class CourseValidator:
                     'endereco_unidade': endereco,
                     'bairro_unidade': bairro,
                     'vagas_unidade': vaga,
-                    'dias_aula': dias[i] if i < len(dias) else ''
+                    'dias_aula': dias  # Para presencial, todos os dias se aplicam a todas as unidades
                 }
                 unidades.append(unidade)
         return unidades
