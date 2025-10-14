@@ -141,17 +141,21 @@ class CourseValidator:
     
     def _validate_online_exclusive_fields(self, form_data: Dict):
         """Valida que campos específicos de Presencial/Híbrido não estão presentes em cursos Online"""
-        # Campos que nunca devem estar presentes em cursos Online
-        presencial_fields = [
-            'endereco_unidade[]',
-            'bairro_unidade[]', 
-            'inicio_aulas_data[]',
-            'fim_aulas_data[]'
-        ]
-        
         # Verificar se aulas são síncronas (assíncronas = "não")
         aulas_assincronas = form_data.get('aulas_assincronas')
         aulas_sincronas = aulas_assincronas == 'nao'
+        
+        # Campos que nunca devem estar presentes em cursos Online
+        presencial_fields = [
+            'endereco_unidade[]',
+            'bairro_unidade[]'
+        ]
+        
+        # Campos de data que só devem estar presentes em aulas síncronas
+        campos_data_sincronos = [
+            'inicio_aulas_data[]',
+            'fim_aulas_data[]'
+        ]
         
         # Campos que só devem estar presentes em aulas síncronas
         campos_sincronos = [
@@ -159,7 +163,7 @@ class CourseValidator:
             'horario_fim[]'
         ]
         
-        # Validar campos que nunca devem estar presentes
+        # Validar campos que nunca devem estar presentes (endereço e bairro)
         for field in presencial_fields:
             field_value = form_data.get(field)
             if field_value and field_value.strip():
@@ -173,6 +177,32 @@ class CourseValidator:
                     if field_value.strip():
                         field_name = field.replace('[]', '').replace('_', ' ').title()
                         self.errors.append(f"Campo '{field_name}' não deve ser preenchido para cursos online")
+        
+        # Validar campos de data baseado no tipo de aula
+        for field in campos_data_sincronos:
+            # Para campos com [], usar getlist para obter a lista correta
+            if hasattr(form_data, 'getlist'):
+                field_value = form_data.getlist(field)
+            else:
+                field_value = form_data.get(field, [])
+            
+            field_name = field.replace('[]', '').replace('_', ' ').title()
+            
+            if aulas_sincronas:
+                # Para aulas síncronas, datas são obrigatórias
+                if not field_value or (isinstance(field_value, list) and not any(item.strip() for item in field_value if item)):
+                    self.errors.append(f"Campo '{field_name}' é obrigatório para aulas síncronas online")
+                elif isinstance(field_value, str) and not field_value.strip():
+                    self.errors.append(f"Campo '{field_name}' é obrigatório para aulas síncronas online")
+            else:
+                # Para aulas assíncronas, datas não devem estar presentes
+                if field_value:
+                    if isinstance(field_value, list):
+                        if any(item.strip() for item in field_value if item):
+                            self.errors.append(f"Campo '{field_name}' não deve ser preenchido para aulas assíncronas online")
+                    else:
+                        if field_value.strip():
+                            self.errors.append(f"Campo '{field_name}' não deve ser preenchido para aulas assíncronas online")
         
         # Validar campos de horário baseado no tipo de aula
         for field in campos_sincronos:
