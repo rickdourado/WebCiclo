@@ -391,14 +391,14 @@
                                          {% for i in range(duplicate_data.enderecos_unidades|length) %}
                                          <div class="unidade-item" data-unidade="{{ i }}">
                                              <div class="unidade-header">
-                                                 <h4>Unidade {{ i + 1 }}</h4>
+                                                 <h4>Unidade ou Turma {{ i + 1 }}</h4>
                                                  {% if i > 0 %}
                                                  <button type="button" class="btn-remove-unidade" onclick="removeUnidade({{ i }})">
-                                                     <i class="fas fa-trash"></i> Remover Unidade
+                                                     <i class="fas fa-trash"></i> Remover Unidade ou Turma
                                                  </button>
                                                  {% endif %}
                                              </div>
-                                             <label>Endereço da unidade*</label>
+                                             <label>Endereço da unidade ou turma*</label>
                                              <input type="text" name="endereco_unidade[]" required value="{{ duplicate_data.enderecos_unidades[i] if i < duplicate_data.enderecos_unidades|length else '' }}">
                                              <label>Bairro*</label>
                                              <input type="text" name="bairro_unidade[]" required value="{{ duplicate_data.bairros_unidades[i] if i < duplicate_data.bairros_unidades|length else '' }}">
@@ -501,7 +501,7 @@
                                      {% else %}
                                      <!-- Primeira unidade padrão (quando não há duplicação) -->
                                      <div class="unidade-item" data-unidade="0">
-                                         <label>Endereço da unidade*</label>
+                                         <label>Endereço da unidade ou turma*</label>
                                          <input type="text" name="endereco_unidade[]" required>
                                          <label>Bairro*</label>
                                          <input type="text" name="bairro_unidade[]" required>

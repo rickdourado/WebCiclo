@@ -176,10 +176,22 @@ class CourseService:
                 'vagas_unidade': '|'.join([v.strip() for v in form_data.getlist('vagas_unidade[]') if v.strip()]) if hasattr(form_data, 'getlist') else form_data.get('vagas_unidade[]', '').strip(),
                 # Campos de Presencial/Híbrido devem estar vazios para Online
                 'endereco_unidade': '',
-                'bairro_unidade': '',
-                'inicio_aulas_data': '',
-                'fim_aulas_data': ''
+                'bairro_unidade': ''
             })
+            
+            # Datas de aula baseadas no tipo de aula
+            if aulas_sincronas:
+                # Para aulas síncronas, incluir datas de início e fim
+                course_data.update({
+                    'inicio_aulas_data': '|'.join([d for d in form_data.getlist('inicio_aulas_data[]') if d.strip()]) if hasattr(form_data, 'getlist') else form_data.get('inicio_aulas_data[]', ''),
+                    'fim_aulas_data': '|'.join([d for d in form_data.getlist('fim_aulas_data[]') if d.strip()]) if hasattr(form_data, 'getlist') else form_data.get('fim_aulas_data[]', '')
+                })
+            else:
+                # Para aulas assíncronas, datas devem estar vazias
+                course_data.update({
+                    'inicio_aulas_data': '',
+                    'fim_aulas_data': ''
+                })
             
             # Horários baseados no tipo de aula
             if aulas_sincronas:

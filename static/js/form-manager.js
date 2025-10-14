@@ -216,7 +216,7 @@ class FormManager {
                 });
             } else {
                 if (legend) {
-                    legend.textContent = `Informações da Unidade ${index + 1}`;
+                    legend.textContent = `Informações da Unidade ou Turma ${index + 1}`;
                 }
                 
                 enderecoInputs.forEach(field => {
@@ -353,11 +353,11 @@ class FormManager {
     }
     
     generateUnidadeHTML(count, isOnline) {
-        const legendText = isOnline ? `Informações do Curso ${count}` : `Informações da Unidade ${count}`;
+        const legendText = isOnline ? `Informações do Curso ${count}` : `Informações da Unidade ou Turma ${count}`;
         
         // Para cursos online, não incluir campos de endereço e bairro
         const enderecoFields = isOnline ? '' : `
-                <label>Endereço da unidade*</label>
+                <label>Endereço da unidade ou turma*</label>
                 <input type="text" name="endereco_unidade[]" required>
                 <label>Bairro*</label>
                 <input type="text" name="bairro_unidade[]" required>`;
@@ -449,7 +449,7 @@ class FormManager {
         unidades.forEach((unidade, index) => {
             const legend = unidade.querySelector('legend');
             if (legend) {
-                const legendText = isOnline ? `Informações do Curso ${index + 1}` : `Informações da Unidade ${index + 1}`;
+                const legendText = isOnline ? `Informações do Curso ${index + 1}` : `Informações da Unidade ou Turma ${index + 1}`;
                 legend.innerHTML = `${legendText} <button type="button" class="remove-unidade-btn" onclick="removeUnidade(this)" style="display:none;">×</button>`;
             }
             unidade.setAttribute('data-unidade', index);

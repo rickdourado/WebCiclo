@@ -238,21 +238,21 @@
                              <!-- Subformulário para Presencial/Híbrido -->
                              <div class="form-group full-width" id="unidades_container" style="display:{% if course.modalidade == 'Presencial' or course.modalidade == 'Híbrido' %}block{% else %}none{% endif %};">
                                  <fieldset class="unidade-fieldset">
-                                     <legend>Informações da Unidade 1 <button type="button" class="remove-unidade-btn" onclick="removeUnidade(this)" style="display:none;">&times;</button></legend>
+                                     <legend>Informações da Unidade ou Turma 1 <button type="button" class="remove-unidade-btn" onclick="removeUnidade(this)" style="display:none;">&times;</button></legend>
                                      
                                      <!-- Container para múltiplas unidades -->
                                      <div id="unidades_list">
                                          {% for i in range(course.enderecos_unidades|length) %}
                                          <div class="unidade-item" data-unidade="{{ i }}">
                                              <div class="unidade-header">
-                                                 <h4>Unidade {{ i + 1 }}</h4>
+                                                 <h4>Unidade ou Turma {{ i + 1 }}</h4>
                                                  {% if i > 0 %}
                                                  <button type="button" class="btn-remove-unidade" onclick="removeUnidade({{ i }})">
-                                                     <i class="fas fa-trash"></i> Remover Unidade
+                                                     <i class="fas fa-trash"></i> Remover Unidade ou Turma
                                                  </button>
                                                  {% endif %}
                                              </div>
-                                             <label>Endereço da unidade*</label>
+                                             <label>Endereço da unidade ou turma*</label>
                                              <input type="text" name="endereco_unidade[]" required value="{{ course.enderecos_unidades[i] if i < course.enderecos_unidades|length else '' }}">
                                              <label>Bairro*</label>
                                              <input type="text" name="bairro_unidade[]" required value="{{ course.bairros_unidades[i] if i < course.bairros_unidades|length else '' }}">
@@ -757,7 +757,7 @@
             
             const newUnidadeHTML = `
                 <div class="unidade-item" data-unidade="${newUnidadeIndex}">
-                    <label>Endereço da unidade*</label>
+                    <label>Endereço da unidade ou turma*</label>
                     <input type="text" name="endereco_unidade[]" required>
                     <label>Bairro*</label>
                     <input type="text" name="bairro_unidade[]" required>
@@ -883,7 +883,7 @@
             unidades.forEach((unidade, index) => {
                 const legend = unidade.closest('fieldset').querySelector('legend');
                 if (legend) {
-                    legend.innerHTML = `Informações da Unidade ${index + 1} <button type="button" class="remove-unidade-btn" onclick="removeUnidade(this)" ${index === 0 ? 'style="display:none;"' : ''}>&times;</button>`;
+                    legend.innerHTML = `Informações da Unidade ou Turma ${index + 1} <button type="button" class="remove-unidade-btn" onclick="removeUnidade(this)" ${index === 0 ? 'style="display:none;"' : ''}>&times;</button>`;
                 }
             });
         }
