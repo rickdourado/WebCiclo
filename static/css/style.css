@@ -104,6 +104,15 @@ body {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
+/* Ícones de casa */
+.home-link {
+    margin-right: 10px;
+}
+
+.home-link i {
+    font-size: 18px;
+}
+
 .breadcrumb {
     display: none !important;
     align-items: center;

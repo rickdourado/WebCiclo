@@ -385,6 +385,9 @@
                     <span class="version">v2.0</span>
                 </div>
                 <div class="nav-section">
+                    <a href="{{ url_for('index') }}" class="nav-link home-link" title="Página Inicial">
+                        <i class="fas fa-home"></i>
+                    </a>
                     <a href="{{ url_for('public_courses') }}" class="nav-link">
                         <i class="fas fa-list"></i>
                         Ver Cursos
@@ -542,6 +545,15 @@
                             </div>
 
                             <div class="form-group full-width">
+                                <label for="carga_horaria" class="required">Carga Horária</label>
+                                <input type="text" id="carga_horaria" name="carga_horaria" required
+                                    placeholder="Digite a carga horária (ex: 40 horas, 80h, 2 meses, etc.)"
+                                    value="{{ duplicate_data.carga_horaria if duplicate_data else '' }}">
+                                <small style="color: red; font-size: 0.9em; margin-top: 5px; display: block;">(Dê
+                                    preferência a carga horária no formato de horas)</small>
+                            </div>
+
+                            <div class="form-group full-width">
                                 <label for="modalidade" class="required">Modalidade</label>
                                 <select id="modalidade" name="modalidade" required onchange="toggleUnidades();"
                                     autocomplete="off">
@@ -556,7 +568,8 @@
                             <div class="form-group full-width" id="unidades_container" style="display:none;">
                                 <fieldset class="unidade-fieldset">
                                     <legend>Informações das Unidades <button type="button" class="remove-unidade-btn"
-                                            onclick="removeUnidade(this)" style="display:none;">×</button></legend>
+                                            onclick="removeUnidade(this)" style="display:none;">&times;</button>
+                                    </legend>
 
                                     <!-- Container para múltiplas unidades -->
                                     <div id="unidades_list">
@@ -582,18 +595,6 @@
                                             <label>Total de vagas*</label>
                                             <input type="number" name="vagas_unidade[]" min="1" required
                                                 value="{{ duplicate_data.vagas_unidades[i] if i < duplicate_data.vagas_unidades|length else '' }}">
-
-                                            {% if i == 0 %}
-                                            <label for="carga_horaria_unidade_{{ i }}" class="required">Carga
-                                                Horária</label>
-                                            <input type="text" id="carga_horaria_unidade_{{ i }}" name="carga_horaria"
-                                                required
-                                                placeholder="Digite a carga horária (ex: 40 horas, 80h, 2 meses, etc.)"
-                                                value="{{ duplicate_data.carga_horaria if duplicate_data else '' }}">
-                                            <small
-                                                style="color: red; font-size: 0.9em; margin-top: 5px; display: block;">(Dê
-                                                preferência a carga horária no formato de horas)</small>
-                                            {% endif %}
 
                                             <div class="data-group">
                                                 <div class="data-field">
@@ -769,12 +770,7 @@
                                             <input type="number" name="vagas_unidade[]" min="1" required>
                                             {% endif %}
 
-                                            <label for="carga_horaria_unidade" class="required">Carga Horária</label>
-                                            <input type="text" id="carga_horaria_unidade" name="carga_horaria" required
-                                                placeholder="Digite a carga horária (ex: 40 horas, 80h, 2 meses, etc.)">
-                                            <small
-                                                style="color: red; font-size: 0.9em; margin-top: 5px; display: block;">(Dê
-                                                preferência a carga horária no formato de horas)</small>
+
 
                                             <div class="data-group">
                                                 <div class="data-field">
@@ -841,23 +837,28 @@
                                             <label>Dias de aula*</label>
                                             <div class="checkbox-group dias-aula">
                                                 <label class="checkbox-label">
-                                                    <input type="checkbox" name="dias_aula_presencial[]" value="Segunda-feira">
+                                                    <input type="checkbox" name="dias_aula_presencial[]"
+                                                        value="Segunda-feira">
                                                     <span>Segunda-feira</span>
                                                 </label>
                                                 <label class="checkbox-label">
-                                                    <input type="checkbox" name="dias_aula_presencial[]" value="Terça-feira">
+                                                    <input type="checkbox" name="dias_aula_presencial[]"
+                                                        value="Terça-feira">
                                                     <span>Terça-feira</span>
                                                 </label>
                                                 <label class="checkbox-label">
-                                                    <input type="checkbox" name="dias_aula_presencial[]" value="Quarta-feira">
+                                                    <input type="checkbox" name="dias_aula_presencial[]"
+                                                        value="Quarta-feira">
                                                     <span>Quarta-feira</span>
                                                 </label>
                                                 <label class="checkbox-label">
-                                                    <input type="checkbox" name="dias_aula_presencial[]" value="Quinta-feira">
+                                                    <input type="checkbox" name="dias_aula_presencial[]"
+                                                        value="Quinta-feira">
                                                     <span>Quinta-feira</span>
                                                 </label>
                                                 <label class="checkbox-label">
-                                                    <input type="checkbox" name="dias_aula_presencial[]" value="Sexta-feira">
+                                                    <input type="checkbox" name="dias_aula_presencial[]"
+                                                        value="Sexta-feira">
                                                     <span>Sexta-feira</span>
                                                 </label>
                                                 <label class="checkbox-label">
@@ -865,7 +866,8 @@
                                                     <span>Sábado</span>
                                                 </label>
                                                 <label class="checkbox-label">
-                                                    <input type="checkbox" name="dias_aula_presencial[]" value="Domingo">
+                                                    <input type="checkbox" name="dias_aula_presencial[]"
+                                                        value="Domingo">
                                                     <span>Domingo</span>
                                                 </label>
                                             </div>
@@ -882,7 +884,7 @@
                                 <fieldset class="unidade-fieldset">
                                     <legend>Informações da Plataforma <button type="button"
                                             class="remove-plataforma-btn" onclick="removePlataforma(this)"
-                                            style="display:none;">×</button></legend>
+                                            style="display:none;">&times;</button></legend>
 
                                     <!-- Container para plataforma online -->
                                     <div id="plataforma_list">
@@ -896,12 +898,7 @@
                                             <input type="number" id="vagas_online" name="vagas_unidade[]" min="1"
                                                 required>
 
-                                            <label for="carga_horaria_online" class="required">Carga Horária</label>
-                                            <input type="text" id="carga_horaria_online" name="carga_horaria" required
-                                                placeholder="Digite a carga horária (ex: 40 horas, 80h, 2 meses, etc.)">
-                                            <small
-                                                style="color: red; font-size: 0.9em; margin-top: 5px; display: block;">(Dê
-                                                preferência a carga horária no formato de horas)</small>
+
 
                                             <label class="required">Aulas Assíncronas?</label>
                                             <div class="radio-group">
@@ -981,23 +978,28 @@
                                                 <label>Dias de aula</label>
                                                 <div class="checkbox-group dias-aula">
                                                     <label class="checkbox-label">
-                                                        <input type="checkbox" name="dias_aula_online[]" value="Segunda-feira">
+                                                        <input type="checkbox" name="dias_aula_online[]"
+                                                            value="Segunda-feira">
                                                         <span>Segunda-feira</span>
                                                     </label>
                                                     <label class="checkbox-label">
-                                                        <input type="checkbox" name="dias_aula_online[]" value="Terça-feira">
+                                                        <input type="checkbox" name="dias_aula_online[]"
+                                                            value="Terça-feira">
                                                         <span>Terça-feira</span>
                                                     </label>
                                                     <label class="checkbox-label">
-                                                        <input type="checkbox" name="dias_aula_online[]" value="Quarta-feira">
+                                                        <input type="checkbox" name="dias_aula_online[]"
+                                                            value="Quarta-feira">
                                                         <span>Quarta-feira</span>
                                                     </label>
                                                     <label class="checkbox-label">
-                                                        <input type="checkbox" name="dias_aula_online[]" value="Quinta-feira">
+                                                        <input type="checkbox" name="dias_aula_online[]"
+                                                            value="Quinta-feira">
                                                         <span>Quinta-feira</span>
                                                     </label>
                                                     <label class="checkbox-label">
-                                                        <input type="checkbox" name="dias_aula_online[]" value="Sexta-feira">
+                                                        <input type="checkbox" name="dias_aula_online[]"
+                                                            value="Sexta-feira">
                                                         <span>Sexta-feira</span>
                                                     </label>
                                                     <label class="checkbox-label">
@@ -1005,7 +1007,8 @@
                                                         <span>Sábado</span>
                                                     </label>
                                                     <label class="checkbox-label">
-                                                        <input type="checkbox" name="dias_aula_online[]" value="Domingo">
+                                                        <input type="checkbox" name="dias_aula_online[]"
+                                                            value="Domingo">
                                                         <span>Domingo</span>
                                                     </label>
                                                 </div>
@@ -1548,8 +1551,6 @@
                 'select[name="horario_fim[]"]'
             );
 
-            const cargaHorariaUnidade = document.getElementById('carga_horaria_unidade');
-
             // Processar campos de unidade
             camposUnidade.forEach(campo => {
                 if (required) {
@@ -1558,25 +1559,11 @@
                     campo.removeAttribute('required');
                 }
             });
-
-            // Controlar campo Carga Horária do subformulário Unidade
-            if (cargaHorariaUnidade) {
-                if (required) {
-                    cargaHorariaUnidade.setAttribute('required', 'required');
-                } else {
-                    cargaHorariaUnidade.removeAttribute('required');
-                    // Só limpar se o campo estiver vazio
-                    if (cargaHorariaUnidade.value === '') {
-                        cargaHorariaUnidade.value = '';
-                    }
-                }
-            }
         }
 
         function setPlataformaFieldsRequired(required) {
             const plataformaDigital = document.getElementById('plataforma_digital');
             const vagasOnline = document.getElementById('vagas_online');
-            const cargaHorariaOnline = document.getElementById('carga_horaria_online');
             const inicioAulasOnline = document.getElementById('inicio_aulas_online');
             const fimAulasOnline = document.getElementById('fim_aulas_online');
             const horarioInicioOnline = document.getElementById('horario_inicio_online');
@@ -1587,7 +1574,7 @@
             const isAsync = aulasAssincronasSim && aulasAssincronasSim.checked;
 
             // Campos sempre obrigatórios para modalidade Online
-            const camposObrigatorios = [plataformaDigital, vagasOnline, cargaHorariaOnline];
+            const camposObrigatorios = [plataformaDigital, vagasOnline];
 
             // Campos condicionais (só obrigatórios se não for assíncrono)
             const camposCondicionais = [inicioAulasOnline, fimAulasOnline, horarioInicioOnline, horarioFimOnline];
@@ -1599,7 +1586,7 @@
                         campo.setAttribute('required', 'required');
                     } else {
                         campo.removeAttribute('required');
-                        if (campo.value === '' || campo.id !== 'carga_horaria_online') {
+                        if (campo.value === '') {
                             campo.value = '';
                         }
                     }
@@ -1647,7 +1634,7 @@
                 unidade.setAttribute('data-unidade', index);
                 const legend = unidade.querySelector('legend');
                 if (legend) {
-                    legend.innerHTML = `Informações da Unidade ${index + 1} <button type="button" class="remove-unidade-btn" onclick="removeUnidade(this)">×</button>`;
+                    legend.innerHTML = `Informações da Unidade ${index + 1} <button type="button" class="remove-unidade-btn" onclick="removeUnidade(this)">&times;</button>`;
                 }
             });
         }
@@ -1674,7 +1661,7 @@
             newPlataforma.setAttribute('data-plataforma', nextIndex);
 
             newPlataforma.innerHTML = `
-                <legend>Informações da Plataforma ${nextIndex + 1} <button type="button" class="remove-plataforma-btn" onclick="removePlataforma(this)">×</button></legend>
+                <legend>Informações da Plataforma ${nextIndex + 1} <button type="button" class="remove-plataforma-btn" onclick="removePlataforma(this)">&times;</button></legend>
                 <label for="plataforma_digital_${nextIndex}">Plataforma Digital</label>
                 <input type="text" id="plataforma_digital_${nextIndex}" name="plataforma_digital" 
                        placeholder="Ex: Zoom, Google Meet, Microsoft Teams">
@@ -1682,10 +1669,7 @@
                 <label>Total de vagas*</label>
                 <input type="number" name="vagas_unidade[]" min="1" required>
                 
-                <label for="carga_horaria_online_${nextIndex}" class="required">Carga Horária</label>
-                <input type="text" id="carga_horaria_online_${nextIndex}" name="carga_horaria" required 
-                       placeholder="Digite a carga horária (ex: 40 horas, 80h, 2 meses, etc.)">
-                <small style="color: red; font-size: 0.9em; margin-top: 5px; display: block;">(Dê preferência a carga horária no formato de horas)</small>
+
                 
                 <label class="required">Aulas Assíncronas?</label>
                 <div class="radio-group">
@@ -1816,7 +1800,7 @@
                 plataforma.setAttribute('data-plataforma', index);
                 const legend = plataforma.querySelector('legend');
                 if (legend) {
-                    legend.innerHTML = `Informações da Plataforma ${index + 1} <button type="button" class="remove-plataforma-btn" onclick="removePlataforma(this)">×</button>`;
+                    legend.innerHTML = `Informações da Plataforma ${index + 1} <button type="button" class="remove-plataforma-btn" onclick="removePlataforma(this)">&times;</button>`;
                 }
             });
         }
@@ -2033,7 +2017,8 @@
             console.log('🔄 JavaScript de duplicação DESABILITADO para teste');
 
             // Dados de duplicação do servidor
-            const duplicateData = {{ duplicate_data | tojson | safe if duplicate_data else '{}' }};
+            const duplicateData = {{ duplicate_data | tojson | safe if duplicate_data else '{}'
+        }};
 
         // DESABILITADO - Pré-preencher modalidade (sem disparar evento change que interfere com unidades)
         // if (duplicateData.modalidade) {
@@ -2368,16 +2353,16 @@
             console.log('Formulário encontrado:', !!form);
             console.log('Botão submit encontrado:', !!submitBtn);
             console.log('Loading manager disponível:', !!window.loadingManager);
-            
+
             if (form) {
                 console.log('📋 Detalhes do formulário:');
                 console.log('- Action:', form.action);
                 console.log('- Method:', form.method);
                 console.log('- Enctype:', form.enctype);
             }
-            
+
             // Verificar se há loading ativo e fechar se necessário
-            if (window.loadingManager && window.loadingManager.overlay && 
+            if (window.loadingManager && window.loadingManager.overlay &&
                 window.loadingManager.overlay.classList.contains('active')) {
                 console.log('🔄 Loading ativo detectado, fechando...');
                 window.loadingManager.hide();
@@ -2387,11 +2372,11 @@
                 // Verificar se já tem listener para evitar duplicação
                 if (!submitBtn.hasAttribute('data-debug-listener')) {
                     submitBtn.setAttribute('data-debug-listener', 'true');
-                    
+
                     // Adicionar listener direto no botão - COM ENVIO FORÇADO
                     submitBtn.addEventListener('click', function (e) {
                         console.log('🚀 Botão clicado!');
-                        
+
                         // PREVENIR comportamento padrão para controlar o envio
                         e.preventDefault();
 
@@ -2408,7 +2393,7 @@
                         console.log('✅ Forçando envio do formulário...');
                         console.log('URL de destino:', form.action);
                         console.log('Method:', form.method);
-                        
+
                         // FORÇAR ENVIO DO FORMULÁRIO
                         setTimeout(() => {
                             console.log('📤 Executando form.submit() agora...');
@@ -2432,7 +2417,7 @@
                     // Log dos dados do formulário
                     const formData = new FormData(form);
                     console.log('Dados do formulário preparados para envio');
-                    
+
                     // Log de alguns campos importantes
                     console.log('Título:', formData.get('titulo'));
                     console.log('Modalidade:', formData.get('modalidade'));
@@ -2443,7 +2428,7 @@
                 });
             }
         });
-        
+
 
     </script>
 </body>

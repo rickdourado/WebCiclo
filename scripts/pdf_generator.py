@@ -165,7 +165,8 @@ def generate_pdf(course_data):
     # Gerar nome do arquivo baseado na data atual e título do curso
     data_atual = datetime.now().strftime('%Y%m%d')
     titulo_formatado = course_data['titulo'].replace(' ', '_').replace('/', '_').replace('\\', '_')
-    filename = f"{data_atual}_{titulo_formatado}.pdf"
+    course_id = course_data.get('id', 'unknown')
+    filename = f"{data_atual}_{course_id}_{titulo_formatado}.pdf"
     filepath = os.path.join(pdf_dir, filename)
     print(f"Caminho completo do arquivo PDF: {filepath}")
     

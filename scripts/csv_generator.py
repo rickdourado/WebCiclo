@@ -22,10 +22,11 @@ def generate_csv(course_data):
         print(f"Criando diretório CSV: {csv_dir}")
         os.makedirs(csv_dir)
     
-    # Gerar nome do arquivo baseado na data atual e título do curso
+    # Gerar nome do arquivo baseado na data atual, ID único e título do curso
     data_atual = datetime.now().strftime('%Y%m%d')
     titulo_formatado = course_data['titulo'].replace(' ', '_')
-    filename = f"{data_atual}_{titulo_formatado}.csv"
+    course_id = course_data.get('id', 'unknown')
+    filename = f"{data_atual}_{course_id}_{titulo_formatado}.csv"
     filepath = os.path.join(csv_dir, filename)
     print(f"Caminho completo do arquivo CSV: {filepath}")
     

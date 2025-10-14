@@ -238,6 +238,11 @@
                     </a>
                     <span class="version">v2.0</span>
                 </div>
+                <div class="nav-section">
+                    <a href="{{ url_for('index') }}" class="nav-link home-link" title="Página Inicial">
+                        <i class="fas fa-home"></i>
+                    </a>
+                </div>
             </div>
         </header>
 
@@ -267,7 +272,7 @@
                     {% endif %}
                 {% endwith %}
 
-                <form method="POST" action="{{ url_for('create_course') }}" class="course-form" enctype="multipart/form-data">
+                <form method="POST" action="{{ url_for('duplicate_course', course_id=original_course_id) }}" class="course-form" enctype="multipart/form-data">
                     <!-- Formulário de Duplicação de Curso -->
                     <div class="form-section">
                         <div class="form-grid">
@@ -355,6 +360,14 @@
                                      <option value="Astronomia" {% if duplicate_data and duplicate_data.tema == 'Astronomia' %}selected{% endif %}>Astronomia</option>
                                  </select>
                             </div>
+
+                            <div class="form-group full-width">
+                                <label for="carga_horaria" class="required">Carga Horária</label>
+                                <input type="text" id="carga_horaria" name="carga_horaria" required
+                                    placeholder="Digite a carga horária (ex: 40 horas, 80h, 2 meses, etc.)"
+                                    value="{{ duplicate_data.carga_horaria if duplicate_data else '' }}">
+                                <small style="color: red; font-size: 0.9em; margin-top: 5px; display: block;">(Dê preferência a carga horária no formato de horas)</small>
+                            </div>
                             
                              <div class="form-group full-width">
                                 <label for="modalidade" class="required">Modalidade</label>
@@ -369,7 +382,7 @@
                              <!-- Subformulário para Presencial/Híbrido -->
                              <div class="form-group full-width" id="unidades_container" style="display:{% if duplicate_data and (duplicate_data.modalidade == 'Presencial' or duplicate_data.modalidade == 'Híbrido') %}block{% else %}none{% endif %};">
                                  <fieldset class="unidade-fieldset">
-                                     <legend>Informações das Unidades <button type="button" class="remove-unidade-btn" onclick="removeUnidade(this)" style="display:none;">×</button></legend>
+                                     <legend>Informações das Unidades <button type="button" class="remove-unidade-btn" onclick="removeUnidade(this)" style="display:none;">&times;</button></legend>
                                      
                                      <!-- Container para múltiplas unidades -->
                                      <div id="unidades_list">
@@ -391,14 +404,7 @@
                                              <input type="text" name="bairro_unidade[]" required value="{{ duplicate_data.bairros_unidades[i] if i < duplicate_data.bairros_unidades|length else '' }}">
                                              <label>Total de vagas*</label>
                                              <input type="number" name="vagas_unidade[]" min="1" required value="{{ duplicate_data.vagas_unidades[i]|replace(',', '')|replace('.', '')|trim if i < duplicate_data.vagas_unidades|length else '' }}">
-                                             
-                                             {% if i == 0 %}
-                                             <label for="carga_horaria_unidade_{{ i }}" class="required">Carga Horária</label>
-                                             <input type="text" id="carga_horaria_unidade_{{ i }}" name="carga_horaria" required 
-                                                    placeholder="Digite a carga horária (ex: 40 horas, 80h, 2 meses, etc.)" value="{{ duplicate_data.carga_horaria if duplicate_data else '' }}">
-                                             <small style="color: red; font-size: 0.9em; margin-top: 5px; display: block;">(Dê preferência a carga horária no formato de horas)</small>
-                                             {% endif %}
-                                             
+
                                              <div class="data-group">
                                                  <div class="data-field">
                                                      <label>Início das aulas*</label>
@@ -501,12 +507,7 @@
                                          <input type="text" name="bairro_unidade[]" required>
                                          <label>Total de vagas*</label>
                                          <input type="number" name="vagas_unidade[]" min="1" required>
-                                         
-                                         <label for="carga_horaria_unidade" class="required">Carga Horária</label>
-                                         <input type="text" id="carga_horaria_unidade" name="carga_horaria" required 
-                                                placeholder="Digite a carga horária (ex: 40 horas, 80h, 2 meses, etc.)">
-                                         <small style="color: red; font-size: 0.9em; margin-top: 5px; display: block;">(Dê preferência a carga horária no formato de horas)</small>
-                                         
+
                                          <div class="data-group">
                                              <div class="data-field">
                                                  <label>Início das aulas*</label>
@@ -609,7 +610,7 @@
                              <!-- Subformulário para Online -->
                              <div class="form-group full-width" id="plataforma_container" style="display:{% if duplicate_data and duplicate_data.modalidade == 'Online' %}block{% else %}none{% endif %};">
                                  <fieldset class="unidade-fieldset">
-                                     <legend>Informações da Plataforma <button type="button" class="remove-plataforma-btn" onclick="removePlataforma(this)" style="display:none;">×</button></legend>
+                                     <legend>Informações da Plataforma <button type="button" class="remove-plataforma-btn" onclick="removePlataforma(this)" style="display:none;">&times;</button></legend>
                                      
                                      <!-- Container para plataforma online -->
                                      <div id="plataforma_list">
@@ -622,12 +623,7 @@
                                              <label for="total_vagas_online">Total de vagas*</label>
                                              <input type="number" id="total_vagas_online" name="vagas_unidade[]" min="1" required
                                                     placeholder="Digite o número total de vagas" value="{{ duplicate_data.total_vagas_online if duplicate_data else '' }}">
-                                             
-                                             <label for="carga_horaria_online" class="required">Carga Horária</label>
-                                             <input type="text" id="carga_horaria_online" name="carga_horaria" required 
-                                                    placeholder="Digite a carga horária (ex: 40 horas, 80h, 2 meses, etc.)" value="{{ duplicate_data.carga_horaria if duplicate_data else '' }}">
-                                             <small style="color: red; font-size: 0.9em; margin-top: 5px; display: block;">(Dê preferência a carga horária no formato de horas)</small>
-                                             
+
                                              <label class="required">Aulas Assíncronas?</label>
                                              <div class="radio-group">
                                                  <label class="radio-label">
@@ -974,20 +970,6 @@
                 field.removeAttribute('required');
                 // Não limpar valores aqui - apenas quando necessário
                 console.log('❌ Removido required de:', field.name || field.id);
-            });
-            
-            // Verificação adicional para campos de carga horária que podem estar ocultos
-            const cargaHorariaFields = document.querySelectorAll('input[name="carga_horaria"]');
-            cargaHorariaFields.forEach(field => {
-                const rect = field.getBoundingClientRect();
-                const isHidden = rect.width === 0 && rect.height === 0;
-                const computedStyle = window.getComputedStyle(field);
-                const isDisplayNone = computedStyle.display === 'none';
-                
-                if (isHidden || isDisplayNone) {
-                    field.removeAttribute('required');
-                    console.log('🚫 Removido required de campo carga horária oculto:', field.id);
-                }
             });
             
             if (modalidade === 'Presencial' || modalidade === 'Híbrido') {

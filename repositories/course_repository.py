@@ -89,6 +89,9 @@ class CourseRepository:
         course_data['created_at'] = existing_course.get('created_at', datetime.now().strftime('%d-%m-%Y %H:%M:%S'))
         course_data['updated_at'] = datetime.now().strftime('%d-%m-%Y %H:%M:%S')
         
+        # Remover arquivos antigos antes de gerar novos (para evitar arquivos órfãos)
+        self._cleanup_old_course_files(course_id, existing_course)
+        
         # Gerar novos arquivos
         try:
             csv_path = generate_csv(course_data)
@@ -96,6 +99,8 @@ class CourseRepository:
             
             course_data['csv_file'] = os.path.basename(csv_path)
             course_data['pdf_file'] = os.path.basename(pdf_path)
+            
+            print(f"Arquivos atualizados para curso {course_id}: CSV={csv_path}, PDF={pdf_path}")
             
         except Exception as e:
             print(f"Erro ao gerar arquivos para curso {course_id}: {str(e)}")
@@ -139,24 +144,46 @@ class CourseRepository:
         if not course:
             return False
         
-        # Excluir arquivos CSV e PDF
-        titulo_formatado = course['titulo'].replace(' ', '_')
+        # Excluir arquivos CSV e PDF usando o ID do curso para busca mais precisa
+        course_id_str = str(course_id)
         
-        # Excluir arquivos CSV
-        csv_files = [f for f in os.listdir(self.csv_dir) if titulo_formatado in f]
+        # Excluir arquivos CSV (buscar por ID no nome do arquivo)
+        csv_files = [f for f in os.listdir(self.csv_dir) if f"_{course_id_str}_" in f or f.startswith(f"{course_id_str}_")]
         for csv_file in csv_files:
             try:
                 os.remove(os.path.join(self.csv_dir, csv_file))
+                print(f"Arquivo CSV excluído: {csv_file}")
             except Exception as e:
                 print(f"Erro ao excluir arquivo CSV {csv_file}: {str(e)}")
         
-        # Excluir arquivos PDF
-        pdf_files = [f for f in os.listdir(self.pdf_dir) if titulo_formatado in f]
+        # Excluir arquivos PDF (buscar por ID no nome do arquivo)
+        pdf_files = [f for f in os.listdir(self.pdf_dir) if f"_{course_id_str}_" in f or f.startswith(f"{course_id_str}_")]
         for pdf_file in pdf_files:
             try:
                 os.remove(os.path.join(self.pdf_dir, pdf_file))
+                print(f"Arquivo PDF excluído: {pdf_file}")
             except Exception as e:
                 print(f"Erro ao excluir arquivo PDF {pdf_file}: {str(e)}")
+        
+        # Fallback: tentar excluir por nome do arquivo também (para compatibilidade com arquivos antigos)
+        titulo_formatado = course['titulo'].replace(' ', '_').replace('/', '_').replace('\\', '_')
+        
+        # Buscar arquivos antigos sem ID no nome
+        old_csv_files = [f for f in os.listdir(self.csv_dir) if titulo_formatado in f and f"_{course_id_str}_" not in f]
+        for csv_file in old_csv_files:
+            try:
+                os.remove(os.path.join(self.csv_dir, csv_file))
+                print(f"Arquivo CSV antigo excluído: {csv_file}")
+            except Exception as e:
+                print(f"Erro ao excluir arquivo CSV antigo {csv_file}: {str(e)}")
+        
+        old_pdf_files = [f for f in os.listdir(self.pdf_dir) if titulo_formatado in f and f"_{course_id_str}_" not in f]
+        for pdf_file in old_pdf_files:
+            try:
+                os.remove(os.path.join(self.pdf_dir, pdf_file))
+                print(f"Arquivo PDF antigo excluído: {pdf_file}")
+            except Exception as e:
+                print(f"Erro ao excluir arquivo PDF antigo {pdf_file}: {str(e)}")
         
         return True
     
@@ -224,3 +251,63 @@ class CourseRepository:
         except Exception as e:
             print(f"Erro ao buscar curso por ID {course_id}: {str(e)}")
             return None
+    
+    def _cleanup_old_course_files(self, course_id: int, existing_course: Dict):
+        """
+        Remove arquivos antigos de um curso antes de gerar novos
+        
+        Args:
+            course_id: ID do curso
+            existing_course: Dados do curso existente
+        """
+        try:
+            course_id_str = str(course_id)
+            
+            # Buscar e remover arquivos CSV antigos
+            old_csv_files = []
+            
+            # Buscar por ID no nome do arquivo (formato novo)
+            for f in os.listdir(self.csv_dir):
+                if f"_{course_id_str}_" in f and f.endswith('.csv'):
+                    old_csv_files.append(f)
+            
+            # Buscar por nome do título (formato antigo - compatibilidade)
+            if existing_course.get('titulo'):
+                titulo_formatado = existing_course['titulo'].replace(' ', '_').replace('/', '_').replace('\\', '_')
+                for f in os.listdir(self.csv_dir):
+                    if titulo_formatado in f and f.endswith('.csv') and f"_{course_id_str}_" not in f:
+                        old_csv_files.append(f)
+            
+            # Remover arquivos CSV antigos
+            for csv_file in old_csv_files:
+                try:
+                    os.remove(os.path.join(self.csv_dir, csv_file))
+                    print(f"Arquivo CSV antigo removido: {csv_file}")
+                except Exception as e:
+                    print(f"Erro ao remover arquivo CSV antigo {csv_file}: {str(e)}")
+            
+            # Buscar e remover arquivos PDF antigos
+            old_pdf_files = []
+            
+            # Buscar por ID no nome do arquivo (formato novo)
+            for f in os.listdir(self.pdf_dir):
+                if f"_{course_id_str}_" in f and f.endswith('.pdf'):
+                    old_pdf_files.append(f)
+            
+            # Buscar por nome do título (formato antigo - compatibilidade)
+            if existing_course.get('titulo'):
+                titulo_formatado = existing_course['titulo'].replace(' ', '_').replace('/', '_').replace('\\', '_')
+                for f in os.listdir(self.pdf_dir):
+                    if titulo_formatado in f and f.endswith('.pdf') and f"_{course_id_str}_" not in f:
+                        old_pdf_files.append(f)
+            
+            # Remover arquivos PDF antigos
+            for pdf_file in old_pdf_files:
+                try:
+                    os.remove(os.path.join(self.pdf_dir, pdf_file))
+                    print(f"Arquivo PDF antigo removido: {pdf_file}")
+                except Exception as e:
+                    print(f"Erro ao remover arquivo PDF antigo {pdf_file}: {str(e)}")
+                    
+        except Exception as e:
+            print(f"Erro na limpeza de arquivos antigos para curso {course_id}: {str(e)}")

@@ -23,10 +23,7 @@
                                              <label>Total de vagas*</label>
                                              <input type="number" name="vagas_unidade[]" min="1" required value="{{ duplicate_data.vagas_unidades[i]|replace(',', '')|replace('.', '')|trim if i < duplicate_data.vagas_unidades|length else '' }}">
                                              
-                                             <label for="carga_horaria_unidade" class="required">Carga Horária</label>
-                                             <input type="text" id="carga_horaria_unidade" name="carga_horaria" required 
-                                                    placeholder="Digite a carga horária (ex: 40 horas, 80h, 2 meses, etc.)" value="{{ duplicate_data.carga_horaria }}">
-                                             <small style="color: red; font-size: 0.9em; margin-top: 5px; display: block;">(Dê preferência a carga horária no formato de horas)</small>
+
                                              
                                              <div class="data-group">
                                                  <div class="data-field">
@@ -131,10 +128,7 @@
                                              <label>Total de vagas*</label>
                                              <input type="number" name="vagas_unidade[]" min="1" required>
                                              
-                                             <label for="carga_horaria_unidade" class="required">Carga Horária</label>
-                                             <input type="text" id="carga_horaria_unidade" name="carga_horaria" required 
-                                                    placeholder="Digite a carga horária (ex: 40 horas, 80h, 2 meses, etc.)">
-                                             <small style="color: red; font-size: 0.9em; margin-top: 5px; display: block;">(Dê preferência a carga horária no formato de horas)</small>
+
                                              
                                              <div class="data-group">
                                                  <div class="data-field">

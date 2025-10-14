@@ -100,6 +100,11 @@
                     </a>
                     <span class="version">v2.0</span>
                 </div>
+                <div class="nav-section">
+                    <a href="{{ url_for('index') }}" class="nav-link home-link" title="Página Inicial">
+                        <i class="fas fa-home"></i>
+                    </a>
+                </div>
             </div>
         </header>
 
@@ -211,6 +216,14 @@
                                      <option value="Astronomia" {% if course.tema == 'Astronomia' %}selected{% endif %}>Astronomia</option>
                                  </select>
                             </div>
+
+                            <div class="form-group full-width">
+                                <label for="carga_horaria" class="required">Carga Horária</label>
+                                <input type="text" id="carga_horaria" name="carga_horaria" required
+                                    placeholder="Digite a carga horária (ex: 40 horas, 80h, 2 meses, etc.)"
+                                    value="{{ course.carga_horaria }}">
+                                <small style="color: red; font-size: 0.9em; margin-top: 5px; display: block;">(Dê preferência a carga horária no formato de horas)</small>
+                            </div>
                             
                              <div class="form-group full-width">
                                 <label for="modalidade" class="required">Modalidade</label>
@@ -225,7 +238,7 @@
                              <!-- Subformulário para Presencial/Híbrido -->
                              <div class="form-group full-width" id="unidades_container" style="display:{% if course.modalidade == 'Presencial' or course.modalidade == 'Híbrido' %}block{% else %}none{% endif %};">
                                  <fieldset class="unidade-fieldset">
-                                     <legend>Informações da Unidade 1 <button type="button" class="remove-unidade-btn" onclick="removeUnidade(this)" style="display:none;">×</button></legend>
+                                     <legend>Informações da Unidade 1 <button type="button" class="remove-unidade-btn" onclick="removeUnidade(this)" style="display:none;">&times;</button></legend>
                                      
                                      <!-- Container para múltiplas unidades -->
                                      <div id="unidades_list">
@@ -246,12 +259,7 @@
                                              <label>Total de vagas*</label>
                                              <input type="number" name="vagas_unidade[]" min="1" required value="{{ course.vagas_unidades[i]|replace(',', '')|replace('.', '')|trim if i < course.vagas_unidades|length else '' }}">
                                              
-                                             {% if i == 0 %}
-                                             <label for="carga_horaria_unidade" class="required">Carga Horária</label>
-                                             <input type="text" id="carga_horaria_unidade" name="carga_horaria" required 
-                                                    placeholder="Digite a carga horária (ex: 40 horas, 80h, 2 meses, etc.)" value="{{ course.carga_horaria }}">
-                                             <small style="color: red; font-size: 0.9em; margin-top: 5px; display: block;">(Dê preferência a carga horária no formato de horas)</small>
-                                             {% endif %}
+
                                              
                                              <div class="data-group">
                                                  <div class="data-field">
@@ -354,7 +362,7 @@
                              <!-- Subformulário para Online -->
                              <div class="form-group full-width" id="plataforma_container" style="display:{% if course.modalidade == 'Online' %}block{% else %}none{% endif %};">
                                  <fieldset class="unidade-fieldset">
-                                     <legend>Informações da Plataforma <button type="button" class="remove-plataforma-btn" onclick="removePlataforma(this)" style="display:none;">×</button></legend>
+                                     <legend>Informações da Plataforma <button type="button" class="remove-plataforma-btn" onclick="removePlataforma(this)" style="display:none;">&times;</button></legend>
                                      
                                      <!-- Container para plataforma online -->
                                      <div id="plataforma_list">
@@ -367,10 +375,7 @@
                                              <label>Total de vagas*</label>
                                              <input type="number" id="vagas_online" name="vagas_unidade[]" min="1" value="{{ course.vagas_online|replace(',', '')|replace('.', '')|trim }}">
                                              
-                                             <label for="carga_horaria_online" class="required">Carga Horária</label>
-                                             <input type="text" id="carga_horaria_online" name="carga_horaria" required 
-                                                    placeholder="Digite a carga horária (ex: 40 horas, 80h, 2 meses, etc.)" value="{{ course.carga_horaria }}">
-                                             <small style="color: red; font-size: 0.9em; margin-top: 5px; display: block;">(Dê preferência a carga horária no formato de horas)</small>
+
                                              
                                              <label class="required">Aulas Assíncronas?</label>
                                              <div class="radio-group">
@@ -878,7 +883,7 @@
             unidades.forEach((unidade, index) => {
                 const legend = unidade.closest('fieldset').querySelector('legend');
                 if (legend) {
-                    legend.innerHTML = `Informações da Unidade ${index + 1} <button type="button" class="remove-unidade-btn" onclick="removeUnidade(this)" ${index === 0 ? 'style="display:none;"' : ''}>×</button>`;
+                    legend.innerHTML = `Informações da Unidade ${index + 1} <button type="button" class="remove-unidade-btn" onclick="removeUnidade(this)" ${index === 0 ? 'style="display:none;"' : ''}>&times;</button>`;
                 }
             });
         }
@@ -1030,7 +1035,7 @@
             plataformas.forEach((plataforma, index) => {
                 const legend = plataforma.closest('fieldset').querySelector('legend');
                 if (legend) {
-                    legend.innerHTML = `Informações da Plataforma ${index + 1} <button type="button" class="remove-plataforma-btn" onclick="removePlataforma(this)" ${index === 0 ? 'style="display:none;"' : ''}>×</button>`;
+                    legend.innerHTML = `Informações da Plataforma ${index + 1} <button type="button" class="remove-plataforma-btn" onclick="removePlataforma(this)" ${index === 0 ? 'style="display:none;"' : ''}>&times;</button>`;
                 }
             });
         }

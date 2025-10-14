@@ -247,10 +247,73 @@ def list_courses():
         flash('Erro ao carregar lista de cursos', 'error')
         return redirect(url_for('index'))
 
-@app.route('/duplicate/<int:course_id>')
+@app.route('/duplicate/<int:course_id>', methods=['GET', 'POST'])
 def duplicate_course(course_id):
-    """Carrega formulário de criação com dados do curso especificado para duplicação"""
+    """Carrega formulário de duplicação ou processa a criação do curso duplicado"""
     try:
+        if request.method == 'POST':
+            # Processar criação do curso duplicado
+            logger.info(f"Processando duplicação do curso {course_id}")
+            logger.info(f"Dados recebidos: {dict(request.form)}")
+            
+            # Usar o serviço de cursos para criar o curso duplicado
+            success, course_data, messages = course_service.create_course(request.form, request.files)
+            
+            if success:
+                logger.info(f"Curso duplicado com sucesso: ID {course_data['id']}")
+                
+                # Exibir avisos se houver
+                for warning in messages:
+                    flash(warning, 'warning')
+                
+                flash('Curso duplicado com sucesso!', 'success')
+                return redirect(url_for('course_success', course_id=course_data['id']))
+            else:
+                # Exibir erros de validação e manter na página de duplicação
+                logger.warning(f"Falha na duplicação do curso: {messages}")
+                for error in messages:
+                    flash(error, 'error')
+                    logger.warning(f"Erro de validação: {error}")
+                
+                # Buscar dados originais do curso para duplicação
+                original_course_data = course_service.get_course(course_id)
+                if original_course_data:
+                    # Preparar dados para duplicação
+                    original_course_data = _prepare_course_for_edit_form(original_course_data)
+                    duplicate_data = original_course_data.copy()
+                    
+                    # Limpar campos que não devem ser copiados
+                    fields_to_clear = ['id', 'created_at', 'csv_file', 'pdf_file', 'capa_curso']
+                    for field in fields_to_clear:
+                        duplicate_data[field] = ''
+                    
+                    # Sobrescrever com dados do formulário para preservar o que o usuário digitou
+                    for key, value in request.form.items():
+                        if key.endswith('[]'):
+                            duplicate_data[key.replace('[]', '')] = request.form.getlist(key)
+                        else:
+                            duplicate_data[key] = value
+                    
+                    # Preparar título para duplicação se não foi alterado pelo usuário
+                    if not duplicate_data.get('titulo') or duplicate_data.get('titulo') == f"Cópia de {original_course_data.get('titulo', '')}":
+                        original_title = original_course_data.get('titulo', '')
+                        if original_title:
+                            duplicate_data['titulo_original'] = f"Cópia de {original_title}"
+                            duplicate_data['titulo'] = f"Cópia de {original_title}"
+                            duplicate_data['descricao_original'] = original_course_data.get('descricao', '')
+                    
+                    # Renderizar formulário com dados preservados e mensagens de erro
+                    today_date = datetime.now().strftime('%Y-%m-%d')
+                    return render_template('course_duplicate.html', 
+                                         orgaos=ORGAOS,
+                                         duplicate_data=duplicate_data,
+                                         original_course_id=course_id,
+                                         today_date=today_date)
+                
+                # Se não conseguir buscar dados originais, redirecionar
+                return redirect(url_for('duplicate_course', course_id=course_id))
+        
+        # GET - Carregar formulário de duplicação
         # Buscar o curso a ser duplicado
         course_data = course_service.get_course(course_id)
         if not course_data:
@@ -278,13 +341,12 @@ def duplicate_course(course_id):
             duplicate_data['titulo'] = f"Cópia de {original_title}"  # Para preencher o campo
             duplicate_data['descricao_original'] = course_data.get('descricao', '')  # Para exibir na interface
         
-
-        
         # Renderizar formulário com dados pré-preenchidos
         today_date = datetime.now().strftime('%Y-%m-%d')
         return render_template('course_duplicate.html', 
                              orgaos=ORGAOS,
                              duplicate_data=duplicate_data,
+                             original_course_id=course_id,
                              today_date=today_date)
     except Exception as e:
         logger.error(f"Erro ao duplicar curso {course_id}: {str(e)}")
@@ -352,10 +414,23 @@ def edit_course(course_id):
                 flash('Curso atualizado com sucesso!', 'success')
                 return redirect(url_for('course_edit_success', course_id=course_id))
             else:
-                # Exibir erros de validação
+                # Exibir erros de validação e manter na página de edição
                 for error in messages:
                     flash(error, 'error')
-                return redirect(url_for('edit_course', course_id=course_id))
+                
+                # Preparar dados do curso com os dados do formulário para preservar as alterações
+                course = _prepare_course_for_edit_form(course)
+                
+                # Sobrescrever com dados do formulário para preservar o que o usuário digitou
+                for key, value in request.form.items():
+                    if key.endswith('[]'):
+                        # Para campos de array, usar getlist
+                        course[key.replace('[]', '')] = request.form.getlist(key)
+                    else:
+                        course[key] = value
+                
+                # Renderizar o formulário novamente com os dados preservados e mensagens de erro
+                return render_template('course_edit.html', course=course, orgaos=ORGAOS)
         
         # Preparar dados para o formulário de edição
         course = _prepare_course_for_edit_form(course)
