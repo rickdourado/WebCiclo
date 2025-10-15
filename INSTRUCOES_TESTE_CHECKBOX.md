@@ -1,7 +1,13 @@
 # 🧪 Instruções para Testar a Funcionalidade de Checkbox
 
 ## ✅ Status da Implementação
-A funcionalidade está **100% funcional** nos testes automatizados. Se ainda há problemas no navegador, siga estas instruções:
+A funcionalidade está **100% funcional** nos testes automatizados. 
+
+## 🐛 Problema Identificado e Corrigido
+**PROBLEMA**: A rota `/admin` não estava aplicando a lógica de status dos cursos, apenas a rota `/courses`.
+**SOLUÇÃO**: Corrigida a rota `/admin` para incluir a mesma lógica de status.
+
+Se ainda há problemas no navegador, siga estas instruções:
 
 ## 🔧 Passos para Resolver o Problema
 
@@ -102,7 +108,7 @@ for course in courses:
 1. **Verifique o console do navegador** (F12) para erros JavaScript
 2. **Verifique a aba Network** para ver se as requisições AJAX estão funcionando
 3. **Teste em outro navegador** para descartar problemas específicos
-4. **Verifique se está acessando a URL correta** (`/courses` e não `/courses/public`)
+4. **Verifique se está acessando a URL correta** (`/courses` ou `/admin` - ambas agora funcionam)
 
 ---
 

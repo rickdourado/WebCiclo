@@ -395,8 +395,21 @@ def admin_logout():
 def admin_dashboard():
     """Dashboard administrativo"""
     try:
+        # Usar o serviço para listar cursos
         courses = course_service.list_courses()
-        return render_template('course_list.html', courses=courses)
+        
+        # Obter status dos cursos inseridos
+        inserted_courses = course_status_service.get_inserted_courses()
+        
+        # Adicionar status aos cursos
+        for course in courses:
+            # Converter ID do curso para int para comparação correta
+            course_id = course.get('id')
+            if isinstance(course_id, str) and course_id.isdigit():
+                course_id = int(course_id)
+            course['is_inserted'] = course_id in inserted_courses
+        
+        return render_template('course_list.html', courses=courses, inserted_courses=inserted_courses)
     except Exception as e:
         logger.error(f"Erro no dashboard admin: {str(e)}")
         flash('Erro ao carregar dashboard', 'error')
