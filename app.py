@@ -8,6 +8,7 @@ import logging
 from config import Config, config
 from services.course_service import CourseService
 from services.validation_service import ValidationError
+from services.course_status_service import CourseStatusService
 
 # Configurar aplicação Flask
 app = Flask(__name__)
@@ -26,6 +27,7 @@ logger = logging.getLogger(__name__)
 
 # Inicializar serviços
 course_service = CourseService()
+course_status_service = CourseStatusService()
 
 # Configuração do template folder
 app.template_folder = 'templates'
@@ -241,7 +243,14 @@ def list_courses():
         # Usar o serviço para listar cursos
         courses = course_service.list_courses()
         
-        return render_template('course_list.html', courses=courses)
+        # Obter status dos cursos inseridos
+        inserted_courses = course_status_service.get_inserted_courses()
+        
+        # Adicionar status aos cursos
+        for course in courses:
+            course['is_inserted'] = course.get('id') in inserted_courses
+        
+        return render_template('course_list.html', courses=courses, inserted_courses=inserted_courses)
     except Exception as e:
         logger.error(f"Erro ao listar cursos: {str(e)}")
         flash('Erro ao carregar lista de cursos', 'error')
@@ -616,6 +625,46 @@ def download_file(filename):
         logger.error(f"Erro ao baixar arquivo {filename}: {str(e)}")
         flash(f'Erro ao baixar arquivo: {str(e)}', 'error')
         return redirect(url_for('index'))
+
+# -----------------------------
+# Rotas para gerenciar status dos cursos
+# -----------------------------
+
+@app.route('/api/course/<int:course_id>/toggle-status', methods=['POST'])
+@login_required
+def toggle_course_status(course_id):
+    """Alterna o status de inserção de um curso"""
+    try:
+        new_status = course_status_service.toggle_course_status(course_id)
+        return {
+            'success': True,
+            'course_id': course_id,
+            'inserted': new_status,
+            'message': 'Curso marcado como inserido' if new_status else 'Curso desmarcado'
+        }
+    except Exception as e:
+        logger.error(f"Erro ao alterar status do curso {course_id}: {str(e)}")
+        return {
+            'success': False,
+            'error': str(e)
+        }, 500
+
+@app.route('/api/courses/status')
+@login_required
+def get_courses_status():
+    """Retorna o status de todos os cursos"""
+    try:
+        inserted_courses = course_status_service.get_inserted_courses()
+        return {
+            'success': True,
+            'inserted_courses': list(inserted_courses)
+        }
+    except Exception as e:
+        logger.error(f"Erro ao buscar status dos cursos: {str(e)}")
+        return {
+            'success': False,
+            'error': str(e)
+        }, 500
 
 
 

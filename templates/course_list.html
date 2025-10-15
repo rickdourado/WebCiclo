@@ -109,6 +109,109 @@
             flex: 1;
         }
         
+        /* Estilos para checkbox de status */
+        .course-status-checkbox {
+            position: relative;
+            margin-right: 15px;
+        }
+        
+        .course-status-checkbox input[type="checkbox"] {
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            border: 2px solid #cbd5e0;
+            border-radius: 6px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .course-status-checkbox input[type="checkbox"]:hover {
+            border-color: #667eea;
+            transform: scale(1.05);
+        }
+        
+        .course-status-checkbox input[type="checkbox"]:checked {
+            background: linear-gradient(135deg, #48bb78, #38a169);
+            border-color: #38a169;
+            animation: checkboxPulse 0.3s ease;
+        }
+        
+        .course-status-checkbox input[type="checkbox"]:checked::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .course-status-checkbox.loading input[type="checkbox"] {
+            border-color: #667eea;
+            background: #f7fafc;
+        }
+        
+        .course-status-checkbox.loading::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 16px;
+            height: 16px;
+            border: 2px solid #667eea;
+            border-top: 2px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes checkboxPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes spin {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+        
+        .status-tooltip {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #2d3748;
+            color: white;
+            padding: 6px 10px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            margin-bottom: 5px;
+        }
+        
+        .status-tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 5px solid transparent;
+            border-top-color: #2d3748;
+        }
+        
+        .course-status-checkbox:hover .status-tooltip {
+            opacity: 1;
+            visibility: visible;
+        }
+        
         .course-toggle-icon {
             transition: transform 0.3s ease;
             color: #4a5568;
@@ -517,6 +620,10 @@
                             <span class="stat-label">Total</span>
                         </div>
                         <div class="stat-card">
+                            <span class="stat-number">{{ courses|selectattr('is_inserted', 'equalto', true)|list|length }}</span>
+                            <span class="stat-label">Inseridos</span>
+                        </div>
+                        <div class="stat-card">
                             <span class="stat-number">{{ courses|selectattr('curso_gratuito', 'equalto', 'sim')|list|length }}</span>
                             <span class="stat-label">Gratuitos</span>
                         </div>
@@ -574,6 +681,20 @@
                                 
                                 <div class="course-header-row" onclick="toggleCourseDetails(this)">
                                     <div class="course-header-left">
+                                        <div class="course-status-checkbox" onclick="event.stopPropagation();">
+                                            <input type="checkbox" 
+                                                   id="status-{{ course.id }}" 
+                                                   data-course-id="{{ course.id }}"
+                                                   {% if course.is_inserted %}checked{% endif %}
+                                                   onchange="toggleCourseStatus({{ course.id }}, this)">
+                                            <div class="status-tooltip">
+                                                {% if course.is_inserted %}
+                                                    Curso inserido no sistema
+                                                {% else %}
+                                                    Marcar como inserido
+                                                {% endif %}
+                                            </div>
+                                        </div>
                                         <div class="course-id">#{{ course.id }}</div>
                                         <h3 class="course-name">{{ course.titulo }}</h3>
                                         <span class="course-category">{{ course.tema }}</span>
@@ -1312,6 +1433,112 @@
             
             console.log('📋 Lista de cursos carregada com sucesso!');
         });
+        
+        // Função para alternar o status de inserção do curso
+        async function toggleCourseStatus(courseId, checkbox) {
+            const statusContainer = checkbox.closest('.course-status-checkbox');
+            const tooltip = statusContainer.querySelector('.status-tooltip');
+            
+            // Adicionar estado de loading
+            statusContainer.classList.add('loading');
+            checkbox.disabled = true;
+            
+            try {
+                const response = await fetch(`/api/course/${courseId}/toggle-status`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Atualizar tooltip
+                    tooltip.textContent = data.inserted ? 
+                        'Curso inserido no sistema' : 
+                        'Marcar como inserido';
+                    
+                    // Atualizar estatísticas
+                    updateInsertedStats();
+                    
+                    // Mostrar feedback visual
+                    showStatusFeedback(data.inserted ? 'Curso marcado como inserido!' : 'Curso desmarcado!', 'success');
+                } else {
+                    // Reverter checkbox em caso de erro
+                    checkbox.checked = !checkbox.checked;
+                    showStatusFeedback('Erro ao alterar status do curso', 'error');
+                }
+            } catch (error) {
+                console.error('Erro ao alterar status:', error);
+                // Reverter checkbox em caso de erro
+                checkbox.checked = !checkbox.checked;
+                showStatusFeedback('Erro de conexão', 'error');
+            } finally {
+                // Remover estado de loading
+                statusContainer.classList.remove('loading');
+                checkbox.disabled = false;
+            }
+        }
+        
+        // Função para atualizar as estatísticas de cursos inseridos
+        function updateInsertedStats() {
+            const insertedCheckboxes = document.querySelectorAll('.course-status-checkbox input[type="checkbox"]:checked');
+            const insertedStatElement = document.querySelector('.stat-card .stat-number');
+            
+            // Encontrar o card de estatística correto (segundo card)
+            const statCards = document.querySelectorAll('.stat-card .stat-number');
+            if (statCards.length >= 2) {
+                statCards[1].textContent = insertedCheckboxes.length;
+            }
+        }
+        
+        // Função para mostrar feedback visual
+        function showStatusFeedback(message, type) {
+            // Criar elemento de feedback
+            const feedback = document.createElement('div');
+            feedback.className = `status-feedback ${type}`;
+            feedback.textContent = message;
+            feedback.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${type === 'success' ? '#48bb78' : '#e53e3e'};
+                color: white;
+                padding: 12px 20px;
+                border-radius: 8px;
+                font-weight: 500;
+                z-index: 10000;
+                animation: slideIn 0.3s ease;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            `;
+            
+            // Adicionar animação CSS
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes slideIn {
+                    from { transform: translateX(100%); opacity: 0; }
+                    to { transform: translateX(0); opacity: 1; }
+                }
+                @keyframes slideOut {
+                    from { transform: translateX(0); opacity: 1; }
+                    to { transform: translateX(100%); opacity: 0; }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            document.body.appendChild(feedback);
+            
+            // Remover após 3 segundos
+            setTimeout(() => {
+                feedback.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => {
+                    if (feedback.parentNode) {
+                        feedback.parentNode.removeChild(feedback);
+                    }
+                }, 300);
+            }, 3000);
+        }
     </script>
 </body>
 </html>
