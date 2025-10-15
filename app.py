@@ -245,7 +245,6 @@ def list_courses():
         
         # Obter status dos cursos inseridos
         inserted_courses = course_status_service.get_inserted_courses()
-        logger.info(f"📊 Cursos inseridos carregados: {inserted_courses}")
         
         # Adicionar status aos cursos
         for course in courses:
@@ -254,8 +253,6 @@ def list_courses():
             if isinstance(course_id, str) and course_id.isdigit():
                 course_id = int(course_id)
             course['is_inserted'] = course_id in inserted_courses
-            if course.get('is_inserted'):
-                logger.info(f"✅ Curso {course.get('id')} marcado como inserido na interface")
         
         return render_template('course_list.html', courses=courses, inserted_courses=inserted_courses)
     except Exception as e:
