@@ -18,6 +18,9 @@ __pycache__/
 CSV/
 PDF/
 
+# Arquivo de status dos cursos (específico do servidor)
+course_status.json
+
 # Diretórios de imagens dos cursos (não versionar)
 static/images/IMAGENSCURSOS/
 static/images/LOGOPARCEIROS/
