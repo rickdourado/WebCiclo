@@ -236,12 +236,41 @@ def generate_pdf(course_data):
         fontName='Helvetica-Bold'
     )))
     
-    # Descrição do curso
-    if course_data.get('descricao'):
-        elements.append(Paragraph("<b>Descrição:</b>", section_style))
-        descricao_text = wrap_text(clean_field_value(course_data['descricao']), 70)
-        elements.append(Paragraph(descricao_text, field_style))
-        elements.append(Spacer(1, 0.2*inch))
+    # Descrição do curso - NOVA FUNCIONALIDADE: Mostrar original e processada pelo Gemini
+    if course_data.get('descricao_original') or course_data.get('descricao'):
+        elements.append(Paragraph("<b>DESCRIÇÕES DO CURSO</b>", section_style))
+        
+        # Descrição original (inserida pelo usuário)
+        if course_data.get('descricao_original'):
+            elements.append(Paragraph("<b>Descrição Original:</b>", ParagraphStyle(
+                'SubSection',
+                parent=styles['Heading3'],
+                fontSize=12,
+                textColor=colors.darkblue,
+                spaceAfter=8,
+                spaceBefore=5,
+                fontName='Helvetica-Bold'
+            )))
+            descricao_original_text = wrap_text(clean_field_value(course_data['descricao_original']), 70)
+            elements.append(Paragraph(descricao_original_text, field_style))
+            elements.append(Spacer(1, 0.15*inch))
+        
+        # Descrição processada pelo Gemini (se diferente da original)
+        if course_data.get('descricao') and course_data.get('descricao') != course_data.get('descricao_original'):
+            elements.append(Paragraph("<b>Descrição Aprimorada (Gemini AI):</b>", ParagraphStyle(
+                'SubSection',
+                parent=styles['Heading3'],
+                fontSize=12,
+                textColor=colors.darkgreen,
+                spaceAfter=8,
+                spaceBefore=5,
+                fontName='Helvetica-Bold'
+            )))
+            descricao_gemini_text = wrap_text(clean_field_value(course_data['descricao']), 70)
+            elements.append(Paragraph(descricao_gemini_text, field_style))
+            elements.append(Spacer(1, 0.15*inch))
+        
+        elements.append(Spacer(1, 0.1*inch))
     
     # Informações básicas
     elements.append(Paragraph("<b>INFORMAÇÕES BÁSICAS</b>", section_style))

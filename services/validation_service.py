@@ -194,15 +194,9 @@ class CourseValidator:
                     self.errors.append(f"Campo '{field_name}' é obrigatório para aulas síncronas online")
                 elif isinstance(field_value, str) and not field_value.strip():
                     self.errors.append(f"Campo '{field_name}' é obrigatório para aulas síncronas online")
-            else:
-                # Para aulas assíncronas, datas não devem estar presentes
-                if field_value:
-                    if isinstance(field_value, list):
-                        if any(item.strip() for item in field_value if item):
-                            self.errors.append(f"Campo '{field_name}' não deve ser preenchido para aulas assíncronas online")
-                    else:
-                        if field_value.strip():
-                            self.errors.append(f"Campo '{field_name}' não deve ser preenchido para aulas assíncronas online")
+            # CORREÇÃO: Para aulas assíncronas, não validar se campos estão preenchidos
+            # O JavaScript e o processamento do formulário se encarregam de limpá-los
+            # Removida a validação que causava erro na edição
         
         # Validar campos de horário baseado no tipo de aula
         for field in campos_sincronos:
@@ -220,15 +214,9 @@ class CourseValidator:
                     self.errors.append(f"Campo '{field_name}' é obrigatório para aulas síncronas online")
                 elif isinstance(field_value, str) and not field_value.strip():
                     self.errors.append(f"Campo '{field_name}' é obrigatório para aulas síncronas online")
-            else:
-                # Para aulas assíncronas, horários não devem estar presentes
-                if field_value:
-                    if isinstance(field_value, list):
-                        if any(item.strip() for item in field_value if item):
-                            self.errors.append(f"Campo '{field_name}' não deve ser preenchido para aulas assíncronas online")
-                    else:
-                        if field_value.strip():
-                            self.errors.append(f"Campo '{field_name}' não deve ser preenchido para aulas assíncronas online")
+            # CORREÇÃO: Para aulas assíncronas, não validar se campos estão preenchidos
+            # O JavaScript e o processamento do formulário se encarregam de limpá-los
+            # Removida a validação que causava erro na edição
     
     def _validate_units(self, unidades_data: List[Dict]):
         """Valida dados das unidades"""

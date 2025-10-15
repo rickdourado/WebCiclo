@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,12 +9,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             // Função para formatar datas no formato brasileiro
             function formatarDataBrasileira() {
                 const camposData = document.querySelectorAll('input[type="date"]');
                 camposData.forEach(campo => {
-                    campo.addEventListener('change', function() {
+                    campo.addEventListener('change', function () {
                         if (this.value) {
                             const [ano, mes, dia] = this.value.split('-');
                             const dataFormatada = `${dia}/${mes}/${ano}`;
@@ -29,11 +30,11 @@
                     }
                 });
             }
-            
+
             // Mostrar/ocultar campo de pré-requisitos com base na seleção de certificado
             const certificadoSelect = document.getElementById('oferece_certificado');
             const preRequisitosGroup = document.getElementById('pre_requisitos_group');
-            
+
             if (certificadoSelect && preRequisitosGroup) {
                 function togglePreRequisitos() {
                     if (certificadoSelect.value === 'sim') {
@@ -42,15 +43,24 @@
                         preRequisitosGroup.style.display = 'none';
                     }
                 }
-                
+
                 certificadoSelect.addEventListener('change', togglePreRequisitos);
                 togglePreRequisitos(); // Executar na carga inicial
             }
-            
+
             formatarDataBrasileira();
+
+            // CORREÇÃO: Verificar estado inicial das aulas assíncronas
+            const aulasAssincronasRadios = document.querySelectorAll('input[name="aulas_assincronas"]');
+            aulasAssincronasRadios.forEach(radio => {
+                if (radio.checked) {
+                    toggleAulasAssincronas(radio.value === 'sim');
+                }
+            });
         });
     </script>
 </head>
+
 <body>
     <!-- Loading Overlay -->
     <div class="loading-overlay" id="loadingOverlay">
@@ -96,7 +106,8 @@
             <div class="header-content">
                 <div class="logo-section">
                     <a href="{{ url_for('index') }}" title="Ir para página inicial">
-                        <img src="{{ url_for('static', filename='images/logo_ciclocarioca..png') }}" alt="Logo Ciclo Carioca">
+                        <img src="{{ url_for('static', filename='images/logo_ciclocarioca..png') }}"
+                            alt="Logo Ciclo Carioca">
                     </a>
                     <span class="version">v2.0</span>
                 </div>
@@ -113,41 +124,55 @@
             <div class="form-container">
                 <div class="form-header">
                     <h2><i class="fas fa-edit"></i> Editar Curso</h2>
-                    <p class="form-description">Atualize as informações do curso #{{ course.id }} - {{ course.titulo }}</p>
+                    <p class="form-description">Atualize as informações do curso #{{ course.id }} - {{ course.titulo }}
+                    </p>
                 </div>
 
                 <!-- Flash Messages -->
                 {% with messages = get_flashed_messages(with_categories=true) %}
-                    {% if messages %}
-                        {% for category, message in messages %}
-                            <div class="alert alert-{{ category }}">
-                                <i class="fas fa-{{ 'check-circle' if category == 'success' else 'exclamation-triangle' }}"></i>
-                                {{ message }}
-                            </div>
-                        {% endfor %}
-                    {% endif %}
+                {% if messages %}
+                {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">
+                    <i class="fas fa-{{ 'check-circle' if category == 'success' else 'exclamation-triangle' }}"></i>
+                    {{ message }}
+                </div>
+                {% endfor %}
+                {% endif %}
                 {% endwith %}
 
-                <form method="POST" action="{{ url_for('edit_course', course_id=course.id) }}" class="course-form" enctype="multipart/form-data">
+                <form method="POST" action="{{ url_for('edit_course', course_id=course.id) }}" class="course-form"
+                    enctype="multipart/form-data">
                     <!-- Formulário de Edição de Curso -->
                     <div class="form-section">
                         <div class="form-grid">
                             <div class="form-group full-width">
                                 <label for="titulo" class="required">Nome do Curso</label>
-                                <input type="text" id="titulo" name="titulo" required 
-                                       placeholder="Digite o título do curso" value="{{ course.titulo }}">
+                                <input type="text" id="titulo" name="titulo" required
+                                    placeholder="Digite o título do curso" value="{{ course.titulo }}">
                             </div>
-                            
+
                             <div class="form-group full-width">
                                 <label for="descricao" class="required">Descrição</label>
+                                <div class="description-info-box"
+                                    style="background-color: #e8f4fd; border: 1px solid #bee5eb; border-radius: 4px; padding: 10px; margin-bottom: 10px;">
+                                    <i class="fas fa-info-circle" style="color: #0c5460; margin-right: 8px;"></i>
+                                    <span style="color: #0c5460; font-size: 0.9em;">
+                                        <strong>Modo de Edição:</strong> A descrição não será reprocessada pelo Gemini
+                                        AI.
+                                        Suas alterações serão salvas exatamente como digitadas.
+                                        O PDF final mostrará tanto a descrição original quanto a versão aprimorada pela
+                                        IA.
+                                    </span>
+                                </div>
                                 <textarea id="descricao" name="descricao" rows="6" required
-                                          placeholder="Digite a descrição do curso">{{ course.descricao }}</textarea>
+                                    placeholder="Digite a descrição do curso">{{ course.descricao_original if course.descricao_original else course.descricao }}</textarea>
                             </div>
-                            
+
                             <div class="form-group full-width">
                                 <label for="capa_curso">Capa do Curso</label>
                                 <div class="file-upload-container">
-                                    <input type="file" id="capa_curso" name="capa_curso" accept=".jpeg,.png,.jpg,.bmp,image/jpeg,image/png,image/jpg,image/bmp">
+                                    <input type="file" id="capa_curso" name="capa_curso"
+                                        accept=".jpeg,.png,.jpg,.bmp,image/jpeg,image/png,image/jpg,image/bmp">
                                     <div class="file-upload-display">
                                         <i class="fas fa-cloud-upload-alt"></i>
                                         <span class="file-upload-text">Clique para selecionar uma imagem</span>
@@ -156,65 +181,88 @@
                                                 <p><strong>Instruções para envio de imagem:</strong></p>
                                                 <ul>
                                                     <li>Dimensão obrigatória: 1080 x 1080 px.</li>
-                                                    <li>Não utilizar grafismos, textos ou logotipos. Utilizar poucos elementos visuais e de fácil leitura.</li>
-                                                    <li>Escolha imagens que sejam representativas do curso ao qual se referem.</li>
+                                                    <li>Não utilizar grafismos, textos ou logotipos. Utilizar poucos
+                                                        elementos visuais e de fácil leitura.</li>
+                                                    <li>Escolha imagens que sejam representativas do curso ao qual se
+                                                        referem.</li>
                                                 </ul>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <div class="form-group">
                                 <label for="inicio_inscricoes" class="required">Início das inscrições</label>
                                 <div class="datetime-group">
-                                    <input type="date" id="inicio_inscricoes_data" name="inicio_inscricoes_data" value="{{ course.inicio_inscricoes_data }}" required>
+                                    <input type="date" id="inicio_inscricoes_data" name="inicio_inscricoes_data"
+                                        value="{{ course.inicio_inscricoes_data }}" required>
                                 </div>
                             </div>
-                            
+
                             <div class="form-group">
                                 <label for="fim_inscricoes" class="required">Fim das inscrições</label>
                                 <div class="datetime-group">
-                                    <input type="date" id="fim_inscricoes_data" name="fim_inscricoes_data" value="{{ course.fim_inscricoes_data }}" required>
+                                    <input type="date" id="fim_inscricoes_data" name="fim_inscricoes_data"
+                                        value="{{ course.fim_inscricoes_data }}" required>
                                 </div>
                             </div>
-                            
+
                             <div class="form-group full-width">
-                                 <label for="orgao" class="required">Órgão (Quem oferece o curso)</label>
+                                <label for="orgao" class="required">Órgão (Quem oferece o curso)</label>
                                 <select id="orgao" name="orgao" required>
-                                     <option value="">Selecione um órgão</option>
+                                    <option value="">Selecione um órgão</option>
                                     {% for orgao in orgaos %}
-                                        <option value="{{ orgao }}" {% if course.orgao == orgao %}selected{% endif %}>{{ orgao }}</option>
+                                    <option value="{{ orgao }}" {% if course.orgao==orgao %}selected{% endif %}>{{ orgao
+                                        }}</option>
                                     {% endfor %}
                                 </select>
                             </div>
-                            
-                             
-                             <div class="form-group full-width">
+
+
+                            <div class="form-group full-width">
                                 <label for="tema" class="required">Categoria</label>
-                                 <select id="tema" name="tema" required>
-                                     <option value="">Selecione a categoria</option>
-                                     <option value="Tech" {% if course.tema == 'Tech' %}selected{% endif %}>Tech</option>
-                                     <option value="Dados" {% if course.tema == 'Dados' %}selected{% endif %}>Dados</option>
-                                     <option value="IA" {% if course.tema == 'IA' %}selected{% endif %}>IA</option>
-                                     <option value="Design" {% if course.tema == 'Design' %}selected{% endif %}>Design</option>
-                                     <option value="Cibersegurança" {% if course.tema == 'Cibersegurança' %}selected{% endif %}>Cibersegurança</option>
-                                     <option value="Marketing" {% if course.tema == 'Marketing' %}selected{% endif %}>Marketing</option>
-                                     <option value="Finanças" {% if course.tema == 'Finanças' %}selected{% endif %}>Finanças</option>
-                                     <option value="Gestão" {% if course.tema == 'Gestão' %}selected{% endif %}>Gestão</option>
-                                     <option value="Games" {% if course.tema == 'Games' %}selected{% endif %}>Games</option>
-                                     <option value="Nutrição" {% if course.tema == 'Nutrição' %}selected{% endif %}>Nutrição</option>
-                                     <option value="Educação" {% if course.tema == 'Educação' %}selected{% endif %}>Educação</option>
-                                     <option value="Gastronomia" {% if course.tema == 'Gastronomia' %}selected{% endif %}>Gastronomia</option>
-                                     <option value="Saúde" {% if course.tema == 'Saúde' %}selected{% endif %}>Saúde</option>
-                                     <option value="Veterinária" {% if course.tema == 'Veterinária' %}selected{% endif %}>Veterinária</option>
-                                     <option value="Carreira" {% if course.tema == 'Carreira' %}selected{% endif %}>Carreira</option>
-                                     <option value="Estética" {% if course.tema == 'Estética' %}selected{% endif %}>Estética</option>
-                                     <option value="Sustentabilidade" {% if course.tema == 'Sustentabilidade' %}selected{% endif %}>Sustentabilidade</option>
-                                     <option value="Artes" {% if course.tema == 'Artes' %}selected{% endif %}>Artes</option>
-                                     <option value="Cultura" {% if course.tema == 'Cultura' %}selected{% endif %}>Cultura</option>
-                                     <option value="Astronomia" {% if course.tema == 'Astronomia' %}selected{% endif %}>Astronomia</option>
-                                 </select>
+                                <select id="tema" name="tema" required>
+                                    <option value="">Selecione a categoria</option>
+                                    <option value="Tech" {% if course.tema=='Tech' %}selected{% endif %}>Tech</option>
+                                    <option value="Dados" {% if course.tema=='Dados' %}selected{% endif %}>Dados
+                                    </option>
+                                    <option value="IA" {% if course.tema=='IA' %}selected{% endif %}>IA</option>
+                                    <option value="Design" {% if course.tema=='Design' %}selected{% endif %}>Design
+                                    </option>
+                                    <option value="Cibersegurança" {% if course.tema=='Cibersegurança' %}selected{%
+                                        endif %}>Cibersegurança</option>
+                                    <option value="Marketing" {% if course.tema=='Marketing' %}selected{% endif %}>
+                                        Marketing</option>
+                                    <option value="Finanças" {% if course.tema=='Finanças' %}selected{% endif %}>
+                                        Finanças</option>
+                                    <option value="Gestão" {% if course.tema=='Gestão' %}selected{% endif %}>Gestão
+                                    </option>
+                                    <option value="Games" {% if course.tema=='Games' %}selected{% endif %}>Games
+                                    </option>
+                                    <option value="Nutrição" {% if course.tema=='Nutrição' %}selected{% endif %}>
+                                        Nutrição</option>
+                                    <option value="Educação" {% if course.tema=='Educação' %}selected{% endif %}>
+                                        Educação</option>
+                                    <option value="Gastronomia" {% if course.tema=='Gastronomia' %}selected{% endif %}>
+                                        Gastronomia</option>
+                                    <option value="Saúde" {% if course.tema=='Saúde' %}selected{% endif %}>Saúde
+                                    </option>
+                                    <option value="Veterinária" {% if course.tema=='Veterinária' %}selected{% endif %}>
+                                        Veterinária</option>
+                                    <option value="Carreira" {% if course.tema=='Carreira' %}selected{% endif %}>
+                                        Carreira</option>
+                                    <option value="Estética" {% if course.tema=='Estética' %}selected{% endif %}>
+                                        Estética</option>
+                                    <option value="Sustentabilidade" {% if course.tema=='Sustentabilidade' %}selected{%
+                                        endif %}>Sustentabilidade</option>
+                                    <option value="Artes" {% if course.tema=='Artes' %}selected{% endif %}>Artes
+                                    </option>
+                                    <option value="Cultura" {% if course.tema=='Cultura' %}selected{% endif %}>Cultura
+                                    </option>
+                                    <option value="Astronomia" {% if course.tema=='Astronomia' %}selected{% endif %}>
+                                        Astronomia</option>
+                                </select>
                             </div>
 
                             <div class="form-group full-width">
@@ -222,433 +270,685 @@
                                 <input type="text" id="carga_horaria" name="carga_horaria" required
                                     placeholder="Digite a carga horária (ex: 40 horas, 80h, 2 meses, etc.)"
                                     value="{{ course.carga_horaria }}">
-                                <small style="color: red; font-size: 0.9em; margin-top: 5px; display: block;">(Dê preferência a carga horária no formato de horas)</small>
+                                <small style="color: red; font-size: 0.9em; margin-top: 5px; display: block;">(Dê
+                                    preferência a carga horária no formato de horas)</small>
                             </div>
-                            
-                             <div class="form-group full-width">
+
+                            <div class="form-group full-width">
                                 <label for="modalidade" class="required">Modalidade</label>
                                 <select id="modalidade" name="modalidade" required>
-                                     <option value="">Selecione a modalidade</option>
-                                    <option value="Presencial" {% if course.modalidade == 'Presencial' %}selected{% endif %}>Presencial</option>
-                                    <option value="Online" {% if course.modalidade == 'Online' %}selected{% endif %}>Online</option>
-                                    <option value="Híbrido" {% if course.modalidade == 'Híbrido' %}selected{% endif %}>Híbrido</option>
+                                    <option value="">Selecione a modalidade</option>
+                                    <option value="Presencial" {% if course.modalidade=='Presencial' %}selected{% endif
+                                        %}>Presencial</option>
+                                    <option value="Online" {% if course.modalidade=='Online' %}selected{% endif %}>
+                                        Online</option>
+                                    <option value="Híbrido" {% if course.modalidade=='Híbrido' %}selected{% endif %}>
+                                        Híbrido</option>
                                 </select>
                             </div>
-                            
-                             <!-- Subformulário para Presencial/Híbrido -->
-                             <div class="form-group full-width" id="unidades_container" style="display:{% if course.modalidade == 'Presencial' or course.modalidade == 'Híbrido' %}block{% else %}none{% endif %};">
-                                 <fieldset class="unidade-fieldset">
-                                     <legend>Informações da Unidade ou Turma 1 <button type="button" class="remove-unidade-btn" onclick="removeUnidade(this)" style="display:none;">&times;</button></legend>
-                                     
-                                     <!-- Container para múltiplas unidades -->
-                                     <div id="unidades_list">
-                                         {% for i in range(course.enderecos_unidades|length) %}
-                                         <div class="unidade-item" data-unidade="{{ i }}">
-                                             <div class="unidade-header">
-                                                 <h4>Unidade ou Turma {{ i + 1 }}</h4>
-                                                 {% if i > 0 %}
-                                                 <button type="button" class="btn-remove-unidade" onclick="removeUnidade({{ i }})">
-                                                     <i class="fas fa-trash"></i> Remover Unidade ou Turma
-                                                 </button>
-                                                 {% endif %}
-                                             </div>
-                                             <label>Endereço da unidade ou turma*</label>
-                                             <input type="text" name="endereco_unidade[]" required value="{{ course.enderecos_unidades[i] if i < course.enderecos_unidades|length else '' }}">
-                                             <label>Bairro*</label>
-                                             <input type="text" name="bairro_unidade[]" required value="{{ course.bairros_unidades[i] if i < course.bairros_unidades|length else '' }}">
-                                             <label>Total de vagas*</label>
-                                             <input type="number" name="vagas_unidade[]" min="1" required value="{{ course.vagas_unidades[i]|replace(',', '')|replace('.', '')|trim if i < course.vagas_unidades|length else '' }}">
-                                             
 
-                                             
-                                             <div class="data-group">
-                                                 <div class="data-field">
-                                                     <label>Início das aulas*</label>
-                                                     <input type="date" name="inicio_aulas_data[]" required value="{{ course.inicio_aulas_unidades[i] if i < course.inicio_aulas_unidades|length else '' }}">
-                                                 </div>
-                                                 <div class="data-field">
-                                                     <label>Fim das aulas*</label>
-                                                     <input type="date" name="fim_aulas_data[]" required value="{{ course.fim_aulas_unidades[i] if i < course.fim_aulas_unidades|length else '' }}">
-                                                 </div>
-                                             </div>
-                                             <div class="horario-group">
-                                                 <div class="horario-field">
-                                                     <label>Horário-Início*</label>
-                                                     <select name="horario_inicio[]" required>
-                                                         <option value="">Selecione o horário</option>
-                                                         <option value="06:00" {% if course.horario_inicio_unidades[i] == '06:00' %}selected{% endif %}>06:00</option>
-                                                         <option value="07:00" {% if course.horario_inicio_unidades[i] == '07:00' %}selected{% endif %}>07:00</option>
-                                                         <option value="08:00" {% if course.horario_inicio_unidades[i] == '08:00' %}selected{% endif %}>08:00</option>
-                                                         <option value="09:00" {% if course.horario_inicio_unidades[i] == '09:00' %}selected{% endif %}>09:00</option>
-                                                         <option value="10:00" {% if course.horario_inicio_unidades[i] == '10:00' %}selected{% endif %}>10:00</option>
-                                                         <option value="11:00" {% if course.horario_inicio_unidades[i] == '11:00' %}selected{% endif %}>11:00</option>
-                                                         <option value="12:00" {% if course.horario_inicio_unidades[i] == '12:00' %}selected{% endif %}>12:00</option>
-                                                         <option value="13:00" {% if course.horario_inicio_unidades[i] == '13:00' %}selected{% endif %}>13:00</option>
-                                                         <option value="14:00" {% if course.horario_inicio_unidades[i] == '14:00' %}selected{% endif %}>14:00</option>
-                                                         <option value="15:00" {% if course.horario_inicio_unidades[i] == '15:00' %}selected{% endif %}>15:00</option>
-                                                         <option value="16:00" {% if course.horario_inicio_unidades[i] == '16:00' %}selected{% endif %}>16:00</option>
-                                                         <option value="17:00" {% if course.horario_inicio_unidades[i] == '17:00' %}selected{% endif %}>17:00</option>
-                                                         <option value="18:00" {% if course.horario_inicio_unidades[i] == '18:00' %}selected{% endif %}>18:00</option>
-                                                         <option value="19:00" {% if course.horario_inicio_unidades[i] == '19:00' %}selected{% endif %}>19:00</option>
-                                                         <option value="20:00" {% if course.horario_inicio_unidades[i] == '20:00' %}selected{% endif %}>20:00</option>
-                                                         <option value="21:00" {% if course.horario_inicio_unidades[i] == '21:00' %}selected{% endif %}>21:00</option>
-                                                         <option value="22:00" {% if course.horario_inicio_unidades[i] == '22:00' %}selected{% endif %}>22:00</option>
-                                                         <option value="23:00" {% if course.horario_inicio_unidades[i] == '23:00' %}selected{% endif %}>23:00</option>
-                                                     </select>
-                                                 </div>
-                                                 <div class="horario-field">
-                                                     <label>Horário-Fim*</label>
-                                                     <select name="horario_fim[]" required>
-                                                         <option value="">Selecione o horário</option>
-                                                         <option value="06:00" {% if course.horario_fim_unidades[i] == '06:00' %}selected{% endif %}>06:00</option>
-                                                         <option value="07:00" {% if course.horario_fim_unidades[i] == '07:00' %}selected{% endif %}>07:00</option>
-                                                         <option value="08:00" {% if course.horario_fim_unidades[i] == '08:00' %}selected{% endif %}>08:00</option>
-                                                         <option value="09:00" {% if course.horario_fim_unidades[i] == '09:00' %}selected{% endif %}>09:00</option>
-                                                         <option value="10:00" {% if course.horario_fim_unidades[i] == '10:00' %}selected{% endif %}>10:00</option>
-                                                         <option value="11:00" {% if course.horario_fim_unidades[i] == '11:00' %}selected{% endif %}>11:00</option>
-                                                         <option value="12:00" {% if course.horario_fim_unidades[i] == '12:00' %}selected{% endif %}>12:00</option>
-                                                         <option value="13:00" {% if course.horario_fim_unidades[i] == '13:00' %}selected{% endif %}>13:00</option>
-                                                         <option value="14:00" {% if course.horario_fim_unidades[i] == '14:00' %}selected{% endif %}>14:00</option>
-                                                         <option value="15:00" {% if course.horario_fim_unidades[i] == '15:00' %}selected{% endif %}>15:00</option>
-                                                         <option value="16:00" {% if course.horario_fim_unidades[i] == '16:00' %}selected{% endif %}>16:00</option>
-                                                         <option value="17:00" {% if course.horario_fim_unidades[i] == '17:00' %}selected{% endif %}>17:00</option>
-                                                         <option value="18:00" {% if course.horario_fim_unidades[i] == '18:00' %}selected{% endif %}>18:00</option>
-                                                         <option value="19:00" {% if course.horario_fim_unidades[i] == '19:00' %}selected{% endif %}>19:00</option>
-                                                         <option value="20:00" {% if course.horario_fim_unidades[i] == '20:00' %}selected{% endif %}>20:00</option>
-                                                         <option value="21:00" {% if course.horario_fim_unidades[i] == '21:00' %}selected{% endif %}>21:00</option>
-                                                         <option value="22:00" {% if course.horario_fim_unidades[i] == '22:00' %}selected{% endif %}>22:00</option>
-                                                         <option value="23:00" {% if course.horario_fim_unidades[i] == '23:00' %}selected{% endif %}>23:00</option>
-                                                     </select>
-                                                 </div>
-                                             </div>
-                                             <label>Dias de aula*</label>
-                                             <div class="checkbox-group dias-aula">
-                                                 <label class="checkbox-label">
-                                                     <input type="checkbox" name="dias_aula_presencial[]" value="Segunda-feira" {% if course.dias_aula_unidades[i] and 'Segunda-feira' in course.dias_aula_unidades[i] %}checked{% endif %}>
-                                                     <span>Segunda-feira</span>
-                                                 </label>
-                                                 <label class="checkbox-label">
-                                                     <input type="checkbox" name="dias_aula_presencial[]" value="Terça-feira" {% if course.dias_aula_unidades[i] and 'Terça-feira' in course.dias_aula_unidades[i] %}checked{% endif %}>
-                                                     <span>Terça-feira</span>
-                                                 </label>
-                                                 <label class="checkbox-label">
-                                                     <input type="checkbox" name="dias_aula_presencial[]" value="Quarta-feira" {% if course.dias_aula_unidades[i] and 'Quarta-feira' in course.dias_aula_unidades[i] %}checked{% endif %}>
-                                                     <span>Quarta-feira</span>
-                                                 </label>
-                                                 <label class="checkbox-label">
-                                                     <input type="checkbox" name="dias_aula_presencial[]" value="Quinta-feira" {% if course.dias_aula_unidades[i] and 'Quinta-feira' in course.dias_aula_unidades[i] %}checked{% endif %}>
-                                                     <span>Quinta-feira</span>
-                                                 </label>
-                                                 <label class="checkbox-label">
-                                                     <input type="checkbox" name="dias_aula_presencial[]" value="Sexta-feira" {% if course.dias_aula_unidades[i] and 'Sexta-feira' in course.dias_aula_unidades[i] %}checked{% endif %}>
-                                                     <span>Sexta-feira</span>
-                                                 </label>
-                                                 <label class="checkbox-label">
-                                                     <input type="checkbox" name="dias_aula_presencial[]" value="Sábado" {% if course.dias_aula_unidades[i] and 'Sábado' in course.dias_aula_unidades[i] %}checked{% endif %}>
-                                                     <span>Sábado</span>
-                                                 </label>
-                                                 <label class="checkbox-label">
-                                                     <input type="checkbox" name="dias_aula_presencial[]" value="Domingo" {% if course.dias_aula_unidades[i] and 'Domingo' in course.dias_aula_unidades[i] %}checked{% endif %}>
-                                                     <span>Domingo</span>
-                                                 </label>
-                                             </div>
-                                         </div>
-                                     {% endfor %}
-                                     
-                                     <button type="button" class="btn btn-outline add-unidade-btn">+ Adicionar outra unidade</button>
-                                 </fieldset>
-                             </div>
+                            <!-- Subformulário para Presencial/Híbrido -->
+                            <div class="form-group full-width" id="unidades_container"
+                                style="display:{% if course.modalidade == 'Presencial' or course.modalidade == 'Híbrido' %}block{% else %}none{% endif %};">
+                                <fieldset class="unidade-fieldset">
+                                    <legend>Informações da Unidade ou Turma 1 <button type="button"
+                                            class="remove-unidade-btn" onclick="removeUnidade(this)"
+                                            style="display:none;">&times;</button></legend>
 
-                             <!-- Subformulário para Online -->
-                             <div class="form-group full-width" id="plataforma_container" style="display:{% if course.modalidade == 'Online' %}block{% else %}none{% endif %};">
-                                 <fieldset class="unidade-fieldset">
-                                     <legend>Informações da Plataforma <button type="button" class="remove-plataforma-btn" onclick="removePlataforma(this)" style="display:none;">&times;</button></legend>
-                                     
-                                     <!-- Container para plataforma online -->
-                                     <div id="plataforma_list">
-                                         <!-- Informações da plataforma online -->
-                                         <div class="plataforma-item" data-plataforma="0">
-                                             <label for="plataforma_digital">Plataforma Digital</label>
-                                             <input type="text" id="plataforma_digital" name="plataforma_digital" 
-                                                    placeholder="Ex: Zoom, Google Meet, Microsoft Teams" value="{{ course.plataforma_digital }}">
-                                             
-                                             <label>Total de vagas*</label>
-                                             <input type="number" id="vagas_online" name="vagas_unidade[]" min="1" value="{{ course.vagas_online|replace(',', '')|replace('.', '')|trim }}">
-                                             
+                                    <!-- Container para múltiplas unidades -->
+                                    <div id="unidades_list">
+                                        {% for i in range(course.enderecos_unidades|length) %}
+                                        <div class="unidade-item" data-unidade="{{ i }}">
+                                            <div class="unidade-header">
+                                                <h4>Unidade ou Turma {{ i + 1 }}</h4>
+                                                {% if i > 0 %}
+                                                <button type="button" class="btn-remove-unidade"
+                                                    onclick="removeUnidade({{ i }})">
+                                                    <i class="fas fa-trash"></i> Remover Unidade ou Turma
+                                                </button>
+                                                {% endif %}
+                                            </div>
+                                            <label>Endereço da unidade ou turma*</label>
+                                            <input type="text" name="endereco_unidade[]" required
+                                                value="{{ course.enderecos_unidades[i] if i < course.enderecos_unidades|length else '' }}">
+                                            <label>Bairro*</label>
+                                            <input type="text" name="bairro_unidade[]" required
+                                                value="{{ course.bairros_unidades[i] if i < course.bairros_unidades|length else '' }}">
+                                            <label>Total de vagas*</label>
+                                            <input type="number" name="vagas_unidade[]" min="1" required
+                                                value="{{ course.vagas_unidades[i]|replace(',', '')|replace('.', '')|trim if i < course.vagas_unidades|length else '' }}">
 
-                                             
-                                             <label class="required">Aulas Assíncronas?</label>
-                                             <div class="radio-group">
-                                                 <label class="radio-label">
-                                                     <input type="radio" name="aulas_assincronas" value="sim" onclick="toggleAulasAssincronas(true)" {% if course.aulas_assincronas == 'sim' %}checked{% endif %}> SIM
-                                                 </label>
-                                                 <label class="radio-label">
-                                                     <input type="radio" name="aulas_assincronas" value="nao" onclick="toggleAulasAssincronas(false)" {% if course.aulas_assincronas == 'nao' %}checked{% endif %}> NÃO
-                                                 </label>
-                                             </div>
-                                             
-                        <div class="data-group" id="horarios_online_container">
-                            <div class="data-field">
-                                <label>Início das aulas</label>
-                                <input type="date" id="inicio_aulas_online" name="inicio_aulas_data[]" value="{{ course.inicio_aulas_online.split(',')[0] if course.inicio_aulas_online and ',' in course.inicio_aulas_online else course.inicio_aulas_online }}">
+
+
+                                            <div class="data-group">
+                                                <div class="data-field">
+                                                    <label>Início das aulas*</label>
+                                                    <input type="date" name="inicio_aulas_data[]" required
+                                                        value="{{ course.inicio_aulas_unidades[i] if i < course.inicio_aulas_unidades|length else '' }}">
+                                                </div>
+                                                <div class="data-field">
+                                                    <label>Fim das aulas*</label>
+                                                    <input type="date" name="fim_aulas_data[]" required
+                                                        value="{{ course.fim_aulas_unidades[i] if i < course.fim_aulas_unidades|length else '' }}">
+                                                </div>
+                                            </div>
+                                            <div class="horario-group">
+                                                <div class="horario-field">
+                                                    <label>Horário-Início*</label>
+                                                    <select name="horario_inicio[]" required>
+                                                        <option value="">Selecione o horário</option>
+                                                        <option value="06:00" {% if
+                                                            course.horario_inicio_unidades[i]=='06:00' %}selected{%
+                                                            endif %}>06:00</option>
+                                                        <option value="07:00" {% if
+                                                            course.horario_inicio_unidades[i]=='07:00' %}selected{%
+                                                            endif %}>07:00</option>
+                                                        <option value="08:00" {% if
+                                                            course.horario_inicio_unidades[i]=='08:00' %}selected{%
+                                                            endif %}>08:00</option>
+                                                        <option value="09:00" {% if
+                                                            course.horario_inicio_unidades[i]=='09:00' %}selected{%
+                                                            endif %}>09:00</option>
+                                                        <option value="10:00" {% if
+                                                            course.horario_inicio_unidades[i]=='10:00' %}selected{%
+                                                            endif %}>10:00</option>
+                                                        <option value="11:00" {% if
+                                                            course.horario_inicio_unidades[i]=='11:00' %}selected{%
+                                                            endif %}>11:00</option>
+                                                        <option value="12:00" {% if
+                                                            course.horario_inicio_unidades[i]=='12:00' %}selected{%
+                                                            endif %}>12:00</option>
+                                                        <option value="13:00" {% if
+                                                            course.horario_inicio_unidades[i]=='13:00' %}selected{%
+                                                            endif %}>13:00</option>
+                                                        <option value="14:00" {% if
+                                                            course.horario_inicio_unidades[i]=='14:00' %}selected{%
+                                                            endif %}>14:00</option>
+                                                        <option value="15:00" {% if
+                                                            course.horario_inicio_unidades[i]=='15:00' %}selected{%
+                                                            endif %}>15:00</option>
+                                                        <option value="16:00" {% if
+                                                            course.horario_inicio_unidades[i]=='16:00' %}selected{%
+                                                            endif %}>16:00</option>
+                                                        <option value="17:00" {% if
+                                                            course.horario_inicio_unidades[i]=='17:00' %}selected{%
+                                                            endif %}>17:00</option>
+                                                        <option value="18:00" {% if
+                                                            course.horario_inicio_unidades[i]=='18:00' %}selected{%
+                                                            endif %}>18:00</option>
+                                                        <option value="19:00" {% if
+                                                            course.horario_inicio_unidades[i]=='19:00' %}selected{%
+                                                            endif %}>19:00</option>
+                                                        <option value="20:00" {% if
+                                                            course.horario_inicio_unidades[i]=='20:00' %}selected{%
+                                                            endif %}>20:00</option>
+                                                        <option value="21:00" {% if
+                                                            course.horario_inicio_unidades[i]=='21:00' %}selected{%
+                                                            endif %}>21:00</option>
+                                                        <option value="22:00" {% if
+                                                            course.horario_inicio_unidades[i]=='22:00' %}selected{%
+                                                            endif %}>22:00</option>
+                                                        <option value="23:00" {% if
+                                                            course.horario_inicio_unidades[i]=='23:00' %}selected{%
+                                                            endif %}>23:00</option>
+                                                    </select>
+                                                </div>
+                                                <div class="horario-field">
+                                                    <label>Horário-Fim*</label>
+                                                    <select name="horario_fim[]" required>
+                                                        <option value="">Selecione o horário</option>
+                                                        <option value="06:00" {% if
+                                                            course.horario_fim_unidades[i]=='06:00' %}selected{% endif
+                                                            %}>06:00</option>
+                                                        <option value="07:00" {% if
+                                                            course.horario_fim_unidades[i]=='07:00' %}selected{% endif
+                                                            %}>07:00</option>
+                                                        <option value="08:00" {% if
+                                                            course.horario_fim_unidades[i]=='08:00' %}selected{% endif
+                                                            %}>08:00</option>
+                                                        <option value="09:00" {% if
+                                                            course.horario_fim_unidades[i]=='09:00' %}selected{% endif
+                                                            %}>09:00</option>
+                                                        <option value="10:00" {% if
+                                                            course.horario_fim_unidades[i]=='10:00' %}selected{% endif
+                                                            %}>10:00</option>
+                                                        <option value="11:00" {% if
+                                                            course.horario_fim_unidades[i]=='11:00' %}selected{% endif
+                                                            %}>11:00</option>
+                                                        <option value="12:00" {% if
+                                                            course.horario_fim_unidades[i]=='12:00' %}selected{% endif
+                                                            %}>12:00</option>
+                                                        <option value="13:00" {% if
+                                                            course.horario_fim_unidades[i]=='13:00' %}selected{% endif
+                                                            %}>13:00</option>
+                                                        <option value="14:00" {% if
+                                                            course.horario_fim_unidades[i]=='14:00' %}selected{% endif
+                                                            %}>14:00</option>
+                                                        <option value="15:00" {% if
+                                                            course.horario_fim_unidades[i]=='15:00' %}selected{% endif
+                                                            %}>15:00</option>
+                                                        <option value="16:00" {% if
+                                                            course.horario_fim_unidades[i]=='16:00' %}selected{% endif
+                                                            %}>16:00</option>
+                                                        <option value="17:00" {% if
+                                                            course.horario_fim_unidades[i]=='17:00' %}selected{% endif
+                                                            %}>17:00</option>
+                                                        <option value="18:00" {% if
+                                                            course.horario_fim_unidades[i]=='18:00' %}selected{% endif
+                                                            %}>18:00</option>
+                                                        <option value="19:00" {% if
+                                                            course.horario_fim_unidades[i]=='19:00' %}selected{% endif
+                                                            %}>19:00</option>
+                                                        <option value="20:00" {% if
+                                                            course.horario_fim_unidades[i]=='20:00' %}selected{% endif
+                                                            %}>20:00</option>
+                                                        <option value="21:00" {% if
+                                                            course.horario_fim_unidades[i]=='21:00' %}selected{% endif
+                                                            %}>21:00</option>
+                                                        <option value="22:00" {% if
+                                                            course.horario_fim_unidades[i]=='22:00' %}selected{% endif
+                                                            %}>22:00</option>
+                                                        <option value="23:00" {% if
+                                                            course.horario_fim_unidades[i]=='23:00' %}selected{% endif
+                                                            %}>23:00</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <label>Dias de aula*</label>
+                                            <div class="checkbox-group dias-aula">
+                                                <label class="checkbox-label">
+                                                    <input type="checkbox" name="dias_aula_presencial[]"
+                                                        value="Segunda-feira" {% if course.dias_aula_unidades[i]
+                                                        and 'Segunda-feira' in course.dias_aula_unidades[i] %}checked{%
+                                                        endif %}>
+                                                    <span>Segunda-feira</span>
+                                                </label>
+                                                <label class="checkbox-label">
+                                                    <input type="checkbox" name="dias_aula_presencial[]"
+                                                        value="Terça-feira" {% if course.dias_aula_unidades[i]
+                                                        and 'Terça-feira' in course.dias_aula_unidades[i] %}checked{%
+                                                        endif %}>
+                                                    <span>Terça-feira</span>
+                                                </label>
+                                                <label class="checkbox-label">
+                                                    <input type="checkbox" name="dias_aula_presencial[]"
+                                                        value="Quarta-feira" {% if course.dias_aula_unidades[i]
+                                                        and 'Quarta-feira' in course.dias_aula_unidades[i] %}checked{%
+                                                        endif %}>
+                                                    <span>Quarta-feira</span>
+                                                </label>
+                                                <label class="checkbox-label">
+                                                    <input type="checkbox" name="dias_aula_presencial[]"
+                                                        value="Quinta-feira" {% if course.dias_aula_unidades[i]
+                                                        and 'Quinta-feira' in course.dias_aula_unidades[i] %}checked{%
+                                                        endif %}>
+                                                    <span>Quinta-feira</span>
+                                                </label>
+                                                <label class="checkbox-label">
+                                                    <input type="checkbox" name="dias_aula_presencial[]"
+                                                        value="Sexta-feira" {% if course.dias_aula_unidades[i]
+                                                        and 'Sexta-feira' in course.dias_aula_unidades[i] %}checked{%
+                                                        endif %}>
+                                                    <span>Sexta-feira</span>
+                                                </label>
+                                                <label class="checkbox-label">
+                                                    <input type="checkbox" name="dias_aula_presencial[]" value="Sábado"
+                                                        {% if course.dias_aula_unidades[i] and 'Sábado' in
+                                                        course.dias_aula_unidades[i] %}checked{% endif %}>
+                                                    <span>Sábado</span>
+                                                </label>
+                                                <label class="checkbox-label">
+                                                    <input type="checkbox" name="dias_aula_presencial[]" value="Domingo"
+                                                        {% if course.dias_aula_unidades[i] and 'Domingo' in
+                                                        course.dias_aula_unidades[i] %}checked{% endif %}>
+                                                    <span>Domingo</span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+
+                                        <button type="button" class="btn btn-outline add-unidade-btn">+ Adicionar outra
+                                            unidade</button>
+                                </fieldset>
                             </div>
-                            <div class="data-field">
-                                <label>Fim das aulas</label>
-                                <input type="date" id="fim_aulas_online" name="fim_aulas_data[]" value="{{ course.fim_aulas_online.split(',')[0] if course.fim_aulas_online and ',' in course.fim_aulas_online else course.fim_aulas_online }}">
+
+                            <!-- Subformulário para Online -->
+                            <div class="form-group full-width" id="plataforma_container"
+                                style="display:{% if course.modalidade == 'Online' %}block{% else %}none{% endif %};">
+                                <fieldset class="unidade-fieldset">
+                                    <legend>Informações da Plataforma <button type="button"
+                                            class="remove-plataforma-btn" onclick="removePlataforma(this)"
+                                            style="display:none;">&times;</button></legend>
+
+                                    <!-- Container para plataforma online -->
+                                    <div id="plataforma_list">
+                                        <!-- Informações da plataforma online -->
+                                        <div class="plataforma-item" data-plataforma="0">
+                                            <label for="plataforma_digital">Plataforma Digital</label>
+                                            <input type="text" id="plataforma_digital" name="plataforma_digital"
+                                                placeholder="Ex: Zoom, Google Meet, Microsoft Teams"
+                                                value="{{ course.plataforma_digital }}">
+
+                                            <label>Total de vagas*</label>
+                                            <input type="number" id="vagas_online" name="vagas_unidade[]" min="1"
+                                                value="{{ course.vagas_online|replace(',', '')|replace('.', '')|trim }}">
+
+
+
+                                            <label class="required">Aulas Assíncronas?</label>
+                                            <div class="radio-group">
+                                                <label class="radio-label">
+                                                    <input type="radio" name="aulas_assincronas" value="sim"
+                                                        onclick="toggleAulasAssincronas(true)" {% if
+                                                        course.aulas_assincronas=='sim' %}checked{% endif %}> SIM
+                                                </label>
+                                                <label class="radio-label">
+                                                    <input type="radio" name="aulas_assincronas" value="nao"
+                                                        onclick="toggleAulasAssincronas(false)" {% if
+                                                        course.aulas_assincronas=='nao' %}checked{% endif %}> NÃO
+                                                </label>
+                                            </div>
+
+                                            <div class="data-group" id="horarios_online_container">
+                                                <div class="data-field">
+                                                    <label>Início das aulas</label>
+                                                    <input type="date" id="inicio_aulas_online"
+                                                        name="inicio_aulas_data[]"
+                                                        value="{{ course.inicio_aulas_online.split(',')[0] if course.inicio_aulas_online and ',' in course.inicio_aulas_online else course.inicio_aulas_online }}">
+                                                </div>
+                                                <div class="data-field">
+                                                    <label>Fim das aulas</label>
+                                                    <input type="date" id="fim_aulas_online" name="fim_aulas_data[]"
+                                                        value="{{ course.fim_aulas_online.split(',')[0] if course.fim_aulas_online and ',' in course.fim_aulas_online else course.fim_aulas_online }}">
+                                                </div>
+                                            </div>
+                                            <div id="horarios_detalhados_online_container"
+                                                style="display: {% if course.aulas_assincronas == 'nao' %}block{% else %}none{% endif %};">
+                                                <div class="horario-group">
+                                                    <div class="horario-field">
+                                                        <label>Horário-Início</label>
+                                                        <select id="horario_inicio_online" name="horario_inicio[]">
+                                                            <option value="">Selecione o horário</option>
+                                                            <option value="06:00" {% if
+                                                                course.horario_inicio_online=='06:00' %}selected{% endif
+                                                                %}>06:00</option>
+                                                            <option value="07:00" {% if
+                                                                course.horario_inicio_online=='07:00' %}selected{% endif
+                                                                %}>07:00</option>
+                                                            <option value="08:00" {% if
+                                                                course.horario_inicio_online=='08:00' %}selected{% endif
+                                                                %}>08:00</option>
+                                                            <option value="09:00" {% if
+                                                                course.horario_inicio_online=='09:00' %}selected{% endif
+                                                                %}>09:00</option>
+                                                            <option value="10:00" {% if
+                                                                course.horario_inicio_online=='10:00' %}selected{% endif
+                                                                %}>10:00</option>
+                                                            <option value="11:00" {% if
+                                                                course.horario_inicio_online=='11:00' %}selected{% endif
+                                                                %}>11:00</option>
+                                                            <option value="12:00" {% if
+                                                                course.horario_inicio_online=='12:00' %}selected{% endif
+                                                                %}>12:00</option>
+                                                            <option value="13:00" {% if
+                                                                course.horario_inicio_online=='13:00' %}selected{% endif
+                                                                %}>13:00</option>
+                                                            <option value="14:00" {% if
+                                                                course.horario_inicio_online=='14:00' %}selected{% endif
+                                                                %}>14:00</option>
+                                                            <option value="15:00" {% if
+                                                                course.horario_inicio_online=='15:00' %}selected{% endif
+                                                                %}>15:00</option>
+                                                            <option value="16:00" {% if
+                                                                course.horario_inicio_online=='16:00' %}selected{% endif
+                                                                %}>16:00</option>
+                                                            <option value="17:00" {% if
+                                                                course.horario_inicio_online=='17:00' %}selected{% endif
+                                                                %}>17:00</option>
+                                                            <option value="18:00" {% if
+                                                                course.horario_inicio_online=='18:00' %}selected{% endif
+                                                                %}>18:00</option>
+                                                            <option value="19:00" {% if
+                                                                course.horario_inicio_online=='19:00' %}selected{% endif
+                                                                %}>19:00</option>
+                                                            <option value="20:00" {% if
+                                                                course.horario_inicio_online=='20:00' %}selected{% endif
+                                                                %}>20:00</option>
+                                                            <option value="21:00" {% if
+                                                                course.horario_inicio_online=='21:00' %}selected{% endif
+                                                                %}>21:00</option>
+                                                            <option value="22:00" {% if
+                                                                course.horario_inicio_online=='22:00' %}selected{% endif
+                                                                %}>22:00</option>
+                                                            <option value="23:00" {% if
+                                                                course.horario_inicio_online=='23:00' %}selected{% endif
+                                                                %}>23:00</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="horario-field">
+                                                        <label>Horário-Fim</label>
+                                                        <select id="horario_fim_online" name="horario_fim[]">
+                                                            <option value="">Selecione o horário</option>
+                                                            <option value="06:00" {% if
+                                                                course.horario_fim_online=='06:00' %}selected{% endif
+                                                                %}>06:00</option>
+                                                            <option value="07:00" {% if
+                                                                course.horario_fim_online=='07:00' %}selected{% endif
+                                                                %}>07:00</option>
+                                                            <option value="08:00" {% if
+                                                                course.horario_fim_online=='08:00' %}selected{% endif
+                                                                %}>08:00</option>
+                                                            <option value="09:00" {% if
+                                                                course.horario_fim_online=='09:00' %}selected{% endif
+                                                                %}>09:00</option>
+                                                            <option value="10:00" {% if
+                                                                course.horario_fim_online=='10:00' %}selected{% endif
+                                                                %}>10:00</option>
+                                                            <option value="11:00" {% if
+                                                                course.horario_fim_online=='11:00' %}selected{% endif
+                                                                %}>11:00</option>
+                                                            <option value="12:00" {% if
+                                                                course.horario_fim_online=='12:00' %}selected{% endif
+                                                                %}>12:00</option>
+                                                            <option value="13:00" {% if
+                                                                course.horario_fim_online=='13:00' %}selected{% endif
+                                                                %}>13:00</option>
+                                                            <option value="14:00" {% if
+                                                                course.horario_fim_online=='14:00' %}selected{% endif
+                                                                %}>14:00</option>
+                                                            <option value="15:00" {% if
+                                                                course.horario_fim_online=='15:00' %}selected{% endif
+                                                                %}>15:00</option>
+                                                            <option value="16:00" {% if
+                                                                course.horario_fim_online=='16:00' %}selected{% endif
+                                                                %}>16:00</option>
+                                                            <option value="17:00" {% if
+                                                                course.horario_fim_online=='17:00' %}selected{% endif
+                                                                %}>17:00</option>
+                                                            <option value="18:00" {% if
+                                                                course.horario_fim_online=='18:00' %}selected{% endif
+                                                                %}>18:00</option>
+                                                            <option value="19:00" {% if
+                                                                course.horario_fim_online=='19:00' %}selected{% endif
+                                                                %}>19:00</option>
+                                                            <option value="20:00" {% if
+                                                                course.horario_fim_online=='20:00' %}selected{% endif
+                                                                %}>20:00</option>
+                                                            <option value="21:00" {% if
+                                                                course.horario_fim_online=='21:00' %}selected{% endif
+                                                                %}>21:00</option>
+                                                            <option value="22:00" {% if
+                                                                course.horario_fim_online=='22:00' %}selected{% endif
+                                                                %}>22:00</option>
+                                                            <option value="23:00" {% if
+                                                                course.horario_fim_online=='23:00' %}selected{% endif
+                                                                %}>23:00</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <label>Dias de aula</label>
+                                                <div class="checkbox-group dias-aula">
+                                                    <label class="checkbox-label">
+                                                        <input type="checkbox" name="dias_aula_online[]"
+                                                            value="Segunda-feira" {% if 'Segunda-feira' in
+                                                            course.dias_aula %}checked{% endif %}>
+                                                        <span>Segunda-feira</span>
+                                                    </label>
+                                                    <label class="checkbox-label">
+                                                        <input type="checkbox" name="dias_aula_online[]"
+                                                            value="Terça-feira" {% if 'Terça-feira' in course.dias_aula
+                                                            %}checked{% endif %}>
+                                                        <span>Terça-feira</span>
+                                                    </label>
+                                                    <label class="checkbox-label">
+                                                        <input type="checkbox" name="dias_aula_online[]"
+                                                            value="Quarta-feira" {% if 'Quarta-feira' in
+                                                            course.dias_aula %}checked{% endif %}>
+                                                        <span>Quarta-feira</span>
+                                                    </label>
+                                                    <label class="checkbox-label">
+                                                        <input type="checkbox" name="dias_aula_online[]"
+                                                            value="Quinta-feira" {% if 'Quinta-feira' in
+                                                            course.dias_aula %}checked{% endif %}>
+                                                        <span>Quinta-feira</span>
+                                                    </label>
+                                                    <label class="checkbox-label">
+                                                        <input type="checkbox" name="dias_aula_online[]"
+                                                            value="Sexta-feira" {% if 'Sexta-feira' in course.dias_aula
+                                                            %}checked{% endif %}>
+                                                        <span>Sexta-feira</span>
+                                                    </label>
+                                                    <label class="checkbox-label">
+                                                        <input type="checkbox" name="dias_aula_online[]" value="Sábado"
+                                                            {% if 'Sábado' in course.dias_aula %}checked{% endif %}>
+                                                        <span>Sábado</span>
+                                                    </label>
+                                                    <label class="checkbox-label">
+                                                        <input type="checkbox" name="dias_aula_online[]" value="Domingo"
+                                                            {% if 'Domingo' in course.dias_aula %}checked{% endif %}>
+                                                        <span>Domingo</span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <button type="button" class="btn btn-outline add-plataforma-btn">+ Adicionar outra
+                                        plataforma</button>
+                                </fieldset>
                             </div>
-                        </div>
-                                             <div id="horarios_detalhados_online_container" style="display: {% if course.aulas_assincronas == 'nao' %}block{% else %}none{% endif %};">
-                                                 <div class="horario-group">
-                                                     <div class="horario-field">
-                                                         <label>Horário-Início</label>
-                                                         <select id="horario_inicio_online" name="horario_inicio[]">
-                                                             <option value="">Selecione o horário</option>
-                                                             <option value="06:00" {% if course.horario_inicio_online == '06:00' %}selected{% endif %}>06:00</option>
-                                                             <option value="07:00" {% if course.horario_inicio_online == '07:00' %}selected{% endif %}>07:00</option>
-                                                             <option value="08:00" {% if course.horario_inicio_online == '08:00' %}selected{% endif %}>08:00</option>
-                                                             <option value="09:00" {% if course.horario_inicio_online == '09:00' %}selected{% endif %}>09:00</option>
-                                                             <option value="10:00" {% if course.horario_inicio_online == '10:00' %}selected{% endif %}>10:00</option>
-                                                             <option value="11:00" {% if course.horario_inicio_online == '11:00' %}selected{% endif %}>11:00</option>
-                                                             <option value="12:00" {% if course.horario_inicio_online == '12:00' %}selected{% endif %}>12:00</option>
-                                                             <option value="13:00" {% if course.horario_inicio_online == '13:00' %}selected{% endif %}>13:00</option>
-                                                             <option value="14:00" {% if course.horario_inicio_online == '14:00' %}selected{% endif %}>14:00</option>
-                                                             <option value="15:00" {% if course.horario_inicio_online == '15:00' %}selected{% endif %}>15:00</option>
-                                                             <option value="16:00" {% if course.horario_inicio_online == '16:00' %}selected{% endif %}>16:00</option>
-                                                             <option value="17:00" {% if course.horario_inicio_online == '17:00' %}selected{% endif %}>17:00</option>
-                                                             <option value="18:00" {% if course.horario_inicio_online == '18:00' %}selected{% endif %}>18:00</option>
-                                                             <option value="19:00" {% if course.horario_inicio_online == '19:00' %}selected{% endif %}>19:00</option>
-                                                             <option value="20:00" {% if course.horario_inicio_online == '20:00' %}selected{% endif %}>20:00</option>
-                                                             <option value="21:00" {% if course.horario_inicio_online == '21:00' %}selected{% endif %}>21:00</option>
-                                                             <option value="22:00" {% if course.horario_inicio_online == '22:00' %}selected{% endif %}>22:00</option>
-                                                             <option value="23:00" {% if course.horario_inicio_online == '23:00' %}selected{% endif %}>23:00</option>
-                                                         </select>
-                                                     </div>
-                                                     <div class="horario-field">
-                                                         <label>Horário-Fim</label>
-                                                         <select id="horario_fim_online" name="horario_fim[]">
-                                                             <option value="">Selecione o horário</option>
-                                                             <option value="06:00" {% if course.horario_fim_online == '06:00' %}selected{% endif %}>06:00</option>
-                                                             <option value="07:00" {% if course.horario_fim_online == '07:00' %}selected{% endif %}>07:00</option>
-                                                             <option value="08:00" {% if course.horario_fim_online == '08:00' %}selected{% endif %}>08:00</option>
-                                                             <option value="09:00" {% if course.horario_fim_online == '09:00' %}selected{% endif %}>09:00</option>
-                                                             <option value="10:00" {% if course.horario_fim_online == '10:00' %}selected{% endif %}>10:00</option>
-                                                             <option value="11:00" {% if course.horario_fim_online == '11:00' %}selected{% endif %}>11:00</option>
-                                                             <option value="12:00" {% if course.horario_fim_online == '12:00' %}selected{% endif %}>12:00</option>
-                                                             <option value="13:00" {% if course.horario_fim_online == '13:00' %}selected{% endif %}>13:00</option>
-                                                             <option value="14:00" {% if course.horario_fim_online == '14:00' %}selected{% endif %}>14:00</option>
-                                                             <option value="15:00" {% if course.horario_fim_online == '15:00' %}selected{% endif %}>15:00</option>
-                                                             <option value="16:00" {% if course.horario_fim_online == '16:00' %}selected{% endif %}>16:00</option>
-                                                             <option value="17:00" {% if course.horario_fim_online == '17:00' %}selected{% endif %}>17:00</option>
-                                                             <option value="18:00" {% if course.horario_fim_online == '18:00' %}selected{% endif %}>18:00</option>
-                                                             <option value="19:00" {% if course.horario_fim_online == '19:00' %}selected{% endif %}>19:00</option>
-                                                             <option value="20:00" {% if course.horario_fim_online == '20:00' %}selected{% endif %}>20:00</option>
-                                                             <option value="21:00" {% if course.horario_fim_online == '21:00' %}selected{% endif %}>21:00</option>
-                                                             <option value="22:00" {% if course.horario_fim_online == '22:00' %}selected{% endif %}>22:00</option>
-                                                             <option value="23:00" {% if course.horario_fim_online == '23:00' %}selected{% endif %}>23:00</option>
-                                                         </select>
-                                                     </div>
-                                                 </div>
-                                                 <label>Dias de aula</label>
-                                             <div class="checkbox-group dias-aula">
-                                                 <label class="checkbox-label">
-                                                     <input type="checkbox" name="dias_aula_online[]" value="Segunda-feira" {% if 'Segunda-feira' in course.dias_aula %}checked{% endif %}>
-                                                     <span>Segunda-feira</span>
-                                                 </label>
-                                                 <label class="checkbox-label">
-                                                     <input type="checkbox" name="dias_aula_online[]" value="Terça-feira" {% if 'Terça-feira' in course.dias_aula %}checked{% endif %}>
-                                                     <span>Terça-feira</span>
-                                                 </label>
-                                                 <label class="checkbox-label">
-                                                     <input type="checkbox" name="dias_aula_online[]" value="Quarta-feira" {% if 'Quarta-feira' in course.dias_aula %}checked{% endif %}>
-                                                     <span>Quarta-feira</span>
-                                                 </label>
-                                                 <label class="checkbox-label">
-                                                     <input type="checkbox" name="dias_aula_online[]" value="Quinta-feira" {% if 'Quinta-feira' in course.dias_aula %}checked{% endif %}>
-                                                     <span>Quinta-feira</span>
-                                                 </label>
-                                                 <label class="checkbox-label">
-                                                     <input type="checkbox" name="dias_aula_online[]" value="Sexta-feira" {% if 'Sexta-feira' in course.dias_aula %}checked{% endif %}>
-                                                     <span>Sexta-feira</span>
-                                                 </label>
-                                                 <label class="checkbox-label">
-                                                     <input type="checkbox" name="dias_aula_online[]" value="Sábado" {% if 'Sábado' in course.dias_aula %}checked{% endif %}>
-                                                     <span>Sábado</span>
-                                                 </label>
-                                                 <label class="checkbox-label">
-                                                     <input type="checkbox" name="dias_aula_online[]" value="Domingo" {% if 'Domingo' in course.dias_aula %}checked{% endif %}>
-                                                     <span>Domingo</span>
-                                                 </label>
-                                             </div>
-                                             </div>
-                                         </div>
-                                     </div>
-                                     
-                                     <button type="button" class="btn btn-outline add-plataforma-btn">+ Adicionar outra plataforma</button>
-                                 </fieldset>
-                            </div>
-                            
+
                             <div class="form-group full-width">
                                 <label for="acessibilidade" class="required">Acessibilidade</label>
-                                <select id="acessibilidade" name="acessibilidade" required onchange="toggleRecursosAcessibilidade()">
+                                <select id="acessibilidade" name="acessibilidade" required
+                                    onchange="toggleRecursosAcessibilidade()">
                                     <option value="">Selecione uma opção</option>
-                                    <option value="acessivel" {% if course.acessibilidade == 'acessivel' %}selected{% endif %}>Acessível para pessoas com deficiência</option>
-                                    <option value="exclusivo" {% if course.acessibilidade == 'exclusivo' %}selected{% endif %}>Exclusivo para pessoas com deficiência</option>
-                                    <option value="nao_acessivel" {% if course.acessibilidade == 'nao_acessivel' %}selected{% endif %}>Não acessível para Pessoas com Deficiência</option>
+                                    <option value="acessivel" {% if course.acessibilidade=='acessivel' %}selected{%
+                                        endif %}>Acessível para pessoas com deficiência</option>
+                                    <option value="exclusivo" {% if course.acessibilidade=='exclusivo' %}selected{%
+                                        endif %}>Exclusivo para pessoas com deficiência</option>
+                                    <option value="nao_acessivel" {% if course.acessibilidade=='nao_acessivel'
+                                        %}selected{% endif %}>Não acessível para Pessoas com Deficiência</option>
                                 </select>
                             </div>
 
-                            <div class="form-group full-width" id="recursos_acessibilidade_container" style="display: {% if course.acessibilidade == 'acessivel' or course.acessibilidade == 'exclusivo' %}block{% else %}none{% endif %};">
+                            <div class="form-group full-width" id="recursos_acessibilidade_container"
+                                style="display: {% if course.acessibilidade == 'acessivel' or course.acessibilidade == 'exclusivo' %}block{% else %}none{% endif %};">
                                 <label for="recursos_acessibilidade" class="required">Recursos de Acessibilidade</label>
                                 <textarea id="recursos_acessibilidade" name="recursos_acessibilidade" rows="3"
-                                          placeholder="Ex: Intérprete de Libras, material em Braille, rampa de acesso, elevador...">{{ course.recursos_acessibilidade }}</textarea>
+                                    placeholder="Ex: Intérprete de Libras, material em Braille, rampa de acesso, elevador...">{{ course.recursos_acessibilidade }}</textarea>
                             </div>
 
                             <div class="form-group full-width">
                                 <label for="publico_alvo" class="required">Público-alvo</label>
                                 <textarea id="publico_alvo" name="publico_alvo" required rows="3"
-                                          placeholder="Ex: Servidores públicos, estudantes, profissionais da área de tecnologia...">{{ course.publico_alvo }}</textarea>
+                                    placeholder="Ex: Servidores públicos, estudantes, profissionais da área de tecnologia...">{{ course.publico_alvo }}</textarea>
                             </div>
 
                             <div class="form-group full-width">
                                 <label class="required">O curso é gratuito?</label>
                                 <div class="radio-group">
                                     <label class="radio-label">
-                                        <input type="radio" name="curso_gratuito" value="sim" required onclick="toggleValorCurso(false)" {% if course.curso_gratuito == 'sim' %}checked{% endif %}> SIM
+                                        <input type="radio" name="curso_gratuito" value="sim" required
+                                            onclick="toggleValorCurso(false)" {% if course.curso_gratuito=='sim'
+                                            %}checked{% endif %}> SIM
                                     </label>
                                     <label class="radio-label">
-                                        <input type="radio" name="curso_gratuito" value="nao" required onclick="toggleValorCurso(true)" {% if course.curso_gratuito == 'nao' %}checked{% endif %}> NÃO
+                                        <input type="radio" name="curso_gratuito" value="nao" required
+                                            onclick="toggleValorCurso(true)" {% if course.curso_gratuito=='nao'
+                                            %}checked{% endif %}> NÃO
                                     </label>
                                 </div>
                             </div>
 
-                            <div class="form-group full-width" id="valor_curso_container" style="display: {% if course.curso_gratuito == 'nao' %}block{% else %}none{% endif %};">
+                            <div class="form-group full-width" id="valor_curso_container"
+                                style="display: {% if course.curso_gratuito == 'nao' %}block{% else %}none{% endif %};">
                                 <div class="valor-curso-row">
                                     <div class="valor-curso-col">
                                         <label for="valor_curso_inteira" class="required">Valor INTEIRA (R$)</label>
-                                        <input type="text" id="valor_curso_inteira" name="valor_curso_inteira" step="0.01" min="0"
-                                            placeholder="Digite o valor integral (ex: 100,00)" oninput="formatarValor(this)" value="{{ course.valor_curso_inteira }}">
+                                        <input type="text" id="valor_curso_inteira" name="valor_curso_inteira"
+                                            step="0.01" min="0" placeholder="Digite o valor integral (ex: 100,00)"
+                                            oninput="formatarValor(this)" value="{{ course.valor_curso_inteira }}">
                                     </div>
                                     <div class="valor-curso-col">
                                         <label for="valor_curso_meia">Valor MEIA (R$)</label>
-                                        <input type="text" id="valor_curso_meia" name="valor_curso_meia" step="0.01" min="0"
-                                            placeholder="Digite o valor da meia (ex: 50,00)" oninput="formatarValor(this); toggleRequisitos()" value="{{ course.valor_curso_meia }}">
+                                        <input type="text" id="valor_curso_meia" name="valor_curso_meia" step="0.01"
+                                            min="0" placeholder="Digite o valor da meia (ex: 50,00)"
+                                            oninput="formatarValor(this); toggleRequisitos()"
+                                            value="{{ course.valor_curso_meia }}">
                                     </div>
                                 </div>
-                                <div id="requisitos_meia_container" style="display: {% if course.valor_curso_meia %}block{% else %}none{% endif %};">
-                                    <label for="requisitos_meia" class="required">Condições para obtenção de meia-entrada</label>
+                                <div id="requisitos_meia_container"
+                                    style="display: {% if course.valor_curso_meia %}block{% else %}none{% endif %};">
+                                    <label for="requisitos_meia" class="required">Condições para obtenção de
+                                        meia-entrada</label>
                                     <textarea id="requisitos_meia" name="requisitos_meia" rows="2"
                                         placeholder="Ex: Estudantes, idosos, pessoas com deficiência...">{{ course.requisitos_meia }}</textarea>
                                 </div>
-                             </div>
+                            </div>
 
                             <div class="form-group full-width">
                                 <label class="required">Oferece Certificado</label>
                                 <div class="radio-group">
                                     <label class="radio-label">
-                                        <input type="radio" name="oferece_certificado" value="sim" required onclick="togglePreRequisitos(true)" {% if course.oferece_certificado == 'sim' %}checked{% endif %}> SIM
+                                        <input type="radio" name="oferece_certificado" value="sim" required
+                                            onclick="togglePreRequisitos(true)" {% if course.oferece_certificado=='sim'
+                                            %}checked{% endif %}> SIM
                                     </label>
                                     <label class="radio-label">
-                                        <input type="radio" name="oferece_certificado" value="nao" required onclick="togglePreRequisitos(false)" {% if course.oferece_certificado == 'nao' %}checked{% endif %}> NÃO
+                                        <input type="radio" name="oferece_certificado" value="nao" required
+                                            onclick="togglePreRequisitos(false)" {% if course.oferece_certificado=='nao'
+                                            %}checked{% endif %}> NÃO
                                     </label>
                                 </div>
                             </div>
 
-                            <div class="form-group full-width" id="pre_requisitos_container" style="display: {% if course.oferece_certificado == 'sim' %}block{% else %}none{% endif %};">
-                                <label for="pre_requisitos" class="required">Pré-requisitos para Recebimento de Certificados</label>
+                            <div class="form-group full-width" id="pre_requisitos_container"
+                                style="display: {% if course.oferece_certificado == 'sim' %}block{% else %}none{% endif %};">
+                                <label for="pre_requisitos" class="required">Pré-requisitos para Recebimento de
+                                    Certificados</label>
                                 <textarea id="pre_requisitos" name="pre_requisitos" rows="3"
-                                          placeholder="Ex: Frequência mínima de 75%, entrega de trabalho final, aprovação em avaliação...">{{ course.pre_requisitos }}</textarea>
+                                    placeholder="Ex: Frequência mínima de 75%, entrega de trabalho final, aprovação em avaliação...">{{ course.pre_requisitos }}</textarea>
                             </div>
 
                             <div class="form-group full-width">
                                 <label class="required">Oferece Bolsa</label>
                                 <div class="radio-group">
                                     <label class="radio-label">
-                                        <input type="radio" name="oferece_bolsa" value="sim" required onclick="toggleValorBolsa(true)" {% if course.oferece_bolsa == 'sim' %}checked{% endif %}> SIM
+                                        <input type="radio" name="oferece_bolsa" value="sim" required
+                                            onclick="toggleValorBolsa(true)" {% if course.oferece_bolsa=='sim'
+                                            %}checked{% endif %}> SIM
                                     </label>
                                     <label class="radio-label">
-                                        <input type="radio" name="oferece_bolsa" value="nao" required onclick="toggleValorBolsa(false)" {% if course.oferece_bolsa == 'nao' %}checked{% endif %}> NÃO
+                                        <input type="radio" name="oferece_bolsa" value="nao" required
+                                            onclick="toggleValorBolsa(false)" {% if course.oferece_bolsa=='nao'
+                                            %}checked{% endif %}> NÃO
                                     </label>
                                 </div>
                             </div>
 
-                            <div class="form-group full-width" id="valor_bolsa_container" style="display: {% if course.oferece_bolsa == 'sim' %}block{% else %}none{% endif %};">
+                            <div class="form-group full-width" id="valor_bolsa_container"
+                                style="display: {% if course.oferece_bolsa == 'sim' %}block{% else %}none{% endif %};">
                                 <label for="valor_bolsa">Valor da Bolsa (R$)</label>
                                 <input type="text" id="valor_bolsa" name="valor_bolsa" step="0.01" min="0"
-                                       placeholder="Digite o valor da bolsa (ex: 100,00)" oninput="formatarValor(this)" value="{{ course.valor_bolsa }}">
+                                    placeholder="Digite o valor da bolsa (ex: 100,00)" oninput="formatarValor(this)"
+                                    value="{{ course.valor_bolsa }}">
                             </div>
-                            
-                            <div class="form-group full-width" id="requisitos_bolsa_container" style="display: {% if course.oferece_bolsa == 'sim' %}block{% else %}none{% endif %};">
+
+                            <div class="form-group full-width" id="requisitos_bolsa_container"
+                                style="display: {% if course.oferece_bolsa == 'sim' %}block{% else %}none{% endif %};">
                                 <label for="requisitos_bolsa">Requisitos para a Obtenção da Bolsa</label>
                                 <textarea id="requisitos_bolsa" name="requisitos_bolsa" rows="3"
-                                          placeholder="Descreva os requisitos necessários para obtenção da bolsa">{{ course.requisitos_bolsa }}</textarea>
+                                    placeholder="Descreva os requisitos necessários para obtenção da bolsa">{{ course.requisitos_bolsa }}</textarea>
                             </div>
-                            
+
                             <div class="form-group full-width">
-                                <label for="info_complementares">Informações Complementares para inscrição de participantes</label>
-                                <span style="color:red; font-size:0.9em; display:block; margin:4px 0 8px;">OBS: Com o acesso via gov.br, já teremos o Nome e CPF do candidato.</span>
+                                <label for="info_complementares">Informações Complementares para inscrição de
+                                    participantes</label>
+                                <span style="color:red; font-size:0.9em; display:block; margin:4px 0 8px;">OBS: Com o
+                                    acesso via gov.br, já teremos o Nome e CPF do candidato.</span>
                                 <textarea id="info_complementares" name="info_complementares" rows="4"
-                                          placeholder="Informe quais dados serão necessários para inscrição dos participantes (Ex: Escolaridade, Idade, Bairro, etc.)">{{ course.info_complementares }}</textarea>                        
+                                    placeholder="Informe quais dados serão necessários para inscrição dos participantes (Ex: Escolaridade, Idade, Bairro, etc.)">{{ course.info_complementares }}</textarea>
                             </div>
 
                             <!-- Pergunta: Informações adicionais do curso? -->
                             <div class="form-group full-width">
                                 <label class="required">Informações adicionais do curso?</label>
-                                <span style="color:red; font-size: 0.9em; display:block; margin:4px 0 8px;">Para divulgar o curso de forma clara e objetiva, o foco deve ser em apresentar somente as informações mais importantes. Detalhes adicionais podem ser comunicados aos alunos que se matricularem, por isso, avalie se esses dados são realmente essenciais para o público geral no momento da divulgação.</span>
+                                <span style="color:red; font-size: 0.9em; display:block; margin:4px 0 8px;">Para
+                                    divulgar o curso de forma clara e objetiva, o foco deve ser em apresentar somente as
+                                    informações mais importantes. Detalhes adicionais podem ser comunicados aos alunos
+                                    que se matricularem, por isso, avalie se esses dados são realmente essenciais para o
+                                    público geral no momento da divulgação.</span>
                                 <div class="radio-group">
                                     <label class="radio-label">
-                                        <input type="radio" name="info_adicionais_opcao" value="sim" required onclick="toggleInfoAdicionais(true)" {% if course.info_adicionais_opcao == 'sim' %}checked{% endif %}> SIM
+                                        <input type="radio" name="info_adicionais_opcao" value="sim" required
+                                            onclick="toggleInfoAdicionais(true)" {% if
+                                            course.info_adicionais_opcao=='sim' %}checked{% endif %}> SIM
                                     </label>
                                     <label class="radio-label">
-                                        <input type="radio" name="info_adicionais_opcao" value="nao" required onclick="toggleInfoAdicionais(false)" {% if course.info_adicionais_opcao == 'nao' %}checked{% endif %}> NÃO
+                                        <input type="radio" name="info_adicionais_opcao" value="nao" required
+                                            onclick="toggleInfoAdicionais(false)" {% if
+                                            course.info_adicionais_opcao=='nao' %}checked{% endif %}> NÃO
                                     </label>
                                 </div>
                             </div>
 
-                            <div class="form-group full-width" id="info_adicionais_container" style="display: {% if course.info_adicionais_opcao == 'sim' %}block{% else %}none{% endif %};">
+                            <div class="form-group full-width" id="info_adicionais_container"
+                                style="display: {% if course.info_adicionais_opcao == 'sim' %}block{% else %}none{% endif %};">
                                 <label for="info_adicionais">Informações Adicionais do Curso</label>
-                                <textarea id="info_adicionais" name="info_complementares" rows="4" placeholder="Digite informações adicionais, como recursos utilizados, facilitador, etc">{{ course.info_complementares }}</textarea>
+                                <textarea id="info_adicionais" name="info_complementares" rows="4"
+                                    placeholder="Digite informações adicionais, como recursos utilizados, facilitador, etc">{{ course.info_complementares }}</textarea>
                             </div>
-                            
+
                             <!-- Parceiro Externo -->
                             <div class="form-group full-width">
                                 <label class="required">CURSO OFERECIDO POR PARCEIRO EXTERNO?</label>
                                 <div class="radio-group">
                                     <label class="radio-label">
-                                        <input type="radio" name="parceiro_externo" value="sim" required onclick="toggleParceiroExterno(true)" {% if course.parceiro_externo == 'sim' %}checked{% endif %}> SIM
+                                        <input type="radio" name="parceiro_externo" value="sim" required
+                                            onclick="toggleParceiroExterno(true)" {% if course.parceiro_externo=='sim'
+                                            %}checked{% endif %}> SIM
                                     </label>
                                     <label class="radio-label">
-                                        <input type="radio" name="parceiro_externo" value="nao" required onclick="toggleParceiroExterno(false)" {% if course.parceiro_externo == 'nao' %}checked{% endif %}> NÃO
+                                        <input type="radio" name="parceiro_externo" value="nao" required
+                                            onclick="toggleParceiroExterno(false)" {% if course.parceiro_externo=='nao'
+                                            %}checked{% endif %}> NÃO
                                     </label>
                                 </div>
                             </div>
-                            
-                            <div class="form-group full-width" id="parceiro_externo_container" style="display: {% if course.parceiro_externo == 'sim' %}block{% else %}none{% endif %};">
+
+                            <div class="form-group full-width" id="parceiro_externo_container"
+                                style="display: {% if course.parceiro_externo == 'sim' %}block{% else %}none{% endif %};">
                                 <fieldset class="unidade-fieldset">
                                     <legend>Informações do Parceiro</legend>
-                                    
+
                                     <div class="parceiro-grid">
                                         <div class="parceiro-item">
                                             <label for="parceiro_nome">Nome do Parceiro</label>
-                                            <input type="text" id="parceiro_nome" name="parceiro_nome" placeholder="Ex: Fundação Exemplo" value="{{ course.parceiro_nome }}">
+                                            <input type="text" id="parceiro_nome" name="parceiro_nome"
+                                                placeholder="Ex: Fundação Exemplo" value="{{ course.parceiro_nome }}">
                                         </div>
-                                        
+
                                         <div class="parceiro-item">
                                             <label for="parceiro_logo">Logo do Parceiro</label>
-                                            <input type="file" id="parceiro_logo" name="parceiro_logo" accept=".png,.jpg,.jpeg,image/*">
+                                            <input type="file" id="parceiro_logo" name="parceiro_logo"
+                                                accept=".png,.jpg,.jpeg,image/*">
                                             <small class="file-hint">Formatos aceitos: PNG, JPG, JPEG</small>
                                         </div>
-                                        
+
                                         <div class="parceiro-item full-width">
                                             <label for="parceiro_link">Link do Parceiro</label>
-                                            <input type="text" id="parceiro_link" name="parceiro_link" placeholder="https://exemplo.org" value="{{ course.parceiro_link }}">
-                                            <small class="help-text-red">Link da página web para onde o usuário será redirecionado para fins de inscrição na plataforma do parceiro</small>
+                                            <input type="text" id="parceiro_link" name="parceiro_link"
+                                                placeholder="https://exemplo.org" value="{{ course.parceiro_link }}">
+                                            <small class="help-text-red">Link da página web para onde o usuário será
+                                                redirecionado para fins de inscrição na plataforma do parceiro</small>
                                         </div>
                                     </div>
                                 </fieldset>
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="form-actions">
                         <a href="{{ url_for('list_courses') }}" class="btn btn-secondary">
                             <i class="fas fa-arrow-left"></i> Voltar
@@ -660,102 +960,117 @@
                 </form>
             </div>
         </main>
-    <script>
-        function toggleValorCurso(mostrar) {
-            const valorCursoContainer = document.getElementById('valor_curso_container');
-            if (valorCursoContainer) {
-                valorCursoContainer.style.display = mostrar ? 'block' : 'none';
-            }
-        }
-
-        function togglePreRequisitos(mostrar) {
-            const preRequisitosContainer = document.getElementById('pre_requisitos_container');
-            if (preRequisitosContainer) {
-                preRequisitosContainer.style.display = mostrar ? 'block' : 'none';
-            }
-        }
-
-        function toggleRecursosAcessibilidade() {
-            const acessibilidadeSelect = document.getElementById('acessibilidade');
-            const recursosContainer = document.getElementById('recursos_acessibilidade_container');
-            if (acessibilidadeSelect && recursosContainer) {
-                recursosContainer.style.display = (acessibilidadeSelect.value === 'acessivel' || acessibilidadeSelect.value === 'exclusivo') ? 'block' : 'none';
-            }
-        }
-
-        function toggleValorBolsa(mostrar) {
-            const valorBolsaContainer = document.getElementById('valor_bolsa_container');
-            const requisitosContainer = document.getElementById('requisitos_bolsa_container');
-            if (valorBolsaContainer) valorBolsaContainer.style.display = mostrar ? 'block' : 'none';
-            if (requisitosContainer) requisitosContainer.style.display = mostrar ? 'block' : 'none';
-        }
-
-        function toggleParceiroExterno(mostrar) {
-            const container = document.getElementById('parceiro_externo_container');
-            if (container) {
-                container.style.display = mostrar ? 'block' : 'none';
-            }
-        }
-
-        function toggleInfoAdicionais(mostrar) {
-            const container = document.getElementById('info_adicionais_container');
-            if (container) {
-                container.style.display = mostrar ? 'block' : 'none';
-            }
-        }
-
-        function toggleUnidades() {
-            const modalidade = document.getElementById('modalidade').value;
-            const unidadesContainer = document.getElementById('unidades_container');
-            const plataformaContainer = document.getElementById('plataforma_container');
-            
-            // Esconder ambos os containers primeiro
-            if (unidadesContainer) unidadesContainer.style.display = 'none';
-            if (plataformaContainer) plataformaContainer.style.display = 'none';
-            
-            // Remover required de todos os campos de modalidade
-            const allModalidadeFields = document.querySelectorAll('#unidades_container input, #unidades_container select, #plataforma_container input, #plataforma_container select');
-            allModalidadeFields.forEach(field => {
-                field.removeAttribute('required');
-            });
-            
-            if (modalidade === 'Presencial' || modalidade === 'Híbrido') {
-                if (unidadesContainer) {
-                    unidadesContainer.style.display = 'block';
-                    // Adicionar required apenas aos campos visíveis
-                    const unidadesFields = unidadesContainer.querySelectorAll('input[required], select[required]');
-                    unidadesFields.forEach(field => {
-                        field.setAttribute('required', 'required');
-                    });
-                }
-            } else if (modalidade === 'Online') {
-                if (plataformaContainer) {
-                    plataformaContainer.style.display = 'block';
-                    // Adicionar required apenas aos campos visíveis
-                    const plataformaFields = plataformaContainer.querySelectorAll('input[required], select[required]');
-                    plataformaFields.forEach(field => {
-                        field.setAttribute('required', 'required');
-                    });
+        <script>
+            function toggleValorCurso(mostrar) {
+                const valorCursoContainer = document.getElementById('valor_curso_container');
+                if (valorCursoContainer) {
+                    valorCursoContainer.style.display = mostrar ? 'block' : 'none';
                 }
             }
-        }
 
-        function toggleAulasAssincronas(isAssincronas) {
-            const horariosContainer = document.getElementById('horarios_detalhados_online_container');
-            const horariosOnlineContainer = document.getElementById('horarios_online_container');
-            
-            if (horariosContainer && horariosOnlineContainer) {
-                horariosContainer.style.display = isAssincronas ? 'none' : 'block';
-                horariosOnlineContainer.style.display = isAssincronas ? 'none' : 'block';
+            function togglePreRequisitos(mostrar) {
+                const preRequisitosContainer = document.getElementById('pre_requisitos_container');
+                if (preRequisitosContainer) {
+                    preRequisitosContainer.style.display = mostrar ? 'block' : 'none';
+                }
             }
-        }
 
-        function addUnidade() {
-            const unidadesList = document.getElementById('unidades_list');
-            const unidadeCount = unidadesList.children.length;
-            const newUnidadeIndex = unidadeCount;
-            
-            const newUnidadeHTML = `
+            function toggleRecursosAcessibilidade() {
+                const acessibilidadeSelect = document.getElementById('acessibilidade');
+                const recursosContainer = document.getElementById('recursos_acessibilidade_container');
+                if (acessibilidadeSelect && recursosContainer) {
+                    recursosContainer.style.display = (acessibilidadeSelect.value === 'acessivel' || acessibilidadeSelect.value === 'exclusivo') ? 'block' : 'none';
+                }
+            }
+
+            function toggleValorBolsa(mostrar) {
+                const valorBolsaContainer = document.getElementById('valor_bolsa_container');
+                const requisitosContainer = document.getElementById('requisitos_bolsa_container');
+                if (valorBolsaContainer) valorBolsaContainer.style.display = mostrar ? 'block' : 'none';
+                if (requisitosContainer) requisitosContainer.style.display = mostrar ? 'block' : 'none';
+            }
+
+            function toggleParceiroExterno(mostrar) {
+                const container = document.getElementById('parceiro_externo_container');
+                if (container) {
+                    container.style.display = mostrar ? 'block' : 'none';
+                }
+            }
+
+            function toggleInfoAdicionais(mostrar) {
+                const container = document.getElementById('info_adicionais_container');
+                if (container) {
+                    container.style.display = mostrar ? 'block' : 'none';
+                }
+            }
+
+            function toggleUnidades() {
+                const modalidade = document.getElementById('modalidade').value;
+                const unidadesContainer = document.getElementById('unidades_container');
+                const plataformaContainer = document.getElementById('plataforma_container');
+
+                // Esconder ambos os containers primeiro
+                if (unidadesContainer) unidadesContainer.style.display = 'none';
+                if (plataformaContainer) plataformaContainer.style.display = 'none';
+
+                // Remover required de todos os campos de modalidade
+                const allModalidadeFields = document.querySelectorAll('#unidades_container input, #unidades_container select, #plataforma_container input, #plataforma_container select');
+                allModalidadeFields.forEach(field => {
+                    field.removeAttribute('required');
+                });
+
+                if (modalidade === 'Presencial' || modalidade === 'Híbrido') {
+                    if (unidadesContainer) {
+                        unidadesContainer.style.display = 'block';
+                        // Adicionar required apenas aos campos visíveis
+                        const unidadesFields = unidadesContainer.querySelectorAll('input[required], select[required]');
+                        unidadesFields.forEach(field => {
+                            field.setAttribute('required', 'required');
+                        });
+                    }
+                } else if (modalidade === 'Online') {
+                    if (plataformaContainer) {
+                        plataformaContainer.style.display = 'block';
+                        // Adicionar required apenas aos campos visíveis
+                        const plataformaFields = plataformaContainer.querySelectorAll('input[required], select[required]');
+                        plataformaFields.forEach(field => {
+                            field.setAttribute('required', 'required');
+                        });
+                    }
+                }
+            }
+
+            function toggleAulasAssincronas(isAssincronas) {
+                const horariosContainer = document.getElementById('horarios_detalhados_online_container');
+                const horariosOnlineContainer = document.getElementById('horarios_online_container');
+
+                if (horariosContainer && horariosOnlineContainer) {
+                    horariosContainer.style.display = isAssincronas ? 'none' : 'block';
+                    horariosOnlineContainer.style.display = isAssincronas ? 'none' : 'block';
+
+                    // CORREÇÃO: Limpar campos quando aulas são assíncronas
+                    if (isAssincronas) {
+                        // Limpar campos de data
+                        const inicioAulasOnline = document.getElementById('inicio_aulas_online');
+                        const fimAulasOnline = document.getElementById('fim_aulas_online');
+                        if (inicioAulasOnline) inicioAulasOnline.value = '';
+                        if (fimAulasOnline) fimAulasOnline.value = '';
+
+                        // Limpar campos de horário
+                        const horarioInicioOnline = document.getElementById('horario_inicio_online');
+                        const horarioFimOnline = document.getElementById('horario_fim_online');
+                        if (horarioInicioOnline) horarioInicioOnline.value = '';
+                        if (horarioFimOnline) horarioFimOnline.value = '';
+                    }
+                }
+            }
+
+            function addUnidade() {
+                const unidadesList = document.getElementById('unidades_list');
+                const unidadeCount = unidadesList.children.length;
+                const newUnidadeIndex = unidadeCount;
+
+                const newUnidadeHTML = `
                 <div class="unidade-item" data-unidade="${newUnidadeIndex}">
                     <label>Endereço da unidade ou turma*</label>
                     <input type="text" name="endereco_unidade[]" required>
@@ -861,39 +1176,39 @@
                     </div>
                 </div>
             `;
-            
-            unidadesList.insertAdjacentHTML('beforeend', newUnidadeHTML);
-            
-            // Atualizar legendas e botões de remoção
-            updateUnidadeLegends();
-        }
 
-        function removeUnidade(button) {
-            const unidadeItem = button.closest('.unidade-item');
-            if (unidadeItem) {
-                unidadeItem.remove();
+                unidadesList.insertAdjacentHTML('beforeend', newUnidadeHTML);
+
+                // Atualizar legendas e botões de remoção
                 updateUnidadeLegends();
             }
-        }
 
-        function updateUnidadeLegends() {
-            const unidades = document.querySelectorAll('.unidade-item');
-            const removeButtons = document.querySelectorAll('.remove-unidade-btn');
-            
-            unidades.forEach((unidade, index) => {
-                const legend = unidade.closest('fieldset').querySelector('legend');
-                if (legend) {
-                    legend.innerHTML = `Informações da Unidade ou Turma ${index + 1} <button type="button" class="remove-unidade-btn" onclick="removeUnidade(this)" ${index === 0 ? 'style="display:none;"' : ''}>&times;</button>`;
+            function removeUnidade(button) {
+                const unidadeItem = button.closest('.unidade-item');
+                if (unidadeItem) {
+                    unidadeItem.remove();
+                    updateUnidadeLegends();
                 }
-            });
-        }
+            }
 
-        function addPlataforma() {
-            const plataformaList = document.getElementById('plataforma_list');
-            const plataformaCount = plataformaList.children.length;
-            const newPlataformaIndex = plataformaCount;
-            
-            const newPlataformaHTML = `
+            function updateUnidadeLegends() {
+                const unidades = document.querySelectorAll('.unidade-item');
+                const removeButtons = document.querySelectorAll('.remove-unidade-btn');
+
+                unidades.forEach((unidade, index) => {
+                    const legend = unidade.closest('fieldset').querySelector('legend');
+                    if (legend) {
+                        legend.innerHTML = `Informações da Unidade ou Turma ${index + 1} <button type="button" class="remove-unidade-btn" onclick="removeUnidade(this)" ${index === 0 ? 'style="display:none;"' : ''}>&times;</button>`;
+                    }
+                });
+            }
+
+            function addPlataforma() {
+                const plataformaList = document.getElementById('plataforma_list');
+                const plataformaCount = plataformaList.children.length;
+                const newPlataformaIndex = plataformaCount;
+
+                const newPlataformaHTML = `
                 <div class="plataforma-item" data-plataforma="${newPlataformaIndex}">
                     <label for="plataforma_digital_${newPlataformaIndex}">Plataforma Digital</label>
                     <input type="text" id="plataforma_digital_${newPlataformaIndex}" name="plataforma_digital" 
@@ -1013,174 +1328,174 @@
                     </div>
     </div>
             `;
-            
-            plataformaList.insertAdjacentHTML('beforeend', newPlataformaHTML);
-            
-            // Atualizar legendas e botões de remoção
-            updatePlataformaLegends();
-        }
 
-        function removePlataforma(button) {
-            const plataformaItem = button.closest('.plataforma-item');
-            if (plataformaItem) {
-                plataformaItem.remove();
+                plataformaList.insertAdjacentHTML('beforeend', newPlataformaHTML);
+
+                // Atualizar legendas e botões de remoção
                 updatePlataformaLegends();
             }
-        }
 
-        function updatePlataformaLegends() {
-            const plataformas = document.querySelectorAll('.plataforma-item');
-            const removeButtons = document.querySelectorAll('.remove-plataforma-btn');
-            
-            plataformas.forEach((plataforma, index) => {
-                const legend = plataforma.closest('fieldset').querySelector('legend');
-                if (legend) {
-                    legend.innerHTML = `Informações da Plataforma ${index + 1} <button type="button" class="remove-plataforma-btn" onclick="removePlataforma(this)" ${index === 0 ? 'style="display:none;"' : ''}>&times;</button>`;
-                }
-            });
-        }
-
-        function formatarValor(input) {
-            let valor = input.value.replace(/[^\d,]/g, '');
-            const partes = valor.split(',');
-            if (partes.length > 2) {
-                valor = partes[0] + ',' + partes.slice(1).join('');
-            }
-            if (partes.length === 2 && partes[1].length > 2) {
-                valor = partes[0] + ',' + partes[1].substring(0, 2);
-            }
-            input.value = valor;
-        }
-
-        function toggleRequisitos() {
-            const valorMeia = document.getElementById('valor_curso_meia');
-            const requisitosContainer = document.getElementById('requisitos_meia_container');
-            const requisitosField = document.getElementById('requisitos_meia');
-            
-            if (valorMeia && requisitosContainer && requisitosField) {
-                const valor = valorMeia.value.trim();
-                
-                if (valor !== '') {
-                    // Se há valor na meia, mostrar campo de requisitos
-                    requisitosContainer.style.display = 'block';
-                    requisitosField.setAttribute('required', 'required');
-                } else {
-                    // Se não há valor na meia, esconder campo de requisitos
-                    requisitosContainer.style.display = 'none';
-                    requisitosField.removeAttribute('required');
-                    requisitosField.value = '';
+            function removePlataforma(button) {
+                const plataformaItem = button.closest('.plataforma-item');
+                if (plataformaItem) {
+                    plataformaItem.remove();
+                    updatePlataformaLegends();
                 }
             }
-        }
 
-        document.addEventListener('DOMContentLoaded', function() {
-            // Inicializar campos condicionais baseado na modalidade atual
-            const modalidade = document.getElementById('modalidade');
-            if (modalidade && modalidade.value) {
-                toggleUnidades();
-            }
-            
-            // Adicionar event listener para mudanças na modalidade
-            if (modalidade) {
-                modalidade.addEventListener('change', toggleUnidades);
-            }
+            function updatePlataformaLegends() {
+                const plataformas = document.querySelectorAll('.plataforma-item');
+                const removeButtons = document.querySelectorAll('.remove-plataforma-btn');
 
-            // Adicionar event listeners para botões de adicionar unidades e plataformas
-            const addUnidadeBtn = document.querySelector('.add-unidade-btn');
-            if (addUnidadeBtn) {
-                addUnidadeBtn.addEventListener('click', addUnidade);
-            }
-
-            const addPlataformaBtn = document.querySelector('.add-plataforma-btn');
-            if (addPlataformaBtn) {
-                addPlataformaBtn.addEventListener('click', addPlataforma);
-            }
-
-            // Adicionar validação antes do submit
-            const form = document.querySelector('.course-form');
-            if (form) {
-                form.addEventListener('submit', function(e) {
-                    // Remover required de campos ocultos
-                    const hiddenRequiredFields = document.querySelectorAll('input[required], textarea[required], select[required]');
-                    hiddenRequiredFields.forEach(field => {
-                        if (field.closest('.form-group').style.display === 'none' || 
-                            field.closest('.form-group').style.display === 'none') {
-                            field.removeAttribute('required');
-                        }
-                    });
+                plataformas.forEach((plataforma, index) => {
+                    const legend = plataforma.closest('fieldset').querySelector('legend');
+                    if (legend) {
+                        legend.innerHTML = `Informações da Plataforma ${index + 1} <button type="button" class="remove-plataforma-btn" onclick="removePlataforma(this)" ${index === 0 ? 'style="display:none;"' : ''}>&times;</button>`;
+                    }
                 });
             }
 
-            // Configurar upload de capa do curso
-            setupCourseCoverUpload();
-        });
+            function formatarValor(input) {
+                let valor = input.value.replace(/[^\d,]/g, '');
+                const partes = valor.split(',');
+                if (partes.length > 2) {
+                    valor = partes[0] + ',' + partes.slice(1).join('');
+                }
+                if (partes.length === 2 && partes[1].length > 2) {
+                    valor = partes[0] + ',' + partes[1].substring(0, 2);
+                }
+                input.value = valor;
+            }
 
-        // Função para gerenciar upload de capa do curso
-        function setupCourseCoverUpload() {
-            const fileInput = document.getElementById('capa_curso');
-            const fileDisplay = document.querySelector('.file-upload-display');
-            const fileText = document.querySelector('.file-upload-text');
-            
-            if (fileInput && fileDisplay && fileText) {
-                fileInput.addEventListener('change', function(e) {
-                    const file = e.target.files[0];
-                    if (file) {
-                        // Validar formato do arquivo
-                        const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/bmp'];
-                        if (!allowedTypes.includes(file.type)) {
-                            alert('Formato de arquivo não suportado. Use JPEG, PNG, JPG ou BMP.');
-                            fileInput.value = '';
-                            return;
-                        }
-                        
-                        // Validar tamanho do arquivo (máximo 5MB)
-                        const maxSize = 5 * 1024 * 1024; // 5MB
-                        if (file.size > maxSize) {
-                            alert('Arquivo muito grande. Tamanho máximo: 5MB');
-                            fileInput.value = '';
-                            return;
-                        }
-                        
-                        // Atualizar display
-                        fileDisplay.classList.add('has-file');
-                        fileText.textContent = `Arquivo selecionado: ${file.name}`;
-                        
-                        // Mostrar preview da imagem
-                        const reader = new FileReader();
-                        reader.onload = function(e) {
-                            // Remover preview anterior se existir
+            function toggleRequisitos() {
+                const valorMeia = document.getElementById('valor_curso_meia');
+                const requisitosContainer = document.getElementById('requisitos_meia_container');
+                const requisitosField = document.getElementById('requisitos_meia');
+
+                if (valorMeia && requisitosContainer && requisitosField) {
+                    const valor = valorMeia.value.trim();
+
+                    if (valor !== '') {
+                        // Se há valor na meia, mostrar campo de requisitos
+                        requisitosContainer.style.display = 'block';
+                        requisitosField.setAttribute('required', 'required');
+                    } else {
+                        // Se não há valor na meia, esconder campo de requisitos
+                        requisitosContainer.style.display = 'none';
+                        requisitosField.removeAttribute('required');
+                        requisitosField.value = '';
+                    }
+                }
+            }
+
+            document.addEventListener('DOMContentLoaded', function () {
+                // Inicializar campos condicionais baseado na modalidade atual
+                const modalidade = document.getElementById('modalidade');
+                if (modalidade && modalidade.value) {
+                    toggleUnidades();
+                }
+
+                // Adicionar event listener para mudanças na modalidade
+                if (modalidade) {
+                    modalidade.addEventListener('change', toggleUnidades);
+                }
+
+                // Adicionar event listeners para botões de adicionar unidades e plataformas
+                const addUnidadeBtn = document.querySelector('.add-unidade-btn');
+                if (addUnidadeBtn) {
+                    addUnidadeBtn.addEventListener('click', addUnidade);
+                }
+
+                const addPlataformaBtn = document.querySelector('.add-plataforma-btn');
+                if (addPlataformaBtn) {
+                    addPlataformaBtn.addEventListener('click', addPlataforma);
+                }
+
+                // Adicionar validação antes do submit
+                const form = document.querySelector('.course-form');
+                if (form) {
+                    form.addEventListener('submit', function (e) {
+                        // Remover required de campos ocultos
+                        const hiddenRequiredFields = document.querySelectorAll('input[required], textarea[required], select[required]');
+                        hiddenRequiredFields.forEach(field => {
+                            if (field.closest('.form-group').style.display === 'none' ||
+                                field.closest('.form-group').style.display === 'none') {
+                                field.removeAttribute('required');
+                            }
+                        });
+                    });
+                }
+
+                // Configurar upload de capa do curso
+                setupCourseCoverUpload();
+            });
+
+            // Função para gerenciar upload de capa do curso
+            function setupCourseCoverUpload() {
+                const fileInput = document.getElementById('capa_curso');
+                const fileDisplay = document.querySelector('.file-upload-display');
+                const fileText = document.querySelector('.file-upload-text');
+
+                if (fileInput && fileDisplay && fileText) {
+                    fileInput.addEventListener('change', function (e) {
+                        const file = e.target.files[0];
+                        if (file) {
+                            // Validar formato do arquivo
+                            const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/bmp'];
+                            if (!allowedTypes.includes(file.type)) {
+                                alert('Formato de arquivo não suportado. Use JPEG, PNG, JPG ou BMP.');
+                                fileInput.value = '';
+                                return;
+                            }
+
+                            // Validar tamanho do arquivo (máximo 5MB)
+                            const maxSize = 5 * 1024 * 1024; // 5MB
+                            if (file.size > maxSize) {
+                                alert('Arquivo muito grande. Tamanho máximo: 5MB');
+                                fileInput.value = '';
+                                return;
+                            }
+
+                            // Atualizar display
+                            fileDisplay.classList.add('has-file');
+                            fileText.textContent = `Arquivo selecionado: ${file.name}`;
+
+                            // Mostrar preview da imagem
+                            const reader = new FileReader();
+                            reader.onload = function (e) {
+                                // Remover preview anterior se existir
+                                const existingPreview = fileDisplay.querySelector('.image-preview');
+                                if (existingPreview) {
+                                    existingPreview.remove();
+                                }
+
+                                // Criar preview
+                                const preview = document.createElement('img');
+                                preview.className = 'image-preview';
+                                preview.src = e.target.result;
+                                preview.style.maxWidth = '200px';
+                                preview.style.maxHeight = '150px';
+                                preview.style.borderRadius = '4px';
+                                preview.style.marginTop = '10px';
+                                preview.style.objectFit = 'cover';
+
+                                fileDisplay.appendChild(preview);
+                            };
+                            reader.readAsDataURL(file);
+                        } else {
+                            // Remover preview se não há arquivo
                             const existingPreview = fileDisplay.querySelector('.image-preview');
                             if (existingPreview) {
                                 existingPreview.remove();
                             }
-                            
-                            // Criar preview
-                            const preview = document.createElement('img');
-                            preview.className = 'image-preview';
-                            preview.src = e.target.result;
-                            preview.style.maxWidth = '200px';
-                            preview.style.maxHeight = '150px';
-                            preview.style.borderRadius = '4px';
-                            preview.style.marginTop = '10px';
-                            preview.style.objectFit = 'cover';
-                            
-                            fileDisplay.appendChild(preview);
-                        };
-                        reader.readAsDataURL(file);
-                    } else {
-                        // Remover preview se não há arquivo
-                        const existingPreview = fileDisplay.querySelector('.image-preview');
-                        if (existingPreview) {
-                            existingPreview.remove();
+                            fileDisplay.classList.remove('has-file');
+                            fileText.textContent = 'Clique para selecionar uma imagem';
                         }
-                        fileDisplay.classList.remove('has-file');
-                        fileText.textContent = 'Clique para selecionar uma imagem';
-                    }
-                });
+                    });
+                }
             }
-        }
-    </script>
-    
-    <!-- Scripts JavaScript -->
-    <script src="{{ url_for('static', filename='js/loading-manager.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/image-resizer.js') }}"></script>
+        </script>
+
+        <!-- Scripts JavaScript -->
+        <script src="{{ url_for('static', filename='js/loading-manager.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/image-resizer.js') }}"></script>

@@ -443,6 +443,11 @@ def edit_course(course_id):
 
 def _prepare_course_for_edit_form(course):
     """Prepara dados do curso para o formulário de edição"""
+    # Garantir que temos a descrição original para edição
+    if not course.get('descricao_original') and course.get('descricao'):
+        # Se não temos descricao_original, usar a descricao atual como original
+        course['descricao_original'] = course['descricao']
+    
     # Converter datas para o formato HTML (YYYY-MM-DD)
     if 'inicio_inscricoes' in course and course['inicio_inscricoes']:
         try:

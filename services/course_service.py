@@ -84,11 +84,9 @@ class CourseService:
                 # Manter arquivos existentes
                 course_data['parceiro_logo'] = existing_course.get('parceiro_logo', '')
             
-            # Melhorar descrição se foi alterada
-            if course_data.get('descricao_original') != existing_course.get('descricao_original'):
-                course_data = self._enhance_description(course_data)
-            else:
-                course_data['descricao'] = existing_course.get('descricao', course_data.get('descricao_original'))
+            # NOVA FUNCIONALIDADE: Na edição, não alterar a descrição já processada pelo Gemini
+            # Manter sempre a descrição original e a processada pelo Gemini separadamente
+            course_data['descricao'] = existing_course.get('descricao', course_data.get('descricao_original'))
             
             # Atualizar curso
             updated_course = self.repository.update_course(course_id, course_data)
