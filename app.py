@@ -245,10 +245,17 @@ def list_courses():
         
         # Obter status dos cursos inseridos
         inserted_courses = course_status_service.get_inserted_courses()
+        logger.info(f"📊 Cursos inseridos carregados: {inserted_courses}")
         
         # Adicionar status aos cursos
         for course in courses:
-            course['is_inserted'] = course.get('id') in inserted_courses
+            # Converter ID do curso para int para comparação correta
+            course_id = course.get('id')
+            if isinstance(course_id, str) and course_id.isdigit():
+                course_id = int(course_id)
+            course['is_inserted'] = course_id in inserted_courses
+            if course.get('is_inserted'):
+                logger.info(f"✅ Curso {course.get('id')} marcado como inserido na interface")
         
         return render_template('course_list.html', courses=courses, inserted_courses=inserted_courses)
     except Exception as e:
@@ -635,7 +642,9 @@ def download_file(filename):
 def toggle_course_status(course_id):
     """Alterna o status de inserção de um curso"""
     try:
+        logger.info(f"🔄 API: Alternando status do curso {course_id}")
         new_status = course_status_service.toggle_course_status(course_id)
+        logger.info(f"✅ API: Novo status do curso {course_id}: {new_status}")
         return {
             'success': True,
             'course_id': course_id,
@@ -643,7 +652,7 @@ def toggle_course_status(course_id):
             'message': 'Curso marcado como inserido' if new_status else 'Curso desmarcado'
         }
     except Exception as e:
-        logger.error(f"Erro ao alterar status do curso {course_id}: {str(e)}")
+        logger.error(f"❌ API: Erro ao alterar status do curso {course_id}: {str(e)}")
         return {
             'success': False,
             'error': str(e)
