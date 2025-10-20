@@ -642,6 +642,17 @@
                             <input type="text" class="search-input" placeholder="Buscar cursos..." id="searchInput">
                         </div>
                         
+                        <select class="filter-select" id="orgaoFilter">
+                            <option value="">Todos os órgãos</option>
+                            {% set orgaos = [] %}
+                            {% for course in courses %}
+                                {% if course.orgao and course.orgao not in orgaos %}
+                                    {% set orgaos = orgaos + [course.orgao] %}
+                                    <option value="{{ course.orgao }}">{{ course.orgao }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                        
                         <select class="filter-select" id="categoryFilter">
                             <option value="">Todas as categorias</option>
                             {% set categories = [] %}
@@ -655,17 +666,14 @@
                         
                         <select class="filter-select" id="modalityFilter">
                             <option value="">Todas as modalidades</option>
+                            {% set modalidades = [] %}
                             {% for course in courses %}
-                                <option value="{{ course.modalidade }}">{{ course.modalidade }}</option>
+                                {% if course.modalidade not in modalidades %}
+                                    {% set modalidades = modalidades + [course.modalidade] %}
+                                    <option value="{{ course.modalidade }}">{{ course.modalidade }}</option>
+                                {% endif %}
                             {% endfor %}
                         </select>
-                        
-                        <select class="filter-select" id="bolsaFilter">
-                            <option value="">Todos os cursos</option>
-                            <option value="sim">Com bolsa</option>
-                            <option value="nao">Sem bolsa</option>
-                        </select>
-                        
 
                     </div>
                     
@@ -676,8 +684,8 @@
                                  data-name="{{ course.titulo|lower }}" 
                                  data-category="{{ course.tema }}" 
                                  data-modality="{{ course.modalidade }}"
-                                 data-price="gratuito"
-                                 data-bolsa="{{ course.oferece_bolsa }}">
+                                 data-orgao="{{ course.orgao or '' }}"
+                                 data-price="gratuito">
                                 
                                 <div class="course-header-row" onclick="toggleCourseDetails(this)">
                                     <div class="course-header-left">
@@ -1308,26 +1316,26 @@
         
         document.addEventListener('DOMContentLoaded', function() {
             const searchInput = document.getElementById('searchInput');
+            const orgaoFilter = document.getElementById('orgaoFilter');
             const categoryFilter = document.getElementById('categoryFilter');
             const modalityFilter = document.getElementById('modalityFilter');
-            const bolsaFilter = document.getElementById('bolsaFilter');
             const coursesList = document.getElementById('coursesList');
             const courseItems = document.querySelectorAll('.course-item');
             
             // Função para resetar todos os filtros
             window.resetFilters = function() {
                 if (searchInput) searchInput.value = '';
+                if (orgaoFilter) orgaoFilter.value = '';
                 if (categoryFilter) categoryFilter.value = '';
                 if (modalityFilter) modalityFilter.value = '';
-                if (bolsaFilter) bolsaFilter.value = '';
                 filterCourses();
             }
             
             function filterCourses() {
             const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
+            const selectedOrgao = orgaoFilter ? orgaoFilter.value : '';
             const selectedCategory = categoryFilter ? categoryFilter.value : '';
             const selectedModality = modalityFilter ? modalityFilter.value : '';
-            const selectedBolsa = bolsaFilter ? bolsaFilter.value : '';
             
             let visibleCount = 0;
             
@@ -1336,17 +1344,16 @@
             
             courseItems.forEach(item => {
                 const name = item.dataset.name || '';
+                const orgao = item.dataset.orgao || '';
                 const category = item.dataset.category || '';
                 const modality = item.dataset.modality || '';
-                const price = item.dataset.price || '';
-                const bolsa = item.dataset.bolsa || '';
                 
                 const matchesSearch = name.includes(searchTerm);
+                const matchesOrgao = !selectedOrgao || orgao === selectedOrgao;
                 const matchesCategory = !selectedCategory || category === selectedCategory;
                 const matchesModality = !selectedModality || modality === selectedModality;
-                const matchesBolsa = !selectedBolsa || bolsa === selectedBolsa;
                 
-                const isVisible = matchesSearch && matchesCategory && matchesModality && matchesBolsa;
+                const isVisible = matchesSearch && matchesOrgao && matchesCategory && matchesModality;
                 
                 if (isVisible) {
                     item.style.opacity = '1';
@@ -1355,7 +1362,7 @@
                 } else {
                     item.style.opacity = '0';
                     setTimeout(() => {
-                        if (!matchesSearch || !matchesCategory || !matchesModality || !matchesBolsa) {
+                        if (!matchesSearch || !matchesOrgao || !matchesCategory || !matchesModality) {
                             item.style.display = 'none';
                         }
                     }, 300);
@@ -1399,9 +1406,9 @@
             
             // Event listeners
             if (searchInput) searchInput.addEventListener('input', filterCourses);
+            if (orgaoFilter) orgaoFilter.addEventListener('change', filterCourses);
             if (categoryFilter) categoryFilter.addEventListener('change', filterCourses);
             if (modalityFilter) modalityFilter.addEventListener('change', filterCourses);
-            if (bolsaFilter) bolsaFilter.addEventListener('change', filterCourses);
             
             // Event listeners para botões de exclusão
             document.querySelectorAll('.delete-course-btn').forEach(button => {
@@ -1413,7 +1420,7 @@
             });
             
             // Remover duplicatas dos filtros
-            [categoryFilter, modalityFilter].forEach(select => {
+            [orgaoFilter, categoryFilter, modalityFilter].forEach(select => {
                 if (select) {
                     const options = Array.from(select.options);
                     const uniqueOptions = [];
