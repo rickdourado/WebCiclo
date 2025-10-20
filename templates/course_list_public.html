@@ -64,28 +64,6 @@
                                     {% endif %}
                                 {% endfor %}
                             </select>
-                            
-                            <select class="filter-select" id="categoryFilter" autocomplete="off">
-                                <option value="">Todas as categorias</option>
-                                {% set categories = [] %}
-                                {% for course in courses %}
-                                    {% if course.tema and course.tema not in categories %}
-                                        {% set categories = categories + [course.tema] %}
-                                        <option value="{{ course.tema }}">{{ course.tema }}</option>
-                                    {% endif %}
-                                {% endfor %}
-                            </select>
-                            
-                            <select class="filter-select" id="modalityFilter" autocomplete="off">
-                                <option value="">Todas as modalidades</option>
-                                {% set modalidades = [] %}
-                                {% for course in courses %}
-                                    {% if course.modalidade and course.modalidade not in modalidades %}
-                                        {% set modalidades = modalidades + [course.modalidade] %}
-                                        <option value="{{ course.modalidade }}">{{ course.modalidade }}</option>
-                                    {% endif %}
-                                {% endfor %}
-                            </select>
                         </div>
                     </div>
                     
@@ -497,8 +475,6 @@
         document.addEventListener('DOMContentLoaded', function() {
             const searchInput = document.getElementById('searchInput');
             const orgaoFilter = document.getElementById('orgaoFilter');
-            const categoryFilter = document.getElementById('categoryFilter');
-            const modalityFilter = document.getElementById('modalityFilter');
             const coursesList = document.getElementById('coursesList');
             const courseItems = document.querySelectorAll('.course-item');
             
@@ -506,8 +482,6 @@
             window.resetFilters = function() {
                 if (searchInput) searchInput.value = '';
                 if (orgaoFilter) orgaoFilter.value = '';
-                if (categoryFilter) categoryFilter.value = '';
-                if (modalityFilter) modalityFilter.value = '';
                 filterCourses();
             }
             
@@ -515,13 +489,9 @@
             setTimeout(() => {
                 if (searchInput) searchInput.value = '';
                 if (orgaoFilter) orgaoFilter.value = '';
-                if (categoryFilter) categoryFilter.value = '';
-                if (modalityFilter) modalityFilter.value = '';
                 
                 // Forçar a primeira opção como selecionada
                 if (orgaoFilter && orgaoFilter.options.length > 0) orgaoFilter.selectedIndex = 0;
-                if (categoryFilter && categoryFilter.options.length > 0) categoryFilter.selectedIndex = 0;
-                if (modalityFilter && modalityFilter.options.length > 0) modalityFilter.selectedIndex = 0;
                 
                 // Executar filtros para garantir que todos os cursos sejam mostrados
                 filterCourses();
@@ -530,23 +500,17 @@
             function filterCourses() {
                 const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
                 const selectedOrgao = orgaoFilter ? orgaoFilter.value : '';
-                const selectedCategory = categoryFilter ? categoryFilter.value : '';
-                const selectedModality = modalityFilter ? modalityFilter.value : '';
                 
                 let visibleCount = 0;
                 
                 courseItems.forEach(item => {
                     const name = item.dataset.name || '';
                     const orgao = item.dataset.orgao || '';
-                    const category = item.dataset.category || '';
-                    const modality = item.dataset.modality || '';
                     
                     const matchesSearch = name.includes(searchTerm);
                     const matchesOrgao = !selectedOrgao || orgao === selectedOrgao;
-                    const matchesCategory = !selectedCategory || category === selectedCategory;
-                    const matchesModality = !selectedModality || modality === selectedModality;
                     
-                    const isVisible = matchesSearch && matchesOrgao && matchesCategory && matchesModality;
+                    const isVisible = matchesSearch && matchesOrgao;
                     
                     if (isVisible) {
                         item.style.opacity = '1';
@@ -555,7 +519,7 @@
                     } else {
                         item.style.opacity = '0';
                         setTimeout(() => {
-                            if (!matchesSearch || !matchesOrgao || !matchesCategory || !matchesModality) {
+                            if (!matchesSearch || !matchesOrgao) {
                                 item.style.display = 'none';
                             }
                         }, 300);
@@ -600,27 +564,23 @@
             // Event listeners
             if (searchInput) searchInput.addEventListener('input', filterCourses);
             if (orgaoFilter) orgaoFilter.addEventListener('change', filterCourses);
-            if (categoryFilter) categoryFilter.addEventListener('change', filterCourses);
-            if (modalityFilter) modalityFilter.addEventListener('change', filterCourses);
             
-            // Remover duplicatas dos filtros
-            [orgaoFilter, categoryFilter, modalityFilter].forEach(select => {
-                if (select) {
-                    const options = Array.from(select.options);
-                    const uniqueOptions = [];
-                    const seen = new Set();
-                    
-                    options.forEach(option => {
-                        if (!seen.has(option.value) || option.value === '') {
-                            seen.add(option.value);
-                            uniqueOptions.push(option);
-                        }
-                    });
-                    
-                    select.innerHTML = '';
-                    uniqueOptions.forEach(option => select.appendChild(option));
-                }
-            });
+            // Remover duplicatas do filtro de órgãos
+            if (orgaoFilter) {
+                const options = Array.from(orgaoFilter.options);
+                const uniqueOptions = [];
+                const seen = new Set();
+                
+                options.forEach(option => {
+                    if (!seen.has(option.value) || option.value === '') {
+                        seen.add(option.value);
+                        uniqueOptions.push(option);
+                    }
+                });
+                
+                orgaoFilter.innerHTML = '';
+                uniqueOptions.forEach(option => orgaoFilter.appendChild(option));
+            }
             
             console.log('📋 Lista pública de cursos carregada com sucesso!');
         });
