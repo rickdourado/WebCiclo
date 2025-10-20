@@ -639,10 +639,10 @@
                     <div class="filters">
                         <div class="search-box">
                             <i class="fas fa-search search-icon"></i>
-                            <input type="text" class="search-input" placeholder="Buscar cursos..." id="searchInput">
+                            <input type="text" class="search-input" placeholder="Buscar cursos..." id="searchInput" autocomplete="off">
                         </div>
                         
-                        <select class="filter-select" id="orgaoFilter">
+                        <select class="filter-select" id="orgaoFilter" autocomplete="off">
                             <option value="">Todos os órgãos</option>
                             {% set orgaos = [] %}
                             {% for course in courses %}
@@ -653,7 +653,7 @@
                             {% endfor %}
                         </select>
                         
-                        <select class="filter-select" id="categoryFilter">
+                        <select class="filter-select" id="categoryFilter" autocomplete="off">
                             <option value="">Todas as categorias</option>
                             {% set categories = [] %}
                             {% for course in courses %}
@@ -664,7 +664,7 @@
                             {% endfor %}
                         </select>
                         
-                        <select class="filter-select" id="modalityFilter">
+                        <select class="filter-select" id="modalityFilter" autocomplete="off">
                             <option value="">Todas as modalidades</option>
                             {% set modalidades = [] %}
                             {% for course in courses %}
@@ -1330,6 +1330,23 @@
                 if (modalityFilter) modalityFilter.value = '';
                 filterCourses();
             }
+            
+            // Resetar filtros automaticamente no carregamento da página
+            // Usar setTimeout para garantir que aconteça após o navegador tentar restaurar valores
+            setTimeout(() => {
+                if (searchInput) searchInput.value = '';
+                if (orgaoFilter) orgaoFilter.value = '';
+                if (categoryFilter) categoryFilter.value = '';
+                if (modalityFilter) modalityFilter.value = '';
+                
+                // Forçar a primeira opção como selecionada
+                if (orgaoFilter && orgaoFilter.options.length > 0) orgaoFilter.selectedIndex = 0;
+                if (categoryFilter && categoryFilter.options.length > 0) categoryFilter.selectedIndex = 0;
+                if (modalityFilter && modalityFilter.options.length > 0) modalityFilter.selectedIndex = 0;
+                
+                // Executar filtros para garantir que todos os cursos sejam mostrados
+                filterCourses();
+            }, 100);
             
             function filterCourses() {
             const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
