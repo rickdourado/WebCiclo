@@ -53,7 +53,8 @@ class CourseValidator:
     def _validate_basic_fields(self, form_data: Dict):
         """Valida campos básicos obrigatórios"""
         required_fields = {
-            'titulo': 'Nome do Curso',
+            'tipo_acao': 'Tipo de Ação',
+            'titulo': 'Nome da Ação de Formação',
             'descricao': 'Descrição',
             'orgao': 'Órgão Responsável',
             'tema': 'Tema/Categoria',

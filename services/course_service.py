@@ -149,6 +149,7 @@ class CourseService:
         
         # Processar campos de array baseado na modalidade
         course_data = {
+            'tipo_acao': form_data.get('tipo_acao', '').strip(),
             'titulo': form_data.get('titulo', '').strip(),
             'descricao_original': form_data.get('descricao', '').strip(),
             'inicio_inscricoes': f'{inicio_data.replace("-", "/")}' if inicio_data else '',

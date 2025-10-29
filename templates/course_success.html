@@ -311,9 +311,15 @@
                             Informações Básicas
                         </div>
                         <div class="course-info">
+                            {% if course.tipo_acao %}
+                            <div class="info-row">
+                                <i class="fas fa-tag"></i>
+                                <span><strong>Tipo de Ação:</strong> {{ course.tipo_acao }}</span>
+                            </div>
+                            {% endif %}
                             <div class="info-row">
                                 <i class="fas fa-graduation-cap"></i>
-                                <span><strong>Título:</strong> {{ course.titulo }}</span>
+                                <span><strong>Nome da Ação de Formação:</strong> {{ course.titulo }}</span>
                             </div>
 
                             <div class="info-row">

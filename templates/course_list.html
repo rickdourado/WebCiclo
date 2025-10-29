@@ -300,6 +300,19 @@
             line-height: 1.3;
         }
 
+        .course-type {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 3px 10px;
+            border-radius: 15px;
+            font-size: 0.7rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-right: 8px;
+            display: inline-block;
+        }
+
         .course-category {
             display: inline-block;
             background: #edf2f7;
@@ -727,7 +740,12 @@
                                     </div>
                                 </div>
                                 <div class="course-id">#{{ course.id }}</div>
-                                <h3 class="course-name">{{ course.titulo }}</h3>
+                                <h3 class="course-name">
+                                    {% if course.tipo_acao %}
+                                        <span class="course-type">{{ course.tipo_acao }}</span>
+                                    {% endif %}
+                                    {{ course.titulo }}
+                                </h3>
                                 <span class="course-category">{{ course.tema }}</span>
                             </div>
                             <div class="course-header-right">

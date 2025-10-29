@@ -225,8 +225,8 @@ def generate_pdf(course_data):
     )))
     elements.append(Spacer(1, 0.3*inch))
     
-    # Título do curso
-    elements.append(Paragraph(f"<b>DETALHES DO CURSO</b>", section_style))
+    # Título da ação de formação
+    elements.append(Paragraph(f"<b>DETALHES DA AÇÃO DE FORMAÇÃO</b>", section_style))
     elements.append(Paragraph(f"<b>{course_data['titulo']}</b>", ParagraphStyle(
         'CourseTitle',
         parent=styles['Heading1'],
@@ -238,7 +238,7 @@ def generate_pdf(course_data):
     
     # Descrição do curso - NOVA FUNCIONALIDADE: Mostrar original e processada pelo Gemini
     if course_data.get('descricao_original') or course_data.get('descricao'):
-        elements.append(Paragraph("<b>DESCRIÇÕES DO CURSO</b>", section_style))
+        elements.append(Paragraph("<b>DESCRIÇÕES DA AÇÃO DE FORMAÇÃO</b>", section_style))
         
         # Descrição original (inserida pelo usuário)
         if course_data.get('descricao_original'):
@@ -276,8 +276,9 @@ def generate_pdf(course_data):
     elements.append(Paragraph("<b>INFORMAÇÕES BÁSICAS</b>", section_style))
     
     basic_info = [
-        ["ID do Curso", clean_field_value(course_data.get('id'))],
-        ["Título", wrap_text(clean_field_value(course_data.get('titulo')), 50)],
+        ["ID da Ação", clean_field_value(course_data.get('id'))],
+        ["Tipo de Ação", clean_field_value(course_data.get('tipo_acao'))],
+        ["Nome da Ação de Formação", wrap_text(clean_field_value(course_data.get('titulo')), 50)],
         ["Órgão Responsável", wrap_text(clean_field_value(course_data.get('orgao')), 50)],
         ["Tema", clean_field_value(course_data.get('tema'))],
         ["Modalidade", clean_field_value(course_data.get('modalidade'))],

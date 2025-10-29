@@ -444,9 +444,26 @@
                     <div class="form-section">
                         <div class="form-grid">
                             <div class="form-group full-width">
-                                <label for="titulo" class="required">Nome do Curso</label>
+                                <label for="tipo_acao" class="required">Tipo de Ação</label>
+                                <select id="tipo_acao" name="tipo_acao" required>
+                                    <option value="">Selecione o tipo de ação</option>
+                                    <option value="Curso" {% if duplicate_data and duplicate_data.tipo_acao=='Curso'
+                                        %}selected{% endif %}>Curso</option>
+                                    <option value="Oficina" {% if duplicate_data and duplicate_data.tipo_acao=='Oficina'
+                                        %}selected{% endif %}>Oficina</option>
+                                    <option value="Palestra" {% if duplicate_data and
+                                        duplicate_data.tipo_acao=='Palestra' %}selected{% endif %}>Palestra</option>
+                                    <option value="Workshop" {% if duplicate_data and
+                                        duplicate_data.tipo_acao=='Workshop' %}selected{% endif %}>Workshop</option>
+                                    <option value="Evento" {% if duplicate_data and duplicate_data.tipo_acao=='Evento'
+                                        %}selected{% endif %}>Evento</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group full-width">
+                                <label for="titulo" class="required">Nome da Ação de Formação</label>
                                 <input type="text" id="titulo" name="titulo" required
-                                    placeholder="Digite o título do curso"
+                                    placeholder="Digite o nome da ação de formação"
                                     value="{{ duplicate_data.titulo if duplicate_data else '' }}">
                                 {% if duplicate_data and duplicate_data.titulo_original %}
                                 <small class="form-help">
@@ -581,8 +598,8 @@
                                                 <h4>Unidade ou Turma {{ i + 1 }}</h4>
                                                 {% if i > 0 %}
                                                 <button type="button" class="btn-remove-unidade"
-                                                    onclick="removeUnidade({{ i }})">
-                                                    <i class="fas fa-trash"></i> Remover Unidade ou Turma
+                                                    onclick="removeUnidade(this)" <i class="fas fa-trash"></i> Remover
+                                                    Unidade ou Turma
                                                 </button>
                                                 {% endif %}
                                             </div>
@@ -2017,417 +2034,416 @@
             console.log('🔄 JavaScript de duplicação DESABILITADO para teste');
 
             // Dados de duplicação do servidor
-            const duplicateData = {{ duplicate_data | tojson | safe if duplicate_data else '{}'
-        }};
+            const duplicateData = {};
 
-        // DESABILITADO - Pré-preencher modalidade (sem disparar evento change que interfere com unidades)
-        // if (duplicateData.modalidade) {
-        //     const modalidadeSelect = document.getElementById('modalidade');
-        //     if (modalidadeSelect) {
-        //         modalidadeSelect.value = duplicateData.modalidade;
-        //         // NÃO disparar evento change para não interferir com unidades pré-renderizadas
-        //         // modalidadeSelect.dispatchEvent(new Event('change'));
-        //     }
-        // }
+            // DESABILITADO - Pré-preencher modalidade (sem disparar evento change que interfere com unidades)
+            // if (duplicateData.modalidade) {
+            //     const modalidadeSelect = document.getElementById('modalidade');
+            //     if (modalidadeSelect) {
+            //         modalidadeSelect.value = duplicateData.modalidade;
+            //         // NÃO disparar evento change para não interferir com unidades pré-renderizadas
+            //         // modalidadeSelect.dispatchEvent(new Event('change'));
+            //     }
+            // }
 
-        // Aguardar um pouco para os campos condicionais carregarem
-        setTimeout(function () {
-            // Pré-preencher campos específicos da modalidade
-            if (duplicateData.modalidade === 'presencial' || duplicateData.modalidade === 'hibrido') {
-                preencherCamposPresencial(duplicateData);
-            }
-
-            if (duplicateData.modalidade === 'online' || duplicateData.modalidade === 'hibrido') {
-                preencherCamposOnline(duplicateData);
-            }
-
-            // Pré-preencher campos comuns
-            preencherCamposComuns(duplicateData);
-
-            console.log('✅ Dados de duplicação carregados com sucesso');
-        }, 500);
-
-        function preencherCamposPresencial(data) {
-            // Pré-preencher localidades se existirem
-            if (data.nome_unidade) {
-                const unidades = data.nome_unidade.split('|');
-                const enderecos = data.endereco_unidade ? data.endereco_unidade.split('|') : [];
-                const bairros = data.bairro_unidade ? data.bairro_unidade.split('|') : [];
-                const vagas = data.vagas_unidade ? data.vagas_unidade.split('|') : [];
-                const inicioAulas = data.inicio_aulas_data ? data.inicio_aulas_data.split('|') : [];
-                const fimAulas = data.fim_aulas_data ? data.fim_aulas_data.split('|') : [];
-                const horarioInicio = data.horario_inicio ? data.horario_inicio.split('|') : [];
-                const horarioFim = data.horario_fim ? data.horario_fim.split('|') : [];
-                const diasAula = data.dias_aula ? data.dias_aula.split('|') : [];
-
-                console.log('📍 Preenchendo', unidades.length, 'unidades');
-
-                // Primeiro, criar todas as unidades necessárias
-                for (let i = 1; i < unidades.length; i++) {
-                    const addButton = document.querySelector('.add-location-btn');
-                    if (addButton) {
-                        console.log('➕ Adicionando unidade', i + 1);
-                        addButton.click();
-                    }
+            // Aguardar um pouco para os campos condicionais carregarem
+            setTimeout(function () {
+                // Pré-preencher campos específicos da modalidade
+                if (duplicateData.modalidade === 'presencial' || duplicateData.modalidade === 'hibrido') {
+                    preencherCamposPresencial(duplicateData);
                 }
 
-                // Aguardar um pouco para as unidades serem criadas, então preencher
-                setTimeout(function () {
-                    for (let i = 0; i < unidades.length; i++) {
-                        console.log('📝 Preenchendo unidade', i + 1, ':', unidades[i]);
+                if (duplicateData.modalidade === 'online' || duplicateData.modalidade === 'hibrido') {
+                    preencherCamposOnline(duplicateData);
+                }
 
-                        const enderecoInputs = document.querySelectorAll('input[name="endereco_unidade[]"]');
-                        const bairroInputs = document.querySelectorAll('input[name="bairro_unidade[]"]');
-                        const vagasInputs = document.querySelectorAll('input[name="vagas_unidade[]"]');
-                        const inicioInputs = document.querySelectorAll('input[name="inicio_aulas_data[]"]');
-                        const fimInputs = document.querySelectorAll('input[name="fim_aulas_data[]"]');
-                        const horarioInicioSelects = document.querySelectorAll('select[name="horario_inicio[]"]');
-                        const horarioFimSelects = document.querySelectorAll('select[name="horario_fim[]"]');
-                        const diasAulaSelects = document.querySelectorAll('select[name="dias_aula[]"]');
+                // Pré-preencher campos comuns
+                preencherCamposComuns(duplicateData);
 
-                        // Preencher campos básicos
-                        if (enderecoInputs[i]) enderecoInputs[i].value = enderecos[i] || '';
-                        if (bairroInputs[i]) bairroInputs[i].value = bairros[i] || '';
-                        if (vagasInputs[i]) vagasInputs[i].value = vagas[i] || '';
+                console.log('✅ Dados de duplicação carregados com sucesso');
+            }, 500);
 
-                        // Preencher datas (converter formato se necessário)
-                        if (inicioInputs[i] && inicioAulas[i]) {
-                            const dataInicio = converterDataParaInput(inicioAulas[i]);
-                            inicioInputs[i].value = dataInicio;
-                        }
-                        if (fimInputs[i] && fimAulas[i]) {
-                            const dataFim = converterDataParaInput(fimAulas[i]);
-                            fimInputs[i].value = dataFim;
-                        }
+            function preencherCamposPresencial(data) {
+                // Pré-preencher localidades se existirem
+                if (data.nome_unidade) {
+                    const unidades = data.nome_unidade.split('|');
+                    const enderecos = data.endereco_unidade ? data.endereco_unidade.split('|') : [];
+                    const bairros = data.bairro_unidade ? data.bairro_unidade.split('|') : [];
+                    const vagas = data.vagas_unidade ? data.vagas_unidade.split('|') : [];
+                    const inicioAulas = data.inicio_aulas_data ? data.inicio_aulas_data.split('|') : [];
+                    const fimAulas = data.fim_aulas_data ? data.fim_aulas_data.split('|') : [];
+                    const horarioInicio = data.horario_inicio ? data.horario_inicio.split('|') : [];
+                    const horarioFim = data.horario_fim ? data.horario_fim.split('|') : [];
+                    const diasAula = data.dias_aula ? data.dias_aula.split('|') : [];
 
-                        // Preencher horários
-                        if (horarioInicioSelects[i] && horarioInicio[i]) {
-                            horarioInicioSelects[i].value = horarioInicio[i];
-                        }
-                        if (horarioFimSelects[i] && horarioFim[i]) {
-                            horarioFimSelects[i].value = horarioFim[i];
-                        }
+                    console.log('📍 Preenchendo', unidades.length, 'unidades');
 
-                        // Preencher dias da semana
-                        if (diasAulaSelects[i] && diasAula[i]) {
-                            diasAulaSelects[i].value = diasAula[i];
+                    // Primeiro, criar todas as unidades necessárias
+                    for (let i = 1; i < unidades.length; i++) {
+                        const addButton = document.querySelector('.add-location-btn');
+                        if (addButton) {
+                            console.log('➕ Adicionando unidade', i + 1);
+                            addButton.click();
                         }
                     }
 
-                    console.log('✅ Todas as unidades preenchidas');
-                }, 1000); // Aguardar mais tempo para garantir que todas as unidades foram criadas
+                    // Aguardar um pouco para as unidades serem criadas, então preencher
+                    setTimeout(function () {
+                        for (let i = 0; i < unidades.length; i++) {
+                            console.log('📝 Preenchendo unidade', i + 1, ':', unidades[i]);
+
+                            const enderecoInputs = document.querySelectorAll('input[name="endereco_unidade[]"]');
+                            const bairroInputs = document.querySelectorAll('input[name="bairro_unidade[]"]');
+                            const vagasInputs = document.querySelectorAll('input[name="vagas_unidade[]"]');
+                            const inicioInputs = document.querySelectorAll('input[name="inicio_aulas_data[]"]');
+                            const fimInputs = document.querySelectorAll('input[name="fim_aulas_data[]"]');
+                            const horarioInicioSelects = document.querySelectorAll('select[name="horario_inicio[]"]');
+                            const horarioFimSelects = document.querySelectorAll('select[name="horario_fim[]"]');
+                            const diasAulaSelects = document.querySelectorAll('select[name="dias_aula[]"]');
+
+                            // Preencher campos básicos
+                            if (enderecoInputs[i]) enderecoInputs[i].value = enderecos[i] || '';
+                            if (bairroInputs[i]) bairroInputs[i].value = bairros[i] || '';
+                            if (vagasInputs[i]) vagasInputs[i].value = vagas[i] || '';
+
+                            // Preencher datas (converter formato se necessário)
+                            if (inicioInputs[i] && inicioAulas[i]) {
+                                const dataInicio = converterDataParaInput(inicioAulas[i]);
+                                inicioInputs[i].value = dataInicio;
+                            }
+                            if (fimInputs[i] && fimAulas[i]) {
+                                const dataFim = converterDataParaInput(fimAulas[i]);
+                                fimInputs[i].value = dataFim;
+                            }
+
+                            // Preencher horários
+                            if (horarioInicioSelects[i] && horarioInicio[i]) {
+                                horarioInicioSelects[i].value = horarioInicio[i];
+                            }
+                            if (horarioFimSelects[i] && horarioFim[i]) {
+                                horarioFimSelects[i].value = horarioFim[i];
+                            }
+
+                            // Preencher dias da semana
+                            if (diasAulaSelects[i] && diasAula[i]) {
+                                diasAulaSelects[i].value = diasAula[i];
+                            }
+                        }
+
+                        console.log('✅ Todas as unidades preenchidas');
+                    }, 1000); // Aguardar mais tempo para garantir que todas as unidades foram criadas
+                }
             }
-        }
 
-        function converterDataParaInput(dataString) {
-            // Converter data do formato DD/MM/YYYY ou YYYY-MM-DD para YYYY-MM-DD
-            if (!dataString) return '';
+            function converterDataParaInput(dataString) {
+                // Converter data do formato DD/MM/YYYY ou YYYY-MM-DD para YYYY-MM-DD
+                if (!dataString) return '';
 
-            // Se já está no formato correto (YYYY-MM-DD)
-            if (dataString.match(/^\d{4}-\d{2}-\d{2}$/)) {
+                // Se já está no formato correto (YYYY-MM-DD)
+                if (dataString.match(/^\d{4}-\d{2}-\d{2}$/)) {
+                    return dataString;
+                }
+
+                // Se está no formato DD/MM/YYYY
+                if (dataString.match(/^\d{2}\/\d{2}\/\d{4}$/)) {
+                    const [dia, mes, ano] = dataString.split('/');
+                    return `${ano}-${mes}-${dia}`;
+                }
+
                 return dataString;
             }
 
-            // Se está no formato DD/MM/YYYY
-            if (dataString.match(/^\d{2}\/\d{2}\/\d{4}$/)) {
-                const [dia, mes, ano] = dataString.split('/');
-                return `${ano}-${mes}-${dia}`;
-            }
+            function preencherCamposOnline(data) {
+                console.log('💻 Preenchendo campos online...');
 
-            return dataString;
-        }
-
-        function preencherCamposOnline(data) {
-            console.log('💻 Preenchendo campos online...');
-
-            setTimeout(function () {
-                // Plataforma digital
-                if (data.plataforma_digital) {
-                    const plataformaInput = document.getElementById('plataforma_digital');
-                    if (plataformaInput) {
-                        plataformaInput.value = data.plataforma_digital;
-                        console.log('✓ Plataforma digital:', data.plataforma_digital);
-                    }
-                }
-
-                // Aulas assíncronas
-                if (data.aulas_assincronas) {
-                    const assincrono = document.getElementById('aulas_assincronas');
-                    if (assincrono) {
-                        assincrono.value = data.aulas_assincronas;
-                        assincrono.dispatchEvent(new Event('change'));
-                        console.log('✓ Aulas assíncronas:', data.aulas_assincronas);
-
-                        // Se for "não", preencher campos de horário online
-                        if (data.aulas_assincronas === 'nao') {
-                            setTimeout(function () {
-                                // Preencher horários online se existirem
-                                if (data.horario_inicio) {
-                                    const horarioInicioOnline = document.getElementById('horario_inicio_online');
-                                    if (horarioInicioOnline) {
-                                        horarioInicioOnline.value = data.horario_inicio;
-                                        console.log('✓ Horário início online:', data.horario_inicio);
-                                    }
-                                }
-
-                                if (data.horario_fim) {
-                                    const horarioFimOnline = document.getElementById('horario_fim_online');
-                                    if (horarioFimOnline) {
-                                        horarioFimOnline.value = data.horario_fim;
-                                        console.log('✓ Horário fim online:', data.horario_fim);
-                                    }
-                                }
-
-                                if (data.dias_aula) {
-                                    const diasAulaOnline = document.getElementById('dias_aula_online');
-                                    if (diasAulaOnline) {
-                                        diasAulaOnline.value = data.dias_aula;
-                                        console.log('✓ Dias aula online:', data.dias_aula);
-                                    }
-                                }
-
-                                // Datas de aulas online
-                                if (data.inicio_aulas_data) {
-                                    const inicioAulasOnline = document.getElementById('inicio_aulas_data_online');
-                                    if (inicioAulasOnline) {
-                                        const dataInicio = converterDataParaInput(data.inicio_aulas_data);
-                                        inicioAulasOnline.value = dataInicio;
-                                        console.log('✓ Início aulas online:', dataInicio);
-                                    }
-                                }
-
-                                if (data.fim_aulas_data) {
-                                    const fimAulasOnline = document.getElementById('fim_aulas_data_online');
-                                    if (fimAulasOnline) {
-                                        const dataFim = converterDataParaInput(data.fim_aulas_data);
-                                        fimAulasOnline.value = dataFim;
-                                        console.log('✓ Fim aulas online:', dataFim);
-                                    }
-                                }
-                            }, 300);
-                        }
-                    }
-                }
-
-                console.log('✅ Campos online preenchidos');
-            }, 200);
-        }
-
-        function preencherCamposComuns(data) {
-            console.log('🔧 Preenchendo campos comuns...');
-
-            // Campos de valores - curso gratuito
-            if (data.curso_gratuito) {
-                const gratuito = document.getElementById('curso_gratuito');
-                if (gratuito) {
-                    gratuito.value = data.curso_gratuito;
-                    gratuito.dispatchEvent(new Event('change'));
-                }
-            }
-
-            // Outros campos simples
-            const camposSimples = [
-                'carga_horaria', 'publico_alvo', 'acessibilidade',
-                'oferece_certificado', 'info_complementares', 'parceiro_externo',
-                'oferece_bolsa'
-            ];
-
-            setTimeout(function () {
-                camposSimples.forEach(campo => {
-                    if (data[campo]) {
-                        const elemento = document.getElementById(campo);
-                        if (elemento) {
-                            elemento.value = data[campo];
-                            elemento.dispatchEvent(new Event('change'));
-                            console.log('✓ Campo preenchido:', campo, '=', data[campo]);
-                        }
-                    }
-                });
-
-                // Aguardar campos condicionais carregarem
                 setTimeout(function () {
-                    // Campos condicionais de parceiro
-                    if (data.parceiro_externo === 'sim') {
-                        if (data.parceiro_nome) {
-                            const nomeInput = document.getElementById('parceiro_nome');
-                            if (nomeInput) {
-                                nomeInput.value = data.parceiro_nome;
-                                console.log('✓ Parceiro nome:', data.parceiro_nome);
-                            }
+                    // Plataforma digital
+                    if (data.plataforma_digital) {
+                        const plataformaInput = document.getElementById('plataforma_digital');
+                        if (plataformaInput) {
+                            plataformaInput.value = data.plataforma_digital;
+                            console.log('✓ Plataforma digital:', data.plataforma_digital);
                         }
-                        if (data.parceiro_link) {
-                            const linkInput = document.getElementById('parceiro_link');
-                            if (linkInput) {
-                                linkInput.value = data.parceiro_link;
-                                console.log('✓ Parceiro link:', data.parceiro_link);
+                    }
+
+                    // Aulas assíncronas
+                    if (data.aulas_assincronas) {
+                        const assincrono = document.getElementById('aulas_assincronas');
+                        if (assincrono) {
+                            assincrono.value = data.aulas_assincronas;
+                            assincrono.dispatchEvent(new Event('change'));
+                            console.log('✓ Aulas assíncronas:', data.aulas_assincronas);
+
+                            // Se for "não", preencher campos de horário online
+                            if (data.aulas_assincronas === 'nao') {
+                                setTimeout(function () {
+                                    // Preencher horários online se existirem
+                                    if (data.horario_inicio) {
+                                        const horarioInicioOnline = document.getElementById('horario_inicio_online');
+                                        if (horarioInicioOnline) {
+                                            horarioInicioOnline.value = data.horario_inicio;
+                                            console.log('✓ Horário início online:', data.horario_inicio);
+                                        }
+                                    }
+
+                                    if (data.horario_fim) {
+                                        const horarioFimOnline = document.getElementById('horario_fim_online');
+                                        if (horarioFimOnline) {
+                                            horarioFimOnline.value = data.horario_fim;
+                                            console.log('✓ Horário fim online:', data.horario_fim);
+                                        }
+                                    }
+
+                                    if (data.dias_aula) {
+                                        const diasAulaOnline = document.getElementById('dias_aula_online');
+                                        if (diasAulaOnline) {
+                                            diasAulaOnline.value = data.dias_aula;
+                                            console.log('✓ Dias aula online:', data.dias_aula);
+                                        }
+                                    }
+
+                                    // Datas de aulas online
+                                    if (data.inicio_aulas_data) {
+                                        const inicioAulasOnline = document.getElementById('inicio_aulas_data_online');
+                                        if (inicioAulasOnline) {
+                                            const dataInicio = converterDataParaInput(data.inicio_aulas_data);
+                                            inicioAulasOnline.value = dataInicio;
+                                            console.log('✓ Início aulas online:', dataInicio);
+                                        }
+                                    }
+
+                                    if (data.fim_aulas_data) {
+                                        const fimAulasOnline = document.getElementById('fim_aulas_data_online');
+                                        if (fimAulasOnline) {
+                                            const dataFim = converterDataParaInput(data.fim_aulas_data);
+                                            fimAulasOnline.value = dataFim;
+                                            console.log('✓ Fim aulas online:', dataFim);
+                                        }
+                                    }
+                                }, 300);
                             }
                         }
                     }
 
-                    // Campos condicionais de acessibilidade
-                    if (data.acessibilidade === 'acessivel' || data.acessibilidade === 'exclusivo') {
-                        if (data.recursos_acessibilidade) {
-                            const recursosInput = document.getElementById('recursos_acessibilidade');
-                            if (recursosInput) {
-                                recursosInput.value = data.recursos_acessibilidade;
-                                console.log('✓ Recursos acessibilidade preenchidos');
-                            }
-                        }
-                    }
+                    console.log('✅ Campos online preenchidos');
+                }, 200);
+            }
 
-                    // Campos condicionais de certificado
-                    if (data.oferece_certificado === 'sim') {
-                        if (data.pre_requisitos) {
-                            const preRequisitosInput = document.getElementById('pre_requisitos');
-                            if (preRequisitosInput) {
-                                preRequisitosInput.value = data.pre_requisitos;
-                                console.log('✓ Pré-requisitos preenchidos');
-                            }
-                        }
-                    }
+            function preencherCamposComuns(data) {
+                console.log('🔧 Preenchendo campos comuns...');
 
-                    // Campos condicionais de bolsa
-                    if (data.oferece_bolsa === 'sim') {
-                        if (data.valor_bolsa) {
-                            const valorBolsaInput = document.getElementById('valor_bolsa');
-                            if (valorBolsaInput) {
-                                valorBolsaInput.value = data.valor_bolsa;
-                                console.log('✓ Valor bolsa preenchido');
-                            }
-                        }
-                        if (data.requisitos_bolsa) {
-                            const requisitosBolsaInput = document.getElementById('requisitos_bolsa');
-                            if (requisitosBolsaInput) {
-                                requisitosBolsaInput.value = data.requisitos_bolsa;
-                                console.log('✓ Requisitos bolsa preenchidos');
-                            }
-                        }
+                // Campos de valores - curso gratuito
+                if (data.curso_gratuito) {
+                    const gratuito = document.getElementById('curso_gratuito');
+                    if (gratuito) {
+                        gratuito.value = data.curso_gratuito;
+                        gratuito.dispatchEvent(new Event('change'));
                     }
+                }
 
-                    // Campos condicionais de curso pago
-                    if (data.curso_gratuito === 'nao') {
-                        if (data.valor_curso) {
-                            const valorCursoInput = document.getElementById('valor_curso');
-                            if (valorCursoInput) {
-                                valorCursoInput.value = data.valor_curso;
-                                console.log('✓ Valor curso preenchido');
-                            }
-                        }
-                        if (data.valor_curso_inteira) {
-                            const valorInteiraInput = document.getElementById('valor_curso_inteira');
-                            if (valorInteiraInput) {
-                                valorInteiraInput.value = data.valor_curso_inteira;
-                                console.log('✓ Valor inteira preenchido');
-                            }
-                        }
-                        if (data.valor_curso_meia) {
-                            const valorMeiaInput = document.getElementById('valor_curso_meia');
-                            if (valorMeiaInput) {
-                                valorMeiaInput.value = data.valor_curso_meia;
-                                console.log('✓ Valor meia preenchido');
-                            }
-                        }
-                        if (data.requisitos_meia) {
-                            const requisitosMeiaInput = document.getElementById('requisitos_meia');
-                            if (requisitosMeiaInput) {
-                                requisitosMeiaInput.value = data.requisitos_meia;
-                                console.log('✓ Requisitos meia preenchidos');
-                            }
-                        }
-                    }
+                // Outros campos simples
+                const camposSimples = [
+                    'carga_horaria', 'publico_alvo', 'acessibilidade',
+                    'oferece_certificado', 'info_complementares', 'parceiro_externo',
+                    'oferece_bolsa'
+                ];
 
-                    console.log('✅ Campos comuns preenchidos completamente');
-                }, 600);
-            }, 400);
-        }
+                setTimeout(function () {
+                    camposSimples.forEach(campo => {
+                        if (data[campo]) {
+                            const elemento = document.getElementById(campo);
+                            if (elemento) {
+                                elemento.value = data[campo];
+                                elemento.dispatchEvent(new Event('change'));
+                                console.log('✓ Campo preenchido:', campo, '=', data[campo]);
+                            }
+                        }
+                    });
+
+                    // Aguardar campos condicionais carregarem
+                    setTimeout(function () {
+                        // Campos condicionais de parceiro
+                        if (data.parceiro_externo === 'sim') {
+                            if (data.parceiro_nome) {
+                                const nomeInput = document.getElementById('parceiro_nome');
+                                if (nomeInput) {
+                                    nomeInput.value = data.parceiro_nome;
+                                    console.log('✓ Parceiro nome:', data.parceiro_nome);
+                                }
+                            }
+                            if (data.parceiro_link) {
+                                const linkInput = document.getElementById('parceiro_link');
+                                if (linkInput) {
+                                    linkInput.value = data.parceiro_link;
+                                    console.log('✓ Parceiro link:', data.parceiro_link);
+                                }
+                            }
+                        }
+
+                        // Campos condicionais de acessibilidade
+                        if (data.acessibilidade === 'acessivel' || data.acessibilidade === 'exclusivo') {
+                            if (data.recursos_acessibilidade) {
+                                const recursosInput = document.getElementById('recursos_acessibilidade');
+                                if (recursosInput) {
+                                    recursosInput.value = data.recursos_acessibilidade;
+                                    console.log('✓ Recursos acessibilidade preenchidos');
+                                }
+                            }
+                        }
+
+                        // Campos condicionais de certificado
+                        if (data.oferece_certificado === 'sim') {
+                            if (data.pre_requisitos) {
+                                const preRequisitosInput = document.getElementById('pre_requisitos');
+                                if (preRequisitosInput) {
+                                    preRequisitosInput.value = data.pre_requisitos;
+                                    console.log('✓ Pré-requisitos preenchidos');
+                                }
+                            }
+                        }
+
+                        // Campos condicionais de bolsa
+                        if (data.oferece_bolsa === 'sim') {
+                            if (data.valor_bolsa) {
+                                const valorBolsaInput = document.getElementById('valor_bolsa');
+                                if (valorBolsaInput) {
+                                    valorBolsaInput.value = data.valor_bolsa;
+                                    console.log('✓ Valor bolsa preenchido');
+                                }
+                            }
+                            if (data.requisitos_bolsa) {
+                                const requisitosBolsaInput = document.getElementById('requisitos_bolsa');
+                                if (requisitosBolsaInput) {
+                                    requisitosBolsaInput.value = data.requisitos_bolsa;
+                                    console.log('✓ Requisitos bolsa preenchidos');
+                                }
+                            }
+                        }
+
+                        // Campos condicionais de curso pago
+                        if (data.curso_gratuito === 'nao') {
+                            if (data.valor_curso) {
+                                const valorCursoInput = document.getElementById('valor_curso');
+                                if (valorCursoInput) {
+                                    valorCursoInput.value = data.valor_curso;
+                                    console.log('✓ Valor curso preenchido');
+                                }
+                            }
+                            if (data.valor_curso_inteira) {
+                                const valorInteiraInput = document.getElementById('valor_curso_inteira');
+                                if (valorInteiraInput) {
+                                    valorInteiraInput.value = data.valor_curso_inteira;
+                                    console.log('✓ Valor inteira preenchido');
+                                }
+                            }
+                            if (data.valor_curso_meia) {
+                                const valorMeiaInput = document.getElementById('valor_curso_meia');
+                                if (valorMeiaInput) {
+                                    valorMeiaInput.value = data.valor_curso_meia;
+                                    console.log('✓ Valor meia preenchido');
+                                }
+                            }
+                            if (data.requisitos_meia) {
+                                const requisitosMeiaInput = document.getElementById('requisitos_meia');
+                                if (requisitosMeiaInput) {
+                                    requisitosMeiaInput.value = data.requisitos_meia;
+                                    console.log('✓ Requisitos meia preenchidos');
+                                }
+                            }
+                        }
+
+                        console.log('✅ Campos comuns preenchidos completamente');
+                    }, 600);
+                }, 400);
+            }
     </script>
     {% endif %}
 
     <!-- SCRIPT DE DEBUG PARA GARANTIR ENVIO DO FORMULÁRIO -->
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const form = document.querySelector('.course-form');
-            const submitBtn = document.getElementById('submitBtn');
+            document.addEventListener('DOMContentLoaded', function () {
+                const form = document.querySelector('.course-form');
+                const submitBtn = document.getElementById('submitBtn');
 
-            console.log('🔧 Script de debug carregado');
-            console.log('Formulário encontrado:', !!form);
-            console.log('Botão submit encontrado:', !!submitBtn);
-            console.log('Loading manager disponível:', !!window.loadingManager);
+                console.log('🔧 Script de debug carregado');
+                console.log('Formulário encontrado:', !!form);
+                console.log('Botão submit encontrado:', !!submitBtn);
+                console.log('Loading manager disponível:', !!window.loadingManager);
 
-            if (form) {
-                console.log('📋 Detalhes do formulário:');
-                console.log('- Action:', form.action);
-                console.log('- Method:', form.method);
-                console.log('- Enctype:', form.enctype);
-            }
-
-            // Verificar se há loading ativo e fechar se necessário
-            if (window.loadingManager && window.loadingManager.overlay &&
-                window.loadingManager.overlay.classList.contains('active')) {
-                console.log('🔄 Loading ativo detectado, fechando...');
-                window.loadingManager.hide();
-            }
-
-            if (form && submitBtn) {
-                // Verificar se já tem listener para evitar duplicação
-                if (!submitBtn.hasAttribute('data-debug-listener')) {
-                    submitBtn.setAttribute('data-debug-listener', 'true');
-
-                    // Adicionar listener direto no botão - COM ENVIO FORÇADO
-                    submitBtn.addEventListener('click', function (e) {
-                        console.log('🚀 Botão clicado!');
-
-                        // PREVENIR comportamento padrão para controlar o envio
-                        e.preventDefault();
-
-                        // Mostrar loading overlay imediatamente
-                        if (window.loadingManager) {
-                            window.loadingManager.show();
-                            console.log('🔄 Loading overlay ativado');
-                        }
-
-                        // Mostrar loading no botão também
-                        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Criando Curso...';
-                        submitBtn.disabled = true;
-
-                        console.log('✅ Forçando envio do formulário...');
-                        console.log('URL de destino:', form.action);
-                        console.log('Method:', form.method);
-
-                        // FORÇAR ENVIO DO FORMULÁRIO
-                        setTimeout(() => {
-                            console.log('📤 Executando form.submit() agora...');
-                            try {
-                                form.submit();
-                                console.log('✅ form.submit() executado com sucesso');
-                            } catch (error) {
-                                console.error('❌ Erro ao executar form.submit():', error);
-                            }
-                        }, 500);
-                    });
+                if (form) {
+                    console.log('📋 Detalhes do formulário:');
+                    console.log('- Action:', form.action);
+                    console.log('- Method:', form.method);
+                    console.log('- Enctype:', form.enctype);
                 }
 
-                // Listener adicional no formulário - PARA LOG E BACKUP
-                form.addEventListener('submit', function (e) {
-                    console.log('📝 Evento submit disparado no formulário');
-                    console.log('Action do formulário:', form.action);
-                    console.log('Method do formulário:', form.method);
-                    console.log('Formulário será enviado para o servidor...');
+                // Verificar se há loading ativo e fechar se necessário
+                if (window.loadingManager && window.loadingManager.overlay &&
+                    window.loadingManager.overlay.classList.contains('active')) {
+                    console.log('🔄 Loading ativo detectado, fechando...');
+                    window.loadingManager.hide();
+                }
 
-                    // Log dos dados do formulário
-                    const formData = new FormData(form);
-                    console.log('Dados do formulário preparados para envio');
+                if (form && submitBtn) {
+                    // Verificar se já tem listener para evitar duplicação
+                    if (!submitBtn.hasAttribute('data-debug-listener')) {
+                        submitBtn.setAttribute('data-debug-listener', 'true');
 
-                    // Log de alguns campos importantes
-                    console.log('Título:', formData.get('titulo'));
-                    console.log('Modalidade:', formData.get('modalidade'));
-                    console.log('Órgão:', formData.get('orgao'));
-                    for (let [key, value] of formData.entries()) {
-                        if (value) console.log(`${key}: ${value}`);
+                        // Adicionar listener direto no botão - COM ENVIO FORÇADO
+                        submitBtn.addEventListener('click', function (e) {
+                            console.log('🚀 Botão clicado!');
+
+                            // PREVENIR comportamento padrão para controlar o envio
+                            e.preventDefault();
+
+                            // Mostrar loading overlay imediatamente
+                            if (window.loadingManager) {
+                                window.loadingManager.show();
+                                console.log('🔄 Loading overlay ativado');
+                            }
+
+                            // Mostrar loading no botão também
+                            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Criando Curso...';
+                            submitBtn.disabled = true;
+
+                            console.log('✅ Forçando envio do formulário...');
+                            console.log('URL de destino:', form.action);
+                            console.log('Method:', form.method);
+
+                            // FORÇAR ENVIO DO FORMULÁRIO
+                            setTimeout(() => {
+                                console.log('📤 Executando form.submit() agora...');
+                                try {
+                                    form.submit();
+                                    console.log('✅ form.submit() executado com sucesso');
+                                } catch (error) {
+                                    console.error('❌ Erro ao executar form.submit():', error);
+                                }
+                            }, 500);
+                        });
                     }
-                });
-            }
-        });
+
+                    // Listener adicional no formulário - PARA LOG E BACKUP
+                    form.addEventListener('submit', function (e) {
+                        console.log('📝 Evento submit disparado no formulário');
+                        console.log('Action do formulário:', form.action);
+                        console.log('Method do formulário:', form.method);
+                        console.log('Formulário será enviado para o servidor...');
+
+                        // Log dos dados do formulário
+                        const formData = new FormData(form);
+                        console.log('Dados do formulário preparados para envio');
+
+                        // Log de alguns campos importantes
+                        console.log('Título:', formData.get('titulo'));
+                        console.log('Modalidade:', formData.get('modalidade'));
+                        console.log('Órgão:', formData.get('orgao'));
+                        for (let [key, value] of formData.entries()) {
+                            if (value) console.log(`${key}: ${value}`);
+                        }
+                    });
+                }
+            });
 
 
     </script>
