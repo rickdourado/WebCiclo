@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session, send_from_directory
+from flask_wtf.csrf import CSRFProtect
 from datetime import datetime
 import os
 import functools
@@ -9,10 +10,51 @@ from config import Config, config
 from services.course_service import CourseService
 from services.validation_service import ValidationError
 from services.course_status_service import CourseStatusService
+from services.auth_service import AuthService
+
+# Importar formulários
+from forms import LoginForm, CourseForm, CourseStatusForm, DeleteCourseForm
 
 # Configurar aplicação Flask
 app = Flask(__name__)
 app.config.from_object(Config)
+
+# Inicializar proteção CSRF
+csrf = CSRFProtect(app)
+
+# Handler para erros CSRF
+@app.errorhandler(400)
+def csrf_error(e):
+    """Handler personalizado para erros CSRF"""
+    if 'CSRF' in str(e):
+        logger.warning(f"🔒 Erro CSRF detectado: {e}")
+        flash('Erro de segurança: Token CSRF inválido ou expirado. Tente novamente.', 'error')
+        return redirect(request.referrer or url_for('index'))
+    return e
+
+# Middleware de segurança
+@app.after_request
+def add_security_headers(response):
+    """Adiciona headers de segurança às respostas"""
+    # Proteção contra XSS
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['X-Frame-Options'] = 'DENY'
+    response.headers['X-XSS-Protection'] = '1; mode=block'
+    
+    # Política de segurança de conteúdo básica
+    response.headers['Content-Security-Policy'] = (
+        "default-src 'self'; "
+        "script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; "
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; "
+        "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; "
+        "img-src 'self' data: https://cdnjs.cloudflare.com; "
+        "connect-src 'self';"
+    )
+    
+    # Referrer policy
+    response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
+    
+    return response
 
 # Validar configurações obrigatórias
 try:
@@ -28,6 +70,7 @@ logger = logging.getLogger(__name__)
 # Inicializar serviços
 course_service = CourseService()
 course_status_service = CourseStatusService()
+auth_service = AuthService()
 
 # Configuração do template folder
 app.template_folder = 'templates'
@@ -126,8 +169,11 @@ def index():
 
 @app.route('/create_course', methods=['POST'])
 def create_course():
-    """Cria um novo curso usando o serviço de cursos"""
+    """Cria um novo curso usando o serviço de cursos com proteção CSRF"""
     try:
+        # Validar CSRF token
+        csrf.protect()
+        
         logger.info("Iniciando criação de curso")
         logger.info(f"Dados recebidos: {dict(request.form)}")
         
@@ -227,7 +273,8 @@ def login_required(view_func):
     def wrapped_view(*args, **kwargs):
         if not session.get('logged_in'):
             flash('Faça login para acessar esta página.', 'warning')
-            return redirect(url_for('admin_login'))
+            # Incluir parâmetro next para redirecionar após login
+            return redirect(url_for('admin_login', next=request.url))
         return view_func(*args, **kwargs)
     return wrapped_view
 
@@ -265,6 +312,9 @@ def duplicate_course(course_id):
     """Carrega formulário de duplicação ou processa a criação do curso duplicado"""
     try:
         if request.method == 'POST':
+            # Validar CSRF token
+            csrf.protect()
+            
             # Processar criação do curso duplicado
             logger.info(f"Processando duplicação do curso {course_id}")
             logger.info(f"Dados recebidos: {dict(request.form)}")
@@ -372,17 +422,30 @@ def duplicate_course(course_id):
 
 @app.route('/admin/login', methods=['GET', 'POST'])
 def admin_login():
-    if request.method == 'POST':
-        username = request.form.get('username')
-        password = request.form.get('password')
-        if username == Config.ADMIN_USERNAME and password == Config.ADMIN_PASSWORD:
+    """Login administrativo com proteção CSRF e hash de senhas"""
+    form = LoginForm()
+    
+    if form.validate_on_submit():
+        username = form.username.data
+        password = form.password.data
+        
+        # Usar o serviço de autenticação
+        success, error_message = auth_service.authenticate_admin(username, password)
+        
+        if success:
             session['logged_in'] = True
+            session['admin_username'] = username
             flash('Login realizado com sucesso!', 'success')
+            
+            # Redirecionar para a página solicitada ou dashboard
+            next_page = request.args.get('next')
+            if next_page:
+                return redirect(next_page)
             return redirect(url_for('admin_dashboard'))
         else:
-            flash('Credenciais inválidas.', 'error')
-            return redirect(url_for('admin_login'))
-    return render_template('admin_login.html')
+            flash(error_message or 'Credenciais inválidas', 'error')
+    
+    return render_template('admin_login.html', form=form)
 
 @app.route('/admin/logout')
 def admin_logout():
@@ -429,6 +492,9 @@ def edit_course(course_id):
             return redirect(url_for('list_courses'))
         
         if request.method == 'POST':
+            # Validar CSRF token
+            csrf.protect()
+            
             # Usar o serviço para atualizar o curso
             success, updated_course, messages = course_service.update_course(course_id, request.form, request.files)
             
@@ -608,21 +674,58 @@ def course_edit_success(course_id):
 @app.route('/delete_course/<int:course_id>', methods=['POST'])
 @login_required
 def delete_course(course_id):
-    """Excluir um curso existente e seus arquivos"""
-    try:
-        success, message = course_service.delete_course(course_id)
-        
-        if success:
-            flash(message, 'success')
-        else:
-            flash(message, 'error')
-        
-        return redirect(url_for('list_courses'))
-        
-    except Exception as e:
-        logger.error(f"Erro ao excluir curso {course_id}: {str(e)}")
-        flash(f'Erro ao excluir curso: {str(e)}', 'error')
-        return redirect(url_for('list_courses'))
+    """Excluir um curso existente e seus arquivos com proteção CSRF"""
+    form = DeleteCourseForm()
+    
+    if form.validate_on_submit():
+        try:
+            success, message = course_service.delete_course(course_id)
+            
+            if success:
+                flash(message, 'success')
+            else:
+                flash(message, 'error')
+                
+        except Exception as e:
+            logger.error(f"Erro ao excluir curso {course_id}: {str(e)}")
+            flash(f'Erro ao excluir curso: {str(e)}', 'error')
+    else:
+        flash('Erro de validação CSRF. Tente novamente.', 'error')
+    
+    return redirect(url_for('list_courses'))
+
+@app.route('/course_status/<int:course_id>', methods=['POST'])
+@login_required
+def toggle_course_status(course_id):
+    """Marcar/desmarcar curso como inserido com proteção CSRF"""
+    form = CourseStatusForm()
+    
+    if form.validate_on_submit():
+        try:
+            action = form.action.data
+            
+            if action == 'mark_inserted':
+                success = course_status_service.mark_as_inserted(course_id)
+                if success:
+                    flash('Curso marcado como inserido!', 'success')
+                else:
+                    flash('Erro ao marcar curso como inserido', 'error')
+            elif action == 'unmark_inserted':
+                success = course_status_service.unmark_as_inserted(course_id)
+                if success:
+                    flash('Curso desmarcado como inserido!', 'success')
+                else:
+                    flash('Erro ao desmarcar curso', 'error')
+            else:
+                flash('Ação inválida', 'error')
+                
+        except Exception as e:
+            logger.error(f"Erro ao alterar status do curso {course_id}: {str(e)}")
+            flash(f'Erro ao alterar status: {str(e)}', 'error')
+    else:
+        flash('Erro de validação CSRF. Tente novamente.', 'error')
+    
+    return redirect(url_for('list_courses'))
 
 @app.route('/download/<filename>')
 @login_required
@@ -644,46 +747,12 @@ def download_file(filename):
         return redirect(url_for('index'))
 
 # -----------------------------
-# Rotas para gerenciar status dos cursos
-# -----------------------------
+# Seção de APIs removida - usando rotas com proteção CSRF
 
-@app.route('/api/course/<int:course_id>/toggle-status', methods=['POST'])
-@login_required
-def toggle_course_status(course_id):
-    """Alterna o status de inserção de um curso"""
-    try:
-        logger.info(f"🔄 API: Alternando status do curso {course_id}")
-        new_status = course_status_service.toggle_course_status(course_id)
-        logger.info(f"✅ API: Novo status do curso {course_id}: {new_status}")
-        return {
-            'success': True,
-            'course_id': course_id,
-            'inserted': new_status,
-            'message': 'Curso marcado como inserido' if new_status else 'Curso desmarcado'
-        }
-    except Exception as e:
-        logger.error(f"❌ API: Erro ao alterar status do curso {course_id}: {str(e)}")
-        return {
-            'success': False,
-            'error': str(e)
-        }, 500
-
-@app.route('/api/courses/status')
-@login_required
-def get_courses_status():
-    """Retorna o status de todos os cursos"""
-    try:
-        inserted_courses = course_status_service.get_inserted_courses()
-        return {
-            'success': True,
-            'inserted_courses': list(inserted_courses)
-        }
-    except Exception as e:
-        logger.error(f"Erro ao buscar status dos cursos: {str(e)}")
-        return {
-            'success': False,
-            'error': str(e)
-        }, 500
+@app.route('/test-icons')
+def test_icons():
+    """Página de teste para verificar se os ícones Font Awesome estão funcionando"""
+    return render_template('test_icons.html')
 
 
 

@@ -14,6 +14,11 @@ class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY', 'ciclo_carioca_v4_pythonanywhere_2025')
     DEBUG = os.environ.get('FLASK_DEBUG', 'False').lower() == 'true'
     
+    # Configurações de segurança CSRF
+    WTF_CSRF_ENABLED = True
+    WTF_CSRF_TIME_LIMIT = 3600  # 1 hora
+    WTF_CSRF_SECRET_KEY = os.environ.get('WTF_CSRF_SECRET_KEY', SECRET_KEY)
+    
     # Configurações de upload
     UPLOAD_FOLDER = os.path.join('static', 'images', 'uploads')
     LOGO_PARCEIROS_FOLDER = os.path.join('static', 'images', 'LOGOPARCEIROS')

@@ -1,0 +1,61 @@
+/* Fallback para ícones quando Font Awesome não carrega */
+
+/* Definir símbolos Unicode como fallback */
+.fas.fa-home::before { content: "🏠"; }
+.fas.fa-user::before { content: "👤"; }
+.fas.fa-save::before { content: "💾"; }
+.fas.fa-edit::before { content: "✏️"; }
+.fas.fa-trash::before { content: "🗑️"; }
+.fas.fa-plus-circle::before { content: "➕"; }
+.fas.fa-list::before { content: "📋"; }
+.fas.fa-copy::before { content: "📄"; }
+.fas.fa-arrow-left::before { content: "⬅️"; }
+.fas.fa-check-circle::before { content: "✅"; }
+.fas.fa-exclamation-triangle::before { content: "⚠️"; }
+.fas.fa-exclamation-circle::before { content: "⚠️"; }
+.fas.fa-info-circle::before { content: "ℹ️"; }
+.fas.fa-cloud-upload-alt::before { content: "☁️"; }
+.fas.fa-user-shield::before { content: "🛡️"; }
+.fas.fa-undo::before { content: "↶"; }
+.fas.fa-spinner::before { content: "⟳"; }
+.fas.fa-graduation-cap::before { content: "🎓"; }
+.fas.fa-search::before { content: "🔍"; }
+.fas.fa-filter::before { content: "🔽"; }
+.fas.fa-eye::before { content: "👁️"; }
+.fas.fa-download::before { content: "⬇️"; }
+.fas.fa-sign-in-alt::before { content: "🔑"; }
+
+/* Animação para spinner */
+.fas.fa-spinner {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Estilo base para ícones fallback */
+.fas {
+    font-style: normal;
+    font-variant: normal;
+    text-rendering: auto;
+    line-height: 1;
+    display: inline-block;
+    font-size: inherit;
+}
+
+/* Verificar se Font Awesome carregou */
+@supports (font-family: "Font Awesome 6 Free") {
+    /* Se Font Awesome carregou, remover fallbacks */
+    .fas::before {
+        font-family: "Font Awesome 6 Free";
+        font-weight: 900;
+    }
+}
+
+/* Fallback adicional para navegadores que não suportam @supports */
+.fa-loaded .fas::before {
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+}

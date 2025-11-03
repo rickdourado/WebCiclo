@@ -3,7 +3,7 @@ inclusion: always
 ---
 # Regras do Projeto WebCiclo
 - **SEMPRE** Execute um comando no terminal por vez, ao invés de utilizar &&, para evitar erros.
-- **SEMPRE** Execute o comando conda activate ciclo quando um terminal for aberto.
+- **SEMPRE** Execute o comando 'conda activate ciclo' quando um terminal for aberto.
 
 
 

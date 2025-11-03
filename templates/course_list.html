@@ -8,6 +8,8 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/icon-fallback.css') }}">
+    <script src="{{ url_for('static', filename='js/icon-fallback.js') }}"></script>
     <style>
         .list-container {
             padding: 40px;
@@ -611,6 +613,8 @@
                 <button onclick="fecharModal()"
                     style="background-color: #718096; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer;">Cancelar</button>
                 <form id="deleteForm" method="POST" action="">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                    <input type="hidden" name="confirm_delete" value="true"/>
                     <button type="submit"
                         style="background-color: #e53e3e; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer;">Sim,
                         Excluir</button>
@@ -1558,18 +1562,20 @@
             checkbox.disabled = true;
 
             try {
-                const response = await fetch(`/api/course/${courseId}/toggle-status`, {
+                // Criar formulário com CSRF token
+                const formData = new FormData();
+                formData.append('csrf_token', '{{ csrf_token() }}');
+                formData.append('course_id', courseId);
+                formData.append('action', checkbox.checked ? 'mark_inserted' : 'unmark_inserted');
+
+                const response = await fetch(`/course_status/${courseId}`, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    }
+                    body: formData
                 });
 
-                const data = await response.json();
-
-                if (data.success) {
+                if (response.ok) {
                     // Atualizar tooltip
-                    tooltip.textContent = data.inserted ?
+                    tooltip.textContent = checkbox.checked ?
                         'Curso inserido no sistema' :
                         'Marcar como inserido';
 
@@ -1577,7 +1583,7 @@
                     updateInsertedStats();
 
                     // Mostrar feedback visual
-                    showStatusFeedback(data.inserted ? 'Curso marcado como inserido!' : 'Curso desmarcado!', 'success');
+                    showStatusFeedback(checkbox.checked ? 'Curso marcado como inserido!' : 'Curso desmarcado!', 'success');
                 } else {
                     // Reverter checkbox em caso de erro
                     checkbox.checked = !checkbox.checked;

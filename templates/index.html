@@ -8,6 +8,8 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/icon-fallback.css') }}">
+    <script src="{{ url_for('static', filename='js/icon-fallback.js') }}"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             // FORÇAR RESET DO CAMPO MODALIDADE NA PÁGINA PRINCIPAL
@@ -440,6 +442,7 @@
 
                 <form method="POST" action="{{ url_for('create_course') }}" class="course-form"
                     enctype="multipart/form-data">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                     <!-- Formulário de Criação de Curso -->
                     <div class="form-section">
                         <div class="form-grid">
@@ -598,8 +601,8 @@
                                                 <h4>Unidade ou Turma {{ i + 1 }}</h4>
                                                 {% if i > 0 %}
                                                 <button type="button" class="btn-remove-unidade"
-                                                    onclick="removeUnidade(this)" <i class="fas fa-trash"></i> Remover
-                                                    Unidade ou Turma
+                                                    onclick="removeUnidade(this)">
+                                                    <i class="fas fa-trash"></i> Remover Unidade ou Turma
                                                 </button>
                                                 {% endif %}
                                             </div>
