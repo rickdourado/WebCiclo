@@ -140,9 +140,6 @@ nano .env
 ```bash
 # Gere um hash seguro para a senha admin
 python scripts/generate_admin_hash.py
-
-# Execute a configuração automática de segurança
-python scripts/setup_security.py
 ```
 
 ### 6. Execute o Sistema
@@ -196,11 +193,11 @@ Para deploy no **PythonAnywhere**:
 ### Testes de Segurança
 
 ```bash
-# Teste completo de segurança
-python scripts/test_security.py
+# Verificar configurações
+python -c "from config import Config; Config.validate_required_config()"
 
-# Diagnóstico de problemas
-python scripts/diagnose_icons.py
+# Testar autenticação
+python -c "from services.auth_service import AuthService; auth = AuthService(); print('✅ Serviço de autenticação funcionando')"
 ```
 
 ## 🎯 Uso do Sistema
@@ -270,14 +267,6 @@ GEMINI_MODEL = 'gemini-2.5-pro'  # Modelo estável
 ### Segurança
 ```bash
 python scripts/generate_admin_hash.py    # Gerar hash de senha
-python scripts/test_security.py          # Testar segurança
-python scripts/setup_security.py         # Configuração automática
-```
-
-### Diagnóstico
-```bash
-python scripts/diagnose_icons.py         # Verificar ícones
-python scripts/add_icon_fallback.py      # Adicionar fallback
 ```
 
 ### Dados
@@ -291,14 +280,14 @@ python scripts/csv_reader.py             # Ler dados CSV
 
 ### Testes Automatizados
 ```bash
-# Teste de segurança completo
-python scripts/test_security.py
-
-# Diagnóstico de ícones
-python scripts/diagnose_icons.py
-
 # Validação de configurações
 python -c "from config import Config; Config.validate_required_config()"
+
+# Teste de importação dos serviços
+python -c "from services.auth_service import AuthService; from services.course_service import CourseService; print('✅ Serviços importados com sucesso')"
+
+# Teste básico da aplicação
+python -c "from app import app; print('✅ Aplicação Flask carregada com sucesso')"
 ```
 
 ### Testes Manuais
@@ -386,7 +375,7 @@ python -c "from config import Config; Config.validate_required_config()"
 
 ### FAQ
 **P: Os ícones não aparecem?**
-R: Execute `python scripts/diagnose_icons.py` para diagnóstico
+R: Verifique se o CDN do Font Awesome está carregando no DevTools do navegador
 
 **P: Erro de CSRF?**
 R: Verifique se os tokens estão sendo incluídos nos formulários

@@ -2,20 +2,26 @@
 
 Este documento explica como configurar e usar o ambiente conda 'ciclo' como padrão para o projeto WebCiclo Carioca.
 
-## 🚀 Configuração Automática (Recomendado)
+## 🚀 Configuração Manual
 
-Execute o script de configuração automática:
+Para configurar o ambiente 'ciclo':
 
 ```bash
-python scripts/setup_environment.py
+# Criar ambiente se não existir
+conda create -n ciclo python=3.13 -y
+
+# Ativar ambiente
+conda activate ciclo
+
+# Instalar dependências
+pip install -r requirements.txt
 ```
 
-Este script irá:
-- ✅ Verificar se conda está instalado
-- ✅ Verificar/criar o ambiente 'ciclo'
-- ✅ Instalar todas as dependências
-- ✅ Configurar VS Code e Kiro IDE
-- ✅ Criar scripts de ativação
+Configurações automáticas:
+- ✅ VS Code detecta automaticamente via .vscode/settings.json
+- ✅ Kiro IDE configurado via .kiro/settings/python.json
+- ✅ direnv ativa automaticamente via .envrc
+- ✅ pyenv detecta via .python-version
 
 ## 🔧 Métodos de Ativação
 
@@ -24,11 +30,10 @@ Este script irá:
 conda activate ciclo
 ```
 
-### 2. Script de Ativação
+### 2. Usando direnv (Automático)
 ```bash
-source activate_ciclo.sh
-# ou
-./activate_ciclo.sh
+# Se direnv estiver instalado e configurado
+cd /caminho/para/WebCiclo  # Ativa automaticamente
 ```
 
 ### 3. Ativação Automática no Terminal
@@ -79,7 +84,6 @@ Configurações criadas em `.kiro/settings/python.json`:
 |---------|-----------|
 | `.python-version` | Especifica versão/ambiente Python |
 | `.envrc` | Configuração para direnv |
-| `activate_ciclo.sh` | Script de ativação manual |
 | `environment.yml` | Definição completa do ambiente conda |
 | `.vscode/settings.json` | Configurações do VS Code |
 | `.kiro/settings/python.json` | Configurações do Kiro IDE |
@@ -183,7 +187,7 @@ conda install -n ciclo package_name
 
 Após configurar o ambiente:
 
-1. **Ativar o ambiente**: `conda activate ciclo`
+1. **Ativar o ambiente**: `conda activate ciclo` (ou automático via IDE/direnv)
 2. **Executar o projeto**: `python app.py`
 3. **Acessar**: `http://localhost:5000`
 4. **Desenvolver**: O ambiente estará sempre pronto!
