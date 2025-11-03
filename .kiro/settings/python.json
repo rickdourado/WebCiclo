@@ -1,0 +1,7 @@
+{
+  "pythonPath": "~/miniconda3/envs/ciclo/bin/python",
+  "defaultEnvironment": "ciclo",
+  "condaPath": "~/miniconda3/bin/conda",
+  "autoActivateEnvironment": true,
+  "environmentName": "ciclo"
+}

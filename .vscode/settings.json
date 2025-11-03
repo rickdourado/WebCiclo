@@ -1,3 +1,11 @@
 {
-    "kiroAgent.configureMCP": "Disabled"
+    "kiroAgent.configureMCP": "Disabled",
+    "python.defaultInterpreterPath": "/home/ssdlinux/miniconda3/envs/ciclo/bin/python",
+    "python.terminal.activateEnvironment": true,
+    "python.terminal.activateEnvInCurrentTerminal": true,
+    "python.condaPath": "/home/ssdlinux/miniconda3/bin/conda",
+    "python.envFile": "${workspaceFolder}/.env",
+    "terminal.integrated.env.linux": {
+        "CONDA_DEFAULT_ENV": "ciclo"
+    }
 }

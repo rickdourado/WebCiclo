@@ -1,0 +1,22 @@
+name: ciclo
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.13
+  - pip
+  - pip:
+    - Flask==2.3.3
+    - Flask-WTF==1.2.1
+    - WTForms==3.1.1
+    - Werkzeug==2.3.7
+    - Jinja2==3.1.2
+    - MarkupSafe==2.1.3
+    - Itsdangerous==2.1.2
+    - Click==8.1.7
+    - Blinker==1.6.3
+    - reportlab==4.4.3
+    - google-generativeai==0.8.3
+    - python-dotenv==1.0.1
+    - Pillow==10.4.0
+    - bcrypt==4.1.2
