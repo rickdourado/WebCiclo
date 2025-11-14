@@ -26,10 +26,13 @@ csrf = CSRFProtect(app)
 @app.errorhandler(400)
 def csrf_error(e):
     """Handler personalizado para erros CSRF"""
-    if 'CSRF' in str(e):
+    # Verificar se é realmente um erro CSRF e não um erro de validação
+    error_description = str(e.description) if hasattr(e, 'description') else str(e)
+    if 'CSRF' in error_description or 'csrf' in error_description.lower():
         logger.warning(f"🔒 Erro CSRF detectado: {e}")
         flash('Erro de segurança: Token CSRF inválido ou expirado. Tente novamente.', 'error')
         return redirect(request.referrer or url_for('index'))
+    # Se não for erro CSRF, deixar o Flask tratar normalmente
     return e
 
 # Middleware de segurança

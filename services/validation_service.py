@@ -261,33 +261,43 @@ class CourseValidator:
         """Valida datas das aulas em relação às datas de inscrições"""
         if not inicio_inscricoes or not fim_inscricoes:
             return
+        
+        # Para cursos online com aulas assíncronas, não validar datas de aulas
+        modalidade = form_data.get('modalidade')
+        aulas_assincronas = form_data.get('aulas_assincronas')
+        
+        if modalidade == 'Online' and aulas_assincronas == 'sim':
+            # Cursos online assíncronos não têm datas de início/fim de aulas
+            return
             
         try:
             inicio_insc = datetime.strptime(inicio_inscricoes, '%Y-%m-%d')
             fim_insc = datetime.strptime(fim_inscricoes, '%Y-%m-%d')
             
-            # Verificar datas das unidades (modalidade Presencial/Híbrida)
+            # Verificar datas das unidades (modalidade Presencial/Híbrida/Online Síncrono)
             inicio_aulas_list = form_data.getlist('inicio_aulas_data[]') if hasattr(form_data, 'getlist') else [form_data.get('inicio_aulas_data[]', '')]
             fim_aulas_list = form_data.getlist('fim_aulas_data[]') if hasattr(form_data, 'getlist') else [form_data.get('fim_aulas_data[]', '')]
             
-            for i, (inicio_aula, fim_aula) in enumerate(zip(inicio_aulas_list, fim_aulas_list), 1):
-                if inicio_aula and fim_aula:
-                    try:
-                        inicio_aula_dt = datetime.strptime(inicio_aula.split(',')[0].strip(), '%Y-%m-%d')
-                        fim_aula_dt = datetime.strptime(fim_aula.split(',')[0].strip(), '%Y-%m-%d')
+            # Filtrar apenas datas não vazias
+            datas_validas = [(i+1, inicio, fim) for i, (inicio, fim) in enumerate(zip(inicio_aulas_list, fim_aulas_list)) 
+                           if inicio and inicio.strip() and fim and fim.strip()]
+            
+            for i, inicio_aula, fim_aula in datas_validas:
+                try:
+                    inicio_aula_dt = datetime.strptime(inicio_aula.split(',')[0].strip(), '%Y-%m-%d')
+                    fim_aula_dt = datetime.strptime(fim_aula.split(',')[0].strip(), '%Y-%m-%d')
+                    
+                    # Início das aulas deve ser >= fim das inscrições
+                    if inicio_aula_dt < fim_insc:
+                        fim_insc_formatado = fim_insc.strftime('%d/%m/%Y')
+                        self.errors.append(f"Início das aulas da unidade {i} deve ser posterior ou igual ao fim das inscrições ({fim_insc_formatado})")
+                    
+                    # Fim das aulas deve ser >= início das aulas
+                    if fim_aula_dt < inicio_aula_dt:
+                        self.errors.append(f"Fim das aulas da unidade {i} deve ser posterior ou igual ao início das aulas")
                         
-                        # Início das aulas deve ser >= fim das inscrições
-                        if inicio_aula_dt < fim_insc:
-                            fim_insc_formatado = fim_insc.strftime('%d/%m/%Y')
-                            self.errors.append(f"Início das aulas da unidade {i} deve ser posterior ou igual ao fim das inscrições ({fim_insc_formatado})")
-                        
-                        # Fim das aulas deve ser >= fim das inscrições
-                        if fim_aula_dt < fim_insc:
-                            fim_insc_formatado = fim_insc.strftime('%d/%m/%Y')
-                            self.errors.append(f"Fim das aulas da unidade {i} deve ser posterior ou igual ao fim das inscrições ({fim_insc_formatado})")
-                            
-                    except (ValueError, IndexError):
-                        self.errors.append(f"Formato de data inválido para unidade {i}")
+                except (ValueError, IndexError):
+                    self.errors.append(f"Formato de data inválido para unidade {i}")
                         
         except ValueError:
             self.errors.append("Formato de data de inscrições inválido")
