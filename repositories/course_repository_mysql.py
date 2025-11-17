@@ -1,0 +1,345 @@
+"""
+Repositório para gerenciamento de cursos no banco de dados MySQL.
+Responsável por todas as operações de persistência relacionadas a cursos.
+"""
+
+import pymysql
+import logging
+from typing import Optional, Dict, Any, List, Tuple
+from datetime import datetime
+from config import Config
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+logger = logging.getLogger(__name__)
+
+
+class CourseRepositoryMySQL:
+    """Repositório para operações de cursos no banco de dados MySQL"""
+    
+    def __init__(self):
+        """Inicializa o repositório com configurações do banco"""
+        self.db_config = {
+            'host': os.getenv('DB_HOST', 'localhost'),
+            'port': int(os.getenv('DB_PORT', 3306)),
+            'user': os.getenv('DB_USER', 'root'),
+            'password': os.getenv('DB_PASSWORD', ''),
+            'database': os.getenv('DB_NAME', 'cursoscarioca'),
+            'charset': os.getenv('DB_CHARSET', 'utf8mb4'),
+            'cursorclass': pymysql.cursors.DictCursor
+        }
+    
+    def _get_connection(self):
+        """Cria e retorna uma conexão com o banco de dados"""
+        try:
+            connection = pymysql.connect(**self.db_config)
+            return connection
+        except Exception as e:
+            logger.error(f"❌ Erro ao conectar ao banco de dados: {e}")
+            raise
+    
+    def create_course(self, course_data: Dict[str, Any], user_id: int) -> Optional[int]:
+        """
+        Cria um novo curso no banco de dados
+        
+        Args:
+            course_data: Dados do curso
+            user_id: ID do usuário que está criando o curso
+            
+        Returns:
+            ID do curso criado ou None em caso de erro
+        """
+        connection = None
+        try:
+            connection = self._get_connection()
+            with connection.cursor() as cursor:
+                # Inserir dados na tabela cursos
+                sql = """
+                    INSERT INTO cursos (
+                        tipo_acao, titulo, titulo_original, descricao, descricao_original,
+                        capa_curso, inicio_inscricoes, fim_inscricoes, orgao, tema,
+                        carga_horaria, modalidade, acessibilidade, recursos_acessibilidade,
+                        publico_alvo, curso_gratuito, valor_curso_inteira, valor_curso_meia,
+                        requisitos_meia, oferece_certificado, pre_requisitos, oferece_bolsa,
+                        valor_bolsa, requisitos_bolsa, info_complementares, info_adicionais,
+                        parceiro_externo, parceiro_nome, parceiro_link, parceiro_logo,
+                        status, created_by, created_at, updated_at
+                    ) VALUES (
+                        %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
+                        %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
+                        %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
+                        %s, %s, NOW(), NOW()
+                    )
+                """
+                
+                values = (
+                    course_data.get('tipo_acao', 'Curso'),
+                    course_data.get('titulo'),
+                    course_data.get('titulo_original'),
+                    course_data.get('descricao'),
+                    course_data.get('descricao_original'),
+                    course_data.get('capa_curso'),
+                    course_data.get('inicio_inscricoes'),
+                    course_data.get('fim_inscricoes'),
+                    course_data.get('orgao'),
+                    course_data.get('tema'),
+                    course_data.get('carga_horaria'),
+                    course_data.get('modalidade'),
+                    course_data.get('acessibilidade', 'nao_acessivel'),
+                    course_data.get('recursos_acessibilidade'),
+                    course_data.get('publico_alvo'),
+                    course_data.get('curso_gratuito', 'sim'),
+                    course_data.get('valor_curso_inteira'),
+                    course_data.get('valor_curso_meia'),
+                    course_data.get('requisitos_meia'),
+                    course_data.get('oferece_certificado', 'nao'),
+                    course_data.get('pre_requisitos'),
+                    course_data.get('oferece_bolsa', 'nao'),
+                    course_data.get('valor_bolsa'),
+                    course_data.get('requisitos_bolsa'),
+                    course_data.get('info_complementares'),
+                    course_data.get('info_adicionais'),
+                    course_data.get('parceiro_externo', 'nao'),
+                    course_data.get('parceiro_nome'),
+                    course_data.get('parceiro_link'),
+                    course_data.get('parceiro_logo'),
+                    course_data.get('status', 'ativo'),
+                    user_id
+                )
+                
+                cursor.execute(sql, values)
+                course_id = cursor.lastrowid
+                
+                # Inserir turmas presenciais se modalidade for Presencial ou Híbrido
+                if course_data.get('modalidade') in ['Presencial', 'Híbrido']:
+                    self._insert_turmas(cursor, course_id, course_data)
+                
+                # Inserir plataforma online se modalidade for Online ou Híbrido
+                if course_data.get('modalidade') in ['Online', 'Híbrido']:
+                    self._insert_plataforma_online(cursor, course_id, course_data)
+                
+                connection.commit()
+                logger.info(f"✅ Curso criado com sucesso: ID {course_id}")
+                return course_id
+                
+        except Exception as e:
+            logger.error(f"❌ Erro ao criar curso: {e}")
+            if connection:
+                connection.rollback()
+            return None
+        finally:
+            if connection:
+                connection.close()
+    
+    def _insert_turmas(self, cursor, course_id: int, course_data: Dict[str, Any]):
+        """
+        Insere turmas presenciais para um curso
+        
+        Args:
+            cursor: Cursor do banco de dados
+            course_id: ID do curso
+            course_data: Dados do curso contendo arrays de turmas
+        """
+        # Obter arrays de dados das turmas
+        enderecos = course_data.get('enderecos_unidades', [])
+        bairros = course_data.get('bairros_unidades', [])
+        complementos = course_data.get('complementos_unidades', [])
+        vagas = course_data.get('vagas_unidades', [])
+        inicio_aulas = course_data.get('inicio_aulas_unidades', [])
+        fim_aulas = course_data.get('fim_aulas_unidades', [])
+        horario_inicio = course_data.get('horario_inicio_unidades', [])
+        horario_fim = course_data.get('horario_fim_unidades', [])
+        dias_aula = course_data.get('dias_aula_unidades', [])
+        
+        # Inserir cada turma
+        for i in range(len(enderecos)):
+            sql_turma = """
+                INSERT INTO turmas (
+                    curso_id, numero_turma, endereco_unidade, bairro_unidade,
+                    complemento, vagas_totais, vagas_ocupadas, inicio_aulas,
+                    fim_aulas, horario_inicio, horario_fim, status,
+                    created_at, updated_at
+                ) VALUES (
+                    %s, %s, %s, %s, %s, %s, 0, %s, %s, %s, %s, 'ativa', NOW(), NOW()
+                )
+            """
+            
+            values_turma = (
+                course_id,
+                i + 1,  # numero_turma sequencial
+                enderecos[i] if i < len(enderecos) else None,
+                bairros[i] if i < len(bairros) else None,
+                complementos[i] if i < len(complementos) else None,
+                int(vagas[i]) if i < len(vagas) and vagas[i] else 0,
+                inicio_aulas[i] if i < len(inicio_aulas) else None,
+                fim_aulas[i] if i < len(fim_aulas) else None,
+                horario_inicio[i] if i < len(horario_inicio) else None,
+                horario_fim[i] if i < len(horario_fim) else None
+            )
+            
+            cursor.execute(sql_turma, values_turma)
+            turma_id = cursor.lastrowid
+            
+            # Inserir dias da semana para esta turma
+            if i < len(dias_aula) and dias_aula[i]:
+                dias_list = dias_aula[i].split(',') if isinstance(dias_aula[i], str) else dias_aula[i]
+                for dia in dias_list:
+                    dia = dia.strip()
+                    if dia:
+                        sql_dia = """
+                            INSERT INTO turmas_dias_semana (turma_id, dia_semana)
+                            VALUES (%s, %s)
+                        """
+                        cursor.execute(sql_dia, (turma_id, dia))
+            
+            logger.info(f"✅ Turma {i+1} criada para curso {course_id}")
+    
+    def _insert_plataforma_online(self, cursor, course_id: int, course_data: Dict[str, Any]):
+        """
+        Insere plataforma online para um curso
+        
+        Args:
+            cursor: Cursor do banco de dados
+            course_id: ID do curso
+            course_data: Dados do curso contendo informações da plataforma
+        """
+        sql_plataforma = """
+            INSERT INTO plataformas_online (
+                curso_id, plataforma_digital, link_acesso, vagas_totais,
+                vagas_ocupadas, aulas_assincronas, inicio_aulas, fim_aulas,
+                horario_inicio, horario_fim, status, created_at, updated_at
+            ) VALUES (
+                %s, %s, %s, %s, 0, %s, %s, %s, %s, %s, 'ativa', NOW(), NOW()
+            )
+        """
+        
+        aulas_assincronas = course_data.get('aulas_assincronas', 'sim')
+        
+        values_plataforma = (
+            course_id,
+            course_data.get('plataforma_digital'),
+            course_data.get('link_acesso'),
+            int(course_data.get('vagas_online', 0)) if course_data.get('vagas_online') else 0,
+            aulas_assincronas,
+            course_data.get('inicio_aulas_online') if aulas_assincronas == 'nao' else None,
+            course_data.get('fim_aulas_online') if aulas_assincronas == 'nao' else None,
+            course_data.get('horario_inicio_online') if aulas_assincronas == 'nao' else None,
+            course_data.get('horario_fim_online') if aulas_assincronas == 'nao' else None
+        )
+        
+        cursor.execute(sql_plataforma, values_plataforma)
+        plataforma_id = cursor.lastrowid
+        
+        # TODO: Inserir dias da semana se aulas síncronas
+        # Tabela plataformas_dias_semana não existe ainda no banco
+        # if aulas_assincronas == 'nao' and course_data.get('dias_aula_online'):
+        #     dias_list = course_data.get('dias_aula_online', [])
+        #     if isinstance(dias_list, str):
+        #         dias_list = dias_list.split(',')
+        #     
+        #     for dia in dias_list:
+        #         dia = dia.strip()
+        #         if dia:
+        #             sql_dia = """
+        #                 INSERT INTO plataformas_dias_semana (plataforma_id, dia_semana)
+        #                 VALUES (%s, %s)
+        #             """
+        #             cursor.execute(sql_dia, (plataforma_id, dia))
+        
+        logger.info(f"✅ Plataforma online criada para curso {course_id}")
+    
+    def find_by_id(self, course_id: int) -> Optional[Dict[str, Any]]:
+        """
+        Busca um curso pelo ID com todas as suas turmas e plataformas
+        
+        Args:
+            course_id: ID do curso
+            
+        Returns:
+            Dicionário com dados do curso ou None se não encontrado
+        """
+        connection = None
+        try:
+            connection = self._get_connection()
+            with connection.cursor() as cursor:
+                # Buscar dados do curso
+                sql = "SELECT * FROM cursos WHERE id = %s"
+                cursor.execute(sql, (course_id,))
+                course = cursor.fetchone()
+                
+                if not course:
+                    return None
+                
+                # Buscar turmas presenciais
+                course['turmas'] = self._get_turmas_by_course_id(cursor, course_id)
+                
+                # Buscar plataforma online
+                course['plataforma_online'] = self._get_plataforma_by_course_id(cursor, course_id)
+                
+                return course
+                
+        except Exception as e:
+            logger.error(f"❌ Erro ao buscar curso {course_id}: {e}")
+            return None
+        finally:
+            if connection:
+                connection.close()
+    
+    def _get_turmas_by_course_id(self, cursor, course_id: int) -> List[Dict[str, Any]]:
+        """Busca todas as turmas de um curso"""
+        sql = "SELECT * FROM turmas WHERE curso_id = %s ORDER BY numero_turma"
+        cursor.execute(sql, (course_id,))
+        turmas = cursor.fetchall()
+        
+        # Para cada turma, buscar dias da semana
+        for turma in turmas:
+            sql_dias = "SELECT dia_semana FROM turmas_dias_semana WHERE turma_id = %s"
+            cursor.execute(sql_dias, (turma['id'],))
+            dias = cursor.fetchall()
+            turma['dias_semana'] = [dia['dia_semana'] for dia in dias]
+        
+        return turmas
+    
+    def _get_plataforma_by_course_id(self, cursor, course_id: int) -> Optional[Dict[str, Any]]:
+        """Busca a plataforma online de um curso"""
+        sql = "SELECT * FROM plataformas_online WHERE curso_id = %s"
+        cursor.execute(sql, (course_id,))
+        plataforma = cursor.fetchone()
+        
+        if plataforma:
+            # TODO: Buscar dias da semana quando tabela existir
+            # Tabela plataformas_dias_semana não existe ainda no banco
+            # sql_dias = "SELECT dia_semana FROM plataformas_dias_semana WHERE plataforma_id = %s"
+            # cursor.execute(sql_dias, (plataforma['id'],))
+            # dias = cursor.fetchall()
+            # plataforma['dias_semana'] = [dia['dia_semana'] for dia in dias]
+            plataforma['dias_semana'] = []  # Temporário até criar a tabela
+        
+        return plataforma
+    
+    def find_all(self) -> List[Dict[str, Any]]:
+        """
+        Lista todos os cursos
+        
+        Returns:
+            Lista de cursos
+        """
+        connection = None
+        try:
+            connection = self._get_connection()
+            with connection.cursor() as cursor:
+                sql = "SELECT * FROM cursos ORDER BY created_at DESC"
+                cursor.execute(sql)
+                courses = cursor.fetchall()
+                
+                logger.info(f"✅ {len(courses)} cursos encontrados")
+                return courses
+                
+        except Exception as e:
+            logger.error(f"❌ Erro ao listar cursos: {e}")
+            return []
+        finally:
+            if connection:
+                connection.close()
