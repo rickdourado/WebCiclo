@@ -2,12 +2,13 @@
 """
 Serviço de autenticação com hash de senhas e validação segura.
 Implementa bcrypt para hash de senhas e validação de credenciais.
+Migrado para usar banco de dados MySQL ao invés de variáveis de ambiente.
 """
 
 import bcrypt
 import logging
-from typing import Tuple, Optional
-from config import Config
+from typing import Tuple, Optional, Dict, Any
+from repositories.user_repository import UserRepository
 
 logger = logging.getLogger(__name__)
 
@@ -16,19 +17,7 @@ class AuthService:
     
     def __init__(self):
         """Inicializa o serviço de autenticação"""
-        self.admin_username = Config.ADMIN_USERNAME
-        # Hash da senha admin na inicialização se necessário
-        self._ensure_password_hash()
-    
-    def _ensure_password_hash(self) -> None:
-        """Garante que a senha do admin esteja em formato hash"""
-        # Se a senha no config não estiver em formato hash, fazer o hash
-        if Config.ADMIN_PASSWORD and not Config.ADMIN_PASSWORD.startswith('$2b$'):
-            logger.warning("⚠️ Senha do admin não está em formato hash. Convertendo...")
-            hashed = self.hash_password(Config.ADMIN_PASSWORD)
-            logger.info("✅ Senha do admin convertida para hash bcrypt")
-            # Nota: Em produção, você deve atualizar o .env com o hash gerado
-            Config.ADMIN_PASSWORD = hashed
+        self.user_repository = UserRepository()
     
     def hash_password(self, password: str) -> str:
         """
@@ -66,38 +55,57 @@ class AuthService:
             logger.error(f"❌ Erro ao verificar senha: {e}")
             return False
     
-    def authenticate_admin(self, username: str, password: str) -> Tuple[bool, Optional[str]]:
+    def authenticate_admin(self, email: str, password: str) -> Tuple[bool, Optional[str], Optional[Dict[str, Any]]]:
         """
-        Autentica credenciais do administrador
+        Autentica credenciais do administrador usando banco de dados
         
         Args:
-            username: Nome de usuário
+            email: Email do usuário (usado como username)
             password: Senha em texto plano
             
         Returns:
-            Tupla (sucesso, mensagem_erro)
+            Tupla (sucesso, mensagem_erro, dados_usuario)
         """
         try:
             # Validar entrada
-            if not username or not password:
-                return False, "Usuário e senha são obrigatórios"
+            if not email or not password:
+                return False, "Email e senha são obrigatórios", None
             
-            # Verificar username
-            if username != self.admin_username:
-                logger.warning(f"🔒 Tentativa de login com usuário inválido: {username}")
-                return False, "Credenciais inválidas"
+            # Buscar usuário no banco de dados
+            user = self.user_repository.find_by_email(email)
+            
+            if not user:
+                logger.warning(f"🔒 Tentativa de login com email não cadastrado: {email}")
+                return False, "Credenciais inválidas", None
+            
+            # Verificar se usuário está ativo
+            if user.get('ativo') != 'sim':
+                logger.warning(f"🔒 Tentativa de login com usuário inativo: {email}")
+                return False, "Usuário inativo", None
             
             # Verificar senha
-            if not self.verify_password(password, Config.ADMIN_PASSWORD):
-                logger.warning(f"🔒 Tentativa de login com senha inválida para usuário: {username}")
-                return False, "Credenciais inválidas"
+            senha_hash = user.get('senha')
+            if not senha_hash or not self.verify_password(password, senha_hash):
+                logger.warning(f"🔒 Tentativa de login com senha inválida para: {email}")
+                return False, "Credenciais inválidas", None
             
-            logger.info(f"✅ Login bem-sucedido para usuário: {username}")
-            return True, None
+            # Atualizar último acesso
+            self.user_repository.update_last_access(user['id'])
+            
+            logger.info(f"✅ Login bem-sucedido para usuário: {email}")
+            
+            # Retornar dados do usuário (sem a senha)
+            user_data = {
+                'id': user['id'],
+                'email': user['email'],
+                'ultimo_acesso': user.get('ultimo_acesso')
+            }
+            
+            return True, None, user_data
             
         except Exception as e:
             logger.error(f"❌ Erro na autenticação: {e}")
-            return False, "Erro interno de autenticação"
+            return False, "Erro interno de autenticação", None
     
     def generate_password_hash_for_config(self, password: str) -> str:
         """
@@ -113,3 +121,43 @@ class AuthService:
         logger.info("🔐 Hash gerado para configuração:")
         logger.info(f"ADMIN_PASSWORD={hashed}")
         return hashed
+    
+    def create_user(self, email: str, password: str) -> Tuple[bool, Optional[str], Optional[int]]:
+        """
+        Cria um novo usuário no sistema
+        
+        Args:
+            email: Email do usuário
+            password: Senha em texto plano
+            
+        Returns:
+            Tupla (sucesso, mensagem_erro, user_id)
+        """
+        try:
+            # Validar entrada
+            if not email or not password:
+                return False, "Email e senha são obrigatórios", None
+            
+            # Validar formato de email básico
+            if '@' not in email or '.' not in email:
+                return False, "Email inválido", None
+            
+            # Validar força da senha
+            if len(password) < 6:
+                return False, "Senha deve ter no mínimo 6 caracteres", None
+            
+            # Gerar hash da senha
+            senha_hash = self.hash_password(password)
+            
+            # Criar usuário no banco
+            user_id = self.user_repository.create_user(email, senha_hash)
+            
+            if not user_id:
+                return False, "Email já cadastrado", None
+            
+            logger.info(f"✅ Usuário criado com sucesso: {email}")
+            return True, None, user_id
+            
+        except Exception as e:
+            logger.error(f"❌ Erro ao criar usuário: {e}")
+            return False, "Erro interno ao criar usuário", None

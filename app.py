@@ -425,19 +425,20 @@ def duplicate_course(course_id):
 
 @app.route('/admin/login', methods=['GET', 'POST'])
 def admin_login():
-    """Login administrativo com proteção CSRF e hash de senhas"""
+    """Login administrativo com proteção CSRF e autenticação via banco de dados"""
     form = LoginForm()
     
     if form.validate_on_submit():
-        username = form.username.data
+        email = form.username.data  # Campo username agora aceita email
         password = form.password.data
         
-        # Usar o serviço de autenticação
-        success, error_message = auth_service.authenticate_admin(username, password)
+        # Usar o serviço de autenticação (agora retorna 3 valores)
+        success, error_message, user_data = auth_service.authenticate_admin(email, password)
         
-        if success:
+        if success and user_data:
             session['logged_in'] = True
-            session['admin_username'] = username
+            session['user_id'] = user_data['id']
+            session['user_email'] = user_data['email']
             flash('Login realizado com sucesso!', 'success')
             
             # Redirecionar para a página solicitada ou dashboard
@@ -452,7 +453,10 @@ def admin_login():
 
 @app.route('/admin/logout')
 def admin_logout():
+    """Logout do usuário administrativo"""
     session.pop('logged_in', None)
+    session.pop('user_id', None)
+    session.pop('user_email', None)
     flash('Logout realizado com sucesso.', 'info')
     return redirect(url_for('index'))
 
