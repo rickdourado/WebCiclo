@@ -173,6 +173,39 @@ class CourseService:
         
         return formatted_courses
     
+    def _normalize_mysql_types(self, data: Dict) -> Dict:
+        """
+        Normaliza tipos de dados do MySQL para tipos esperados pelos templates
+        Converte datetime, Decimal, timedelta, etc. para strings
+        """
+        from decimal import Decimal
+        
+        normalized = {}
+        for key, value in data.items():
+            if value is None:
+                normalized[key] = ''
+            elif isinstance(value, Decimal):
+                # Converter Decimal para string formatada
+                normalized[key] = str(value)
+            elif hasattr(value, 'strftime'):
+                # datetime ou date objects
+                if hasattr(value, 'hour'):
+                    # datetime com hora
+                    normalized[key] = value.strftime('%Y-%m-%d %H:%M:%S')
+                else:
+                    # apenas date
+                    normalized[key] = value.strftime('%Y-%m-%d')
+            elif hasattr(value, 'total_seconds'):
+                # timedelta object
+                total_seconds = int(value.total_seconds())
+                hours = total_seconds // 3600
+                minutes = (total_seconds % 3600) // 60
+                normalized[key] = f'{hours:02d}:{minutes:02d}'
+            else:
+                normalized[key] = value
+        
+        return normalized
+    
     def _format_course_for_template(self, course: Dict) -> Dict:
         """
         Formata dados do curso do MySQL para o formato esperado pelos templates
@@ -186,28 +219,50 @@ class CourseService:
         try:
             # Buscar curso completo com turmas e plataforma
             course_id = course.get('id')
+            logger.info(f"🔄 Formatando curso {course_id} para template")
             full_course = self.repository_mysql.find_by_id(course_id)
             
             if not full_course:
+                logger.warning(f"⚠️ Curso {course_id} não encontrado ao formatar")
                 return course
             
-            # Formatar datas para exibição
+            # Normalizar tipos do MySQL para tipos esperados pelos templates
+            full_course = self._normalize_mysql_types(full_course)
+            
+            # Formatar datas para exibição (DD/MM/YYYY)
             if full_course.get('inicio_inscricoes'):
+                logger.info(f"📅 Convertendo inicio_inscricoes: {full_course['inicio_inscricoes']}")
                 full_course['inicio_inscricoes'] = self._convert_date_from_mysql(full_course['inicio_inscricoes'])
             if full_course.get('fim_inscricoes'):
+                logger.info(f"📅 Convertendo fim_inscricoes: {full_course['fim_inscricoes']}")
                 full_course['fim_inscricoes'] = self._convert_date_from_mysql(full_course['fim_inscricoes'])
         except Exception as e:
             logger.error(f"❌ Erro ao formatar curso {course.get('id')}: {e}")
             logger.error(f"Tipo de erro: {type(e).__name__}")
             import traceback
             logger.error(traceback.format_exc())
-            # Retornar curso original em caso de erro
-            return course
+            
+            # Em caso de erro, normalizar tipos e garantir campos básicos
+            full_course = self._normalize_mysql_types(course.copy())
+            
+            # Garantir que campos pipe-separated existam como strings vazias
+            for field in ['endereco_unidade', 'bairro_unidade', 'vagas_unidade', 
+                         'inicio_aulas_data', 'fim_aulas_data', 'horario_inicio', 
+                         'horario_fim', 'dias_aula']:
+                if field not in full_course or full_course[field] is None:
+                    full_course[field] = ''
+                elif not isinstance(full_course[field], str):
+                    full_course[field] = str(full_course[field])
+            
+            return full_course
         
         try:
             # Processar turmas presenciais
             if full_course.get('turmas'):
                 turmas = full_course['turmas']
+                
+                # Normalizar tipos de cada turma
+                turmas = [self._normalize_mysql_types(t) for t in turmas]
                 
                 # Criar strings pipe-separated para compatibilidade com templates antigos
                 full_course['endereco_unidade'] = '|'.join([t.get('endereco_unidade', '') or '' for t in turmas])
@@ -279,7 +334,7 @@ class CourseService:
         
             # Processar plataforma online
             if full_course.get('plataforma_online'):
-                plataforma = full_course['plataforma_online']
+                plataforma = self._normalize_mysql_types(full_course['plataforma_online'])
                 full_course['plataforma_digital'] = plataforma.get('plataforma_digital', '')
                 full_course['link_acesso'] = plataforma.get('link_acesso', '')
                 full_course['aulas_assincronas'] = plataforma.get('aulas_assincronas', 'sim')
@@ -292,6 +347,15 @@ class CourseService:
             logger.error(f"Tipo de erro: {type(e).__name__}")
             import traceback
             logger.error(traceback.format_exc())
+            
+            # Garantir que campos pipe-separated existam como strings vazias
+            for field in ['endereco_unidade', 'bairro_unidade', 'vagas_unidade', 
+                         'inicio_aulas_data', 'fim_aulas_data', 'horario_inicio', 
+                         'horario_fim', 'dias_aula']:
+                if field not in full_course or full_course[field] is None:
+                    full_course[field] = ''
+                elif not isinstance(full_course[field], str):
+                    full_course[field] = str(full_course[field])
         
         return full_course
     

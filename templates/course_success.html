@@ -434,10 +434,11 @@
                             <div class="info-row">
                                 <i class="fas fa-dollar-sign"></i>
                                 <span><strong>Valor Inteira:</strong>
-                                    {% if course.valor_curso_inteira.startswith('R$') %}
-                                    {{ course.valor_curso_inteira }}
+                                    {% set valor_str = course.valor_curso_inteira|safe_str %}
+                                    {% if valor_str.startswith('R$') %}
+                                    {{ valor_str }}
                                     {% else %}
-                                    R$ {{ course.valor_curso_inteira }}
+                                    R$ {{ valor_str }}
                                     {% endif %}
                                 </span>
                             </div>
@@ -447,10 +448,11 @@
                             <div class="info-row">
                                 <i class="fas fa-percentage"></i>
                                 <span><strong>Valor Meia:</strong>
-                                    {% if course.valor_curso_meia.startswith('R$') %}
-                                    {{ course.valor_curso_meia }}
+                                    {% set valor_str = course.valor_curso_meia|safe_str %}
+                                    {% if valor_str.startswith('R$') %}
+                                    {{ valor_str }}
                                     {% else %}
-                                    R$ {{ course.valor_curso_meia }}
+                                    R$ {{ valor_str }}
                                     {% endif %}
                                 </span>
                             </div>
@@ -474,10 +476,11 @@
                             <div class="info-row">
                                 <i class="fas fa-money-bill-wave"></i>
                                 <span><strong>Valor da Bolsa:</strong>
-                                    {% if course.valor_bolsa.startswith('R$') %}
-                                    {{ course.valor_bolsa }}
+                                    {% set valor_str = course.valor_bolsa|safe_str %}
+                                    {% if valor_str.startswith('R$') %}
+                                    {{ valor_str }}
                                     {% else %}
-                                    R$ {{ course.valor_bolsa }}
+                                    R$ {{ valor_str }}
                                     {% endif %}
                                 </span>
                             </div>

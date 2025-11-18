@@ -22,6 +22,33 @@ app.config.from_object(Config)
 # Inicializar proteção CSRF
 csrf = CSRFProtect(app)
 
+# Filtros Jinja2 customizados para lidar com tipos do MySQL
+@app.template_filter('safe_str')
+def safe_str_filter(value):
+    """Converte qualquer valor para string de forma segura"""
+    if value is None:
+        return ''
+    return str(value)
+
+@app.template_filter('format_currency')
+def format_currency_filter(value):
+    """Formata valores monetários"""
+    if not value:
+        return ''
+    value_str = str(value)
+    if value_str.startswith('R$'):
+        return value_str
+    return f'R$ {value_str}'
+
+@app.template_filter('safe_split')
+def safe_split_filter(value, separator='|'):
+    """Split seguro que retorna lista vazia se valor não for string"""
+    if not value:
+        return []
+    if not isinstance(value, str):
+        value = str(value)
+    return value.split(separator)
+
 # Handler para erros CSRF
 @app.errorhandler(400)
 def csrf_error(e):
@@ -482,6 +509,8 @@ def admin_dashboard():
         return render_template('course_list.html', courses=courses, inserted_courses=inserted_courses)
     except Exception as e:
         logger.error(f"Erro no dashboard admin: {str(e)}")
+        import traceback
+        logger.error(f"Traceback completo: {traceback.format_exc()}")
         flash('Erro ao carregar dashboard', 'error')
         return redirect(url_for('index'))
 
@@ -550,20 +579,25 @@ def _prepare_course_for_edit_form(course):
     # Converter datas para o formato HTML (YYYY-MM-DD)
     if 'inicio_inscricoes' in course and course['inicio_inscricoes']:
         try:
-            # Tentar primeiro com separador '-'
-            if '-' in course['inicio_inscricoes']:
-                parts = course['inicio_inscricoes'].split('-')
-            # Tentar com separador '/' se não encontrar '-'
-            else:
-                parts = course['inicio_inscricoes'].split('/')
-                
-            if len(parts) == 3:
-                # Se estiver no formato DD-MM-AAAA ou DD/MM/AAAA
-                if len(parts[2]) == 4:  # Ano tem 4 dígitos
-                    course['inicio_inscricoes_data'] = f'{parts[2]}-{parts[1]}-{parts[0]}'
-                # Se estiver no formato AAAA-MM-DD ou AAAA/MM/DD
-                elif len(parts[0]) == 4:  # Ano tem 4 dígitos
-                    course['inicio_inscricoes_data'] = f'{parts[0]}-{parts[1]}-{parts[2]}'
+            # Se for um objeto datetime, converter diretamente
+            if isinstance(course['inicio_inscricoes'], datetime):
+                course['inicio_inscricoes_data'] = course['inicio_inscricoes'].strftime('%Y-%m-%d')
+            # Se for string, processar
+            elif isinstance(course['inicio_inscricoes'], str):
+                # Tentar primeiro com separador '-'
+                if '-' in course['inicio_inscricoes']:
+                    parts = course['inicio_inscricoes'].split('-')
+                # Tentar com separador '/' se não encontrar '-'
+                else:
+                    parts = course['inicio_inscricoes'].split('/')
+                    
+                if len(parts) == 3:
+                    # Se estiver no formato DD-MM-AAAA ou DD/MM/AAAA
+                    if len(parts[2]) == 4:  # Ano tem 4 dígitos
+                        course['inicio_inscricoes_data'] = f'{parts[2]}-{parts[1]}-{parts[0]}'
+                    # Se estiver no formato AAAA-MM-DD ou AAAA/MM/DD
+                    elif len(parts[0]) == 4:  # Ano tem 4 dígitos
+                        course['inicio_inscricoes_data'] = f'{parts[0]}-{parts[1]}-{parts[2]}'
         except Exception as e:
             logger.warning(f"Erro ao converter data de início: {e}")
             course['inicio_inscricoes_data'] = ''
@@ -572,20 +606,25 @@ def _prepare_course_for_edit_form(course):
     
     if 'fim_inscricoes' in course and course['fim_inscricoes']:
         try:
-            # Tentar primeiro com separador '-'
-            if '-' in course['fim_inscricoes']:
-                parts = course['fim_inscricoes'].split('-')
-            # Tentar com separador '/' se não encontrar '-'
-            else:
-                parts = course['fim_inscricoes'].split('/')
-                
-            if len(parts) == 3:
-                # Se estiver no formato DD-MM-AAAA ou DD/MM/AAAA
-                if len(parts[2]) == 4:  # Ano tem 4 dígitos
-                    course['fim_inscricoes_data'] = f'{parts[2]}-{parts[1]}-{parts[0]}'
-                # Se estiver no formato AAAA-MM-DD ou AAAA/MM/DD
-                elif len(parts[0]) == 4:  # Ano tem 4 dígitos
-                    course['fim_inscricoes_data'] = f'{parts[0]}-{parts[1]}-{parts[2]}'
+            # Se for um objeto datetime, converter diretamente
+            if isinstance(course['fim_inscricoes'], datetime):
+                course['fim_inscricoes_data'] = course['fim_inscricoes'].strftime('%Y-%m-%d')
+            # Se for string, processar
+            elif isinstance(course['fim_inscricoes'], str):
+                # Tentar primeiro com separador '-'
+                if '-' in course['fim_inscricoes']:
+                    parts = course['fim_inscricoes'].split('-')
+                # Tentar com separador '/' se não encontrar '-'
+                else:
+                    parts = course['fim_inscricoes'].split('/')
+                    
+                if len(parts) == 3:
+                    # Se estiver no formato DD-MM-AAAA ou DD/MM/AAAA
+                    if len(parts[2]) == 4:  # Ano tem 4 dígitos
+                        course['fim_inscricoes_data'] = f'{parts[2]}-{parts[1]}-{parts[0]}'
+                    # Se estiver no formato AAAA-MM-DD ou AAAA/MM/DD
+                    elif len(parts[0]) == 4:  # Ano tem 4 dígitos
+                        course['fim_inscricoes_data'] = f'{parts[0]}-{parts[1]}-{parts[2]}'
         except Exception as e:
             logger.warning(f"Erro ao converter data de fim: {e}")
             course['fim_inscricoes_data'] = ''
@@ -595,14 +634,30 @@ def _prepare_course_for_edit_form(course):
     # Mapear campos de modalidade e unidades
     if course.get('modalidade') == 'Presencial' or course.get('modalidade') == 'Híbrido':
         # Processar dados de múltiplas unidades separados por |
-        enderecos = course.get('endereco_unidade', '').split('|') if course.get('endereco_unidade') else ['']
-        bairros = course.get('bairro_unidade', '').split('|') if course.get('bairro_unidade') else ['']
-        vagas = course.get('vagas_unidade', '').split('|') if course.get('vagas_unidade') else ['']
-        inicio_aulas = course.get('inicio_aulas_data', '').split('|') if course.get('inicio_aulas_data') else ['']
-        fim_aulas = course.get('fim_aulas_data', '').split('|') if course.get('fim_aulas_data') else ['']
-        horario_inicio = course.get('horario_inicio', '').split('|') if course.get('horario_inicio') else ['']
-        horario_fim = course.get('horario_fim', '').split('|') if course.get('horario_fim') else ['']
-        dias_aula = course.get('dias_aula', '').split('|') if course.get('dias_aula') else ['']
+        # Verificar se é string antes de usar split
+        endereco_val = course.get('endereco_unidade', '')
+        enderecos = endereco_val.split('|') if isinstance(endereco_val, str) and endereco_val else ['']
+        
+        bairro_val = course.get('bairro_unidade', '')
+        bairros = bairro_val.split('|') if isinstance(bairro_val, str) and bairro_val else ['']
+        
+        vagas_val = course.get('vagas_unidade', '')
+        vagas = vagas_val.split('|') if isinstance(vagas_val, str) and vagas_val else ['']
+        
+        inicio_aulas_val = course.get('inicio_aulas_data', '')
+        inicio_aulas = inicio_aulas_val.split('|') if isinstance(inicio_aulas_val, str) and inicio_aulas_val else ['']
+        
+        fim_aulas_val = course.get('fim_aulas_data', '')
+        fim_aulas = fim_aulas_val.split('|') if isinstance(fim_aulas_val, str) and fim_aulas_val else ['']
+        
+        horario_inicio_val = course.get('horario_inicio', '')
+        horario_inicio = horario_inicio_val.split('|') if isinstance(horario_inicio_val, str) and horario_inicio_val else ['']
+        
+        horario_fim_val = course.get('horario_fim', '')
+        horario_fim = horario_fim_val.split('|') if isinstance(horario_fim_val, str) and horario_fim_val else ['']
+        
+        dias_aula_val = course.get('dias_aula', '')
+        dias_aula = dias_aula_val.split('|') if isinstance(dias_aula_val, str) and dias_aula_val else ['']
         
         # Campos de unidade presencial (primeira unidade para compatibilidade)
         course['endereco_unidade'] = enderecos[0] if enderecos else ''

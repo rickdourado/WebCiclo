@@ -845,11 +845,14 @@
                                         <span><strong>Dias da Aula:</strong>
                                             {% set dias_lista = course.dias_aula.split('|') %}
                                             {% set dias_unicos = [] %}
-                                            {% for dia in dias_lista %}
+                                            {% for turma_dias in dias_lista %}
+                                            {# Cada turma pode ter múltiplos dias separados por vírgula #}
+                                            {% for dia in turma_dias.split(',') %}
                                             {% set dia_limpo = dia.strip() %}
-                                            {% if dia_limpo not in dias_unicos %}
+                                            {% if dia_limpo and dia_limpo not in dias_unicos %}
                                             {% set _ = dias_unicos.append(dia_limpo) %}
                                             {% endif %}
+                                            {% endfor %}
                                             {% endfor %}
                                             {{ dias_unicos|join(', ') }}
                                         </span>
@@ -859,8 +862,18 @@
                                     {% if course.horario_inicio and course.horario_fim %}
                                     <div class="info-row">
                                         <i class="fas fa-clock"></i>
-                                        <span><strong>Horário:</strong> {{ course.horario_inicio.split('|')[0].strip()
-                                            }} às {{ course.horario_fim.split('|')[0].strip() }}</span>
+                                        <span><strong>Horário:</strong>
+                                            {% set horarios_inicio = course.horario_inicio.split('|') %}
+                                            {% set horarios_fim = course.horario_fim.split('|') %}
+                                            {% set horarios_formatados = [] %}
+                                            {% for i in range(horarios_inicio|length) %}
+                                            {% if i < horarios_fim|length %}
+                                            {% set horario = horarios_inicio[i].strip() + ' às ' + horarios_fim[i].strip() %}
+                                            {% set _ = horarios_formatados.append(horario) %}
+                                            {% endif %}
+                                            {% endfor %}
+                                            {{ horarios_formatados|join(', ') }}
+                                        </span>
                                     </div>
                                     {% endif %}
 
@@ -889,10 +902,11 @@
                                     <div class="info-row">
                                         <i class="fas fa-dollar-sign"></i>
                                         <span><strong>Valor Inteira:</strong>
-                                            {% if course.valor_curso_inteira.startswith('R$') %}
-                                            {{ course.valor_curso_inteira }}
+                                            {% set valor_str = course.valor_curso_inteira|safe_str %}
+                                            {% if valor_str.startswith('R$') %}
+                                            {{ valor_str }}
                                             {% else %}
-                                            R$ {{ course.valor_curso_inteira }}
+                                            R$ {{ valor_str }}
                                             {% endif %}
                                         </span>
                                     </div>
@@ -902,10 +916,11 @@
                                     <div class="info-row">
                                         <i class="fas fa-percentage"></i>
                                         <span><strong>Valor Meia:</strong>
-                                            {% if course.valor_curso_meia.startswith('R$') %}
-                                            {{ course.valor_curso_meia }}
+                                            {% set valor_str = course.valor_curso_meia|safe_str %}
+                                            {% if valor_str.startswith('R$') %}
+                                            {{ valor_str }}
                                             {% else %}
-                                            R$ {{ course.valor_curso_meia }}
+                                            R$ {{ valor_str }}
                                             {% endif %}
                                         </span>
                                     </div>
@@ -930,10 +945,11 @@
                                     <div class="info-row">
                                         <i class="fas fa-money-bill-wave"></i>
                                         <span><strong>Valor da Bolsa:</strong>
-                                            {% if course.valor_bolsa.startswith('R$') %}
-                                            {{ course.valor_bolsa }}
+                                            {% set valor_str = course.valor_bolsa|safe_str %}
+                                            {% if valor_str.startswith('R$') %}
+                                            {{ valor_str }}
                                             {% else %}
-                                            R$ {{ course.valor_bolsa }}
+                                            R$ {{ valor_str }}
                                             {% endif %}
                                         </span>
                                     </div>
@@ -1042,10 +1058,10 @@
                                         </div>
                                         {% endif %}
 
-                                        {% if course.dias_aula %}
+                                        {% if dias_aula and i < dias_aula|length and dias_aula[i] %}
                                         <div class="info-row">
                                             <i class="fas fa-calendar-day"></i>
-                                            <span><strong>Dias da Aula:</strong> {{ course.dias_aula.replace('|', ', ')
+                                            <span><strong>Dias da Aula:</strong> {{ dias_aula[i].strip().replace(',', ', ')
                                                 }}</span>
                                         </div>
                                         {% endif %}
