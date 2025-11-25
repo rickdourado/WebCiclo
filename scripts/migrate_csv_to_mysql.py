@@ -36,7 +36,10 @@ DB_CONFIG = {
 }
 
 # Diretório com os arquivos CSV
-CSV_DIR = 'CSV'
+# Usar caminho absoluto baseado na localização do script
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)  # Subir um nível (de scripts/ para raiz)
+CSV_DIR = os.path.join(PROJECT_ROOT, 'CSV')
 
 
 def get_db_connection():
