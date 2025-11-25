@@ -370,7 +370,7 @@ class CourseService:
             Tuple[bool, str]: (sucesso, mensagem)
         """
         try:
-            success = self.repository.delete_course(course_id)
+            success = self.repository_mysql.delete_course(course_id)
             if success:
                 return True, "Curso excluído com sucesso"
             else:

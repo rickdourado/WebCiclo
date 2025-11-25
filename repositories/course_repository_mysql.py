@@ -356,29 +356,46 @@ class CourseRepositoryMySQL:
         Returns:
             bool: True se excluído com sucesso, False caso contrário
         """
+        connection = None
         try:
+            logger.info(f"🔍 Iniciando exclusão do curso {course_id}")
             connection = self._get_connection()
+            logger.info(f"✅ Conexão estabelecida")
+            
             with connection.cursor() as cursor:
                 # Verificar se o curso existe
+                logger.info(f"🔍 Verificando se curso {course_id} existe...")
                 cursor.execute("SELECT id FROM cursos WHERE id = %s", (course_id,))
                 if not cursor.fetchone():
                     logger.warning(f"⚠️ Curso {course_id} não encontrado")
                     return False
                 
+                logger.info(f"✅ Curso {course_id} encontrado, executando DELETE...")
+                
                 # Deletar o curso (CASCADE irá deletar turmas, dias_semana e plataformas automaticamente)
                 cursor.execute("DELETE FROM cursos WHERE id = %s", (course_id,))
+                rows_affected = cursor.rowcount
+                logger.info(f"📊 Linhas afetadas pelo DELETE: {rows_affected}")
+                
+                logger.info(f"💾 Executando COMMIT...")
                 connection.commit()
+                logger.info(f"✅ COMMIT executado com sucesso")
                 
                 logger.info(f"✅ Curso {course_id} excluído com sucesso do banco de dados")
                 return True
                 
         except Exception as e:
             logger.error(f"❌ Erro ao excluir curso {course_id}: {str(e)}")
+            logger.error(f"❌ Tipo do erro: {type(e).__name__}")
+            import traceback
+            logger.error(f"❌ Traceback: {traceback.format_exc()}")
             if connection:
+                logger.info("🔄 Executando ROLLBACK...")
                 connection.rollback()
             return False
         finally:
             if connection:
+                logger.info("🔌 Fechando conexão")
                 connection.close()
     
     def mark_as_inserted(self, course_id: int) -> bool:
