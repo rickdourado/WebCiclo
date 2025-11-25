@@ -218,3 +218,6 @@ activate_ciclo.sh.local
 
 # Configurações específicas do usuário
 .kiro/settings/user.json
+
+# Agent folder
+.agent/
