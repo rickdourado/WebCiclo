@@ -319,27 +319,189 @@ class CourseRepositoryMySQL:
         
         return plataforma
     
-    def find_all(self) -> List[Dict[str, Any]]:
+    def find_all(self):
         """
         Lista todos os cursos
         
         Returns:
             Lista de cursos
         """
-        connection = None
         try:
             connection = self._get_connection()
             with connection.cursor() as cursor:
-                sql = "SELECT * FROM cursos ORDER BY created_at DESC"
-                cursor.execute(sql)
+                cursor.execute("""
+                    SELECT * FROM cursos 
+                    WHERE status = 'ativo'
+                    ORDER BY created_at DESC
+                """)
                 courses = cursor.fetchall()
                 
                 logger.info(f"✅ {len(courses)} cursos encontrados")
                 return courses
                 
         except Exception as e:
-            logger.error(f"❌ Erro ao listar cursos: {e}")
+            logger.error(f"❌ Erro ao listar cursos: {str(e)}")
             return []
         finally:
             if connection:
                 connection.close()
+    
+    def delete_course(self, course_id: int) -> bool:
+        """
+        Exclui um curso do banco de dados
+        
+        Args:
+            course_id: ID do curso a ser excluído
+            
+        Returns:
+            bool: True se excluído com sucesso, False caso contrário
+        """
+        try:
+            connection = self._get_connection()
+            with connection.cursor() as cursor:
+                # Verificar se o curso existe
+                cursor.execute("SELECT id FROM cursos WHERE id = %s", (course_id,))
+                if not cursor.fetchone():
+                    logger.warning(f"⚠️ Curso {course_id} não encontrado")
+                    return False
+                
+                # Deletar o curso (CASCADE irá deletar turmas, dias_semana e plataformas automaticamente)
+                cursor.execute("DELETE FROM cursos WHERE id = %s", (course_id,))
+                connection.commit()
+                
+                logger.info(f"✅ Curso {course_id} excluído com sucesso do banco de dados")
+                return True
+                
+        except Exception as e:
+            logger.error(f"❌ Erro ao excluir curso {course_id}: {str(e)}")
+            if connection:
+                connection.rollback()
+            return False
+        finally:
+            if connection:
+                connection.close()
+    
+    def mark_as_inserted(self, course_id: int) -> bool:
+        """
+        Marca um curso como inserido no sistema
+        
+        Args:
+            course_id: ID do curso
+            
+        Returns:
+            bool: True se marcado com sucesso
+        """
+        try:
+            connection = self._get_connection()
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    "UPDATE cursos SET is_inserted = 'sim' WHERE id = %s",
+                    (course_id,)
+                )
+                connection.commit()
+                
+                if cursor.rowcount > 0:
+                    logger.info(f"✅ Curso {course_id} marcado como inserido")
+                    return True
+                else:
+                    logger.warning(f"⚠️ Curso {course_id} não encontrado")
+                    return False
+                    
+        except Exception as e:
+            logger.error(f"❌ Erro ao marcar curso {course_id} como inserido: {str(e)}")
+            if connection:
+                connection.rollback()
+            return False
+        finally:
+            if connection:
+                connection.close()
+    
+    def unmark_as_inserted(self, course_id: int) -> bool:
+        """
+        Desmarca um curso como inserido no sistema
+        
+        Args:
+            course_id: ID do curso
+            
+        Returns:
+            bool: True se desmarcado com sucesso
+        """
+        try:
+            connection = self._get_connection()
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    "UPDATE cursos SET is_inserted = 'nao' WHERE id = %s",
+                    (course_id,)
+                )
+                connection.commit()
+                
+                if cursor.rowcount > 0:
+                    logger.info(f"✅ Curso {course_id} desmarcado como inserido")
+                    return True
+                else:
+                    logger.warning(f"⚠️ Curso {course_id} não encontrado")
+                    return False
+                    
+        except Exception as e:
+            logger.error(f"❌ Erro ao desmarcar curso {course_id}: {str(e)}")
+            if connection:
+                connection.rollback()
+            return False
+        finally:
+            if connection:
+                connection.close()
+    
+    def is_course_inserted(self, course_id: int) -> bool:
+        """
+        Verifica se um curso está marcado como inserido
+        
+        Args:
+            course_id: ID do curso
+            
+        Returns:
+            bool: True se o curso está marcado como inserido
+        """
+        try:
+            connection = self._get_connection()
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    "SELECT is_inserted FROM cursos WHERE id = %s",
+                    (course_id,)
+                )
+                result = cursor.fetchone()
+                
+                if result:
+                    return result['is_inserted'] == 'sim'
+                return False
+                
+        except Exception as e:
+            logger.error(f"❌ Erro ao verificar status do curso {course_id}: {str(e)}")
+            return False
+        finally:
+            if connection:
+                connection.close()
+    
+    def get_inserted_courses(self) -> set:
+        """
+        Retorna o conjunto de IDs dos cursos marcados como inseridos
+        
+        Returns:
+            set: Conjunto de IDs dos cursos inseridos
+        """
+        try:
+            connection = self._get_connection()
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    "SELECT id FROM cursos WHERE is_inserted = 'sim'"
+                )
+                results = cursor.fetchall()
+                
+                return {row['id'] for row in results}
+                
+        except Exception as e:
+            logger.error(f"❌ Erro ao buscar cursos inseridos: {str(e)}")
+            return set()
+        finally:
+            if connection:
+                connection.close()
+
