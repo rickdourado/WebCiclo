@@ -1,1509 +1,1719 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Lista de Cursos - Ciclo Carioca</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/icon-fallback.css') }}">
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/style.css') }}"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/icon-fallback.css') }}"
+    />
     <script src="{{ url_for('static', filename='js/icon-fallback.js') }}"></script>
     <style>
+      .list-container {
+        padding: 40px;
+      }
+
+      .list-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 40px;
+        flex-wrap: wrap;
+        gap: 20px;
+      }
+
+      .action-buttons {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .list-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #2d3748;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .course-stats {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+      }
+
+      .stat-card {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        padding: 15px 20px;
+        border-radius: 12px;
+        text-align: center;
+        min-width: 120px;
+      }
+
+      .stat-number {
+        font-size: 1.8rem;
+        font-weight: 700;
+        display: block;
+      }
+
+      .stat-label {
+        font-size: 0.9rem;
+        opacity: 0.9;
+      }
+
+      /* Estilos para a lista de cursos */
+      .courses-list {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        margin-top: 20px;
+      }
+
+      .course-item {
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        transition: box-shadow 0.2s, opacity 0.3s ease;
+      }
+
+      .course-item:hover {
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+      }
+
+      .course-header-row {
+        padding: 16px 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
+        background-color: #f8f9fa;
+        border-bottom: 1px solid #e9ecef;
+        transition: all 0.2s ease;
+      }
+
+      .course-header-row:hover {
+        background-color: #edf2f7;
+      }
+
+      .course-item.active .course-header-row {
+        border-bottom: 1px solid #e2e8f0;
+        background-color: #edf2f7;
+      }
+
+      .course-header-left {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        flex: 1;
+      }
+
+      /* Estilos para checkbox de status */
+      .course-status-checkbox {
+        position: relative;
+        margin-right: 15px;
+      }
+
+      .course-status-checkbox input[type="checkbox"] {
+        appearance: none;
+        width: 24px;
+        height: 24px;
+        border: 2px solid #cbd5e0;
+        border-radius: 6px;
+        background: white;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+      }
+
+      .course-status-checkbox input[type="checkbox"]:hover {
+        border-color: #667eea;
+        transform: scale(1.05);
+      }
+
+      .course-status-checkbox input[type="checkbox"]:checked {
+        background: linear-gradient(135deg, #48bb78, #38a169);
+        border-color: #38a169;
+        animation: checkboxPulse 0.3s ease;
+      }
+
+      .course-status-checkbox input[type="checkbox"]:checked::after {
+        content: "✓";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: white;
+        font-weight: bold;
+        font-size: 14px;
+      }
+
+      .course-status-checkbox.loading input[type="checkbox"] {
+        border-color: #667eea;
+        background: #f7fafc;
+      }
+
+      .course-status-checkbox.loading::after {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 16px;
+        height: 16px;
+        border: 2px solid #667eea;
+        border-top: 2px solid transparent;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+
+      @keyframes checkboxPulse {
+        0% {
+          transform: scale(1);
+        }
+
+        50% {
+          transform: scale(1.1);
+        }
+
+        100% {
+          transform: scale(1);
+        }
+      }
+
+      @keyframes spin {
+        0% {
+          transform: translate(-50%, -50%) rotate(0deg);
+        }
+
+        100% {
+          transform: translate(-50%, -50%) rotate(360deg);
+        }
+      }
+
+      .status-tooltip {
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #2d3748;
+        color: white;
+        padding: 6px 10px;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        white-space: nowrap;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+        z-index: 1000;
+        margin-bottom: 5px;
+      }
+
+      .status-tooltip::after {
+        content: "";
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        border: 5px solid transparent;
+        border-top-color: #2d3748;
+      }
+
+      .course-status-checkbox:hover .status-tooltip {
+        opacity: 1;
+        visibility: visible;
+      }
+
+      .course-toggle-icon {
+        transition: transform 0.3s ease;
+        color: #4a5568;
+        font-size: 1.2rem;
+      }
+
+      .course-item.active .course-toggle-icon {
+        transform: rotate(180deg);
+      }
+
+      .course-details {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.5s ease, padding 0.3s ease;
+        padding: 0 24px;
+      }
+
+      .course-item.active .course-details {
+        padding: 24px;
+        max-height: 8000px;
+        /* Altura aumentada para acomodar todas as informações */
+      }
+
+      .btn-secondary {
+        background-color: #4a5568;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 6px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+      }
+
+      .btn-secondary:hover {
+        background-color: #2d3748;
+      }
+
+      .btn-sm {
+        padding: 6px 12px;
+        font-size: 0.8rem;
+      }
+
+      .course-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+      }
+
+      .course-header {
+        margin-bottom: 16px;
+      }
+
+      .course-id {
+        font-size: 0.8rem;
+        color: #718096;
+        font-weight: 600;
+      }
+
+      .course-name {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #2d3748;
+        margin: 8px 0;
+        line-height: 1.3;
+      }
+
+      .course-type {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        padding: 3px 10px;
+        border-radius: 15px;
+        font-size: 0.7rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-right: 8px;
+        display: inline-block;
+      }
+
+      .course-category {
+        display: inline-block;
+        background: #edf2f7;
+        color: #4a5568;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+      }
+
+      .course-info {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin: 20px 0 24px;
+      }
+
+      .info-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        margin-bottom: 8px;
+        font-size: 0.95rem;
+        color: #4a5568;
+        line-height: 1.5;
+        padding: 8px 0;
+        border-bottom: 1px solid #f1f5f9;
+      }
+
+      .info-row:last-child {
+        border-bottom: none;
+      }
+
+      .info-row strong {
+        color: #2d3748;
+        font-weight: 600;
+        min-width: 140px;
+        display: inline-block;
+      }
+
+      /* Estilos para seções de informações */
+      .info-section {
+        margin-bottom: 20px;
+        padding: 15px;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        border-left: 4px solid #667eea;
+      }
+
+      .info-section-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #2d3748;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .info-section-title i {
+        color: #667eea;
+      }
+
+      /* Estilos para descrições */
+      .description-item {
+        margin-bottom: 20px;
+        padding: 15px;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        border-left: 4px solid #667eea;
+      }
+
+      .description-item.enhanced {
+        background-color: #edf2f7;
+        border-left-color: #4299e1;
+      }
+
+      .description-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 10px;
+        font-size: 0.95rem;
+        color: #2d3748;
+      }
+
+      .description-label i {
+        color: #667eea;
+      }
+
+      .description-item.enhanced .description-label i {
+        color: #4299e1;
+      }
+
+      .description-content {
+        font-size: 0.9rem;
+        line-height: 1.6;
+        color: #4a5568;
+        padding-left: 24px;
+      }
+
+      /* Estilos para seção de ações administrativas */
+      .action-buttons-section {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 8px;
+        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 1px solid #e2e8f0;
+      }
+
+      .action-buttons-section .btn-secondary {
+        text-align: center;
+        transition: all 0.3s ease;
+        padding: 8px 10px;
+        font-size: 0.8rem;
+        white-space: nowrap;
+      }
+
+      .action-buttons-section .btn-secondary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      }
+
+      .action-buttons-section .download-btn {
+        color: white;
+      }
+
+      .action-buttons-section .download-btn:hover {
+        color: white;
+        opacity: 0.9;
+      }
+
+      .action-buttons-section .btn-secondary:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      .action-buttons-section .btn-secondary:disabled:hover {
+        transform: none;
+        box-shadow: none;
+      }
+
+      .info-row i {
+        width: 24px;
+        color: #667eea;
+        font-size: 1.2em;
+      }
+
+      .course-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 20px;
+        padding-top: 16px;
+        border-top: 1px solid #e2e8f0;
+      }
+
+      .course-price {
+        font-weight: 700;
+        font-size: 1.1rem;
+      }
+
+      .price-free {
+        color: #38a169;
+      }
+
+      .price-paid {
+        color: #667eea;
+      }
+
+      .course-date {
+        font-size: 0.9rem;
+        color: #4a5568;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 10px;
+      }
+
+      .course-date i {
+        color: #667eea;
+      }
+
+      .empty-state {
+        text-align: center;
+        padding: 80px 20px;
+        color: #718096;
+      }
+
+      .empty-icon {
+        font-size: 4rem;
+        margin-bottom: 20px;
+        opacity: 0.5;
+      }
+
+      .empty-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 10px;
+        color: #4a5568;
+      }
+
+      .empty-message {
+        font-size: 1rem;
+        margin-bottom: 30px;
+      }
+
+      .filters {
+        display: flex;
+        gap: 16px;
+        margin-bottom: 30px;
+        flex-wrap: wrap;
+      }
+
+      .filter-select {
+        padding: 8px 16px;
+        border: 2px solid #e2e8f0;
+        border-radius: 8px;
+        background: white;
+        font-size: 0.9rem;
+        min-width: 150px;
+      }
+
+      .search-box {
+        flex: 1;
+        min-width: 250px;
+        position: relative;
+      }
+
+      .search-input {
+        width: 100%;
+        padding: 8px 16px;
+        border: 2px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        text-align: center;
+      }
+
+      .search-icon {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #718096;
+        pointer-events: none;
+      }
+
+      @media (max-width: 768px) {
         .list-container {
-            padding: 40px;
+          padding: 20px;
         }
 
         .list-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 40px;
-            flex-wrap: wrap;
-            gap: 20px;
-        }
-
-        .action-buttons {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .list-title {
-            font-size: 2rem;
-            font-weight: 700;
-            color: #2d3748;
-            display: flex;
-            align-items: center;
-            gap: 12px;
+          flex-direction: column;
+          align-items: stretch;
         }
 
         .course-stats {
-            display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
+          justify-content: center;
         }
 
-        .stat-card {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            padding: 15px 20px;
-            border-radius: 12px;
-            text-align: center;
-            min-width: 120px;
-        }
-
-        .stat-number {
-            font-size: 1.8rem;
-            font-weight: 700;
-            display: block;
-        }
-
-        .stat-label {
-            font-size: 0.9rem;
-            opacity: 0.9;
-        }
-
-        /* Estilos para a lista de cursos */
-        .courses-list {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            margin-top: 20px;
-        }
-
-        .course-item {
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-            transition: box-shadow 0.2s, opacity 0.3s ease;
-        }
-
-        .course-item:hover {
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-        }
-
-        .course-header-row {
-            padding: 16px 24px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            cursor: pointer;
-            background-color: #f8f9fa;
-            border-bottom: 1px solid #e9ecef;
-            transition: all 0.2s ease;
-        }
-
-        .course-header-row:hover {
-            background-color: #edf2f7;
-        }
-
-        .course-item.active .course-header-row {
-            border-bottom: 1px solid #e2e8f0;
-            background-color: #edf2f7;
-        }
-
-        .course-header-left {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            flex: 1;
-        }
-
-        /* Estilos para checkbox de status */
-        .course-status-checkbox {
-            position: relative;
-            margin-right: 15px;
-        }
-
-        .course-status-checkbox input[type="checkbox"] {
-            appearance: none;
-            width: 24px;
-            height: 24px;
-            border: 2px solid #cbd5e0;
-            border-radius: 6px;
-            background: white;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            position: relative;
-        }
-
-        .course-status-checkbox input[type="checkbox"]:hover {
-            border-color: #667eea;
-            transform: scale(1.05);
-        }
-
-        .course-status-checkbox input[type="checkbox"]:checked {
-            background: linear-gradient(135deg, #48bb78, #38a169);
-            border-color: #38a169;
-            animation: checkboxPulse 0.3s ease;
-        }
-
-        .course-status-checkbox input[type="checkbox"]:checked::after {
-            content: '✓';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: white;
-            font-weight: bold;
-            font-size: 14px;
-        }
-
-        .course-status-checkbox.loading input[type="checkbox"] {
-            border-color: #667eea;
-            background: #f7fafc;
-        }
-
-        .course-status-checkbox.loading::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 16px;
-            height: 16px;
-            border: 2px solid #667eea;
-            border-top: 2px solid transparent;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes checkboxPulse {
-            0% {
-                transform: scale(1);
-            }
-
-            50% {
-                transform: scale(1.1);
-            }
-
-            100% {
-                transform: scale(1);
-            }
-        }
-
-        @keyframes spin {
-            0% {
-                transform: translate(-50%, -50%) rotate(0deg);
-            }
-
-            100% {
-                transform: translate(-50%, -50%) rotate(360deg);
-            }
-        }
-
-        .status-tooltip {
-            position: absolute;
-            bottom: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #2d3748;
-            color: white;
-            padding: 6px 10px;
-            border-radius: 4px;
-            font-size: 0.8rem;
-            white-space: nowrap;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease;
-            z-index: 1000;
-            margin-bottom: 5px;
-        }
-
-        .status-tooltip::after {
-            content: '';
-            position: absolute;
-            top: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            border: 5px solid transparent;
-            border-top-color: #2d3748;
-        }
-
-        .course-status-checkbox:hover .status-tooltip {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .course-toggle-icon {
-            transition: transform 0.3s ease;
-            color: #4a5568;
-            font-size: 1.2rem;
-        }
-
-        .course-item.active .course-toggle-icon {
-            transform: rotate(180deg);
-        }
-
-        .course-details {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.5s ease, padding 0.3s ease;
-            padding: 0 24px;
-        }
-
-        .course-item.active .course-details {
-            padding: 24px;
-            max-height: 8000px;
-            /* Altura aumentada para acomodar todas as informações */
-        }
-
-        .btn-secondary {
-            background-color: #4a5568;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
-            font-size: 0.9rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-            text-decoration: none;
-            display: inline-block;
-        }
-
-        .btn-secondary:hover {
-            background-color: #2d3748;
-        }
-
-        .btn-sm {
-            padding: 6px 12px;
-            font-size: 0.8rem;
-        }
-
-        .course-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-        }
-
-        .course-header {
-            margin-bottom: 16px;
-        }
-
-        .course-id {
-            font-size: 0.8rem;
-            color: #718096;
-            font-weight: 600;
-        }
-
-        .course-name {
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: #2d3748;
-            margin: 8px 0;
-            line-height: 1.3;
-        }
-
-        .course-type {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            padding: 3px 10px;
-            border-radius: 15px;
-            font-size: 0.7rem;
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-right: 8px;
-            display: inline-block;
-        }
-
-        .course-category {
-            display: inline-block;
-            background: #edf2f7;
-            color: #4a5568;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 600;
-        }
-
-        .course-info {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            margin: 20px 0 24px;
-        }
-
-        .info-row {
-            display: flex;
-            align-items: flex-start;
-            gap: 12px;
-            margin-bottom: 8px;
-            font-size: 0.95rem;
-            color: #4a5568;
-            line-height: 1.5;
-            padding: 8px 0;
-            border-bottom: 1px solid #f1f5f9;
-        }
-
-        .info-row:last-child {
-            border-bottom: none;
-        }
-
-        .info-row strong {
-            color: #2d3748;
-            font-weight: 600;
-            min-width: 140px;
-            display: inline-block;
-        }
-
-        /* Estilos para seções de informações */
-        .info-section {
-            margin-bottom: 20px;
-            padding: 15px;
-            background-color: #f8f9fa;
-            border-radius: 8px;
-            border-left: 4px solid #667eea;
-        }
-
-        .info-section-title {
-            font-size: 1rem;
-            font-weight: 600;
-            color: #2d3748;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .info-section-title i {
-            color: #667eea;
-        }
-
-        /* Estilos para descrições */
-        .description-item {
-            margin-bottom: 20px;
-            padding: 15px;
-            background-color: #f8f9fa;
-            border-radius: 8px;
-            border-left: 4px solid #667eea;
-        }
-
-        .description-item.enhanced {
-            background-color: #edf2f7;
-            border-left-color: #4299e1;
-        }
-
-        .description-label {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 10px;
-            font-size: 0.95rem;
-            color: #2d3748;
-        }
-
-        .description-label i {
-            color: #667eea;
-        }
-
-        .description-item.enhanced .description-label i {
-            color: #4299e1;
-        }
-
-        .description-content {
-            font-size: 0.9rem;
-            line-height: 1.6;
-            color: #4a5568;
-            padding-left: 24px;
-        }
-
-        /* Estilos para seção de ações administrativas */
-        .action-buttons-section {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 8px;
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px solid #e2e8f0;
-        }
-
-        .action-buttons-section .btn-secondary {
-            text-align: center;
-            transition: all 0.3s ease;
-            padding: 8px 10px;
-            font-size: 0.8rem;
-            white-space: nowrap;
-        }
-
-        .action-buttons-section .btn-secondary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        }
-
-        .action-buttons-section .download-btn {
-            color: white;
-        }
-
-        .action-buttons-section .download-btn:hover {
-            color: white;
-            opacity: 0.9;
-        }
-
-        .action-buttons-section .btn-secondary:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .action-buttons-section .btn-secondary:disabled:hover {
-            transform: none;
-            box-shadow: none;
-        }
-
-        .info-row i {
-            width: 24px;
-            color: #667eea;
-            font-size: 1.2em;
-        }
-
-
-        .course-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 20px;
-            padding-top: 16px;
-            border-top: 1px solid #e2e8f0;
-        }
-
-        .course-price {
-            font-weight: 700;
-            font-size: 1.1rem;
-        }
-
-        .price-free {
-            color: #38a169;
-        }
-
-        .price-paid {
-            color: #667eea;
-        }
-
-        .course-date {
-            font-size: 0.9rem;
-            color: #4a5568;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 10px;
-        }
-
-        .course-date i {
-            color: #667eea;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 80px 20px;
-            color: #718096;
-        }
-
-        .empty-icon {
-            font-size: 4rem;
-            margin-bottom: 20px;
-            opacity: 0.5;
-        }
-
-        .empty-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            margin-bottom: 10px;
-            color: #4a5568;
-        }
-
-        .empty-message {
-            font-size: 1rem;
-            margin-bottom: 30px;
+        .courses-grid {
+          grid-template-columns: 1fr;
         }
 
         .filters {
-            display: flex;
-            gap: 16px;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
+          flex-direction: column;
         }
 
-        .filter-select {
-            padding: 8px 16px;
-            border: 2px solid #e2e8f0;
-            border-radius: 8px;
-            background: white;
-            font-size: 0.9rem;
-            min-width: 150px;
-        }
-
+        .filter-select,
         .search-box {
-            flex: 1;
-            min-width: 250px;
-            position: relative;
+          min-width: auto;
         }
-
-        .search-input {
-            width: 100%;
-            padding: 8px 16px;
-            border: 2px solid #e2e8f0;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            text-align: center;
-        }
-
-        .search-icon {
-            position: absolute;
-            left: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #718096;
-            pointer-events: none;
-        }
-
-        @media (max-width: 768px) {
-            .list-container {
-                padding: 20px;
-            }
-
-            .list-header {
-                flex-direction: column;
-                align-items: stretch;
-            }
-
-            .course-stats {
-                justify-content: center;
-            }
-
-            .courses-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .filters {
-                flex-direction: column;
-            }
-
-            .filter-select,
-            .search-box {
-                min-width: auto;
-            }
-        }
+      }
     </style>
-</head>
+  </head>
 
-<body>
+  <body>
     <!-- Modal de confirmação de exclusão -->
-    <div id="deleteModal" class="modal"
-        style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4);">
-        <div class="modal-content"
-            style="background-color: #fefefe; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 500px; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.2);">
-            <div class="modal-header" style="margin-bottom: 15px;">
-                <h3 style="margin: 0; color: #e53e3e;">Confirmar Exclusão</h3>
-            </div>
-            <div class="modal-body">
-                <p>Você realmente deseja excluir o curso <strong id="cursoTitulo"></strong>?</p>
-                <p>Esta ação não pode ser desfeita e removerá permanentemente o curso, o arquivo CSV e o arquivo PDF.
-                </p>
-            </div>
-            <div class="modal-footer" style="margin-top: 20px; display: flex; justify-content: flex-end; gap: 10px;">
-                <button onclick="fecharModal()"
-                    style="background-color: #718096; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer;">Cancelar</button>
-                <form id="deleteForm" method="POST" action="">
-                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                    <input type="hidden" name="confirm_delete" value="true"/>
-                    <button type="submit"
-                        style="background-color: #e53e3e; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer;">Sim,
-                        Excluir</button>
-                </form>
-            </div>
+    <div
+      id="deleteModal"
+      class="modal"
+      style="
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.4);
+      "
+    >
+      <div
+        class="modal-content"
+        style="
+          background-color: #fefefe;
+          margin: 15% auto;
+          padding: 20px;
+          border: 1px solid #888;
+          width: 80%;
+          max-width: 500px;
+          border-radius: 8px;
+          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        "
+      >
+        <div class="modal-header" style="margin-bottom: 15px">
+          <h3 style="margin: 0; color: #e53e3e">Confirmar Exclusão</h3>
         </div>
+        <div class="modal-body">
+          <p>
+            Você realmente deseja excluir o curso
+            <strong id="cursoTitulo"></strong>?
+          </p>
+          <p>
+            Esta ação não pode ser desfeita e removerá permanentemente o curso,
+            o arquivo CSV e o arquivo PDF.
+          </p>
+        </div>
+        <div
+          class="modal-footer"
+          style="
+            margin-top: 20px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+          "
+        >
+          <button
+            onclick="fecharModal()"
+            style="
+              background-color: #718096;
+              color: white;
+              border: none;
+              padding: 8px 16px;
+              border-radius: 6px;
+              cursor: pointer;
+            "
+          >
+            Cancelar
+          </button>
+          <form id="deleteForm" method="POST" action="">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+            <input
+              type="hidden"
+              name="course_id"
+              id="deleteCourseId"
+              value=""
+            />
+            <input type="hidden" name="confirm_delete" value="true" />
+            <button
+              type="submit"
+              style="
+                background-color: #e53e3e;
+                color: white;
+                border: none;
+                padding: 8px 16px;
+                border-radius: 6px;
+                cursor: pointer;
+              "
+            >
+              Sim, Excluir
+            </button>
+          </form>
+        </div>
+      </div>
     </div>
     <div class="container">
-        <!-- Header -->
-        <header class="header">
-            <div class="header-content">
-                <div class="logo-section">
-                    <a href="{{ url_for('index') }}" title="Ir para página inicial">
-                        <img src="{{ url_for('static', filename='images/OC.png') }}"
-                            alt="Logo Ciclo Carioca">
-                    </a>
-                    <span class="version">v2.0</span>
-                </div>
-                <div class="nav-section">
-                    <a href="{{ url_for('index') }}" class="nav-link home-link" title="Página Inicial">
-                        <i class="fas fa-home"></i>
-                    </a>
-                </div>
+      <!-- Header -->
+      <header class="header">
+        <div class="header-content">
+          <div class="logo-section">
+            <a href="{{ url_for('index') }}" title="Ir para página inicial">
+              <img
+                src="{{ url_for('static', filename='images/OC.png') }}"
+                alt="Logo Ciclo Carioca"
+              />
+            </a>
+            <span class="version">v2.0</span>
+          </div>
+          <div class="nav-section">
+            <a
+              href="{{ url_for('index') }}"
+              class="nav-link home-link"
+              title="Página Inicial"
+            >
+              <i class="fas fa-home"></i>
+            </a>
+          </div>
+        </div>
+      </header>
+
+      <!-- Main Content -->
+      <main class="main-content">
+        <div class="list-container">
+          <div class="list-header">
+            <h2 class="list-title">
+              <i class="fas fa-list"></i>
+              Cursos Cadastrados
+            </h2>
+
+            <div class="action-buttons">
+              <a href="{{ url_for('index') }}" class="btn btn-primary"
+                ><i class="fas fa-plus"></i> Novo Curso</a
+              >
             </div>
-        </header>
 
-        <!-- Main Content -->
-        <main class="main-content">
-            <div class="list-container">
-                <div class="list-header">
-                    <h2 class="list-title">
-                        <i class="fas fa-list"></i>
-                        Cursos Cadastrados
-                    </h2>
+            <div class="course-stats">
+              <div class="stat-card">
+                <span class="stat-number">{{ courses|length }}</span>
+                <span class="stat-label">Total</span>
+              </div>
+              <div class="stat-card">
+                <span class="stat-number"
+                  >{{ courses|selectattr('is_inserted', 'equalto',
+                  true)|list|length }}</span
+                >
+                <span class="stat-label">Inseridos</span>
+              </div>
+              <div class="stat-card">
+                <span class="stat-number"
+                  >{{ courses|selectattr('curso_gratuito', 'equalto',
+                  'sim')|list|length }}</span
+                >
+                <span class="stat-label">Gratuitos</span>
+              </div>
+              <div class="stat-card">
+                <span class="stat-number"
+                  >{{ courses|selectattr('curso_gratuito', 'equalto',
+                  'nao')|list|length }}</span
+                >
+                <span class="stat-label">Pagos</span>
+              </div>
+            </div>
+          </div>
 
-                    <div class="action-buttons">
-                        <a href="{{ url_for('index') }}" class="btn btn-primary"><i class="fas fa-plus"></i> Novo
-                            Curso</a>
+          {% if courses %}
+          <!-- Filtros -->
+          <div class="filters">
+            <div class="search-box">
+              <i class="fas fa-search search-icon"></i>
+              <input
+                type="text"
+                class="search-input"
+                placeholder="Buscar cursos..."
+                id="searchInput"
+                autocomplete="off"
+              />
+            </div>
+
+            <select class="filter-select" id="orgaoFilter" autocomplete="off">
+              <option value="">Todos os órgãos</option>
+              {% set orgaos = [] %} {% for course in courses %} {% if
+              course.orgao and course.orgao not in orgaos %} {% set orgaos =
+              orgaos + [course.orgao] %}
+              <option value="{{ course.orgao }}">{{ course.orgao }}</option>
+              {% endif %} {% endfor %}
+            </select>
+
+            <select
+              class="filter-select"
+              id="categoryFilter"
+              autocomplete="off"
+            >
+              <option value="">Todas as categorias</option>
+              {% set categories = [] %} {% for course in courses %} {% if
+              course.tema not in categories %} {% set categories = categories +
+              [course.tema] %}
+              <option value="{{ course.tema }}">{{ course.tema }}</option>
+              {% endif %} {% endfor %}
+            </select>
+
+            <select
+              class="filter-select"
+              id="modalityFilter"
+              autocomplete="off"
+            >
+              <option value="">Todas as modalidades</option>
+              {% set modalidades = [] %} {% for course in courses %} {% if
+              course.modalidade not in modalidades %} {% set modalidades =
+              modalidades + [course.modalidade] %}
+              <option value="{{ course.modalidade }}">
+                {{ course.modalidade }}
+              </option>
+              {% endif %} {% endfor %}
+            </select>
+          </div>
+
+          <!-- Lista de Cursos Expansível -->
+          <div class="courses-list" id="coursesList">
+            {% for course in courses %}
+            <div
+              class="course-item"
+              data-name="{{ course.titulo|lower }}"
+              data-category="{{ course.tema }}"
+              data-modality="{{ course.modalidade }}"
+              data-orgao="{{ course.orgao or '' }}"
+              data-price="gratuito"
+            >
+              <div
+                class="course-header-row"
+                onclick="toggleCourseDetails(this)"
+              >
+                <div class="course-header-left">
+                  <div
+                    class="course-status-checkbox"
+                    onclick="event.stopPropagation();"
+                  >
+                    <input
+                      type="checkbox"
+                      id="status-{{ course.id }}"
+                      data-course-id="{{ course.id }}"
+                      {%
+                      if
+                      course.is_inserted
+                      %}checked{%
+                      endif
+                      %}
+                      onchange="toggleCourseStatus({{ course.id }}, this)"
+                    />
+                    <div class="status-tooltip">
+                      {% if course.is_inserted %} Curso inserido no sistema {%
+                      else %} Marcar como inserido {% endif %}
+                    </div>
+                  </div>
+                  <div class="course-id">#{{ course.id }}</div>
+                  <h3 class="course-name">
+                    {% if course.tipo_acao %}
+                    <span class="course-type">{{ course.tipo_acao }}</span>
+                    {% endif %} {{ course.titulo }}
+                  </h3>
+                  <span class="course-category">{{ course.tema }}</span>
+                </div>
+                <div class="course-header-right">
+                  <div
+                    class="course-price {% if course.curso_gratuito == 'sim' %}price-free{% else %}price-paid{% endif %}"
+                  >
+                    {% if course.curso_gratuito == 'sim' %}
+                    <i class="fas fa-gift"></i> Gratuito {% else %}
+                    <i class="fas fa-tag"></i> R$ {{ course.valor_curso }} {%
+                    endif %}
+                  </div>
+                  <i class="fas fa-chevron-down course-toggle-icon"></i>
+                </div>
+              </div>
+
+              <div class="course-details">
+                <!-- Seção: Informações Básicas -->
+                <div class="info-section">
+                  <div class="info-section-title">
+                    <i class="fas fa-info-circle"></i>
+                    Informações Básicas
+                  </div>
+                  <div class="course-info">
+                    <div class="info-row">
+                      <i class="fas fa-graduation-cap"></i>
+                      <span><strong>Título:</strong> {{ course.titulo }}</span>
                     </div>
 
-                    <div class="course-stats">
-                        <div class="stat-card">
-                            <span class="stat-number">{{ courses|length }}</span>
-                            <span class="stat-label">Total</span>
-                        </div>
-                        <div class="stat-card">
-                            <span class="stat-number">{{ courses|selectattr('is_inserted', 'equalto', true)|list|length
-                                }}</span>
-                            <span class="stat-label">Inseridos</span>
-                        </div>
-                        <div class="stat-card">
-                            <span class="stat-number">{{ courses|selectattr('curso_gratuito', 'equalto',
-                                'sim')|list|length }}</span>
-                            <span class="stat-label">Gratuitos</span>
-                        </div>
-                        <div class="stat-card">
-                            <span class="stat-number">{{ courses|selectattr('curso_gratuito', 'equalto',
-                                'nao')|list|length }}</span>
-                            <span class="stat-label">Pagos</span>
-                        </div>
+                    <div class="info-row">
+                      <i class="fas fa-tag"></i>
+                      <span><strong>Categoria:</strong> {{ course.tema }}</span>
                     </div>
+
+                    <div class="info-row">
+                      <i class="fas fa-graduation-cap"></i>
+                      <span
+                        ><strong>Modalidade:</strong> {{ course.modalidade
+                        }}</span
+                      >
+                    </div>
+
+                    {% if course.inicio_aulas_data or course.fim_aulas_data %}
+                    <div class="info-row">
+                      <i class="fas fa-calendar-check"></i>
+                      <span
+                        ><strong>Data de Realização:</strong>
+                        {% set inicio_data =
+                        course.inicio_aulas_data.split('|')[0].strip() if
+                        course.inicio_aulas_data else '' %} {% set fim_data =
+                        course.fim_aulas_data.split('|')[0].strip() if
+                        course.fim_aulas_data else '' %} {% if inicio_data and
+                        fim_data %} {% set inicio_formatada =
+                        inicio_data.split('-')[2] + '/' +
+                        inicio_data.split('-')[1] + '/' +
+                        inicio_data.split('-')[0] %} {% set fim_formatada =
+                        fim_data.split('-')[2] + '/' + fim_data.split('-')[1] +
+                        '/' + fim_data.split('-')[0] %} {{ inicio_formatada }} a
+                        {{ fim_formatada }} {% elif inicio_data %} {% set
+                        inicio_formatada = inicio_data.split('-')[2] + '/' +
+                        inicio_data.split('-')[1] + '/' +
+                        inicio_data.split('-')[0] %} A partir de {{
+                        inicio_formatada }} {% elif fim_data %} {% set
+                        fim_formatada = fim_data.split('-')[2] + '/' +
+                        fim_data.split('-')[1] + '/' + fim_data.split('-')[0] %}
+                        Até {{ fim_formatada }} {% endif %}
+                      </span>
+                    </div>
+                    {% endif %} {% if course.modalidade == 'Online' and
+                    course.plataforma_digital %}
+                    <div class="info-row">
+                      <i class="fas fa-video"></i>
+                      <span
+                        ><strong>Plataforma Digital:</strong> {{
+                        course.plataforma_digital }}</span
+                      >
+                    </div>
+                    {% endif %} {% if course.carga_horaria %}
+                    <div class="info-row">
+                      <i class="fas fa-clock"></i>
+                      <span
+                        ><strong>Carga Horária:</strong> {{ course.carga_horaria
+                        }}</span
+                      >
+                    </div>
+                    {% endif %} {% if course.modalidade == 'Online' and
+                    course.aulas_assincronas %}
+                    <div class="info-row">
+                      <i class="fas fa-video"></i>
+                      <span
+                        ><strong>Tipo de Aula:</strong> {% if
+                        course.aulas_assincronas == 'sim' %}Aulas Assíncronas
+                        (no seu próprio ritmo){% else %}Aulas Síncronas (horário
+                        fixo){% endif %}</span
+                      >
+                    </div>
+                    {% endif %} {% if course.dias_aula %}
+                    <div class="info-row">
+                      <i class="fas fa-calendar-day"></i>
+                      <span
+                        ><strong>Dias da Aula:</strong>
+                        {% set dias_lista = course.dias_aula.split('|') %} {%
+                        set dias_unicos = [] %} {% for turma_dias in dias_lista
+                        %} {# Cada turma pode ter múltiplos dias separados por
+                        vírgula #} {% for dia in turma_dias.split(',') %} {% set
+                        dia_limpo = dia.strip() %} {% if dia_limpo and dia_limpo
+                        not in dias_unicos %} {% set _ =
+                        dias_unicos.append(dia_limpo) %} {% endif %} {% endfor
+                        %} {% endfor %} {{ dias_unicos|join(', ') }}
+                      </span>
+                    </div>
+                    {% endif %} {% if course.horario_inicio and
+                    course.horario_fim %}
+                    <div class="info-row">
+                      <i class="fas fa-clock"></i>
+                      <span
+                        ><strong>Horário:</strong>
+                        {% set horarios_inicio =
+                        course.horario_inicio.split('|') %} {% set horarios_fim
+                        = course.horario_fim.split('|') %} {% set
+                        horarios_formatados = [] %} {% for i in
+                        range(horarios_inicio|length) %} {% if i <
+                        horarios_fim|length %} {% set horario =
+                        horarios_inicio[i].strip() + ' às ' +
+                        horarios_fim[i].strip() %} {% set _ =
+                        horarios_formatados.append(horario) %} {% endif %} {%
+                        endfor %} {{ horarios_formatados|join(', ') }}
+                      </span>
+                    </div>
+                    {% endif %}
+
+                    <div class="info-row">
+                      <i class="fas fa-building"></i>
+                      <span
+                        ><strong>Órgão Responsável:</strong> {{ course.orgao
+                        }}</span
+                      >
+                    </div>
+                  </div>
                 </div>
 
-                {% if courses %}
-                <!-- Filtros -->
-                <div class="filters">
-                    <div class="search-box">
-                        <i class="fas fa-search search-icon"></i>
-                        <input type="text" class="search-input" placeholder="Buscar cursos..." id="searchInput"
-                            autocomplete="off">
+                <!-- Seção: Informações Financeiras -->
+                <div class="info-section">
+                  <div class="info-section-title">
+                    <i class="fas fa-dollar-sign"></i>
+                    Informações Financeiras
+                  </div>
+                  <div class="course-info">
+                    <div class="info-row">
+                      <i class="fas fa-tag"></i>
+                      <span
+                        ><strong>Tipo:</strong> {% if course.curso_gratuito ==
+                        'sim' %}Gratuito{% else %}Pago{% endif %}</span
+                      >
                     </div>
 
-                    <select class="filter-select" id="orgaoFilter" autocomplete="off">
-                        <option value="">Todos os órgãos</option>
-                        {% set orgaos = [] %}
-                        {% for course in courses %}
-                        {% if course.orgao and course.orgao not in orgaos %}
-                        {% set orgaos = orgaos + [course.orgao] %}
-                        <option value="{{ course.orgao }}">{{ course.orgao }}</option>
-                        {% endif %}
-                        {% endfor %}
-                    </select>
+                    {% if course.curso_gratuito == 'nao' %} {% if
+                    course.valor_curso_inteira %}
+                    <div class="info-row">
+                      <i class="fas fa-dollar-sign"></i>
+                      <span
+                        ><strong>Valor Inteira:</strong>
+                        {% set valor_str = course.valor_curso_inteira|safe_str
+                        %} {% if valor_str.startswith('R$') %} {{ valor_str }}
+                        {% else %} R$ {{ valor_str }} {% endif %}
+                      </span>
+                    </div>
+                    {% endif %} {% if course.valor_curso_meia %}
+                    <div class="info-row">
+                      <i class="fas fa-percentage"></i>
+                      <span
+                        ><strong>Valor Meia:</strong>
+                        {% set valor_str = course.valor_curso_meia|safe_str %}
+                        {% if valor_str.startswith('R$') %} {{ valor_str }} {%
+                        else %} R$ {{ valor_str }} {% endif %}
+                      </span>
+                    </div>
+                    {% endif %} {% if course.requisitos_meia %}
+                    <div class="info-row">
+                      <i class="fas fa-clipboard-check"></i>
+                      <span
+                        ><strong>Condições para Meia-entrada:</strong> {{
+                        course.requisitos_meia }}</span
+                      >
+                    </div>
+                    {% endif %} {% endif %}
 
-                    <select class="filter-select" id="categoryFilter" autocomplete="off">
-                        <option value="">Todas as categorias</option>
-                        {% set categories = [] %}
-                        {% for course in courses %}
-                        {% if course.tema not in categories %}
-                        {% set categories = categories + [course.tema] %}
-                        <option value="{{ course.tema }}">{{ course.tema }}</option>
-                        {% endif %}
-                        {% endfor %}
-                    </select>
+                    <div class="info-row">
+                      <i class="fas fa-hand-holding-usd"></i>
+                      <span
+                        ><strong>Oferece Bolsa:</strong> {% if
+                        course.oferece_bolsa == 'sim' %}Sim{% else %}Não{% endif
+                        %}</span
+                      >
+                    </div>
 
-                    <select class="filter-select" id="modalityFilter" autocomplete="off">
-                        <option value="">Todas as modalidades</option>
-                        {% set modalidades = [] %}
-                        {% for course in courses %}
-                        {% if course.modalidade not in modalidades %}
-                        {% set modalidades = modalidades + [course.modalidade] %}
-                        <option value="{{ course.modalidade }}">{{ course.modalidade }}</option>
-                        {% endif %}
-                        {% endfor %}
-                    </select>
-
+                    {% if course.oferece_bolsa == 'sim' and course.valor_bolsa
+                    %}
+                    <div class="info-row">
+                      <i class="fas fa-money-bill-wave"></i>
+                      <span
+                        ><strong>Valor da Bolsa:</strong>
+                        {% set valor_str = course.valor_bolsa|safe_str %} {% if
+                        valor_str.startswith('R$') %} {{ valor_str }} {% else %}
+                        R$ {{ valor_str }} {% endif %}
+                      </span>
+                    </div>
+                    {% endif %} {% if course.oferece_bolsa == 'sim' and
+                    course.requisitos_bolsa %}
+                    <div class="info-row">
+                      <i class="fas fa-clipboard-list"></i>
+                      <span
+                        ><strong>Requisitos para Bolsa:</strong> {{
+                        course.requisitos_bolsa }}</span
+                      >
+                    </div>
+                    {% endif %}
+                  </div>
                 </div>
 
-                <!-- Lista de Cursos Expansível -->
-                <div class="courses-list" id="coursesList">
-                    {% for course in courses %}
-                    <div class="course-item" data-name="{{ course.titulo|lower }}" data-category="{{ course.tema }}"
-                        data-modality="{{ course.modalidade }}" data-orgao="{{ course.orgao or '' }}"
-                        data-price="gratuito">
+                <!-- Seção: Informações de Localização (apenas para cursos presenciais/híbridos) -->
+                {% if course.modalidade in ['Presencial', 'Híbrido'] and
+                (course.endereco_unidade or course.bairro_unidade) %}
+                <div class="info-section">
+                  <div class="info-section-title">
+                    <i class="fas fa-map-marker-alt"></i>
+                    Informações de Localização
+                  </div>
+                  <div class="course-info">
+                    {% set enderecos = course.endereco_unidade.split('|') if
+                    course.endereco_unidade else [] %} {% set bairros =
+                    course.bairro_unidade.split('|') if course.bairro_unidade
+                    else [] %} {% set vagas = course.vagas_unidade.split('|') if
+                    course.vagas_unidade else [] %} {% set inicio_aulas =
+                    course.inicio_aulas_data.split('|') if
+                    course.inicio_aulas_data else [] %} {% set fim_aulas =
+                    course.fim_aulas_data.split('|') if course.fim_aulas_data
+                    else [] %} {% set horario_inicio =
+                    course.horario_inicio.split('|') if course.horario_inicio
+                    else [] %} {% set horario_fim =
+                    course.horario_fim.split('|') if course.horario_fim else []
+                    %} {% set dias_aula = course.dias_aula.split('|') if
+                    course.dias_aula else [] %} {% set max_units =
+                    [enderecos|length, bairros|length, vagas|length,
+                    inicio_aulas|length, fim_aulas|length,
+                    horario_inicio|length, horario_fim|length,
+                    dias_aula|length]|max %} {% for i in range(max_units) %} {%
+                    if enderecos[i] or bairros[i] or vagas[i] %}
+                    <div
+                      class="unit-info"
+                      style="
+                        margin-bottom: 20px;
+                        padding: 15px;
+                        background-color: #f8f9fa;
+                        border-radius: 8px;
+                        border-left: 4px solid #667eea;
+                      "
+                    >
+                      <div
+                        style="
+                          font-weight: 600;
+                          color: #2d3748;
+                          margin-bottom: 10px;
+                          display: flex;
+                          align-items: center;
+                          gap: 8px;
+                        "
+                      >
+                        <i class="fas fa-building" style="color: #667eea"></i>
+                        Unidade ou Turma {{ i + 1 }}
+                      </div>
 
-                        <div class="course-header-row" onclick="toggleCourseDetails(this)">
-                            <div class="course-header-left">
-                                <div class="course-status-checkbox" onclick="event.stopPropagation();">
-                                    <input type="checkbox" id="status-{{ course.id }}" data-course-id="{{ course.id }}"
-                                        {% if course.is_inserted %}checked{% endif %}
-                                        onchange="toggleCourseStatus({{ course.id }}, this)">
-                                    <div class="status-tooltip">
-                                        {% if course.is_inserted %}
-                                        Curso inserido no sistema
-                                        {% else %}
-                                        Marcar como inserido
-                                        {% endif %}
-                                    </div>
-                                </div>
-                                <div class="course-id">#{{ course.id }}</div>
-                                <h3 class="course-name">
-                                    {% if course.tipo_acao %}
-                                        <span class="course-type">{{ course.tipo_acao }}</span>
-                                    {% endif %}
-                                    {{ course.titulo }}
-                                </h3>
-                                <span class="course-category">{{ course.tema }}</span>
-                            </div>
-                            <div class="course-header-right">
-                                <div
-                                    class="course-price {% if course.curso_gratuito == 'sim' %}price-free{% else %}price-paid{% endif %}">
-                                    {% if course.curso_gratuito == 'sim' %}
-                                    <i class="fas fa-gift"></i> Gratuito
-                                    {% else %}
-                                    <i class="fas fa-tag"></i> R$ {{ course.valor_curso }}
-                                    {% endif %}
-                                </div>
-                                <i class="fas fa-chevron-down course-toggle-icon"></i>
-                            </div>
-                        </div>
-
-                        <div class="course-details">
-                            <!-- Seção: Informações Básicas -->
-                            <div class="info-section">
-                                <div class="info-section-title">
-                                    <i class="fas fa-info-circle"></i>
-                                    Informações Básicas
-                                </div>
-                                <div class="course-info">
-                                    <div class="info-row">
-                                        <i class="fas fa-graduation-cap"></i>
-                                        <span><strong>Título:</strong> {{ course.titulo }}</span>
-                                    </div>
-
-                                    <div class="info-row">
-                                        <i class="fas fa-tag"></i>
-                                        <span><strong>Categoria:</strong> {{ course.tema }}</span>
-                                    </div>
-
-                                    <div class="info-row">
-                                        <i class="fas fa-graduation-cap"></i>
-                                        <span><strong>Modalidade:</strong> {{ course.modalidade }}</span>
-                                    </div>
-
-                                    {% if course.inicio_aulas_data or course.fim_aulas_data %}
-                                    <div class="info-row">
-                                        <i class="fas fa-calendar-check"></i>
-                                        <span><strong>Data de Realização:</strong>
-                                            {% set inicio_data = course.inicio_aulas_data.split('|')[0].strip() if
-                                            course.inicio_aulas_data else '' %}
-                                            {% set fim_data = course.fim_aulas_data.split('|')[0].strip() if
-                                            course.fim_aulas_data else '' %}
-                                            {% if inicio_data and fim_data %}
-                                            {% set inicio_formatada = inicio_data.split('-')[2] + '/' +
-                                            inicio_data.split('-')[1] + '/' + inicio_data.split('-')[0] %}
-                                            {% set fim_formatada = fim_data.split('-')[2] + '/' + fim_data.split('-')[1]
-                                            + '/' + fim_data.split('-')[0] %}
-                                            {{ inicio_formatada }} a {{ fim_formatada }}
-                                            {% elif inicio_data %}
-                                            {% set inicio_formatada = inicio_data.split('-')[2] + '/' +
-                                            inicio_data.split('-')[1] + '/' + inicio_data.split('-')[0] %}
-                                            A partir de {{ inicio_formatada }}
-                                            {% elif fim_data %}
-                                            {% set fim_formatada = fim_data.split('-')[2] + '/' + fim_data.split('-')[1]
-                                            + '/' + fim_data.split('-')[0] %}
-                                            Até {{ fim_formatada }}
-                                            {% endif %}
-                                        </span>
-                                    </div>
-                                    {% endif %}
-
-                                    {% if course.modalidade == 'Online' and course.plataforma_digital %}
-                                    <div class="info-row">
-                                        <i class="fas fa-video"></i>
-                                        <span><strong>Plataforma Digital:</strong> {{ course.plataforma_digital
-                                            }}</span>
-                                    </div>
-                                    {% endif %}
-
-                                    {% if course.carga_horaria %}
-                                    <div class="info-row">
-                                        <i class="fas fa-clock"></i>
-                                        <span><strong>Carga Horária:</strong> {{ course.carga_horaria }}</span>
-                                    </div>
-                                    {% endif %}
-
-                                    {% if course.modalidade == 'Online' and course.aulas_assincronas %}
-                                    <div class="info-row">
-                                        <i class="fas fa-video"></i>
-                                        <span><strong>Tipo de Aula:</strong> {% if course.aulas_assincronas == 'sim'
-                                            %}Aulas Assíncronas (no seu próprio ritmo){% else %}Aulas Síncronas (horário
-                                            fixo){% endif %}</span>
-                                    </div>
-                                    {% endif %}
-
-                                    {% if course.dias_aula %}
-                                    <div class="info-row">
-                                        <i class="fas fa-calendar-day"></i>
-                                        <span><strong>Dias da Aula:</strong>
-                                            {% set dias_lista = course.dias_aula.split('|') %}
-                                            {% set dias_unicos = [] %}
-                                            {% for turma_dias in dias_lista %}
-                                            {# Cada turma pode ter múltiplos dias separados por vírgula #}
-                                            {% for dia in turma_dias.split(',') %}
-                                            {% set dia_limpo = dia.strip() %}
-                                            {% if dia_limpo and dia_limpo not in dias_unicos %}
-                                            {% set _ = dias_unicos.append(dia_limpo) %}
-                                            {% endif %}
-                                            {% endfor %}
-                                            {% endfor %}
-                                            {{ dias_unicos|join(', ') }}
-                                        </span>
-                                    </div>
-                                    {% endif %}
-
-                                    {% if course.horario_inicio and course.horario_fim %}
-                                    <div class="info-row">
-                                        <i class="fas fa-clock"></i>
-                                        <span><strong>Horário:</strong>
-                                            {% set horarios_inicio = course.horario_inicio.split('|') %}
-                                            {% set horarios_fim = course.horario_fim.split('|') %}
-                                            {% set horarios_formatados = [] %}
-                                            {% for i in range(horarios_inicio|length) %}
-                                            {% if i < horarios_fim|length %}
-                                            {% set horario = horarios_inicio[i].strip() + ' às ' + horarios_fim[i].strip() %}
-                                            {% set _ = horarios_formatados.append(horario) %}
-                                            {% endif %}
-                                            {% endfor %}
-                                            {{ horarios_formatados|join(', ') }}
-                                        </span>
-                                    </div>
-                                    {% endif %}
-
-                                    <div class="info-row">
-                                        <i class="fas fa-building"></i>
-                                        <span><strong>Órgão Responsável:</strong> {{ course.orgao }}</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Seção: Informações Financeiras -->
-                            <div class="info-section">
-                                <div class="info-section-title">
-                                    <i class="fas fa-dollar-sign"></i>
-                                    Informações Financeiras
-                                </div>
-                                <div class="course-info">
-                                    <div class="info-row">
-                                        <i class="fas fa-tag"></i>
-                                        <span><strong>Tipo:</strong> {% if course.curso_gratuito == 'sim' %}Gratuito{%
-                                            else %}Pago{% endif %}</span>
-                                    </div>
-
-                                    {% if course.curso_gratuito == 'nao' %}
-                                    {% if course.valor_curso_inteira %}
-                                    <div class="info-row">
-                                        <i class="fas fa-dollar-sign"></i>
-                                        <span><strong>Valor Inteira:</strong>
-                                            {% set valor_str = course.valor_curso_inteira|safe_str %}
-                                            {% if valor_str.startswith('R$') %}
-                                            {{ valor_str }}
-                                            {% else %}
-                                            R$ {{ valor_str }}
-                                            {% endif %}
-                                        </span>
-                                    </div>
-                                    {% endif %}
-
-                                    {% if course.valor_curso_meia %}
-                                    <div class="info-row">
-                                        <i class="fas fa-percentage"></i>
-                                        <span><strong>Valor Meia:</strong>
-                                            {% set valor_str = course.valor_curso_meia|safe_str %}
-                                            {% if valor_str.startswith('R$') %}
-                                            {{ valor_str }}
-                                            {% else %}
-                                            R$ {{ valor_str }}
-                                            {% endif %}
-                                        </span>
-                                    </div>
-                                    {% endif %}
-
-                                    {% if course.requisitos_meia %}
-                                    <div class="info-row">
-                                        <i class="fas fa-clipboard-check"></i>
-                                        <span><strong>Condições para Meia-entrada:</strong> {{ course.requisitos_meia
-                                            }}</span>
-                                    </div>
-                                    {% endif %}
-                                    {% endif %}
-
-                                    <div class="info-row">
-                                        <i class="fas fa-hand-holding-usd"></i>
-                                        <span><strong>Oferece Bolsa:</strong> {% if course.oferece_bolsa == 'sim'
-                                            %}Sim{% else %}Não{% endif %}</span>
-                                    </div>
-
-                                    {% if course.oferece_bolsa == 'sim' and course.valor_bolsa %}
-                                    <div class="info-row">
-                                        <i class="fas fa-money-bill-wave"></i>
-                                        <span><strong>Valor da Bolsa:</strong>
-                                            {% set valor_str = course.valor_bolsa|safe_str %}
-                                            {% if valor_str.startswith('R$') %}
-                                            {{ valor_str }}
-                                            {% else %}
-                                            R$ {{ valor_str }}
-                                            {% endif %}
-                                        </span>
-                                    </div>
-                                    {% endif %}
-
-                                    {% if course.oferece_bolsa == 'sim' and course.requisitos_bolsa %}
-                                    <div class="info-row">
-                                        <i class="fas fa-clipboard-list"></i>
-                                        <span><strong>Requisitos para Bolsa:</strong> {{ course.requisitos_bolsa
-                                            }}</span>
-                                    </div>
-                                    {% endif %}
-                                </div>
-                            </div>
-
-                            <!-- Seção: Informações de Localização (apenas para cursos presenciais/híbridos) -->
-                            {% if course.modalidade in ['Presencial', 'Híbrido'] and (course.endereco_unidade or
-                            course.bairro_unidade) %}
-                            <div class="info-section">
-                                <div class="info-section-title">
-                                    <i class="fas fa-map-marker-alt"></i>
-                                    Informações de Localização
-                                </div>
-                                <div class="course-info">
-                                    {% set enderecos = course.endereco_unidade.split('|') if course.endereco_unidade
-                                    else [] %}
-                                    {% set bairros = course.bairro_unidade.split('|') if course.bairro_unidade else []
-                                    %}
-                                    {% set vagas = course.vagas_unidade.split('|') if course.vagas_unidade else [] %}
-                                    {% set inicio_aulas = course.inicio_aulas_data.split('|') if
-                                    course.inicio_aulas_data else [] %}
-                                    {% set fim_aulas = course.fim_aulas_data.split('|') if course.fim_aulas_data else []
-                                    %}
-                                    {% set horario_inicio = course.horario_inicio.split('|') if course.horario_inicio
-                                    else [] %}
-                                    {% set horario_fim = course.horario_fim.split('|') if course.horario_fim else [] %}
-                                    {% set dias_aula = course.dias_aula.split('|') if course.dias_aula else [] %}
-
-                                    {% set max_units = [enderecos|length, bairros|length, vagas|length,
-                                    inicio_aulas|length, fim_aulas|length, horario_inicio|length, horario_fim|length,
-                                    dias_aula|length]|max %}
-
-                                    {% for i in range(max_units) %}
-                                    {% if enderecos[i] or bairros[i] or vagas[i] %}
-                                    <div class="unit-info"
-                                        style="margin-bottom: 20px; padding: 15px; background-color: #f8f9fa; border-radius: 8px; border-left: 4px solid #667eea;">
-                                        <div
-                                            style="font-weight: 600; color: #2d3748; margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
-                                            <i class="fas fa-building" style="color: #667eea;"></i>
-                                            Unidade ou Turma {{ i + 1 }}
-                                        </div>
-
-                                        {% if enderecos[i] %}
-                                        <div class="info-row">
-                                            <i class="fas fa-map-marker-alt"></i>
-                                            <span><strong>Endereço:</strong> {{ enderecos[i].strip() }}</span>
-                                        </div>
-                                        {% endif %}
-
-                                        {% if bairros[i] %}
-                                        <div class="info-row">
-                                            <i class="fas fa-map"></i>
-                                            <span><strong>Bairro:</strong> {{ bairros[i].strip() }}</span>
-                                        </div>
-                                        {% endif %}
-
-                                        {% if vagas[i] %}
-                                        <div class="info-row">
-                                            <i class="fas fa-user-plus"></i>
-                                            <span><strong>Vagas:</strong> {{ vagas[i].strip().replace(',', '') }}</span>
-                                        </div>
-                                        {% endif %}
-
-                                        {% if inicio_aulas[i] or fim_aulas[i] %}
-                                        <div class="info-row">
-                                            <i class="fas fa-calendar-check"></i>
-                                            <span><strong>Período das Aulas:</strong>
-                                                {% if inicio_aulas[i] and fim_aulas[i] %}
-                                                {% set inicio_formatada = inicio_aulas[i].strip().split('-')[2] + '/' +
-                                                inicio_aulas[i].strip().split('-')[1] + '/' +
-                                                inicio_aulas[i].strip().split('-')[0] %}
-                                                {% set fim_formatada = fim_aulas[i].strip().split('-')[2] + '/' +
-                                                fim_aulas[i].strip().split('-')[1] + '/' +
-                                                fim_aulas[i].strip().split('-')[0] %}
-                                                {{ inicio_formatada }} a {{ fim_formatada }}
-                                                {% elif inicio_aulas[i] %}
-                                                {% set inicio_formatada = inicio_aulas[i].strip().split('-')[2] + '/' +
-                                                inicio_aulas[i].strip().split('-')[1] + '/' +
-                                                inicio_aulas[i].strip().split('-')[0] %}
-                                                A partir de {{ inicio_formatada }}
-                                                {% elif fim_aulas[i] %}
-                                                {% set fim_formatada = fim_aulas[i].strip().split('-')[2] + '/' +
-                                                fim_aulas[i].strip().split('-')[1] + '/' +
-                                                fim_aulas[i].strip().split('-')[0] %}
-                                                Até {{ fim_formatada }}
-                                                {% endif %}
-                                            </span>
-                                        </div>
-                                        {% endif %}
-
-                                        {% if horario_inicio[i] and horario_fim[i] %}
-                                        <div class="info-row">
-                                            <i class="fas fa-clock"></i>
-                                            <span><strong>Horário:</strong> {{ horario_inicio[i].strip() }} às {{
-                                                horario_fim[i].strip() }}</span>
-                                        </div>
-                                        {% endif %}
-
-                                        {% if dias_aula and i < dias_aula|length and dias_aula[i] %}
-                                        <div class="info-row">
-                                            <i class="fas fa-calendar-day"></i>
-                                            <span><strong>Dias da Aula:</strong> {{ dias_aula[i].strip().replace(',', ', ')
-                                                }}</span>
-                                        </div>
-                                        {% endif %}
-                                    </div>
-                                    {% endif %}
-                                    {% endfor %}
-                                </div>
-                            </div>
-                            {% endif %}
-
-                            <!-- Seção: Informações Acadêmicas -->
-                            <div class="info-section">
-                                <div class="info-section-title">
-                                    <i class="fas fa-graduation-cap"></i>
-                                    Informações Acadêmicas
-                                </div>
-                                <div class="course-info">
-                                    <div class="info-row">
-                                        <i class="fas fa-users"></i>
-                                        <span><strong>Público Alvo:</strong> {{ course.publico_alvo }}</span>
-                                    </div>
-
-                                    {% if course.vagas_unidade %}
-                                    <div class="info-row">
-                                        <i class="fas fa-user-plus"></i>
-                                        <span><strong>Total de Vagas:</strong>
-                                            {% set vagas_lista = course.vagas_unidade.split('|') %}
-                                            {% set vagas_numericas = [] %}
-                                            {% for vaga in vagas_lista %}
-                                            {% set vaga_limpa = vaga.strip().replace(',', '') %}
-                                            {% if vaga_limpa and vaga_limpa.isdigit() %}
-                                            {% set _ = vagas_numericas.append(vaga_limpa|int) %}
-                                            {% endif %}
-                                            {% endfor %}
-                                            {% set total_vagas = vagas_numericas|sum %}
-                                            {{ total_vagas }} vagas
-                                        </span>
-                                    </div>
-                                    {% endif %}
-
-                                    <div class="info-row">
-                                        <i class="fas fa-universal-access"></i>
-                                        <span><strong>Acessibilidade:</strong>
-                                            {% if course.acessibilidade == 'acessivel' %}
-                                            Acessível para pessoas com deficiência
-                                            {% elif course.acessibilidade == 'exclusivo' %}
-                                            Exclusivo para pessoas com deficiência
-                                            {% elif course.acessibilidade == 'nao_acessivel' %}
-                                            Não acessível para Pessoas com Deficiência
-                                            {% else %}
-                                            {{ course.acessibilidade }}
-                                            {% endif %}
-                                        </span>
-                                    </div>
-
-                                    {% if course.recursos_acessibilidade %}
-                                    <div class="info-row">
-                                        <i class="fas fa-wheelchair"></i>
-                                        <span><strong>Recursos de Acessibilidade:</strong> {{
-                                            course.recursos_acessibilidade }}</span>
-                                    </div>
-                                    {% endif %}
-
-                                    <div class="info-row">
-                                        <i class="fas fa-certificate"></i>
-                                        <span><strong>Oferece Certificado:</strong> {% if course.oferece_certificado ==
-                                            'sim' %}Sim{% else %}Não{% endif %}</span>
-                                    </div>
-
-                                    {% if course.oferece_certificado == 'sim' and course.pre_requisitos %}
-                                    <div class="info-row">
-                                        <i class="fas fa-clipboard-check"></i>
-                                        <span><strong>Pré-requisitos para Certificado:</strong> {{ course.pre_requisitos
-                                            }}</span>
-                                    </div>
-                                    {% endif %}
-                                </div>
-                            </div>
-
-                            <!-- Seção: Período de Inscrições -->
-                            <div class="info-section">
-                                <div class="info-section-title">
-                                    <i class="fas fa-calendar-alt"></i>
-                                    Período de Inscrições
-                                </div>
-                                <div class="course-info">
-                                    <div class="info-row">
-                                        <i class="fas fa-calendar-alt"></i>
-                                        <span><strong>Período:</strong>
-                                            {% if course.inicio_inscricoes %}
-                                            {% set inicio_parts = course.inicio_inscricoes.split('/') %}
-                                            {% if inicio_parts|length == 3 %}
-                                            {{ inicio_parts[2] }}/{{ inicio_parts[1] }}/{{ inicio_parts[0] }}
-                                            {% else %}
-                                            {{ course.inicio_inscricoes }}
-                                            {% endif %}
-                                            {% endif %}
-                                            {% if course.inicio_inscricoes and course.fim_inscricoes %} a {% endif %}
-                                            {% if course.fim_inscricoes %}
-                                            {% set fim_parts = course.fim_inscricoes.split('/') %}
-                                            {% if fim_parts|length == 3 %}
-                                            {{ fim_parts[2] }}/{{ fim_parts[1] }}/{{ fim_parts[0] }}
-                                            {% else %}
-                                            {{ course.fim_inscricoes }}
-                                            {% endif %}
-                                            {% endif %}
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Seção: Informações Complementares -->
-                            {% if course.info_complementares %}
-                            <div class="info-section">
-                                <div class="info-section-title">
-                                    <i class="fas fa-info-circle"></i>
-                                    Informações Complementares
-                                </div>
-                                <div class="course-info">
-                                    <div class="info-row">
-                                        <i class="fas fa-info-circle"></i>
-                                        <span><strong>Detalhes:</strong> {{ course.info_complementares }}</span>
-                                    </div>
-                                </div>
-                            </div>
-                            {% endif %}
-
-                            <!-- Seção: Parceiro Externo -->
-                            {% if course.parceiro_externo == 'sim' and course.parceiro_nome %}
-                            <div class="info-section">
-                                <div class="info-section-title">
-                                    <i class="fas fa-handshake"></i>
-                                    Parceiro Externo
-                                </div>
-                                <div class="course-info">
-                                    <div class="info-row">
-                                        <i class="fas fa-building"></i>
-                                        <span><strong>Nome do Parceiro:</strong> {{ course.parceiro_nome }}</span>
-                                    </div>
-
-                                    {% if course.parceiro_link %}
-                                    <div class="info-row">
-                                        <i class="fas fa-link"></i>
-                                        <span><strong>Site do Parceiro:</strong>
-                                            <a href="{{ course.parceiro_link }}" target="_blank"
-                                                style="color: #4299e1; text-decoration: none;">
-                                                {{ course.parceiro_link }} <i class="fas fa-external-link-alt"
-                                                    style="font-size: 0.8em;"></i>
-                                            </a>
-                                        </span>
-                                    </div>
-                                    {% endif %}
-
-                                    {% if course.parceiro_logo %}
-                                    <div class="info-row">
-                                        <i class="fas fa-image"></i>
-                                        <span><strong>Logo do Parceiro:</strong>
-                                            <a href="{{ url_for('static', filename='images/LOGOPARCEIROS/' + course.parceiro_logo) }}"
-                                                target="_blank" style="color: #4299e1; text-decoration: none;">
-                                                {{ course.parceiro_logo }} <i class="fas fa-external-link-alt"
-                                                    style="font-size: 0.8em;"></i>
-                                            </a>
-                                        </span>
-                                    </div>
-                                    {% endif %}
-                                </div>
-
-                                <!-- Exibir logo do parceiro como imagem -->
-                                {% if course.parceiro_logo %}
-                                <div style="margin-top: 20px; text-align: center;">
-                                    <img src="{{ url_for('static', filename='images/LOGOPARCEIROS/' + course.parceiro_logo) }}"
-                                        alt="Logo {{ course.parceiro_nome }}"
-                                        style="max-width: 200px; max-height: 100px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-                                </div>
-                                {% endif %}
-                            </div>
-                            {% endif %}
-
-                            <!-- Seção: Descrições do Curso -->
-                            {% if course.descricao_original or course.descricao %}
-                            <div class="info-section">
-                                <div class="info-section-title">
-                                    <i class="fas fa-file-alt"></i>
-                                    Descrições do Curso
-                                </div>
-                                <div class="course-info">
-                                    {% if course.descricao_original %}
-                                    <div class="description-item">
-                                        <div class="description-label">
-                                            <i class="fas fa-edit"></i>
-                                            <strong>Descrição Original:</strong>
-                                        </div>
-                                        <div class="description-content">
-                                            {{ course.descricao_original }}
-                                        </div>
-                                    </div>
-                                    {% endif %}
-
-                                    {% if course.descricao %}
-                                    <div class="description-item enhanced">
-                                        <div class="description-label">
-                                            <i class="fas fa-magic"></i>
-                                            <strong>Descrição Melhorada (IA):</strong>
-                                        </div>
-                                        <div class="description-content">
-                                            {{ course.descricao }}
-                                        </div>
-                                    </div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                            {% endif %}
-
-                            <!-- Seção: Ações Administrativas -->
-                            <div class="info-section">
-                                <div class="info-section-title">
-                                    <i class="fas fa-cogs"></i>
-                                    Ações Administrativas
-                                </div>
-                                <div class="course-info">
-                                    <div class="course-date">
-                                        {% if course.created_at %}
-                                        {% set created_parts = course.created_at.split(' ')[0].split('-') %}
-                                        {% if created_parts|length == 3 %}
-                                        <i class="fas fa-calendar-plus"></i>
-                                        <span><strong>Criado em:</strong> {{ created_parts[0] }}/{{ created_parts[1]
-                                            }}/{{ created_parts[2] }}</span>
-                                        {% else %}
-                                        <i class="fas fa-calendar-plus"></i>
-                                        <span><strong>Criado em:</strong> {{ course.created_at[:10] }}</span>
-                                        {% endif %}
-                                        {% endif %}
-                                    </div>
-
-                                    <div class="action-buttons-section">
-                                        <a href="{{ url_for('edit_course', course_id=course.id) }}"
-                                            class="btn-secondary btn-sm" onclick="event.stopPropagation();">
-                                            <i class="fas fa-edit"></i> Editar
-                                        </a>
-
-                                        <!-- Botões de Download -->
-                                        {% if course.source_file %}
-                                        <a href="{{ url_for('download_file', filename=course.source_file) }}"
-                                            class="btn-secondary btn-sm download-btn" style="background-color: #38a169;"
-                                            onclick="event.stopPropagation();">
-                                            <i class="fas fa-download"></i> CSV
-                                        </a>
-
-                                        <a href="{{ url_for('download_file', filename=course.source_file.replace('.csv', '.pdf')) }}"
-                                            class="btn-secondary btn-sm download-btn" style="background-color: #3182ce;"
-                                            onclick="event.stopPropagation();">
-                                            <i class="fas fa-file-pdf"></i> PDF
-                                        </a>
-                                        {% else %}
-                                        <button class="btn-secondary btn-sm" style="background-color: #718096;"
-                                            disabled>
-                                            <i class="fas fa-download"></i> CSV
-                                        </button>
-
-                                        <button class="btn-secondary btn-sm" style="background-color: #718096;"
-                                            disabled>
-                                            <i class="fas fa-file-pdf"></i> PDF
-                                        </button>
-                                        {% endif %}
-
-                                        <!-- Botão de Download da Imagem -->
-                                        {% if course.capa_curso %}
-                                        <a href="{{ url_for('static', filename='images/IMAGENSCURSOS/' + course.capa_curso) }}"
-                                            class="btn-secondary btn-sm download-btn" style="background-color: #805ad5;"
-                                            onclick="event.stopPropagation();" download>
-                                            <i class="fas fa-image"></i> Imagem
-                                        </a>
-                                        {% else %}
-                                        <button class="btn-secondary btn-sm" style="background-color: #718096;"
-                                            disabled>
-                                            <i class="fas fa-image"></i> Imagem
-                                        </button>
-                                        {% endif %}
-
-                                        <button class="btn-secondary btn-sm delete-course-btn"
-                                            style="background-color: #e53e3e;" data-course-id="{{ course.id }}"
-                                            data-course-title="{{ course.titulo }}" onclick="event.stopPropagation();">
-                                            <i class="fas fa-trash"></i> Deletar
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                      {% if enderecos[i] %}
+                      <div class="info-row">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span
+                          ><strong>Endereço:</strong> {{ enderecos[i].strip()
+                          }}</span
+                        >
+                      </div>
+                      {% endif %} {% if bairros[i] %}
+                      <div class="info-row">
+                        <i class="fas fa-map"></i>
+                        <span
+                          ><strong>Bairro:</strong> {{ bairros[i].strip()
+                          }}</span
+                        >
+                      </div>
+                      {% endif %} {% if vagas[i] %}
+                      <div class="info-row">
+                        <i class="fas fa-user-plus"></i>
+                        <span
+                          ><strong>Vagas:</strong> {{
+                          vagas[i].strip().replace(',', '') }}</span
+                        >
+                      </div>
+                      {% endif %} {% if inicio_aulas[i] or fim_aulas[i] %}
+                      <div class="info-row">
+                        <i class="fas fa-calendar-check"></i>
+                        <span
+                          ><strong>Período das Aulas:</strong>
+                          {% if inicio_aulas[i] and fim_aulas[i] %} {% set
+                          inicio_formatada =
+                          inicio_aulas[i].strip().split('-')[2] + '/' +
+                          inicio_aulas[i].strip().split('-')[1] + '/' +
+                          inicio_aulas[i].strip().split('-')[0] %} {% set
+                          fim_formatada = fim_aulas[i].strip().split('-')[2] +
+                          '/' + fim_aulas[i].strip().split('-')[1] + '/' +
+                          fim_aulas[i].strip().split('-')[0] %} {{
+                          inicio_formatada }} a {{ fim_formatada }} {% elif
+                          inicio_aulas[i] %} {% set inicio_formatada =
+                          inicio_aulas[i].strip().split('-')[2] + '/' +
+                          inicio_aulas[i].strip().split('-')[1] + '/' +
+                          inicio_aulas[i].strip().split('-')[0] %} A partir de
+                          {{ inicio_formatada }} {% elif fim_aulas[i] %} {% set
+                          fim_formatada = fim_aulas[i].strip().split('-')[2] +
+                          '/' + fim_aulas[i].strip().split('-')[1] + '/' +
+                          fim_aulas[i].strip().split('-')[0] %} Até {{
+                          fim_formatada }} {% endif %}
+                        </span>
+                      </div>
+                      {% endif %} {% if horario_inicio[i] and horario_fim[i] %}
+                      <div class="info-row">
+                        <i class="fas fa-clock"></i>
+                        <span
+                          ><strong>Horário:</strong> {{
+                          horario_inicio[i].strip() }} às {{
+                          horario_fim[i].strip() }}</span
+                        >
+                      </div>
+                      {% endif %} {% if dias_aula and i < dias_aula|length and
+                      dias_aula[i] %}
+                      <div class="info-row">
+                        <i class="fas fa-calendar-day"></i>
+                        <span
+                          ><strong>Dias da Aula:</strong> {{
+                          dias_aula[i].strip().replace(',', ', ') }}</span
+                        >
+                      </div>
+                      {% endif %}
                     </div>
-                    {% endfor %}
-                </div>
-                {% else %}
-                <!-- Estado Vazio -->
-                <div class="empty-state">
-                    <div class="empty-icon">
-                        <i class="fas fa-graduation-cap"></i>
-                    </div>
-                    <h3 class="empty-title">Nenhum curso cadastrado</h3>
-                    <p class="empty-message">
-                        Ainda não há cursos cadastrados no sistema. Comece criando seu primeiro curso!
-                    </p>
-                    <a href="{{ url_for('index') }}" class="btn btn-primary">
-                        <i class="fas fa-plus"></i> Criar Primeiro Curso
-                    </a>
+                    {% endif %} {% endfor %}
+                  </div>
                 </div>
                 {% endif %}
 
-                <!-- Botão de Ação -->
-                {% if courses %}
-                <div style="text-align: center; margin-top: 40px;">
-                    <a href="{{ url_for('index') }}" class="btn btn-primary">
-                        <i class="fas fa-plus"></i> Criar Novo Curso
-                    </a>
+                <!-- Seção: Informações Acadêmicas -->
+                <div class="info-section">
+                  <div class="info-section-title">
+                    <i class="fas fa-graduation-cap"></i>
+                    Informações Acadêmicas
+                  </div>
+                  <div class="course-info">
+                    <div class="info-row">
+                      <i class="fas fa-users"></i>
+                      <span
+                        ><strong>Público Alvo:</strong> {{ course.publico_alvo
+                        }}</span
+                      >
+                    </div>
+
+                    {% if course.vagas_unidade %}
+                    <div class="info-row">
+                      <i class="fas fa-user-plus"></i>
+                      <span
+                        ><strong>Total de Vagas:</strong>
+                        {% set vagas_lista = course.vagas_unidade.split('|') %}
+                        {% set vagas_numericas = [] %} {% for vaga in
+                        vagas_lista %} {% set vaga_limpa =
+                        vaga.strip().replace(',', '') %} {% if vaga_limpa and
+                        vaga_limpa.isdigit() %} {% set _ =
+                        vagas_numericas.append(vaga_limpa|int) %} {% endif %} {%
+                        endfor %} {% set total_vagas = vagas_numericas|sum %} {{
+                        total_vagas }} vagas
+                      </span>
+                    </div>
+                    {% endif %}
+
+                    <div class="info-row">
+                      <i class="fas fa-universal-access"></i>
+                      <span
+                        ><strong>Acessibilidade:</strong>
+                        {% if course.acessibilidade == 'acessivel' %} Acessível
+                        para pessoas com deficiência {% elif
+                        course.acessibilidade == 'exclusivo' %} Exclusivo para
+                        pessoas com deficiência {% elif course.acessibilidade ==
+                        'nao_acessivel' %} Não acessível para Pessoas com
+                        Deficiência {% else %} {{ course.acessibilidade }} {%
+                        endif %}
+                      </span>
+                    </div>
+
+                    {% if course.recursos_acessibilidade %}
+                    <div class="info-row">
+                      <i class="fas fa-wheelchair"></i>
+                      <span
+                        ><strong>Recursos de Acessibilidade:</strong> {{
+                        course.recursos_acessibilidade }}</span
+                      >
+                    </div>
+                    {% endif %}
+
+                    <div class="info-row">
+                      <i class="fas fa-certificate"></i>
+                      <span
+                        ><strong>Oferece Certificado:</strong> {% if
+                        course.oferece_certificado == 'sim' %}Sim{% else %}Não{%
+                        endif %}</span
+                      >
+                    </div>
+
+                    {% if course.oferece_certificado == 'sim' and
+                    course.pre_requisitos %}
+                    <div class="info-row">
+                      <i class="fas fa-clipboard-check"></i>
+                      <span
+                        ><strong>Pré-requisitos para Certificado:</strong> {{
+                        course.pre_requisitos }}</span
+                      >
+                    </div>
+                    {% endif %}
+                  </div>
+                </div>
+
+                <!-- Seção: Período de Inscrições -->
+                <div class="info-section">
+                  <div class="info-section-title">
+                    <i class="fas fa-calendar-alt"></i>
+                    Período de Inscrições
+                  </div>
+                  <div class="course-info">
+                    <div class="info-row">
+                      <i class="fas fa-calendar-alt"></i>
+                      <span
+                        ><strong>Período:</strong>
+                        {% if course.inicio_inscricoes %} {% set inicio_parts =
+                        course.inicio_inscricoes.split('/') %} {% if
+                        inicio_parts|length == 3 %} {{ inicio_parts[2] }}/{{
+                        inicio_parts[1] }}/{{ inicio_parts[0] }} {% else %} {{
+                        course.inicio_inscricoes }} {% endif %} {% endif %} {%
+                        if course.inicio_inscricoes and course.fim_inscricoes %}
+                        a {% endif %} {% if course.fim_inscricoes %} {% set
+                        fim_parts = course.fim_inscricoes.split('/') %} {% if
+                        fim_parts|length == 3 %} {{ fim_parts[2] }}/{{
+                        fim_parts[1] }}/{{ fim_parts[0] }} {% else %} {{
+                        course.fim_inscricoes }} {% endif %} {% endif %}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Seção: Informações Complementares -->
+                {% if course.info_complementares %}
+                <div class="info-section">
+                  <div class="info-section-title">
+                    <i class="fas fa-info-circle"></i>
+                    Informações Complementares
+                  </div>
+                  <div class="course-info">
+                    <div class="info-row">
+                      <i class="fas fa-info-circle"></i>
+                      <span
+                        ><strong>Detalhes:</strong> {{
+                        course.info_complementares }}</span
+                      >
+                    </div>
+                  </div>
                 </div>
                 {% endif %}
+
+                <!-- Seção: Parceiro Externo -->
+                {% if course.parceiro_externo == 'sim' and course.parceiro_nome
+                %}
+                <div class="info-section">
+                  <div class="info-section-title">
+                    <i class="fas fa-handshake"></i>
+                    Parceiro Externo
+                  </div>
+                  <div class="course-info">
+                    <div class="info-row">
+                      <i class="fas fa-building"></i>
+                      <span
+                        ><strong>Nome do Parceiro:</strong> {{
+                        course.parceiro_nome }}</span
+                      >
+                    </div>
+
+                    {% if course.parceiro_link %}
+                    <div class="info-row">
+                      <i class="fas fa-link"></i>
+                      <span
+                        ><strong>Site do Parceiro:</strong>
+                        <a
+                          href="{{ course.parceiro_link }}"
+                          target="_blank"
+                          style="color: #4299e1; text-decoration: none"
+                        >
+                          {{ course.parceiro_link }}
+                          <i
+                            class="fas fa-external-link-alt"
+                            style="font-size: 0.8em"
+                          ></i>
+                        </a>
+                      </span>
+                    </div>
+                    {% endif %} {% if course.parceiro_logo %}
+                    <div class="info-row">
+                      <i class="fas fa-image"></i>
+                      <span
+                        ><strong>Logo do Parceiro:</strong>
+                        <a
+                          href="{{ url_for('static', filename='images/LOGOPARCEIROS/' + course.parceiro_logo) }}"
+                          target="_blank"
+                          style="color: #4299e1; text-decoration: none"
+                        >
+                          {{ course.parceiro_logo }}
+                          <i
+                            class="fas fa-external-link-alt"
+                            style="font-size: 0.8em"
+                          ></i>
+                        </a>
+                      </span>
+                    </div>
+                    {% endif %}
+                  </div>
+
+                  <!-- Exibir logo do parceiro como imagem -->
+                  {% if course.parceiro_logo %}
+                  <div style="margin-top: 20px; text-align: center">
+                    <img
+                      src="{{ url_for('static', filename='images/LOGOPARCEIROS/' + course.parceiro_logo) }}"
+                      alt="Logo {{ course.parceiro_nome }}"
+                      style="
+                        max-width: 200px;
+                        max-height: 100px;
+                        border-radius: 8px;
+                        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+                      "
+                    />
+                  </div>
+                  {% endif %}
+                </div>
+                {% endif %}
+
+                <!-- Seção: Descrições do Curso -->
+                {% if course.descricao_original or course.descricao %}
+                <div class="info-section">
+                  <div class="info-section-title">
+                    <i class="fas fa-file-alt"></i>
+                    Descrições do Curso
+                  </div>
+                  <div class="course-info">
+                    {% if course.descricao_original %}
+                    <div class="description-item">
+                      <div class="description-label">
+                        <i class="fas fa-edit"></i>
+                        <strong>Descrição Original:</strong>
+                      </div>
+                      <div class="description-content">
+                        {{ course.descricao_original }}
+                      </div>
+                    </div>
+                    {% endif %} {% if course.descricao %}
+                    <div class="description-item enhanced">
+                      <div class="description-label">
+                        <i class="fas fa-magic"></i>
+                        <strong>Descrição Melhorada (IA):</strong>
+                      </div>
+                      <div class="description-content">
+                        {{ course.descricao }}
+                      </div>
+                    </div>
+                    {% endif %}
+                  </div>
+                </div>
+                {% endif %}
+
+                <!-- Seção: Ações Administrativas -->
+                <div class="info-section">
+                  <div class="info-section-title">
+                    <i class="fas fa-cogs"></i>
+                    Ações Administrativas
+                  </div>
+                  <div class="course-info">
+                    <div class="course-date">
+                      {% if course.created_at %} {% set created_parts =
+                      course.created_at.split(' ')[0].split('-') %} {% if
+                      created_parts|length == 3 %}
+                      <i class="fas fa-calendar-plus"></i>
+                      <span
+                        ><strong>Criado em:</strong> {{ created_parts[0] }}/{{
+                        created_parts[1] }}/{{ created_parts[2] }}</span
+                      >
+                      {% else %}
+                      <i class="fas fa-calendar-plus"></i>
+                      <span
+                        ><strong>Criado em:</strong> {{ course.created_at[:10]
+                        }}</span
+                      >
+                      {% endif %} {% endif %}
+                    </div>
+
+                    <div class="action-buttons-section">
+                      <a
+                        href="{{ url_for('edit_course', course_id=course.id) }}"
+                        class="btn-secondary btn-sm"
+                        onclick="event.stopPropagation();"
+                      >
+                        <i class="fas fa-edit"></i> Editar
+                      </a>
+
+                      <!-- Botões de Download -->
+                      {% if course.source_file %}
+                      <a
+                        href="{{ url_for('download_file', filename=course.source_file) }}"
+                        class="btn-secondary btn-sm download-btn"
+                        style="background-color: #38a169"
+                        onclick="event.stopPropagation();"
+                      >
+                        <i class="fas fa-download"></i> CSV
+                      </a>
+
+                      <a
+                        href="{{ url_for('download_file', filename=course.source_file.replace('.csv', '.pdf')) }}"
+                        class="btn-secondary btn-sm download-btn"
+                        style="background-color: #3182ce"
+                        onclick="event.stopPropagation();"
+                      >
+                        <i class="fas fa-file-pdf"></i> PDF
+                      </a>
+                      {% else %}
+                      <button
+                        class="btn-secondary btn-sm"
+                        style="background-color: #718096"
+                        disabled
+                      >
+                        <i class="fas fa-download"></i> CSV
+                      </button>
+
+                      <button
+                        class="btn-secondary btn-sm"
+                        style="background-color: #718096"
+                        disabled
+                      >
+                        <i class="fas fa-file-pdf"></i> PDF
+                      </button>
+                      {% endif %}
+
+                      <!-- Botão de Download da Imagem -->
+                      {% if course.capa_curso %}
+                      <a
+                        href="{{ url_for('static', filename='images/IMAGENSCURSOS/' + course.capa_curso) }}"
+                        class="btn-secondary btn-sm download-btn"
+                        style="background-color: #805ad5"
+                        onclick="event.stopPropagation();"
+                        download
+                      >
+                        <i class="fas fa-image"></i> Imagem
+                      </a>
+                      {% else %}
+                      <button
+                        class="btn-secondary btn-sm"
+                        style="background-color: #718096"
+                        disabled
+                      >
+                        <i class="fas fa-image"></i> Imagem
+                      </button>
+                      {% endif %}
+
+                      <button
+                        class="btn-secondary btn-sm delete-course-btn"
+                        style="background-color: #e53e3e"
+                        data-course-id="{{ course.id }}"
+                        data-course-title="{{ course.titulo }}"
+                        onclick="event.stopPropagation();"
+                      >
+                        <i class="fas fa-trash"></i> Deletar
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-        </main>
+            {% endfor %}
+          </div>
+          {% else %}
+          <!-- Estado Vazio -->
+          <div class="empty-state">
+            <div class="empty-icon">
+              <i class="fas fa-graduation-cap"></i>
+            </div>
+            <h3 class="empty-title">Nenhum curso cadastrado</h3>
+            <p class="empty-message">
+              Ainda não há cursos cadastrados no sistema. Comece criando seu
+              primeiro curso!
+            </p>
+            <a href="{{ url_for('index') }}" class="btn btn-primary">
+              <i class="fas fa-plus"></i> Criar Primeiro Curso
+            </a>
+          </div>
+          {% endif %}
+
+          <!-- Botão de Ação -->
+          {% if courses %}
+          <div style="text-align: center; margin-top: 40px">
+            <a href="{{ url_for('index') }}" class="btn btn-primary">
+              <i class="fas fa-plus"></i> Criar Novo Curso
+            </a>
+          </div>
+          {% endif %}
+        </div>
+      </main>
     </div>
 
     <script>
-        // Função para abrir o modal de confirmação de exclusão
-        function confirmarExclusao(courseId, courseTitle) {
-            document.getElementById('deleteModal').style.display = 'block';
-            document.getElementById('cursoTitulo').textContent = courseTitle;
-            document.getElementById('deleteForm').action = '/delete_course/' + courseId;
+      // Função para abrir o modal de confirmação de exclusão
+      function confirmarExclusao(courseId, courseTitle) {
+        document.getElementById("deleteModal").style.display = "block";
+        document.getElementById("cursoTitulo").textContent = courseTitle;
+        document.getElementById("deleteForm").action =
+          "/delete_course/" + courseId;
+        document.getElementById("deleteCourseId").value = courseId;
+      }
+
+      // Função para fechar o modal
+      function fecharModal() {
+        document.getElementById("deleteModal").style.display = "none";
+      }
+
+      // Fechar o modal se o usuário clicar fora dele
+      window.onclick = function (event) {
+        var modal = document.getElementById("deleteModal");
+        if (event.target == modal) {
+          modal.style.display = "none";
         }
+      };
 
-        // Função para fechar o modal
-        function fecharModal() {
-            document.getElementById('deleteModal').style.display = 'none';
+      // Funcionalidade de busca e filtros
+      // Função para expandir/contrair os detalhes do curso
+      function toggleCourseDetails(element) {
+        const courseItem = element.closest(".course-item");
+        courseItem.classList.toggle("active");
+
+        const courseDetails = courseItem.querySelector(".course-details");
+        if (courseItem.classList.contains("active")) {
+          // Definimos uma altura máxima grande o suficiente para mostrar todo o conteúdo
+          courseDetails.style.maxHeight = "8000px";
+          courseDetails.style.padding = "24px";
+          // Garantir que a descrição seja totalmente visível
+          const descriptions = courseItem.querySelectorAll(
+            ".description-section"
+          );
+          descriptions.forEach((desc) => {
+            desc.style.maxHeight = "none";
+          });
+        } else {
+          courseDetails.style.maxHeight = "0";
+          courseDetails.style.padding = "0 24px";
         }
+      }
 
-        // Fechar o modal se o usuário clicar fora dele
-        window.onclick = function (event) {
-            var modal = document.getElementById('deleteModal');
-            if (event.target == modal) {
-                modal.style.display = 'none';
-            }
-        }
+      document.addEventListener("DOMContentLoaded", function () {
+        const searchInput = document.getElementById("searchInput");
+        const orgaoFilter = document.getElementById("orgaoFilter");
+        const categoryFilter = document.getElementById("categoryFilter");
+        const modalityFilter = document.getElementById("modalityFilter");
+        const coursesList = document.getElementById("coursesList");
+        const courseItems = document.querySelectorAll(".course-item");
 
-        // Funcionalidade de busca e filtros
-        // Função para expandir/contrair os detalhes do curso
-        function toggleCourseDetails(element) {
-            const courseItem = element.closest('.course-item');
-            courseItem.classList.toggle('active');
+        // Função para resetar todos os filtros
+        window.resetFilters = function () {
+          if (searchInput) searchInput.value = "";
+          if (orgaoFilter) orgaoFilter.value = "";
+          if (categoryFilter) categoryFilter.value = "";
+          if (modalityFilter) modalityFilter.value = "";
+          filterCourses();
+        };
 
-            const courseDetails = courseItem.querySelector('.course-details');
-            if (courseItem.classList.contains('active')) {
-                // Definimos uma altura máxima grande o suficiente para mostrar todo o conteúdo
-                courseDetails.style.maxHeight = '8000px';
-                courseDetails.style.padding = '24px';
-                // Garantir que a descrição seja totalmente visível
-                const descriptions = courseItem.querySelectorAll('.description-section');
-                descriptions.forEach(desc => {
-                    desc.style.maxHeight = 'none';
-                });
+        // Resetar filtros automaticamente no carregamento da página
+        // Usar setTimeout para garantir que aconteça após o navegador tentar restaurar valores
+        setTimeout(() => {
+          if (searchInput) searchInput.value = "";
+          if (orgaoFilter) orgaoFilter.value = "";
+          if (categoryFilter) categoryFilter.value = "";
+          if (modalityFilter) modalityFilter.value = "";
+
+          // Forçar a primeira opção como selecionada
+          if (orgaoFilter && orgaoFilter.options.length > 0)
+            orgaoFilter.selectedIndex = 0;
+          if (categoryFilter && categoryFilter.options.length > 0)
+            categoryFilter.selectedIndex = 0;
+          if (modalityFilter && modalityFilter.options.length > 0)
+            modalityFilter.selectedIndex = 0;
+
+          // Executar filtros para garantir que todos os cursos sejam mostrados
+          filterCourses();
+        }, 100);
+
+        function filterCourses() {
+          const searchTerm = searchInput ? searchInput.value.toLowerCase() : "";
+          const selectedOrgao = orgaoFilter ? orgaoFilter.value : "";
+          const selectedCategory = categoryFilter ? categoryFilter.value : "";
+          const selectedModality = modalityFilter ? modalityFilter.value : "";
+
+          let visibleCount = 0;
+
+          const coursesList = document.getElementById("coursesList");
+          const courseItems = document.querySelectorAll(".course-item");
+
+          courseItems.forEach((item) => {
+            const name = item.dataset.name || "";
+            const orgao = item.dataset.orgao || "";
+            const category = item.dataset.category || "";
+            const modality = item.dataset.modality || "";
+
+            const matchesSearch = name.includes(searchTerm);
+            const matchesOrgao = !selectedOrgao || orgao === selectedOrgao;
+            const matchesCategory =
+              !selectedCategory || category === selectedCategory;
+            const matchesModality =
+              !selectedModality || modality === selectedModality;
+
+            const isVisible =
+              matchesSearch &&
+              matchesOrgao &&
+              matchesCategory &&
+              matchesModality;
+
+            if (isVisible) {
+              item.style.opacity = "1";
+              item.style.display = "block";
+              visibleCount++;
             } else {
-                courseDetails.style.maxHeight = '0';
-                courseDetails.style.padding = '0 24px';
+              item.style.opacity = "0";
+              setTimeout(() => {
+                if (
+                  !matchesSearch ||
+                  !matchesOrgao ||
+                  !matchesCategory ||
+                  !matchesModality
+                ) {
+                  item.style.display = "none";
+                }
+              }, 300);
             }
-        }
+          });
 
-        document.addEventListener('DOMContentLoaded', function () {
-            const searchInput = document.getElementById('searchInput');
-            const orgaoFilter = document.getElementById('orgaoFilter');
-            const categoryFilter = document.getElementById('categoryFilter');
-            const modalityFilter = document.getElementById('modalityFilter');
-            const coursesList = document.getElementById('coursesList');
-            const courseItems = document.querySelectorAll('.course-item');
-
-            // Função para resetar todos os filtros
-            window.resetFilters = function () {
-                if (searchInput) searchInput.value = '';
-                if (orgaoFilter) orgaoFilter.value = '';
-                if (categoryFilter) categoryFilter.value = '';
-                if (modalityFilter) modalityFilter.value = '';
-                filterCourses();
-            }
-
-            // Resetar filtros automaticamente no carregamento da página
-            // Usar setTimeout para garantir que aconteça após o navegador tentar restaurar valores
-            setTimeout(() => {
-                if (searchInput) searchInput.value = '';
-                if (orgaoFilter) orgaoFilter.value = '';
-                if (categoryFilter) categoryFilter.value = '';
-                if (modalityFilter) modalityFilter.value = '';
-
-                // Forçar a primeira opção como selecionada
-                if (orgaoFilter && orgaoFilter.options.length > 0) orgaoFilter.selectedIndex = 0;
-                if (categoryFilter && categoryFilter.options.length > 0) categoryFilter.selectedIndex = 0;
-                if (modalityFilter && modalityFilter.options.length > 0) modalityFilter.selectedIndex = 0;
-
-                // Executar filtros para garantir que todos os cursos sejam mostrados
-                filterCourses();
-            }, 100);
-
-            function filterCourses() {
-                const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
-                const selectedOrgao = orgaoFilter ? orgaoFilter.value : '';
-                const selectedCategory = categoryFilter ? categoryFilter.value : '';
-                const selectedModality = modalityFilter ? modalityFilter.value : '';
-
-                let visibleCount = 0;
-
-                const coursesList = document.getElementById('coursesList');
-                const courseItems = document.querySelectorAll('.course-item');
-
-                courseItems.forEach(item => {
-                    const name = item.dataset.name || '';
-                    const orgao = item.dataset.orgao || '';
-                    const category = item.dataset.category || '';
-                    const modality = item.dataset.modality || '';
-
-                    const matchesSearch = name.includes(searchTerm);
-                    const matchesOrgao = !selectedOrgao || orgao === selectedOrgao;
-                    const matchesCategory = !selectedCategory || category === selectedCategory;
-                    const matchesModality = !selectedModality || modality === selectedModality;
-
-                    const isVisible = matchesSearch && matchesOrgao && matchesCategory && matchesModality;
-
-                    if (isVisible) {
-                        item.style.opacity = '1';
-                        item.style.display = 'block';
-                        visibleCount++;
-                    } else {
-                        item.style.opacity = '0';
-                        setTimeout(() => {
-                            if (!matchesSearch || !matchesOrgao || !matchesCategory || !matchesModality) {
-                                item.style.display = 'none';
-                            }
-                        }, 300);
-                    }
-                });
-
-                // Mostrar mensagem se nenhum curso for encontrado
-                if (coursesList && visibleCount === 0 && courseItems.length > 0) {
-                    if (!document.querySelector('.no-results')) {
-                        const noResults = document.createElement('div');
-                        noResults.className = 'no-results empty-state';
-                        noResults.style.width = '100%';
-                        noResults.style.marginTop = '20px';
-                        noResults.innerHTML = `
+          // Mostrar mensagem se nenhum curso for encontrado
+          if (coursesList && visibleCount === 0 && courseItems.length > 0) {
+            if (!document.querySelector(".no-results")) {
+              const noResults = document.createElement("div");
+              noResults.className = "no-results empty-state";
+              noResults.style.width = "100%";
+              noResults.style.marginTop = "20px";
+              noResults.innerHTML = `
                         <div class="empty-icon">
                             <i class="fas fa-search"></i>
                         </div>
@@ -1515,131 +1725,145 @@
                             <i class="fas fa-sync"></i> Limpar Filtros
                         </button>
                     `;
-                        coursesList.appendChild(noResults);
-                    }
-                } else {
-                    const noResults = document.querySelector('.no-results');
-                    if (noResults) {
-                        noResults.remove();
-                    }
-                }
+              coursesList.appendChild(noResults);
             }
+          } else {
+            const noResults = document.querySelector(".no-results");
+            if (noResults) {
+              noResults.remove();
+            }
+          }
+        }
 
-            // Inicializar todos os itens como visíveis
-            courseItems.forEach(item => {
-                item.style.opacity = '1';
-                item.style.display = 'block';
-            });
-
-            // Event listeners
-            if (searchInput) searchInput.addEventListener('input', filterCourses);
-            if (orgaoFilter) orgaoFilter.addEventListener('change', filterCourses);
-            if (categoryFilter) categoryFilter.addEventListener('change', filterCourses);
-            if (modalityFilter) modalityFilter.addEventListener('change', filterCourses);
-
-            // Event listeners para botões de exclusão
-            document.querySelectorAll('.delete-course-btn').forEach(button => {
-                button.addEventListener('click', function () {
-                    const courseId = this.dataset.courseId;
-                    const courseTitle = this.dataset.courseTitle;
-                    confirmarExclusao(courseId, courseTitle);
-                });
-            });
-
-            // Remover duplicatas dos filtros
-            [orgaoFilter, categoryFilter, modalityFilter].forEach(select => {
-                if (select) {
-                    const options = Array.from(select.options);
-                    const uniqueOptions = [];
-                    const seen = new Set();
-
-                    options.forEach(option => {
-                        if (!seen.has(option.value) || option.value === '') {
-                            seen.add(option.value);
-                            uniqueOptions.push(option);
-                        }
-                    });
-
-                    select.innerHTML = '';
-                    uniqueOptions.forEach(option => select.appendChild(option));
-                }
-            });
-
-            console.log('📋 Lista de cursos carregada com sucesso!');
+        // Inicializar todos os itens como visíveis
+        courseItems.forEach((item) => {
+          item.style.opacity = "1";
+          item.style.display = "block";
         });
 
-        // Função para alternar o status de inserção do curso
-        async function toggleCourseStatus(courseId, checkbox) {
-            const statusContainer = checkbox.closest('.course-status-checkbox');
-            const tooltip = statusContainer.querySelector('.status-tooltip');
+        // Event listeners
+        if (searchInput) searchInput.addEventListener("input", filterCourses);
+        if (orgaoFilter) orgaoFilter.addEventListener("change", filterCourses);
+        if (categoryFilter)
+          categoryFilter.addEventListener("change", filterCourses);
+        if (modalityFilter)
+          modalityFilter.addEventListener("change", filterCourses);
 
-            // Adicionar estado de loading
-            statusContainer.classList.add('loading');
-            checkbox.disabled = true;
+        // Event listeners para botões de exclusão
+        document.querySelectorAll(".delete-course-btn").forEach((button) => {
+          button.addEventListener("click", function () {
+            const courseId = this.dataset.courseId;
+            const courseTitle = this.dataset.courseTitle;
+            confirmarExclusao(courseId, courseTitle);
+          });
+        });
 
-            try {
-                // Criar formulário com CSRF token
-                const formData = new FormData();
-                formData.append('csrf_token', '{{ csrf_token() }}');
-                formData.append('course_id', courseId);
-                formData.append('action', checkbox.checked ? 'mark_inserted' : 'unmark_inserted');
+        // Remover duplicatas dos filtros
+        [orgaoFilter, categoryFilter, modalityFilter].forEach((select) => {
+          if (select) {
+            const options = Array.from(select.options);
+            const uniqueOptions = [];
+            const seen = new Set();
 
-                const response = await fetch(`/course_status/${courseId}`, {
-                    method: 'POST',
-                    body: formData
-                });
+            options.forEach((option) => {
+              if (!seen.has(option.value) || option.value === "") {
+                seen.add(option.value);
+                uniqueOptions.push(option);
+              }
+            });
 
-                if (response.ok) {
-                    // Atualizar tooltip
-                    tooltip.textContent = checkbox.checked ?
-                        'Curso inserido no sistema' :
-                        'Marcar como inserido';
+            select.innerHTML = "";
+            uniqueOptions.forEach((option) => select.appendChild(option));
+          }
+        });
 
-                    // Atualizar estatísticas
-                    updateInsertedStats();
+        console.log("📋 Lista de cursos carregada com sucesso!");
+      });
 
-                    // Mostrar feedback visual
-                    showStatusFeedback(checkbox.checked ? 'Curso marcado como inserido!' : 'Curso desmarcado!', 'success');
-                } else {
-                    // Reverter checkbox em caso de erro
-                    checkbox.checked = !checkbox.checked;
-                    showStatusFeedback('Erro ao alterar status do curso', 'error');
-                }
-            } catch (error) {
-                console.error('Erro ao alterar status:', error);
-                // Reverter checkbox em caso de erro
-                checkbox.checked = !checkbox.checked;
-                showStatusFeedback('Erro de conexão', 'error');
-            } finally {
-                // Remover estado de loading
-                statusContainer.classList.remove('loading');
-                checkbox.disabled = false;
-            }
+      // Função para alternar o status de inserção do curso
+      async function toggleCourseStatus(courseId, checkbox) {
+        const statusContainer = checkbox.closest(".course-status-checkbox");
+        const tooltip = statusContainer.querySelector(".status-tooltip");
+
+        // Adicionar estado de loading
+        statusContainer.classList.add("loading");
+        checkbox.disabled = true;
+
+        try {
+          // Criar formulário com CSRF token
+          const formData = new FormData();
+          formData.append("csrf_token", "{{ csrf_token() }}");
+          formData.append("course_id", courseId);
+          formData.append(
+            "action",
+            checkbox.checked ? "mark_inserted" : "unmark_inserted"
+          );
+
+          const response = await fetch(`/course_status/${courseId}`, {
+            method: "POST",
+            body: formData,
+          });
+
+          if (response.ok) {
+            // Atualizar tooltip
+            tooltip.textContent = checkbox.checked
+              ? "Curso inserido no sistema"
+              : "Marcar como inserido";
+
+            // Atualizar estatísticas
+            updateInsertedStats();
+
+            // Mostrar feedback visual
+            showStatusFeedback(
+              checkbox.checked
+                ? "Curso marcado como inserido!"
+                : "Curso desmarcado!",
+              "success"
+            );
+          } else {
+            // Reverter checkbox em caso de erro
+            checkbox.checked = !checkbox.checked;
+            showStatusFeedback("Erro ao alterar status do curso", "error");
+          }
+        } catch (error) {
+          console.error("Erro ao alterar status:", error);
+          // Reverter checkbox em caso de erro
+          checkbox.checked = !checkbox.checked;
+          showStatusFeedback("Erro de conexão", "error");
+        } finally {
+          // Remover estado de loading
+          statusContainer.classList.remove("loading");
+          checkbox.disabled = false;
         }
+      }
 
-        // Função para atualizar as estatísticas de cursos inseridos
-        function updateInsertedStats() {
-            const insertedCheckboxes = document.querySelectorAll('.course-status-checkbox input[type="checkbox"]:checked');
-            const insertedStatElement = document.querySelector('.stat-card .stat-number');
+      // Função para atualizar as estatísticas de cursos inseridos
+      function updateInsertedStats() {
+        const insertedCheckboxes = document.querySelectorAll(
+          '.course-status-checkbox input[type="checkbox"]:checked'
+        );
+        const insertedStatElement = document.querySelector(
+          ".stat-card .stat-number"
+        );
 
-            // Encontrar o card de estatística correto (segundo card)
-            const statCards = document.querySelectorAll('.stat-card .stat-number');
-            if (statCards.length >= 2) {
-                statCards[1].textContent = insertedCheckboxes.length;
-            }
+        // Encontrar o card de estatística correto (segundo card)
+        const statCards = document.querySelectorAll(".stat-card .stat-number");
+        if (statCards.length >= 2) {
+          statCards[1].textContent = insertedCheckboxes.length;
         }
+      }
 
-        // Função para mostrar feedback visual
-        function showStatusFeedback(message, type) {
-            // Criar elemento de feedback
-            const feedback = document.createElement('div');
-            feedback.className = `status-feedback ${type}`;
-            feedback.textContent = message;
-            feedback.style.cssText = `
+      // Função para mostrar feedback visual
+      function showStatusFeedback(message, type) {
+        // Criar elemento de feedback
+        const feedback = document.createElement("div");
+        feedback.className = `status-feedback ${type}`;
+        feedback.textContent = message;
+        feedback.style.cssText = `
                 position: fixed;
                 top: 20px;
                 right: 20px;
-                background: ${type === 'success' ? '#48bb78' : '#e53e3e'};
+                background: ${type === "success" ? "#48bb78" : "#e53e3e"};
                 color: white;
                 padding: 12px 20px;
                 border-radius: 8px;
@@ -1649,9 +1873,9 @@
                 box-shadow: 0 4px 12px rgba(0,0,0,0.15);
             `;
 
-            // Adicionar animação CSS
-            const style = document.createElement('style');
-            style.textContent = `
+        // Adicionar animação CSS
+        const style = document.createElement("style");
+        style.textContent = `
                 @keyframes slideIn {
                     from { transform: translateX(100%); opacity: 0; }
                     to { transform: translateX(0); opacity: 1; }
@@ -1661,21 +1885,20 @@
                     to { transform: translateX(100%); opacity: 0; }
                 }
             `;
-            document.head.appendChild(style);
+        document.head.appendChild(style);
 
-            document.body.appendChild(feedback);
+        document.body.appendChild(feedback);
 
-            // Remover após 3 segundos
-            setTimeout(() => {
-                feedback.style.animation = 'slideOut 0.3s ease';
-                setTimeout(() => {
-                    if (feedback.parentNode) {
-                        feedback.parentNode.removeChild(feedback);
-                    }
-                }, 300);
-            }, 3000);
-        }
+        // Remover após 3 segundos
+        setTimeout(() => {
+          feedback.style.animation = "slideOut 0.3s ease";
+          setTimeout(() => {
+            if (feedback.parentNode) {
+              feedback.parentNode.removeChild(feedback);
+            }
+          }, 300);
+        }, 3000);
+      }
     </script>
-</body>
-
+  </body>
 </html>
