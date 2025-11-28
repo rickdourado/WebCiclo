@@ -408,7 +408,7 @@ class CourseService:
             'valor_bolsa': form_data.get('valor_bolsa') if form_data.get('oferece_bolsa') == 'sim' else None,
             'requisitos_bolsa': form_data.get('requisitos_bolsa') if form_data.get('oferece_bolsa') == 'sim' else '',
             'info_complementares': form_data.get('info_complementares', ''),
-            'info_adicionais': form_data.get('info_adicionais', ''),
+            'info_adicionais': form_data.get('info_adicionais_opcao', 'nao'),
             'parceiro_externo': form_data.get('parceiro_externo', 'nao'),
             'parceiro_nome': form_data.get('parceiro_nome') if form_data.get('parceiro_externo') == 'sim' else '',
             'parceiro_link': form_data.get('parceiro_link') if form_data.get('parceiro_externo') == 'sim' else '',
