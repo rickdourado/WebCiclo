@@ -430,37 +430,34 @@ class CourseService:
             
             # Dias da semana por turma
             dias_aula_list = []
+            num_turmas = len(course_data['enderecos_unidades'])
+            
             if hasattr(form_data, 'getlist'):
-                dias_presencial = form_data.getlist('dias_aula_presencial[]')
-                # Agrupar dias por turma (assumindo que vêm na ordem)
-                num_turmas = len(course_data['enderecos_unidades'])
-
-                # Normalizar diferentes formatos possíveis de entrada:
-                # - lista com strings por unidade (ex: ['Segunda,Quarta','Terça'])
-                # - lista com valores únicos (todos os dias selecionados em sequência)
-                # - lista vazia
-                if not dias_presencial:
-                    dias_aula_list = ['' for _ in range(num_turmas)]
-                else:
-                    # Se o número de entradas bate com número de turmas, assumir que já é por unidade
-                    if len(dias_presencial) == num_turmas:
-                        for i in range(num_turmas):
-                            val = dias_presencial[i] if i < len(dias_presencial) else ''
-                            # Se for lista interna, juntar por vírgula
-                            if isinstance(val, list):
-                                val = ','.join(val)
-                            dias_aula_list.append(val or '')
+                # Tentar obter dias específicos por turma (dias_aula_presencial_0[], dias_aula_presencial_1[], etc)
+                dias_por_turma = []
+                for i in range(num_turmas):
+                    dias_especificos = form_data.getlist(f'dias_aula_presencial_{i}[]')
+                    if dias_especificos:
+                        dias_por_turma.append(','.join([str(d) for d in dias_especificos if d]))
                     else:
-                        # Se temos valores com vírgula, talvez já sejam strings por unidade
-                        if any(isinstance(x, str) and ',' in x for x in dias_presencial):
-                            for i in range(num_turmas):
-                                val = dias_presencial[i] if i < len(dias_presencial) else ''
-                                dias_aula_list.append(val or '')
-                        else:
-                            # Caso padrão: aplicar os mesmos dias selecionados a todas as turmas
-                            joined = ','.join([str(x) for x in dias_presencial if x])
-                            for i in range(num_turmas):
-                                dias_aula_list.append(joined)
+                        dias_por_turma.append('')
+                
+                # Se conseguimos dias específicos por turma, usar isso
+                if any(dias_por_turma):
+                    dias_aula_list = dias_por_turma
+                else:
+                    # Fallback: tentar obter dias genéricos (todos os checkboxes com nome dias_aula_presencial[])
+                    dias_presencial = form_data.getlist('dias_aula_presencial[]')
+                    
+                    if not dias_presencial:
+                        dias_aula_list = ['' for _ in range(num_turmas)]
+                    else:
+                        # Aplicar os mesmos dias a todas as turmas (comportamento padrão)
+                        joined = ','.join([str(x) for x in dias_presencial if x])
+                        dias_aula_list = [joined for _ in range(num_turmas)]
+            else:
+                dias_aula_list = ['' for _ in range(num_turmas)]
+            
             course_data['dias_aula_unidades'] = dias_aula_list
         
         if modalidade in ['Online', 'Híbrido']:

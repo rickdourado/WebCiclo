@@ -324,7 +324,6 @@ class CourseValidator:
         enderecos = form_data.getlist('endereco_unidade[]') if hasattr(form_data, 'getlist') else form_data.get('endereco_unidade[]', [])
         bairros = form_data.getlist('bairro_unidade[]') if hasattr(form_data, 'getlist') else form_data.get('bairro_unidade[]', [])
         vagas = form_data.getlist('vagas_unidade[]') if hasattr(form_data, 'getlist') else form_data.get('vagas_unidade[]', [])
-        dias = form_data.getlist('dias_aula_presencial[]') if hasattr(form_data, 'getlist') else form_data.get('dias_aula_presencial[]', [])
         
         # Determinar número de unidades presenciais
         # Usar apenas os campos que realmente pertencem às unidades presenciais
@@ -336,13 +335,21 @@ class CourseValidator:
             bairro = bairros[i] if i < len(bairros) else ''
             vaga = vagas[i] if i < len(vagas) else ''
             
+            # Obter dias específicos para esta unidade (dias_aula_presencial_i[])
+            dias_especificos = form_data.getlist(f'dias_aula_presencial_{i}[]') if hasattr(form_data, 'getlist') else []
+            
+            # Se não houver dias específicos, tentar obter dias genéricos (fallback)
+            if not dias_especificos:
+                dias_generos = form_data.getlist('dias_aula_presencial[]') if hasattr(form_data, 'getlist') else form_data.get('dias_aula_presencial[]', [])
+                dias_especificos = dias_generos
+            
             # Só incluir se pelo menos um campo principal não estiver vazio
             if endereco.strip() or bairro.strip() or vaga.strip():
                 unidade = {
                     'endereco_unidade': endereco,
                     'bairro_unidade': bairro,
                     'vagas_unidade': vaga,
-                    'dias_aula': dias  # Para presencial, todos os dias se aplicam a todas as unidades
+                    'dias_aula': dias_especificos  # Para presencial, usar dias específicos da unidade
                 }
                 unidades.append(unidade)
         return unidades
