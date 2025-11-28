@@ -472,48 +472,48 @@
                                             <label>Dias de aula*</label>
                                             <div class="checkbox-group dias-aula">
                                                 <label class="checkbox-label">
-                                                    <input type="checkbox" name="dias_aula_presencial[]"
+                                                    <input type="checkbox" name="dias_aula_presencial_{{ i }}[]"
                                                         value="Segunda-feira" {% if course.dias_aula_unidades[i]
                                                         and 'Segunda-feira' in course.dias_aula_unidades[i] %}checked{%
                                                         endif %}>
                                                     <span>Segunda-feira</span>
                                                 </label>
                                                 <label class="checkbox-label">
-                                                    <input type="checkbox" name="dias_aula_presencial[]"
+                                                    <input type="checkbox" name="dias_aula_presencial_{{ i }}[]"
                                                         value="Terça-feira" {% if course.dias_aula_unidades[i]
                                                         and 'Terça-feira' in course.dias_aula_unidades[i] %}checked{%
                                                         endif %}>
                                                     <span>Terça-feira</span>
                                                 </label>
                                                 <label class="checkbox-label">
-                                                    <input type="checkbox" name="dias_aula_presencial[]"
+                                                    <input type="checkbox" name="dias_aula_presencial_{{ i }}[]"
                                                         value="Quarta-feira" {% if course.dias_aula_unidades[i]
                                                         and 'Quarta-feira' in course.dias_aula_unidades[i] %}checked{%
                                                         endif %}>
                                                     <span>Quarta-feira</span>
                                                 </label>
                                                 <label class="checkbox-label">
-                                                    <input type="checkbox" name="dias_aula_presencial[]"
+                                                    <input type="checkbox" name="dias_aula_presencial_{{ i }}[]"
                                                         value="Quinta-feira" {% if course.dias_aula_unidades[i]
                                                         and 'Quinta-feira' in course.dias_aula_unidades[i] %}checked{%
                                                         endif %}>
                                                     <span>Quinta-feira</span>
                                                 </label>
                                                 <label class="checkbox-label">
-                                                    <input type="checkbox" name="dias_aula_presencial[]"
+                                                    <input type="checkbox" name="dias_aula_presencial_{{ i }}[]"
                                                         value="Sexta-feira" {% if course.dias_aula_unidades[i]
                                                         and 'Sexta-feira' in course.dias_aula_unidades[i] %}checked{%
                                                         endif %}>
                                                     <span>Sexta-feira</span>
                                                 </label>
                                                 <label class="checkbox-label">
-                                                    <input type="checkbox" name="dias_aula_presencial[]" value="Sábado"
+                                                    <input type="checkbox" name="dias_aula_presencial_{{ i }}[]" value="Sábado"
                                                         {% if course.dias_aula_unidades[i] and 'Sábado' in
                                                         course.dias_aula_unidades[i] %}checked{% endif %}>
                                                     <span>Sábado</span>
                                                 </label>
                                                 <label class="checkbox-label">
-                                                    <input type="checkbox" name="dias_aula_presencial[]" value="Domingo"
+                                                    <input type="checkbox" name="dias_aula_presencial_{{ i }}[]" value="Domingo"
                                                         {% if course.dias_aula_unidades[i] and 'Domingo' in
                                                         course.dias_aula_unidades[i] %}checked{% endif %}>
                                                     <span>Domingo</span>

@@ -104,8 +104,8 @@ class CourseService:
             if not is_valid:
                 return False, {}, errors
             
-            # Processar dados do formulário
-            course_data = self._process_form_data(form_data)
+            # Para edição, usar processamento MySQL para obter dados de turmas estruturados
+            course_data = self._process_form_data_for_mysql(form_data)
             
             # Processar arquivos se fornecidos
             if files:

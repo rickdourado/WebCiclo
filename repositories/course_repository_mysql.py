@@ -358,6 +358,23 @@ class CourseRepositoryMySQL:
                 connection.commit()
                 logger.info(f"✅ Curso {course_id} atualizado com sucesso")
                 
+                # Se houver dados de turmas, atualizar turmas também
+                if 'enderecos_unidades' in course_data and course_data.get('enderecos_unidades'):
+                    # Deletar turmas antigas
+                    sql_delete_dias = "DELETE FROM turmas_dias_semana WHERE turma_id IN (SELECT id FROM turmas WHERE curso_id = %s)"
+                    cursor.execute(sql_delete_dias, (course_id,))
+                    
+                    sql_delete_turmas = "DELETE FROM turmas WHERE curso_id = %s"
+                    cursor.execute(sql_delete_turmas, (course_id,))
+                    
+                    connection.commit()
+                    logger.info(f"✅ Turmas antigas do curso {course_id} deletadas")
+                    
+                    # Inserir novas turmas
+                    self._insert_turmas(cursor, course_id, course_data)
+                    connection.commit()
+                    logger.info(f"✅ Novas turmas do curso {course_id} inseridas")
+                
                 # Retornar curso atualizado
                 return self.find_by_id(course_id)
                 
