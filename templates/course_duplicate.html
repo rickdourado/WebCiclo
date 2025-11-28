@@ -280,6 +280,18 @@
                     <div class="form-section">
                         <div class="form-grid">
                             <div class="form-group full-width">
+                                <label for="tipo_acao" class="required">Tipo de Ação</label>
+                                <select id="tipo_acao" name="tipo_acao" required>
+                                    <option value="">Selecione o tipo de ação</option>
+                                    <option value="Curso" {% if duplicate_data and duplicate_data.tipo_acao == 'Curso' %}selected{% endif %}>Curso</option>
+                                    <option value="Oficina" {% if duplicate_data and duplicate_data.tipo_acao == 'Oficina' %}selected{% endif %}>Oficina</option>
+                                    <option value="Palestra" {% if duplicate_data and duplicate_data.tipo_acao == 'Palestra' %}selected{% endif %}>Palestra</option>
+                                    <option value="Workshop" {% if duplicate_data and duplicate_data.tipo_acao == 'Workshop' %}selected{% endif %}>Workshop</option>
+                                    <option value="Evento" {% if duplicate_data and duplicate_data.tipo_acao == 'Evento' %}selected{% endif %}>Evento</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group full-width">
                                 <label for="titulo" class="required">Nome do Curso</label>
                                 <input type="text" id="titulo" name="titulo" required 
                                        placeholder="Digite o título do curso" value="{{ duplicate_data.titulo if duplicate_data else '' }}">
