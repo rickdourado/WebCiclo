@@ -296,6 +296,80 @@ class CourseRepositoryMySQL:
             if connection:
                 connection.close()
     
+    def update_course(self, course_id: int, course_data: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+        """
+        Atualiza um curso existente no banco de dados
+        
+        Args:
+            course_id: ID do curso
+            course_data: Novos dados do curso
+            
+        Returns:
+            Dicionário com dados do curso atualizado ou None em caso de erro
+        """
+        connection = None
+        try:
+            connection = self._get_connection()
+            with connection.cursor() as cursor:
+                # Construir SQL UPDATE dinamicamente baseado nos campos fornecidos
+                fields_to_update = []
+                values = []
+                
+                # Campos que podem ser atualizados
+                updateable_fields = [
+                    'tipo_acao', 'titulo', 'titulo_original', 'descricao', 'descricao_original',
+                    'capa_curso', 'inicio_inscricoes', 'fim_inscricoes', 'orgao', 'tema',
+                    'carga_horaria', 'modalidade', 'acessibilidade', 'recursos_acessibilidade',
+                    'publico_alvo', 'curso_gratuito', 'valor_curso_inteira', 'valor_curso_meia',
+                    'requisitos_meia', 'oferece_certificado', 'pre_requisitos', 'oferece_bolsa',
+                    'valor_bolsa', 'requisitos_bolsa', 'info_complementares', 'info_adicionais',
+                    'parceiro_externo', 'parceiro_nome', 'parceiro_link', 'parceiro_logo', 'status'
+                ]
+                
+                # Montar lista de campos a atualizar
+                decimal_fields = ['valor_curso_inteira', 'valor_curso_meia', 'valor_bolsa', 'carga_horaria']
+                
+                for field in updateable_fields:
+                    if field in course_data:
+                        fields_to_update.append(f"{field} = %s")
+                        value = course_data.get(field)
+                        
+                        # Normalizar valores vazios para None em campos decimais
+                        if field in decimal_fields and (value == '' or value == 'None'):
+                            value = None
+                        
+                        values.append(value)
+                
+                if not fields_to_update:
+                    logger.warning(f"⚠️ Nenhum campo para atualizar no curso {course_id}")
+                    return self.find_by_id(course_id)
+                
+                # Adicionar updated_at e course_id
+                fields_to_update.append("updated_at = NOW()")
+                values.append(course_id)
+                
+                sql = f"UPDATE cursos SET {', '.join(fields_to_update)} WHERE id = %s"
+                cursor.execute(sql, values)
+                
+                if cursor.rowcount == 0:
+                    logger.warning(f"⚠️ Nenhum curso encontrado com ID {course_id}")
+                    return None
+                
+                connection.commit()
+                logger.info(f"✅ Curso {course_id} atualizado com sucesso")
+                
+                # Retornar curso atualizado
+                return self.find_by_id(course_id)
+                
+        except Exception as e:
+            logger.error(f"❌ Erro ao atualizar curso {course_id}: {e}")
+            if connection:
+                connection.rollback()
+            return None
+        finally:
+            if connection:
+                connection.close()
+    
     def _get_turmas_by_course_id(self, cursor, course_id: int) -> List[Dict[str, Any]]:
         """Busca todas as turmas de um curso"""
         sql = "SELECT * FROM turmas WHERE curso_id = %s ORDER BY numero_turma"

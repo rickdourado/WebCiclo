@@ -95,7 +95,7 @@ class CourseService:
         """
         try:
             # Verificar se curso existe
-            existing_course = self.repository.find_by_id(course_id)
+            existing_course = self.repository_mysql.find_by_id(course_id)
             if not existing_course:
                 return False, {}, ["Curso não encontrado"]
             
@@ -119,7 +119,7 @@ class CourseService:
             course_data['descricao'] = existing_course.get('descricao', course_data.get('descricao_original'))
             
             # Atualizar curso
-            updated_course = self.repository.update_course(course_id, course_data)
+            updated_course = self.repository_mysql.update_course(course_id, course_data)
             
             return True, updated_course, warnings
             
@@ -704,7 +704,7 @@ class CourseService:
             Dict ou None: Dados do curso se encontrado
         """
         try:
-            return self.repository.find_by_id(course_id)
+            return self.repository_mysql.find_by_id(course_id)
         except Exception as e:
             print(f"Erro ao buscar curso {course_id}: {str(e)}")
             return None
