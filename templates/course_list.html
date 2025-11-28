@@ -1471,7 +1471,6 @@
                       </a>
 
                       <!-- Botões de Download -->
-                      {% if course.source_file %}
                       <!-- Botões de Download CSV e PDF -->
                       {% if course.csv_file %}
                       <a
@@ -1490,9 +1489,7 @@
                       >
                         <i class="fas fa-download"></i> CSV
                       </button>
-                      {% endif %}
-
-                      {% if course.pdf_file %}
+                      {% endif %} {% if course.pdf_file %}
                       <a
                         href="{{ url_for('download_file', filename=course.pdf_file) }}"
                         class="btn-secondary btn-sm download-btn"
