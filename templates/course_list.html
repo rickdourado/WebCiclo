@@ -1472,22 +1472,15 @@
 
                       <!-- Botões de Download -->
                       {% if course.source_file %}
+                      <!-- Botões de Download CSV e PDF -->
+                      {% if course.csv_file %}
                       <a
-                        href="{{ url_for('download_file', filename=course.source_file) }}"
+                        href="{{ url_for('download_file', filename=course.csv_file) }}"
                         class="btn-secondary btn-sm download-btn"
                         style="background-color: #38a169"
                         onclick="event.stopPropagation();"
                       >
                         <i class="fas fa-download"></i> CSV
-                      </a>
-
-                      <a
-                        href="{{ url_for('download_file', filename=course.source_file.replace('.csv', '.pdf')) }}"
-                        class="btn-secondary btn-sm download-btn"
-                        style="background-color: #3182ce"
-                        onclick="event.stopPropagation();"
-                      >
-                        <i class="fas fa-file-pdf"></i> PDF
                       </a>
                       {% else %}
                       <button
@@ -1497,7 +1490,18 @@
                       >
                         <i class="fas fa-download"></i> CSV
                       </button>
+                      {% endif %}
 
+                      {% if course.pdf_file %}
+                      <a
+                        href="{{ url_for('download_file', filename=course.pdf_file) }}"
+                        class="btn-secondary btn-sm download-btn"
+                        style="background-color: #3182ce"
+                        onclick="event.stopPropagation();"
+                      >
+                        <i class="fas fa-file-pdf"></i> PDF
+                      </a>
+                      {% else %}
                       <button
                         class="btn-secondary btn-sm"
                         style="background-color: #718096"
