@@ -396,12 +396,19 @@ def duplicate_course(course_id):
                             duplicate_data['descricao_original'] = original_course_data.get('descricao', '')
                     
                     # Renderizar formulário com dados preservados e mensagens de erro
-                    today_date = datetime.now().strftime('%Y-%m-%d')
-                    return render_template('course_duplicate.html', 
-                                         orgaos=ORGAOS,
-                                         duplicate_data=duplicate_data,
-                                         original_course_id=course_id,
-                                         today_date=today_date)
+                        today_date = datetime.now().strftime('%Y-%m-%d')
+                        # Preencher datas padrão se estiverem vazias para evitar envio de valores nulos
+                        if not duplicate_data.get('inicio_inscricoes_data'):
+                            duplicate_data['inicio_inscricoes_data'] = today_date
+                        if not duplicate_data.get('fim_inscricoes_data'):
+                            from datetime import timedelta
+                            duplicate_data['fim_inscricoes_data'] = (datetime.now() + timedelta(days=30)).strftime('%Y-%m-%d')
+
+                        return render_template('course_duplicate.html', 
+                                             orgaos=ORGAOS,
+                                             duplicate_data=duplicate_data,
+                                             original_course_id=course_id,
+                                             today_date=today_date)
                 
                 # Se não conseguir buscar dados originais, redirecionar
                 return redirect(url_for('duplicate_course', course_id=course_id))
@@ -433,9 +440,16 @@ def duplicate_course(course_id):
             duplicate_data['titulo_original'] = f"Cópia de {original_title}"
             duplicate_data['titulo'] = f"Cópia de {original_title}"  # Para preencher o campo
             duplicate_data['descricao_original'] = course_data.get('descricao', '')  # Para exibir na interface
-        
-        # Renderizar formulário com dados pré-preenchidos
+
+        # Preencher datas padrão se estiverem vazias para evitar envio de valores nulos
         today_date = datetime.now().strftime('%Y-%m-%d')
+        if not duplicate_data.get('inicio_inscricoes_data'):
+            duplicate_data['inicio_inscricoes_data'] = today_date
+        if not duplicate_data.get('fim_inscricoes_data'):
+            from datetime import timedelta
+            duplicate_data['fim_inscricoes_data'] = (datetime.now() + timedelta(days=30)).strftime('%Y-%m-%d')
+
+        # Renderizar formulário com dados pré-preenchidos
         return render_template('course_duplicate.html', 
                              orgaos=ORGAOS,
                              duplicate_data=duplicate_data,

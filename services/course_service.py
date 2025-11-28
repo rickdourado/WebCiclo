@@ -24,7 +24,7 @@ class CourseService:
         self.ai_service = AIService()
         self.file_service = FileService()
     
-    def create_course(self, form_data: Dict, files: Dict = None) -> Tuple[bool, Dict, List[str]]:
+    def create_course(self, form_data: Dict, files: Dict = None, user_id: int = None) -> Tuple[bool, Dict, List[str]]:
         """
         Cria um novo curso
         
@@ -51,8 +51,9 @@ class CourseService:
             # Melhorar descrição com IA
             course_data = self._enhance_description(course_data)
             
-            # Obter user_id da sessão
-            user_id = session.get('user_id', 1)  # Default para 1 se não houver sessão
+            # Obter user_id da sessão ou usar valor fornecido (útil para testes)
+            if user_id is None:
+                user_id = session.get('user_id', 1)  # Default para 1 se não houver sessão
             
             # Salvar curso no MySQL
             course_id = self.repository_mysql.create_course(course_data, user_id)
@@ -433,8 +434,33 @@ class CourseService:
                 dias_presencial = form_data.getlist('dias_aula_presencial[]')
                 # Agrupar dias por turma (assumindo que vêm na ordem)
                 num_turmas = len(course_data['enderecos_unidades'])
-                for i in range(num_turmas):
-                    dias_aula_list.append(dias_presencial)  # Todos os dias para cada turma
+
+                # Normalizar diferentes formatos possíveis de entrada:
+                # - lista com strings por unidade (ex: ['Segunda,Quarta','Terça'])
+                # - lista com valores únicos (todos os dias selecionados em sequência)
+                # - lista vazia
+                if not dias_presencial:
+                    dias_aula_list = ['' for _ in range(num_turmas)]
+                else:
+                    # Se o número de entradas bate com número de turmas, assumir que já é por unidade
+                    if len(dias_presencial) == num_turmas:
+                        for i in range(num_turmas):
+                            val = dias_presencial[i] if i < len(dias_presencial) else ''
+                            # Se for lista interna, juntar por vírgula
+                            if isinstance(val, list):
+                                val = ','.join(val)
+                            dias_aula_list.append(val or '')
+                    else:
+                        # Se temos valores com vírgula, talvez já sejam strings por unidade
+                        if any(isinstance(x, str) and ',' in x for x in dias_presencial):
+                            for i in range(num_turmas):
+                                val = dias_presencial[i] if i < len(dias_presencial) else ''
+                                dias_aula_list.append(val or '')
+                        else:
+                            # Caso padrão: aplicar os mesmos dias selecionados a todas as turmas
+                            joined = ','.join([str(x) for x in dias_presencial if x])
+                            for i in range(num_turmas):
+                                dias_aula_list.append(joined)
             course_data['dias_aula_unidades'] = dias_aula_list
         
         if modalidade in ['Online', 'Híbrido']:

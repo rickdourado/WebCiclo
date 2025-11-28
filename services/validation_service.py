@@ -67,6 +67,11 @@ class CourseValidator:
             'acessibilidade': 'Acessibilidade'
         }
         
+        # Datas de inscrição são obrigatórias conforme esquema do banco (NOT NULL)
+        required_fields.update({
+            'inicio_inscricoes_data': 'Início das inscrições',
+            'fim_inscricoes_data': 'Fim das inscrições'
+        })
         for field, label in required_fields.items():
             value = form_data.get(field, '').strip()
             if not value:

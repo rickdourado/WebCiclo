@@ -184,15 +184,24 @@ class CourseRepositoryMySQL:
             
             # Inserir dias da semana para esta turma
             if i < len(dias_aula) and dias_aula[i]:
-                dias_list = dias_aula[i].split(',') if isinstance(dias_aula[i], str) else dias_aula[i]
-                for dia in dias_list:
-                    dia = dia.strip()
-                    if dia:
-                        sql_dia = """
-                            INSERT INTO turmas_dias_semana (turma_id, dia_semana)
-                            VALUES (%s, %s)
-                        """
-                        cursor.execute(sql_dia, (turma_id, dia))
+                try:
+                    dias_list = dias_aula[i].split(',') if isinstance(dias_aula[i], str) else dias_aula[i]
+                    for dia in dias_list:
+                        dia = dia.strip()
+                        if dia:
+                            sql_dia = """
+                                INSERT INTO turmas_dias_semana (turma_id, dia_semana)
+                                VALUES (%s, %s)
+                            """
+                            try:
+                                cursor.execute(sql_dia, (turma_id, dia))
+                            except Exception as e:
+                                # Logar valor problemático e re-raise para o rollback
+                                logger.error(f"❌ Erro ao inserir dia '{dia}' para turma {turma_id}: {e}")
+                                raise
+                except Exception:
+                    logger.error(f"❌ Formato inválido para dias_da_turma index={i}: {dias_aula[i]}")
+                    raise
             
             logger.info(f"✅ Turma {i+1} criada para curso {course_id}")
     
