@@ -65,12 +65,12 @@ class CourseRepositoryMySQL:
                         requisitos_meia, oferece_certificado, pre_requisitos, oferece_bolsa,
                         valor_bolsa, requisitos_bolsa, info_complementares, info_adicionais,
                         parceiro_externo, parceiro_nome, parceiro_link, parceiro_logo,
-                        status, created_by, created_at, updated_at
+                        status, csv_file, pdf_file, created_by, created_at, updated_at
                     ) VALUES (
                         %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
                         %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
                         %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
-                        %s, %s, NOW(), NOW()
+                        %s, %s, %s, %s, NOW(), NOW()
                     )
                 """
                 
@@ -106,6 +106,8 @@ class CourseRepositoryMySQL:
                     course_data.get('parceiro_link'),
                     course_data.get('parceiro_logo'),
                     course_data.get('status', 'ativo'),
+                    course_data.get('csv_file'),
+                    course_data.get('pdf_file'),
                     user_id
                 )
                 
@@ -383,6 +385,42 @@ class CourseRepositoryMySQL:
             if connection:
                 connection.rollback()
             return None
+        finally:
+            if connection:
+                connection.close()
+    
+    def update_course_files(self, course_id: int, csv_file: str = None, pdf_file: str = None) -> bool:
+        """
+        Atualiza apenas os nomes dos arquivos CSV e PDF de um curso
+        
+        Args:
+            course_id: ID do curso
+            csv_file: Nome do arquivo CSV
+            pdf_file: Nome do arquivo PDF
+            
+        Returns:
+            bool: True se atualizado com sucesso, False caso contrário
+        """
+        connection = None
+        try:
+            connection = self._get_connection()
+            with connection.cursor() as cursor:
+                sql = "UPDATE cursos SET csv_file = %s, pdf_file = %s, updated_at = NOW() WHERE id = %s"
+                cursor.execute(sql, (csv_file, pdf_file, course_id))
+                connection.commit()
+                
+                if cursor.rowcount > 0:
+                    logger.info(f"✅ Arquivos atualizados para curso {course_id}: CSV={csv_file}, PDF={pdf_file}")
+                    return True
+                else:
+                    logger.warning(f"⚠️ Nenhum curso encontrado com ID {course_id}")
+                    return False
+                    
+        except Exception as e:
+            logger.error(f"❌ Erro ao atualizar arquivos do curso {course_id}: {e}")
+            if connection:
+                connection.rollback()
+            return False
         finally:
             if connection:
                 connection.close()

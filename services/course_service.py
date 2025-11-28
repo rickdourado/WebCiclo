@@ -67,7 +67,17 @@ class CourseService:
             # Também salvar em CSV/PDF para backup (opcional)
             try:
                 course_data_csv = self._prepare_course_for_csv(saved_course)
-                self.repository_csv.save_course(course_data_csv)
+                csv_pdf_data = self.repository_csv.save_course(course_data_csv)
+                
+                # Atualizar os nomes dos arquivos no banco MySQL
+                if csv_pdf_data.get('csv_file') or csv_pdf_data.get('pdf_file'):
+                    self.repository_mysql.update_course_files(
+                        course_id,
+                        csv_pdf_data.get('csv_file'),
+                        csv_pdf_data.get('pdf_file')
+                    )
+                    saved_course = self.repository_mysql.find_by_id(course_id)
+                
                 logger.info(f"✅ Backup CSV/PDF criado para curso {course_id}")
             except Exception as e:
                 logger.warning(f"⚠️ Erro ao criar backup CSV/PDF: {e}")

@@ -549,6 +549,19 @@ input[type="checkbox"]:checked::after {
     color: white;
 }
 
+.btn-success {
+    background: #48bb78;
+    color: white;
+    border-color: #48bb78;
+}
+
+.btn-success:hover {
+    background: #38a169;
+    border-color: #38a169;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(72, 187, 120, 0.3);
+}
+
 /* Responsive design */
 @media (max-width: 768px) {
     .container {

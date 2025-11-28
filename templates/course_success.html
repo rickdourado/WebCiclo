@@ -1,929 +1,1070 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Curso Criado com Sucesso - Ciclo Carioca</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/icon-fallback.css') }}">
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/style.css') }}"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/icon-fallback.css') }}"
+    />
     <script src="{{ url_for('static', filename='js/icon-fallback.js') }}"></script>
     <style>
-        .success-container {
-            text-align: center;
-            padding: 60px 40px;
-        }
+      .success-container {
+        text-align: center;
+        padding: 60px 40px;
+      }
 
-        .success-icon {
-            font-size: 4rem;
-            color: #38a169;
-            margin-bottom: 30px;
-            animation: bounce 1s ease-in-out;
-        }
+      .success-icon {
+        font-size: 4rem;
+        color: #38a169;
+        margin-bottom: 30px;
+        animation: bounce 1s ease-in-out;
+      }
 
-        .success-title {
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: #2d3748;
-            margin-bottom: 20px;
-        }
+      .success-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #2d3748;
+        margin-bottom: 20px;
+      }
 
-        .success-message {
-            font-size: 1.2rem;
-            color: #718096;
-            margin-bottom: 40px;
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
-        }
+      .success-message {
+        font-size: 1.2rem;
+        color: #718096;
+        margin-bottom: 40px;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+      }
 
-        .course-details {
-            background: #f8fafc;
-            border-radius: 12px;
-            padding: 30px;
-            margin: 40px 0;
-            text-align: left;
-            border: 1px solid #e2e8f0;
-        }
+      .course-details {
+        background: #f8fafc;
+        border-radius: 12px;
+        padding: 30px;
+        margin: 40px 0;
+        text-align: left;
+        border: 1px solid #e2e8f0;
+      }
 
-        .course-details h3 {
-            color: #2d3748;
-            font-size: 1.5rem;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+      .course-details h3 {
+        color: #2d3748;
+        font-size: 1.5rem;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
 
-        /* Estilos para seções organizadas */
-        .info-section {
-            margin-bottom: 20px;
-            padding: 15px;
-            background-color: #f8f9fa;
-            border-radius: 8px;
-            border-left: 4px solid #667eea;
-        }
+      /* Estilos para seções organizadas */
+      .info-section {
+        margin-bottom: 20px;
+        padding: 15px;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        border-left: 4px solid #667eea;
+      }
 
-        .info-section-title {
-            font-size: 1rem;
-            font-weight: 600;
-            color: #2d3748;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+      .info-section-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #2d3748;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
 
-        .info-section-title i {
-            color: #667eea;
-        }
+      .info-section-title i {
+        color: #667eea;
+      }
 
-        .course-info {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
+      .course-info {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
 
-        .info-row {
-            display: flex;
-            align-items: flex-start;
-            gap: 12px;
-            margin-bottom: 8px;
-            font-size: 0.95rem;
-            color: #4a5568;
-            line-height: 1.5;
-            padding: 8px 0;
-            border-bottom: 1px solid #f1f5f9;
-        }
+      .info-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        margin-bottom: 8px;
+        font-size: 0.95rem;
+        color: #4a5568;
+        line-height: 1.5;
+        padding: 8px 0;
+        border-bottom: 1px solid #f1f5f9;
+      }
 
-        .info-row:last-child {
-            border-bottom: none;
-        }
+      .info-row:last-child {
+        border-bottom: none;
+      }
 
-        .info-row strong {
-            color: #2d3748;
-            font-weight: 600;
-            min-width: 140px;
-            display: inline-block;
-        }
+      .info-row strong {
+        color: #2d3748;
+        font-weight: 600;
+        min-width: 140px;
+        display: inline-block;
+      }
 
-        .info-row i {
-            width: 24px;
-            color: #667eea;
-            font-size: 1.2em;
-        }
+      .info-row i {
+        width: 24px;
+        color: #667eea;
+        font-size: 1.2em;
+      }
 
-        /* Estilos para descrições */
-        .description-item {
-            margin-bottom: 20px;
-            padding: 15px;
-            background-color: #f8f9fa;
-            border-radius: 8px;
-            border-left: 4px solid #667eea;
-        }
+      /* Estilos para descrições */
+      .description-item {
+        margin-bottom: 20px;
+        padding: 15px;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        border-left: 4px solid #667eea;
+      }
 
-        .description-item.enhanced {
-            background-color: #edf2f7;
-            border-left-color: #4299e1;
-        }
+      .description-item.enhanced {
+        background-color: #edf2f7;
+        border-left-color: #4299e1;
+      }
 
-        .description-label {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 10px;
-            font-size: 0.95rem;
-            color: #2d3748;
-        }
+      .description-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 10px;
+        font-size: 0.95rem;
+        color: #2d3748;
+      }
 
-        .description-label i {
-            color: #667eea;
-        }
+      .description-label i {
+        color: #667eea;
+      }
 
-        .description-item.enhanced .description-label i {
-            color: #4299e1;
-        }
+      .description-item.enhanced .description-label i {
+        color: #4299e1;
+      }
 
-        .description-content {
-            font-size: 0.9rem;
-            line-height: 1.6;
-            color: #4a5568;
-            padding-left: 24px;
-        }
+      .description-content {
+        font-size: 0.9rem;
+        line-height: 1.6;
+        color: #4a5568;
+        padding-left: 24px;
+      }
 
-        .actions {
-            display: flex;
-            gap: 20px;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin-top: 40px;
-        }
+      .actions {
+        display: flex;
+        gap: 20px;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-top: 40px;
+      }
 
-        .file-info {
-            background: #edf2f7;
-            border-radius: 8px;
-            padding: 15px;
-            margin-top: 30px;
-            border-left: 4px solid #4299e1;
-        }
+      .file-info {
+        background: #edf2f7;
+        border-radius: 8px;
+        padding: 15px;
+        margin-top: 30px;
+        border-left: 4px solid #4299e1;
+      }
 
-        .file-info h4 {
-            color: #2b6cb0;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+      .file-info h4 {
+        color: #2b6cb0;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
 
-        .file-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 8px 0;
-        }
+      .file-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 0;
+      }
 
-        .file-icon {
-            font-size: 1.2rem;
-            color: #4a5568;
-        }
+      .file-icon {
+        font-size: 1.2rem;
+        color: #4a5568;
+      }
 
-        .course-images {
-            margin-top: 30px;
-            padding-top: 30px;
-            border-top: 1px solid #e2e8f0;
-        }
+      .course-images {
+        margin-top: 30px;
+        padding-top: 30px;
+        border-top: 1px solid #e2e8f0;
+      }
 
+      .image-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 20px;
+        margin-top: 20px;
+      }
+
+      .image-item {
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .image-item img {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+      }
+
+      .image-item img:hover {
+        transform: scale(1.05);
+      }
+
+      @media (max-width: 768px) {
         .image-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
-        }
-
-        .image-item {
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+          grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
         }
 
         .image-item img {
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
-            transition: transform 0.3s ease;
+          height: 150px;
+        }
+      }
+
+      @keyframes bounce {
+        0%,
+        20%,
+        50%,
+        80%,
+        100% {
+          transform: translateY(0);
         }
 
-        .image-item img:hover {
-            transform: scale(1.05);
+        40% {
+          transform: translateY(-20px);
         }
 
-        @media (max-width: 768px) {
-            .image-grid {
-                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            }
+        60% {
+          transform: translateY(-10px);
+        }
+      }
 
-            .image-item img {
-                height: 150px;
-            }
+      @media (max-width: 768px) {
+        .success-container {
+          padding: 40px 20px;
         }
 
-        @keyframes bounce {
-
-            0%,
-            20%,
-            50%,
-            80%,
-            100% {
-                transform: translateY(0);
-            }
-
-            40% {
-                transform: translateY(-20px);
-            }
-
-            60% {
-                transform: translateY(-10px);
-            }
+        .success-title {
+          font-size: 2rem;
         }
 
-        @media (max-width: 768px) {
-            .success-container {
-                padding: 40px 20px;
-            }
-
-            .success-title {
-                font-size: 2rem;
-            }
-
-            .actions {
-                flex-direction: column;
-            }
-
-            .btn {
-                width: 100%;
-            }
+        .actions {
+          flex-direction: column;
         }
+
+        .btn {
+          width: 100%;
+        }
+      }
     </style>
-</head>
+  </head>
 
-<body>
+  <body>
     <div class="container">
-        <!-- Header -->
-        <header class="header">
-            <div class="header-content">
-                <div class="logo-section">
-                    <a href="{{ url_for('index') }}" title="Ir para página inicial">
-                        <img src="{{ url_for('static', filename='images/OC.png') }}"
-                            alt="Logo Ciclo Carioca">
-                    </a>
-                    <span class="version">v2.0</span>
-                </div>
-                <div class="nav-section">
-                    <a href="{{ url_for('index') }}" class="nav-link home-link" title="Página Inicial">
-                        <i class="fas fa-home"></i>
-                    </a>
-                </div>
-            </div>
-        </header>
+      <!-- Header -->
+      <header class="header">
+        <div class="header-content">
+          <div class="logo-section">
+            <a href="{{ url_for('index') }}" title="Ir para página inicial">
+              <img
+                src="{{ url_for('static', filename='images/OC.png') }}"
+                alt="Logo Ciclo Carioca"
+              />
+            </a>
+            <span class="version">v2.0</span>
+          </div>
+          <div class="nav-section">
+            <a
+              href="{{ url_for('index') }}"
+              class="nav-link home-link"
+              title="Página Inicial"
+            >
+              <i class="fas fa-home"></i>
+            </a>
+          </div>
+        </div>
+      </header>
 
-        <!-- Main Content -->
-        <main class="main-content">
-            <div class="success-container">
-                <div class="success-icon">
-                    <i class="fas fa-check-circle"></i>
-                </div>
+      <!-- Main Content -->
+      <main class="main-content">
+        <div class="success-container">
+          <div class="success-icon">
+            <i class="fas fa-check-circle"></i>
+          </div>
 
-                <h1 class="success-title">Curso Criado com Sucesso!</h1>
+          <h1 class="success-title">Curso Criado com Sucesso!</h1>
 
-                <p class="success-message">
-                    O curso <strong>"{{ course.titulo }}"</strong> foi criado e está disponível no sistema Ciclo
-                    Carioca.
-                    Os participantes já podem se inscrever e acompanhar as informações do curso.
-                </p>
+          <p class="success-message">
+            O curso <strong>"{{ course.titulo }}"</strong> foi criado e está
+            disponível no sistema Ciclo Carioca. Os participantes já podem se
+            inscrever e acompanhar as informações do curso.
+          </p>
 
-                <div class="course-details">
-                    <h3><i class="fas fa-info-circle"></i> Detalhes do Curso</h3>
+          <div class="course-details">
+            <h3><i class="fas fa-info-circle"></i> Detalhes do Curso</h3>
 
-                    <!-- Seção: Informações Básicas -->
-                    <div class="info-section">
-                        <div class="info-section-title">
-                            <i class="fas fa-info-circle"></i>
-                            Informações Básicas
-                        </div>
-                        <div class="course-info">
-                            {% if course.tipo_acao %}
-                            <div class="info-row">
-                                <i class="fas fa-tag"></i>
-                                <span><strong>Tipo de Ação:</strong> {{ course.tipo_acao }}</span>
-                            </div>
-                            {% endif %}
-                            <div class="info-row">
-                                <i class="fas fa-graduation-cap"></i>
-                                <span><strong>Nome da Ação de Formação:</strong> {{ course.titulo }}</span>
-                            </div>
-
-                            <div class="info-row">
-                                <i class="fas fa-tag"></i>
-                                <span><strong>Categoria:</strong> {{ course.tema }}</span>
-                            </div>
-
-                            <div class="info-row">
-                                <i class="fas fa-graduation-cap"></i>
-                                <span><strong>Modalidade:</strong> {{ course.modalidade }}</span>
-                            </div>
-
-                            {% if course.inicio_aulas_data or course.fim_aulas_data %}
-                            <div class="info-row">
-                                <i class="fas fa-calendar-check"></i>
-                                <span><strong>Data de Realização:</strong>
-                                    {% set inicio_data = course.inicio_aulas_data.split('|')[0].strip() if
-                                    course.inicio_aulas_data else '' %}
-                                    {% set fim_data = course.fim_aulas_data.split('|')[0].strip() if
-                                    course.fim_aulas_data else '' %}
-                                    {% if inicio_data and fim_data %}
-                                    {% set inicio_formatada = inicio_data.split('-')[2] + '/' +
-                                    inicio_data.split('-')[1] + '/' + inicio_data.split('-')[0] %}
-                                    {% set fim_formatada = fim_data.split('-')[2] + '/' + fim_data.split('-')[1] + '/' +
-                                    fim_data.split('-')[0] %}
-                                    {{ inicio_formatada }} a {{ fim_formatada }}
-                                    {% elif inicio_data %}
-                                    {% set inicio_formatada = inicio_data.split('-')[2] + '/' +
-                                    inicio_data.split('-')[1] + '/' + inicio_data.split('-')[0] %}
-                                    A partir de {{ inicio_formatada }}
-                                    {% elif fim_data %}
-                                    {% set fim_formatada = fim_data.split('-')[2] + '/' + fim_data.split('-')[1] + '/' +
-                                    fim_data.split('-')[0] %}
-                                    Até {{ fim_formatada }}
-                                    {% endif %}
-                                </span>
-                            </div>
-                            {% endif %}
-
-                            {% if course.modalidade == 'Online' and course.plataforma_digital %}
-                            <div class="info-row">
-                                <i class="fas fa-video"></i>
-                                <span><strong>Plataforma Digital:</strong> {{ course.plataforma_digital }}</span>
-                            </div>
-                            {% endif %}
-
-                            {% if course.carga_horaria %}
-                            <div class="info-row">
-                                <i class="fas fa-clock"></i>
-                                <span><strong>Carga Horária:</strong> {{ course.carga_horaria }}</span>
-                            </div>
-                            {% endif %}
-
-                            {% if course.modalidade == 'Online' and course.aulas_assincronas %}
-                            <div class="info-row">
-                                <i class="fas fa-video"></i>
-                                <span><strong>Tipo de Aula:</strong> {% if course.aulas_assincronas == 'sim' %}Aulas
-                                    Assíncronas (no seu próprio ritmo){% else %}Aulas Síncronas (horário fixo){% endif
-                                    %}</span>
-                            </div>
-                            {% endif %}
-
-                            {% if course.dias_aula %}
-                            <div class="info-row">
-                                <i class="fas fa-calendar-day"></i>
-                                <span><strong>Dias da Aula:</strong>
-                                    {% set dias_lista = course.dias_aula.split('|') %}
-                                    {% set dias_unicos = [] %}
-                                    {% for dia in dias_lista %}
-                                    {% set dia_limpo = dia.strip() %}
-                                    {% if dia_limpo not in dias_unicos %}
-                                    {% set _ = dias_unicos.append(dia_limpo) %}
-                                    {% endif %}
-                                    {% endfor %}
-                                    {{ dias_unicos|join(', ') }}
-                                </span>
-                            </div>
-                            {% endif %}
-
-                            {% if course.horario_inicio and course.horario_fim %}
-                            <div class="info-row">
-                                <i class="fas fa-clock"></i>
-                                <span><strong>Horário:</strong> {{ course.horario_inicio.split('|')[0].strip() }} às {{
-                                    course.horario_fim.split('|')[0].strip() }}</span>
-                            </div>
-                            {% endif %}
-
-                            <div class="info-row">
-                                <i class="fas fa-building"></i>
-                                <span><strong>Órgão Responsável:</strong> {{ course.orgao }}</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Seção: Informações Financeiras -->
-                    <div class="info-section">
-                        <div class="info-section-title">
-                            <i class="fas fa-dollar-sign"></i>
-                            Informações Financeiras
-                        </div>
-                        <div class="course-info">
-                            <div class="info-row">
-                                <i class="fas fa-tag"></i>
-                                <span><strong>Tipo:</strong> {% if course.curso_gratuito == 'sim' %}Gratuito{% else
-                                    %}Pago{% endif %}</span>
-                            </div>
-
-                            {% if course.curso_gratuito == 'nao' %}
-                            {% if course.valor_curso_inteira %}
-                            <div class="info-row">
-                                <i class="fas fa-dollar-sign"></i>
-                                <span><strong>Valor Inteira:</strong>
-                                    {% set valor_str = course.valor_curso_inteira|safe_str %}
-                                    {% if valor_str.startswith('R$') %}
-                                    {{ valor_str }}
-                                    {% else %}
-                                    R$ {{ valor_str }}
-                                    {% endif %}
-                                </span>
-                            </div>
-                            {% endif %}
-
-                            {% if course.valor_curso_meia %}
-                            <div class="info-row">
-                                <i class="fas fa-percentage"></i>
-                                <span><strong>Valor Meia:</strong>
-                                    {% set valor_str = course.valor_curso_meia|safe_str %}
-                                    {% if valor_str.startswith('R$') %}
-                                    {{ valor_str }}
-                                    {% else %}
-                                    R$ {{ valor_str }}
-                                    {% endif %}
-                                </span>
-                            </div>
-                            {% endif %}
-
-                            {% if course.requisitos_meia %}
-                            <div class="info-row">
-                                <i class="fas fa-clipboard-check"></i>
-                                <span><strong>Condições para Meia-entrada:</strong> {{ course.requisitos_meia }}</span>
-                            </div>
-                            {% endif %}
-                            {% endif %}
-
-                            <div class="info-row">
-                                <i class="fas fa-hand-holding-usd"></i>
-                                <span><strong>Oferece Bolsa:</strong> {% if course.oferece_bolsa == 'sim' %}Sim{% else
-                                    %}Não{% endif %}</span>
-                            </div>
-
-                            {% if course.oferece_bolsa == 'sim' and course.valor_bolsa %}
-                            <div class="info-row">
-                                <i class="fas fa-money-bill-wave"></i>
-                                <span><strong>Valor da Bolsa:</strong>
-                                    {% set valor_str = course.valor_bolsa|safe_str %}
-                                    {% if valor_str.startswith('R$') %}
-                                    {{ valor_str }}
-                                    {% else %}
-                                    R$ {{ valor_str }}
-                                    {% endif %}
-                                </span>
-                            </div>
-                            {% endif %}
-
-                            {% if course.oferece_bolsa == 'sim' and course.requisitos_bolsa %}
-                            <div class="info-row">
-                                <i class="fas fa-clipboard-list"></i>
-                                <span><strong>Requisitos para Bolsa:</strong> {{ course.requisitos_bolsa }}</span>
-                            </div>
-                            {% endif %}
-                        </div>
-                    </div>
-
-                    <!-- Seção: Informações de Localização (apenas para cursos presenciais/híbridos) -->
-                    {% if course.modalidade in ['Presencial', 'Híbrido'] and (course.endereco_unidade or
-                    course.bairro_unidade) %}
-                    <div class="info-section">
-                        <div class="info-section-title">
-                            <i class="fas fa-map-marker-alt"></i>
-                            Informações de Localização
-                        </div>
-                        <div class="course-info">
-                            {% set enderecos = course.enderecos_unidades if course.enderecos_unidades else
-                            (course.endereco_unidade.split('|') if course.endereco_unidade else []) %}
-                            {% set bairros = course.bairros_unidades if course.bairros_unidades else
-                            (course.bairro_unidade.split('|') if course.bairro_unidade else []) %}
-                            {% set vagas = course.vagas_unidades if course.vagas_unidades else
-                            (course.vagas_unidade.split('|') if course.vagas_unidade else []) %}
-                            {% set inicio_aulas = course.inicio_aulas_unidades if course.inicio_aulas_unidades else
-                            (course.inicio_aulas_data.split('|') if course.inicio_aulas_data else []) %}
-                            {% set fim_aulas = course.fim_aulas_unidades if course.fim_aulas_unidades else
-                            (course.fim_aulas_data.split('|') if course.fim_aulas_data else []) %}
-                            {% set horario_inicio = course.horario_inicio_unidades if course.horario_inicio_unidades
-                            else (course.horario_inicio.split('|') if course.horario_inicio else []) %}
-                            {% set horario_fim = course.horario_fim_unidades if course.horario_fim_unidades else
-                            (course.horario_fim.split('|') if course.horario_fim else []) %}
-                            {% set dias_aula = course.dias_aula_unidades if course.dias_aula_unidades else
-                            (course.dias_aula.split('|') if course.dias_aula else []) %}
-
-                            {% set max_units = [enderecos|length, bairros|length, vagas|length, inicio_aulas|length,
-                            fim_aulas|length, horario_inicio|length, horario_fim|length, dias_aula|length]|max %}
-
-                            {% for i in range(max_units) %}
-                            {% if enderecos[i] or bairros[i] or vagas[i] %}
-                            <div class="unit-info"
-                                style="margin-bottom: 20px; padding: 15px; background-color: #f8f9fa; border-radius: 8px; border-left: 4px solid #667eea;">
-                                <div
-                                    style="font-weight: 600; color: #2d3748; margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
-                                    <i class="fas fa-building" style="color: #667eea;"></i>
-                                    Unidade ou Turma {{ i + 1 }}
-                                </div>
-
-                                {% if enderecos[i] %}
-                                <div class="info-row">
-                                    <i class="fas fa-map-marker-alt"></i>
-                                    <span><strong>Endereço:</strong> {{ enderecos[i].strip() }}</span>
-                                </div>
-                                {% endif %}
-
-                                {% if bairros[i] %}
-                                <div class="info-row">
-                                    <i class="fas fa-map"></i>
-                                    <span><strong>Bairro:</strong> {{ bairros[i].strip() }}</span>
-                                </div>
-                                {% endif %}
-
-                                {% if vagas[i] %}
-                                <div class="info-row">
-                                    <i class="fas fa-user-plus"></i>
-                                    <span><strong>Vagas:</strong> {{ vagas[i].strip() }}</span>
-                                </div>
-                                {% endif %}
-
-                                <!-- Seção de Múltiplas Turmas -->
-                                {% set turmas_inicio = inicio_aulas[i].split('||') if i < inicio_aulas|length and
-                                    inicio_aulas[i] and '||' in inicio_aulas[i] else [inicio_aulas[i] if i <
-                                    inicio_aulas|length and inicio_aulas[i] else '' ] %} {% set
-                                    turmas_fim=fim_aulas[i].split('||') if i < fim_aulas|length and fim_aulas[i]
-                                    and '||' in fim_aulas[i] else [fim_aulas[i] if i < fim_aulas|length and fim_aulas[i]
-                                    else '' ] %} {% set turmas_horario_inicio=horario_inicio[i].split('||') if i <
-                                    horario_inicio|length and horario_inicio[i] and '||' in horario_inicio[i] else
-                                    [horario_inicio[i] if i < horario_inicio|length and horario_inicio[i] else '' ] %}
-                                    {% set turmas_horario_fim=horario_fim[i].split('||') if i < horario_fim|length and
-                                    horario_fim[i] and '||' in horario_fim[i] else [horario_fim[i] if i <
-                                    horario_fim|length and horario_fim[i] else '' ] %} {% set
-                                    turmas_dias=dias_aula[i].split('||') if i < dias_aula|length and dias_aula[i]
-                                    and '||' in dias_aula[i] else [dias_aula[i] if i < dias_aula|length and dias_aula[i]
-                                    else '' ] %} <!-- Informações das Turmas -->
-                                    {% if turmas_inicio|length > 0 and turmas_inicio[0] %}
-                                    <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #e2e8f0;">
-
-
-                                        {% for t in range(turmas_inicio|length) %}
-                                        {% if turmas_inicio[t] %}
-                                        <div
-                                            style="margin-bottom: 15px; padding: 12px; background-color: #ffffff; border-radius: 6px; border: 1px solid #e2e8f0;">
-                                            <div
-                                                style="font-weight: 600; color: #4a5568; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
-                                                <i class="fas fa-user-friends"
-                                                    style="color: #4299e1; font-size: 0.9em;"></i>
-                                                Turma {{ t + 1 }}
-                                            </div>
-
-                                            {% if turmas_inicio[t] or (t < turmas_fim|length and turmas_fim[t]) %} <div
-                                                class="info-row"
-                                                style="margin-bottom: 6px; padding: 4px 0; border-bottom: none;">
-                                                <i class="fas fa-calendar-check" style="font-size: 0.9em;"></i>
-                                                <span style="font-size: 0.9em;"><strong>Período:</strong>
-                                                    {% if turmas_inicio[t] and t < turmas_fim|length and turmas_fim[t]
-                                                        %} {% set
-                                                        inicio_formatada=turmas_inicio[t].strip().split('-')[2] + '/' +
-                                                        turmas_inicio[t].strip().split('-')[1] + '/' +
-                                                        turmas_inicio[t].strip().split('-')[0] %} {% set
-                                                        fim_formatada=turmas_fim[t].strip().split('-')[2] + '/' +
-                                                        turmas_fim[t].strip().split('-')[1] + '/' +
-                                                        turmas_fim[t].strip().split('-')[0] %} {{ inicio_formatada }} a
-                                                        {{ fim_formatada }} {% elif turmas_inicio[t] %} {% set
-                                                        inicio_formatada=turmas_inicio[t].strip().split('-')[2] + '/' +
-                                                        turmas_inicio[t].strip().split('-')[1] + '/' +
-                                                        turmas_inicio[t].strip().split('-')[0] %} A partir de {{
-                                                        inicio_formatada }} {% elif t < turmas_fim|length and
-                                                        turmas_fim[t] %} {% set
-                                                        fim_formatada=turmas_fim[t].strip().split('-')[2] + '/' +
-                                                        turmas_fim[t].strip().split('-')[1] + '/' +
-                                                        turmas_fim[t].strip().split('-')[0] %} Até {{ fim_formatada }}
-                                                        {% endif %} </span>
-                                        </div>
-                                        {% endif %}
-
-                                        {% if t < turmas_horario_inicio|length and turmas_horario_inicio[t] and t <
-                                            turmas_horario_fim|length and turmas_horario_fim[t] %} <div class="info-row"
-                                            style="margin-bottom: 6px; padding: 4px 0; border-bottom: none;">
-                                            <i class="fas fa-clock" style="font-size: 0.9em;"></i>
-                                            <span style="font-size: 0.9em;"><strong>Horário:</strong> {{
-                                                turmas_horario_inicio[t].strip() }} às {{ turmas_horario_fim[t].strip()
-                                                }}</span>
-                                    </div>
-                                    {% endif %}
-
-                                    {% if t < turmas_dias|length and turmas_dias[t] %} <div class="info-row"
-                                        style="margin-bottom: 0; padding: 4px 0; border-bottom: none;">
-                                        <i class="fas fa-calendar-day" style="font-size: 0.9em;"></i>
-                                        <span style="font-size: 0.9em;"><strong>Dias:</strong> {{
-                                            turmas_dias[t].strip().replace(',', ', ') }}</span>
-                            </div>
-                            {% endif %}
-                        </div>
-                        {% endif %}
-                        {% endfor %}
-                    </div>
-                    {% endif %}
+            <!-- Seção: Informações Básicas -->
+            <div class="info-section">
+              <div class="info-section-title">
+                <i class="fas fa-info-circle"></i>
+                Informações Básicas
+              </div>
+              <div class="course-info">
+                {% if course.tipo_acao %}
+                <div class="info-row">
+                  <i class="fas fa-tag"></i>
+                  <span
+                    ><strong>Tipo de Ação:</strong> {{ course.tipo_acao }}</span
+                  >
                 </div>
                 {% endif %}
-                {% endfor %}
-            </div>
-    </div>
-    {% endif %}
+                <div class="info-row">
+                  <i class="fas fa-graduation-cap"></i>
+                  <span
+                    ><strong>Nome da Ação de Formação:</strong> {{ course.titulo
+                    }}</span
+                  >
+                </div>
 
-    <!-- Seção: Informações Acadêmicas -->
-    <div class="info-section">
-        <div class="info-section-title">
-            <i class="fas fa-graduation-cap"></i>
-            Informações Acadêmicas
-        </div>
-        <div class="course-info">
-            <div class="info-row">
-                <i class="fas fa-users"></i>
-                <span><strong>Público Alvo:</strong> {{ course.publico_alvo }}</span>
+                <div class="info-row">
+                  <i class="fas fa-tag"></i>
+                  <span><strong>Categoria:</strong> {{ course.tema }}</span>
+                </div>
+
+                <div class="info-row">
+                  <i class="fas fa-graduation-cap"></i>
+                  <span
+                    ><strong>Modalidade:</strong> {{ course.modalidade }}</span
+                  >
+                </div>
+
+                {% if course.inicio_aulas_data or course.fim_aulas_data %}
+                <div class="info-row">
+                  <i class="fas fa-calendar-check"></i>
+                  <span
+                    ><strong>Data de Realização:</strong>
+                    {% set inicio_data =
+                    course.inicio_aulas_data.split('|')[0].strip() if
+                    course.inicio_aulas_data else '' %} {% set fim_data =
+                    course.fim_aulas_data.split('|')[0].strip() if
+                    course.fim_aulas_data else '' %} {% if inicio_data and
+                    fim_data %} {% set inicio_formatada =
+                    inicio_data.split('-')[2] + '/' + inicio_data.split('-')[1]
+                    + '/' + inicio_data.split('-')[0] %} {% set fim_formatada =
+                    fim_data.split('-')[2] + '/' + fim_data.split('-')[1] + '/'
+                    + fim_data.split('-')[0] %} {{ inicio_formatada }} a {{
+                    fim_formatada }} {% elif inicio_data %} {% set
+                    inicio_formatada = inicio_data.split('-')[2] + '/' +
+                    inicio_data.split('-')[1] + '/' + inicio_data.split('-')[0]
+                    %} A partir de {{ inicio_formatada }} {% elif fim_data %} {%
+                    set fim_formatada = fim_data.split('-')[2] + '/' +
+                    fim_data.split('-')[1] + '/' + fim_data.split('-')[0] %} Até
+                    {{ fim_formatada }} {% endif %}
+                  </span>
+                </div>
+                {% endif %} {% if course.modalidade == 'Online' and
+                course.plataforma_digital %}
+                <div class="info-row">
+                  <i class="fas fa-video"></i>
+                  <span
+                    ><strong>Plataforma Digital:</strong> {{
+                    course.plataforma_digital }}</span
+                  >
+                </div>
+                {% endif %} {% if course.carga_horaria %}
+                <div class="info-row">
+                  <i class="fas fa-clock"></i>
+                  <span
+                    ><strong>Carga Horária:</strong> {{ course.carga_horaria
+                    }}</span
+                  >
+                </div>
+                {% endif %} {% if course.modalidade == 'Online' and
+                course.aulas_assincronas %}
+                <div class="info-row">
+                  <i class="fas fa-video"></i>
+                  <span
+                    ><strong>Tipo de Aula:</strong> {% if
+                    course.aulas_assincronas == 'sim' %}Aulas Assíncronas (no
+                    seu próprio ritmo){% else %}Aulas Síncronas (horário fixo){%
+                    endif %}</span
+                  >
+                </div>
+                {% endif %} {% if course.dias_aula %}
+                <div class="info-row">
+                  <i class="fas fa-calendar-day"></i>
+                  <span
+                    ><strong>Dias da Aula:</strong>
+                    {% set dias_lista = course.dias_aula.split('|') %} {% set
+                    dias_unicos = [] %} {% for dia in dias_lista %} {% set
+                    dia_limpo = dia.strip() %} {% if dia_limpo not in
+                    dias_unicos %} {% set _ = dias_unicos.append(dia_limpo) %}
+                    {% endif %} {% endfor %} {{ dias_unicos|join(', ') }}
+                  </span>
+                </div>
+                {% endif %} {% if course.horario_inicio and course.horario_fim
+                %}
+                <div class="info-row">
+                  <i class="fas fa-clock"></i>
+                  <span
+                    ><strong>Horário:</strong> {{
+                    course.horario_inicio.split('|')[0].strip() }} às {{
+                    course.horario_fim.split('|')[0].strip() }}</span
+                  >
+                </div>
+                {% endif %}
+
+                <div class="info-row">
+                  <i class="fas fa-building"></i>
+                  <span
+                    ><strong>Órgão Responsável:</strong> {{ course.orgao
+                    }}</span
+                  >
+                </div>
+              </div>
             </div>
 
-            {% if course.vagas_unidade %}
-            <div class="info-row">
-                <i class="fas fa-user-plus"></i>
-                <span><strong>Total de Vagas:</strong>
-                    {% set vagas_lista = course.vagas_unidade.split('|') %}
-                    {% set vagas_numericas = [] %}
-                    {% for vaga in vagas_lista %}
-                    {% set vaga_limpa = vaga.strip() %}
-                    {% if vaga_limpa and vaga_limpa.isdigit() %}
-                    {% set _ = vagas_numericas.append(vaga_limpa|int) %}
-                    {% endif %}
-                    {% endfor %}
-                    {% set total_vagas = vagas_numericas|sum %}
-                    {{ total_vagas }} vagas
-                </span>
+            <!-- Seção: Informações Financeiras -->
+            <div class="info-section">
+              <div class="info-section-title">
+                <i class="fas fa-dollar-sign"></i>
+                Informações Financeiras
+              </div>
+              <div class="course-info">
+                <div class="info-row">
+                  <i class="fas fa-tag"></i>
+                  <span
+                    ><strong>Tipo:</strong> {% if course.curso_gratuito == 'sim'
+                    %}Gratuito{% else %}Pago{% endif %}</span
+                  >
+                </div>
+
+                {% if course.curso_gratuito == 'nao' %} {% if
+                course.valor_curso_inteira %}
+                <div class="info-row">
+                  <i class="fas fa-dollar-sign"></i>
+                  <span
+                    ><strong>Valor Inteira:</strong>
+                    {% set valor_str = course.valor_curso_inteira|safe_str %} {%
+                    if valor_str.startswith('R$') %} {{ valor_str }} {% else %}
+                    R$ {{ valor_str }} {% endif %}
+                  </span>
+                </div>
+                {% endif %} {% if course.valor_curso_meia %}
+                <div class="info-row">
+                  <i class="fas fa-percentage"></i>
+                  <span
+                    ><strong>Valor Meia:</strong>
+                    {% set valor_str = course.valor_curso_meia|safe_str %} {% if
+                    valor_str.startswith('R$') %} {{ valor_str }} {% else %} R$
+                    {{ valor_str }} {% endif %}
+                  </span>
+                </div>
+                {% endif %} {% if course.requisitos_meia %}
+                <div class="info-row">
+                  <i class="fas fa-clipboard-check"></i>
+                  <span
+                    ><strong>Condições para Meia-entrada:</strong> {{
+                    course.requisitos_meia }}</span
+                  >
+                </div>
+                {% endif %} {% endif %}
+
+                <div class="info-row">
+                  <i class="fas fa-hand-holding-usd"></i>
+                  <span
+                    ><strong>Oferece Bolsa:</strong> {% if course.oferece_bolsa
+                    == 'sim' %}Sim{% else %}Não{% endif %}</span
+                  >
+                </div>
+
+                {% if course.oferece_bolsa == 'sim' and course.valor_bolsa %}
+                <div class="info-row">
+                  <i class="fas fa-money-bill-wave"></i>
+                  <span
+                    ><strong>Valor da Bolsa:</strong>
+                    {% set valor_str = course.valor_bolsa|safe_str %} {% if
+                    valor_str.startswith('R$') %} {{ valor_str }} {% else %} R$
+                    {{ valor_str }} {% endif %}
+                  </span>
+                </div>
+                {% endif %} {% if course.oferece_bolsa == 'sim' and
+                course.requisitos_bolsa %}
+                <div class="info-row">
+                  <i class="fas fa-clipboard-list"></i>
+                  <span
+                    ><strong>Requisitos para Bolsa:</strong> {{
+                    course.requisitos_bolsa }}</span
+                  >
+                </div>
+                {% endif %}
+              </div>
+            </div>
+
+            <!-- Seção: Informações de Localização (apenas para cursos presenciais/híbridos) -->
+            {% if course.modalidade in ['Presencial', 'Híbrido'] and
+            (course.endereco_unidade or course.bairro_unidade) %}
+            <div class="info-section">
+              <div class="info-section-title">
+                <i class="fas fa-map-marker-alt"></i>
+                Informações de Localização
+              </div>
+              <div class="course-info">
+                {% set enderecos = course.enderecos_unidades if
+                course.enderecos_unidades else
+                (course.endereco_unidade.split('|') if course.endereco_unidade
+                else []) %} {% set bairros = course.bairros_unidades if
+                course.bairros_unidades else (course.bairro_unidade.split('|')
+                if course.bairro_unidade else []) %} {% set vagas =
+                course.vagas_unidades if course.vagas_unidades else
+                (course.vagas_unidade.split('|') if course.vagas_unidade else
+                []) %} {% set inicio_aulas = course.inicio_aulas_unidades if
+                course.inicio_aulas_unidades else
+                (course.inicio_aulas_data.split('|') if course.inicio_aulas_data
+                else []) %} {% set fim_aulas = course.fim_aulas_unidades if
+                course.fim_aulas_unidades else (course.fim_aulas_data.split('|')
+                if course.fim_aulas_data else []) %} {% set horario_inicio =
+                course.horario_inicio_unidades if course.horario_inicio_unidades
+                else (course.horario_inicio.split('|') if course.horario_inicio
+                else []) %} {% set horario_fim = course.horario_fim_unidades if
+                course.horario_fim_unidades else (course.horario_fim.split('|')
+                if course.horario_fim else []) %} {% set dias_aula =
+                course.dias_aula_unidades if course.dias_aula_unidades else
+                (course.dias_aula.split('|') if course.dias_aula else []) %} {%
+                set max_units = [enderecos|length, bairros|length, vagas|length,
+                inicio_aulas|length, fim_aulas|length, horario_inicio|length,
+                horario_fim|length, dias_aula|length]|max %} {% for i in
+                range(max_units) %} {% if enderecos[i] or bairros[i] or vagas[i]
+                %}
+                <div
+                  class="unit-info"
+                  style="
+                    margin-bottom: 20px;
+                    padding: 15px;
+                    background-color: #f8f9fa;
+                    border-radius: 8px;
+                    border-left: 4px solid #667eea;
+                  "
+                >
+                  <div
+                    style="
+                      font-weight: 600;
+                      color: #2d3748;
+                      margin-bottom: 10px;
+                      display: flex;
+                      align-items: center;
+                      gap: 8px;
+                    "
+                  >
+                    <i class="fas fa-building" style="color: #667eea"></i>
+                    Unidade ou Turma {{ i + 1 }}
+                  </div>
+
+                  {% if enderecos[i] %}
+                  <div class="info-row">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span
+                      ><strong>Endereço:</strong> {{ enderecos[i].strip()
+                      }}</span
+                    >
+                  </div>
+                  {% endif %} {% if bairros[i] %}
+                  <div class="info-row">
+                    <i class="fas fa-map"></i>
+                    <span
+                      ><strong>Bairro:</strong> {{ bairros[i].strip() }}</span
+                    >
+                  </div>
+                  {% endif %} {% if vagas[i] %}
+                  <div class="info-row">
+                    <i class="fas fa-user-plus"></i>
+                    <span><strong>Vagas:</strong> {{ vagas[i].strip() }}</span>
+                  </div>
+                  {% endif %}
+
+                  <!-- Seção de Múltiplas Turmas -->
+                  {% set turmas_inicio = inicio_aulas[i].split('||') if i <
+                  inicio_aulas|length and inicio_aulas[i] and '||' in
+                  inicio_aulas[i] else [inicio_aulas[i] if i <
+                  inicio_aulas|length and inicio_aulas[i] else '' ] %} {% set
+                  turmas_fim=fim_aulas[i].split('||') if i < fim_aulas|length
+                  and fim_aulas[i] and '||' in fim_aulas[i] else [fim_aulas[i]
+                  if i < fim_aulas|length and fim_aulas[i] else '' ] %} {% set
+                  turmas_horario_inicio=horario_inicio[i].split('||') if i <
+                  horario_inicio|length and horario_inicio[i] and '||' in
+                  horario_inicio[i] else [horario_inicio[i] if i <
+                  horario_inicio|length and horario_inicio[i] else '' ] %} {%
+                  set turmas_horario_fim=horario_fim[i].split('||') if i <
+                  horario_fim|length and horario_fim[i] and '||' in
+                  horario_fim[i] else [horario_fim[i] if i < horario_fim|length
+                  and horario_fim[i] else '' ] %} {% set
+                  turmas_dias=dias_aula[i].split('||') if i < dias_aula|length
+                  and dias_aula[i] and '||' in dias_aula[i] else [dias_aula[i]
+                  if i < dias_aula|length and dias_aula[i] else '' ] %}
+                  <!-- Informações das Turmas -->
+                  {% if turmas_inicio|length > 0 and turmas_inicio[0] %}
+                  <div
+                    style="
+                      margin-top: 15px;
+                      padding-top: 15px;
+                      border-top: 1px solid #e2e8f0;
+                    "
+                  >
+                    {% for t in range(turmas_inicio|length) %} {% if
+                    turmas_inicio[t] %}
+                    <div
+                      style="
+                        margin-bottom: 15px;
+                        padding: 12px;
+                        background-color: #ffffff;
+                        border-radius: 6px;
+                        border: 1px solid #e2e8f0;
+                      "
+                    >
+                      <div
+                        style="
+                          font-weight: 600;
+                          color: #4a5568;
+                          margin-bottom: 8px;
+                          display: flex;
+                          align-items: center;
+                          gap: 6px;
+                        "
+                      >
+                        <i
+                          class="fas fa-user-friends"
+                          style="color: #4299e1; font-size: 0.9em"
+                        ></i>
+                        Turma {{ t + 1 }}
+                      </div>
+
+                      {% if turmas_inicio[t] or (t < turmas_fim|length and
+                      turmas_fim[t]) %}
+                      <div
+                        class="info-row"
+                        style="
+                          margin-bottom: 6px;
+                          padding: 4px 0;
+                          border-bottom: none;
+                        "
+                      >
+                        <i
+                          class="fas fa-calendar-check"
+                          style="font-size: 0.9em"
+                        ></i>
+                        <span style="font-size: 0.9em"
+                          ><strong>Período:</strong> {% if turmas_inicio[t] and
+                          t < turmas_fim|length and turmas_fim[t] %} {% set
+                          inicio_formatada=turmas_inicio[t].strip().split('-')[2]
+                          + '/' + turmas_inicio[t].strip().split('-')[1] + '/' +
+                          turmas_inicio[t].strip().split('-')[0] %} {% set
+                          fim_formatada=turmas_fim[t].strip().split('-')[2] +
+                          '/' + turmas_fim[t].strip().split('-')[1] + '/' +
+                          turmas_fim[t].strip().split('-')[0] %} {{
+                          inicio_formatada }} a {{ fim_formatada }} {% elif
+                          turmas_inicio[t] %} {% set
+                          inicio_formatada=turmas_inicio[t].strip().split('-')[2]
+                          + '/' + turmas_inicio[t].strip().split('-')[1] + '/' +
+                          turmas_inicio[t].strip().split('-')[0] %} A partir de
+                          {{ inicio_formatada }} {% elif t < turmas_fim|length
+                          and turmas_fim[t] %} {% set
+                          fim_formatada=turmas_fim[t].strip().split('-')[2] +
+                          '/' + turmas_fim[t].strip().split('-')[1] + '/' +
+                          turmas_fim[t].strip().split('-')[0] %} Até {{
+                          fim_formatada }} {% endif %}
+                        </span>
+                      </div>
+                      {% endif %} {% if t < turmas_horario_inicio|length and
+                      turmas_horario_inicio[t] and t < turmas_horario_fim|length
+                      and turmas_horario_fim[t] %}
+                      <div
+                        class="info-row"
+                        style="
+                          margin-bottom: 6px;
+                          padding: 4px 0;
+                          border-bottom: none;
+                        "
+                      >
+                        <i class="fas fa-clock" style="font-size: 0.9em"></i>
+                        <span style="font-size: 0.9em"
+                          ><strong>Horário:</strong> {{
+                          turmas_horario_inicio[t].strip() }} às {{
+                          turmas_horario_fim[t].strip() }}</span
+                        >
+                      </div>
+                      {% endif %} {% if t < turmas_dias|length and
+                      turmas_dias[t] %}
+                      <div
+                        class="info-row"
+                        style="
+                          margin-bottom: 0;
+                          padding: 4px 0;
+                          border-bottom: none;
+                        "
+                      >
+                        <i
+                          class="fas fa-calendar-day"
+                          style="font-size: 0.9em"
+                        ></i>
+                        <span style="font-size: 0.9em"
+                          ><strong>Dias:</strong> {{
+                          turmas_dias[t].strip().replace(',', ', ') }}</span
+                        >
+                      </div>
+                      {% endif %}
+                    </div>
+                    {% endif %} {% endfor %}
+                  </div>
+                  {% endif %}
+                </div>
+                {% endif %} {% endfor %}
+              </div>
             </div>
             {% endif %}
 
-            <div class="info-row">
-                <i class="fas fa-universal-access"></i>
-                <span><strong>Acessibilidade:</strong>
-                    {% if course.acessibilidade == 'acessivel' %}
-                    Acessível para pessoas com deficiência
-                    {% elif course.acessibilidade == 'exclusivo' %}
-                    Exclusivo para pessoas com deficiência
-                    {% elif course.acessibilidade == 'nao_acessivel' %}
-                    Não acessível para Pessoas com Deficiência
-                    {% else %}
-                    {{ course.acessibilidade }}
-                    {% endif %}
-                </span>
+            <!-- Seção: Informações Acadêmicas -->
+            <div class="info-section">
+              <div class="info-section-title">
+                <i class="fas fa-graduation-cap"></i>
+                Informações Acadêmicas
+              </div>
+              <div class="course-info">
+                <div class="info-row">
+                  <i class="fas fa-users"></i>
+                  <span
+                    ><strong>Público Alvo:</strong> {{ course.publico_alvo
+                    }}</span
+                  >
+                </div>
+
+                {% if course.vagas_unidade %}
+                <div class="info-row">
+                  <i class="fas fa-user-plus"></i>
+                  <span
+                    ><strong>Total de Vagas:</strong>
+                    {% set vagas_lista = course.vagas_unidade.split('|') %} {%
+                    set vagas_numericas = [] %} {% for vaga in vagas_lista %} {%
+                    set vaga_limpa = vaga.strip() %} {% if vaga_limpa and
+                    vaga_limpa.isdigit() %} {% set _ =
+                    vagas_numericas.append(vaga_limpa|int) %} {% endif %} {%
+                    endfor %} {% set total_vagas = vagas_numericas|sum %} {{
+                    total_vagas }} vagas
+                  </span>
+                </div>
+                {% endif %}
+
+                <div class="info-row">
+                  <i class="fas fa-universal-access"></i>
+                  <span
+                    ><strong>Acessibilidade:</strong>
+                    {% if course.acessibilidade == 'acessivel' %} Acessível para
+                    pessoas com deficiência {% elif course.acessibilidade ==
+                    'exclusivo' %} Exclusivo para pessoas com deficiência {%
+                    elif course.acessibilidade == 'nao_acessivel' %} Não
+                    acessível para Pessoas com Deficiência {% else %} {{
+                    course.acessibilidade }} {% endif %}
+                  </span>
+                </div>
+
+                {% if course.recursos_acessibilidade %}
+                <div class="info-row">
+                  <i class="fas fa-wheelchair"></i>
+                  <span
+                    ><strong>Recursos de Acessibilidade:</strong> {{
+                    course.recursos_acessibilidade }}</span
+                  >
+                </div>
+                {% endif %}
+
+                <div class="info-row">
+                  <i class="fas fa-certificate"></i>
+                  <span
+                    ><strong>Oferece Certificado:</strong> {% if
+                    course.oferece_certificado == 'sim' %}Sim{% else %}Não{%
+                    endif %}</span
+                  >
+                </div>
+
+                {% if course.oferece_certificado == 'sim' and
+                course.pre_requisitos %}
+                <div class="info-row">
+                  <i class="fas fa-clipboard-check"></i>
+                  <span
+                    ><strong>Pré-requisitos para Certificado:</strong> {{
+                    course.pre_requisitos }}</span
+                  >
+                </div>
+                {% endif %}
+              </div>
             </div>
 
-            {% if course.recursos_acessibilidade %}
-            <div class="info-row">
-                <i class="fas fa-wheelchair"></i>
-                <span><strong>Recursos de Acessibilidade:</strong> {{ course.recursos_acessibilidade }}</span>
-            </div>
-            {% endif %}
-
-            <div class="info-row">
-                <i class="fas fa-certificate"></i>
-                <span><strong>Oferece Certificado:</strong> {% if course.oferece_certificado == 'sim' %}Sim{% else
-                    %}Não{% endif %}</span>
-            </div>
-
-            {% if course.oferece_certificado == 'sim' and course.pre_requisitos %}
-            <div class="info-row">
-                <i class="fas fa-clipboard-check"></i>
-                <span><strong>Pré-requisitos para Certificado:</strong> {{ course.pre_requisitos }}</span>
-            </div>
-            {% endif %}
-        </div>
-    </div>
-
-    <!-- Seção: Período de Inscrições -->
-    <div class="info-section">
-        <div class="info-section-title">
-            <i class="fas fa-calendar-alt"></i>
-            Período de Inscrições
-        </div>
-        <div class="course-info">
-            <div class="info-row">
+            <!-- Seção: Período de Inscrições -->
+            <div class="info-section">
+              <div class="info-section-title">
                 <i class="fas fa-calendar-alt"></i>
-                <span><strong>Período:</strong>
-                    {% if course.inicio_inscricoes %}
-                    {% set inicio_parts = course.inicio_inscricoes.split('/') %}
-                    {% if inicio_parts|length == 3 %}
-                    {% if inicio_parts[0]|length == 4 %}
-                    {# Formato YYYY/MM/DD - converter para DD/MM/AAAA #}
-                    {{ inicio_parts[2] }}/{{ inicio_parts[1] }}/{{ inicio_parts[0] }}
-                    {% else %}
-                    {# Formato DD/MM/AAAA - manter como está #}
-                    {{ course.inicio_inscricoes }}
-                    {% endif %}
-                    {% else %}
-                    {{ course.inicio_inscricoes }}
-                    {% endif %}
-                    {% endif %}
-                    {% if course.fim_inscricoes %}
-                    a
-                    {% set fim_parts = course.fim_inscricoes.split('/') %}
-                    {% if fim_parts|length == 3 %}
-                    {% if fim_parts[0]|length == 4 %}
-                    {# Formato YYYY/MM/DD - converter para DD/MM/AAAA #}
-                    {{ fim_parts[2] }}/{{ fim_parts[1] }}/{{ fim_parts[0] }}
-                    {% else %}
-                    {# Formato DD/MM/AAAA - manter como está #}
-                    {{ course.fim_inscricoes }}
-                    {% endif %}
-                    {% else %}
-                    {{ course.fim_inscricoes }}
-                    {% endif %}
-                    {% endif %}
-                </span>
+                Período de Inscrições
+              </div>
+              <div class="course-info">
+                <div class="info-row">
+                  <i class="fas fa-calendar-alt"></i>
+                  <span
+                    ><strong>Período:</strong>
+                    {% if course.inicio_inscricoes %} {% set inicio_parts =
+                    course.inicio_inscricoes.split('/') %} {% if
+                    inicio_parts|length == 3 %} {% if inicio_parts[0]|length ==
+                    4 %} {# Formato YYYY/MM/DD - converter para DD/MM/AAAA #} {{
+                    inicio_parts[2] }}/{{ inicio_parts[1] }}/{{ inicio_parts[0]
+                    }} {% else %} {# Formato DD/MM/AAAA - manter como está #} {{
+                    course.inicio_inscricoes }} {% endif %} {% else %} {{
+                    course.inicio_inscricoes }} {% endif %} {% endif %} {% if
+                    course.fim_inscricoes %} a {% set fim_parts =
+                    course.fim_inscricoes.split('/') %} {% if fim_parts|length
+                    == 3 %} {% if fim_parts[0]|length == 4 %} {# Formato
+                    YYYY/MM/DD - converter para DD/MM/AAAA #} {{ fim_parts[2]
+                    }}/{{ fim_parts[1] }}/{{ fim_parts[0] }} {% else %} {#
+                    Formato DD/MM/AAAA - manter como está #} {{
+                    course.fim_inscricoes }} {% endif %} {% else %} {{
+                    course.fim_inscricoes }} {% endif %} {% endif %}
+                  </span>
+                </div>
+              </div>
             </div>
-        </div>
-    </div>
 
-    <!-- Seção: Informações Complementares -->
-    {% if course.info_complementares %}
-    <div class="info-section">
-        <div class="info-section-title">
-            <i class="fas fa-info-circle"></i>
-            Informações Complementares
-        </div>
-        <div class="course-info">
-            <div class="info-row">
+            <!-- Seção: Informações Complementares -->
+            {% if course.info_complementares %}
+            <div class="info-section">
+              <div class="info-section-title">
                 <i class="fas fa-info-circle"></i>
-                <span><strong>Detalhes:</strong> {{ course.info_complementares }}</span>
+                Informações Complementares
+              </div>
+              <div class="course-info">
+                <div class="info-row">
+                  <i class="fas fa-info-circle"></i>
+                  <span
+                    ><strong>Detalhes:</strong> {{ course.info_complementares
+                    }}</span
+                  >
+                </div>
+              </div>
             </div>
-        </div>
-    </div>
-    {% endif %}
+            {% endif %}
 
-    <!-- Seção: Descrições do Curso -->
-    {% if course.descricao_original or course.descricao %}
-    <div class="info-section">
-        <div class="info-section-title">
-            <i class="fas fa-file-alt"></i>
-            Descrições do Curso
-        </div>
-        <div class="course-info">
-            {% if course.descricao_original %}
-            <div class="description-item">
-                <div class="description-label">
+            <!-- Seção: Descrições do Curso -->
+            {% if course.descricao_original or course.descricao %}
+            <div class="info-section">
+              <div class="info-section-title">
+                <i class="fas fa-file-alt"></i>
+                Descrições do Curso
+              </div>
+              <div class="course-info">
+                {% if course.descricao_original %}
+                <div class="description-item">
+                  <div class="description-label">
                     <i class="fas fa-edit"></i>
                     <strong>Descrição Original:</strong>
-                </div>
-                <div class="description-content">
+                  </div>
+                  <div class="description-content">
                     {{ course.descricao_original }}
+                  </div>
                 </div>
-            </div>
-            {% endif %}
-
-            {% if course.descricao %}
-            <div class="description-item enhanced">
-                <div class="description-label">
+                {% endif %} {% if course.descricao %}
+                <div class="description-item enhanced">
+                  <div class="description-label">
                     <i class="fas fa-magic"></i>
                     <strong>Descrição Melhorada (IA):</strong>
+                  </div>
+                  <div class="description-content">{{ course.descricao }}</div>
                 </div>
-                <div class="description-content">
-                    {{ course.descricao }}
+                {% endif %}
+              </div>
+            </div>
+            {% endif %}
+
+            <!-- Seção: Parceiro Externo -->
+            {% if course.parceiro_externo == 'sim' and course.parceiro_nome %}
+            <div class="info-section">
+              <div class="info-section-title">
+                <i class="fas fa-handshake"></i>
+                Parceiro Externo
+              </div>
+              <div class="course-info">
+                <div class="info-row">
+                  <i class="fas fa-building"></i>
+                  <span
+                    ><strong>Nome do Parceiro:</strong> {{ course.parceiro_nome
+                    }}</span
+                  >
                 </div>
-            </div>
-            {% endif %}
-        </div>
-    </div>
-    {% endif %}
 
-    <!-- Seção: Parceiro Externo -->
-    {% if course.parceiro_externo == 'sim' and course.parceiro_nome %}
-    <div class="info-section">
-        <div class="info-section-title">
-            <i class="fas fa-handshake"></i>
-            Parceiro Externo
-        </div>
-        <div class="course-info">
-            <div class="info-row">
-                <i class="fas fa-building"></i>
-                <span><strong>Nome do Parceiro:</strong> {{ course.parceiro_nome }}</span>
-            </div>
-
-            {% if course.parceiro_link %}
-            <div class="info-row">
-                <i class="fas fa-link"></i>
-                <span><strong>Site do Parceiro:</strong>
-                    <a href="{{ course.parceiro_link }}" target="_blank" style="color: #4299e1; text-decoration: none;">
-                        {{ course.parceiro_link }} <i class="fas fa-external-link-alt" style="font-size: 0.8em;"></i>
+                {% if course.parceiro_link %}
+                <div class="info-row">
+                  <i class="fas fa-link"></i>
+                  <span
+                    ><strong>Site do Parceiro:</strong>
+                    <a
+                      href="{{ course.parceiro_link }}"
+                      target="_blank"
+                      style="color: #4299e1; text-decoration: none"
+                    >
+                      {{ course.parceiro_link }}
+                      <i
+                        class="fas fa-external-link-alt"
+                        style="font-size: 0.8em"
+                      ></i>
                     </a>
-                </span>
-            </div>
-            {% endif %}
-
-            {% if course.parceiro_logo %}
-            <div class="info-row">
-                <i class="fas fa-image"></i>
-                <span><strong>Logo do Parceiro:</strong>
-                    <a href="{{ url_for('static', filename='images/LOGOPARCEIROS/' + course.parceiro_logo) }}"
-                        target="_blank" style="color: #4299e1; text-decoration: none;">
-                        {{ course.parceiro_logo }} <i class="fas fa-external-link-alt" style="font-size: 0.8em;"></i>
+                  </span>
+                </div>
+                {% endif %} {% if course.parceiro_logo %}
+                <div class="info-row">
+                  <i class="fas fa-image"></i>
+                  <span
+                    ><strong>Logo do Parceiro:</strong>
+                    <a
+                      href="{{ url_for('static', filename='images/LOGOPARCEIROS/' + course.parceiro_logo) }}"
+                      target="_blank"
+                      style="color: #4299e1; text-decoration: none"
+                    >
+                      {{ course.parceiro_logo }}
+                      <i
+                        class="fas fa-external-link-alt"
+                        style="font-size: 0.8em"
+                      ></i>
                     </a>
-                </span>
+                  </span>
+                </div>
+                {% endif %}
+              </div>
+
+              <!-- Exibir logo do parceiro como imagem -->
+              {% if course.parceiro_logo %}
+              <div style="margin-top: 20px; text-align: center">
+                <img
+                  src="{{ url_for('static', filename='images/LOGOPARCEIROS/' + course.parceiro_logo) }}"
+                  alt="Logo {{ course.parceiro_nome }}"
+                  style="
+                    max-width: 200px;
+                    max-height: 100px;
+                    border-radius: 8px;
+                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+                  "
+                />
+              </div>
+              {% endif %}
             </div>
             {% endif %}
-        </div>
 
-        <!-- Exibir logo do parceiro como imagem -->
-        {% if course.parceiro_logo %}
-        <div style="margin-top: 20px; text-align: center;">
-            <img src="{{ url_for('static', filename='images/LOGOPARCEIROS/' + course.parceiro_logo) }}"
-                alt="Logo {{ course.parceiro_nome }}"
-                style="max-width: 200px; max-height: 100px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-        </div>
-        {% endif %}
-    </div>
-    {% endif %}
-
-    <!-- Seção: Informações do Sistema -->
-    <div class="info-section">
-        <div class="info-section-title">
-            <i class="fas fa-cogs"></i>
-            Informações do Sistema
-        </div>
-        <div class="course-info">
-            <div class="info-row">
-                <i class="fas fa-calendar-plus"></i>
-                <span><strong>Criado em:</strong> {{ course.created_at }}</span>
+            <!-- Seção: Informações do Sistema -->
+            <div class="info-section">
+              <div class="info-section-title">
+                <i class="fas fa-cogs"></i>
+                Informações do Sistema
+              </div>
+              <div class="course-info">
+                <div class="info-row">
+                  <i class="fas fa-calendar-plus"></i>
+                  <span
+                    ><strong>Criado em:</strong> {{ course.created_at }}</span
+                  >
+                </div>
+              </div>
             </div>
+          </div>
+
+          <div class="actions">
+            {% if csv_file %}
+            <a
+              href="{{ url_for('download_file', filename=csv_file) }}"
+              class="btn btn-success"
+              title="Baixar arquivo CSV do curso"
+            >
+              <i class="fas fa-file-csv"></i> Baixar CSV
+            </a>
+            {% endif %} {% if pdf_file %}
+            <a
+              href="{{ url_for('download_file', filename=pdf_file) }}"
+              class="btn btn-success"
+              title="Baixar arquivo PDF do curso"
+            >
+              <i class="fas fa-file-pdf"></i> Baixar PDF
+            </a>
+            {% endif %}
+
+            <a href="{{ url_for('index') }}" class="btn btn-primary">
+              <i class="fas fa-plus"></i> Criar Outro Curso
+            </a>
+
+            <button onclick="window.print()" class="btn btn-secondary">
+              <i class="fas fa-print"></i> Imprimir Detalhes
+            </button>
+          </div>
         </div>
-    </div>
-    </div>
-
-    <div class="actions">
-        <a href="{{ url_for('index') }}" class="btn btn-primary">
-            <i class="fas fa-plus"></i> Criar Outro Curso
-        </a>
-
-        <button onclick="window.print()" class="btn btn-secondary">
-            <i class="fas fa-print"></i> Imprimir Detalhes
-        </button>
-    </div>
-    </div>
-    </main>
+      </main>
     </div>
 
     <script>
-        // Animação de entrada
-        document.addEventListener('DOMContentLoaded', function () {
-            const elements = document.querySelectorAll('.course-details, .actions');
-            elements.forEach((el, index) => {
-                el.style.opacity = '0';
-                el.style.transform = 'translateY(20px)';
+      // Animação de entrada
+      document.addEventListener("DOMContentLoaded", function () {
+        const elements = document.querySelectorAll(".course-details, .actions");
+        elements.forEach((el, index) => {
+          el.style.opacity = "0";
+          el.style.transform = "translateY(20px)";
 
-                setTimeout(() => {
-                    el.style.transition = 'all 0.6s ease';
-                    el.style.opacity = '1';
-                    el.style.transform = 'translateY(0)';
-                }, (index + 1) * 200);
-            });
+          setTimeout(() => {
+            el.style.transition = "all 0.6s ease";
+            el.style.opacity = "1";
+            el.style.transform = "translateY(0)";
+          }, (index + 1) * 200);
         });
+      });
     </script>
 
     <!-- Script para garantir que loading seja fechado -->
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            console.log('🎉 Página de sucesso carregada!');
+      document.addEventListener("DOMContentLoaded", function () {
+        console.log("🎉 Página de sucesso carregada!");
 
-            // Forçar fechamento do loading se estiver ativo
-            if (window.parent && window.parent.loadingManager) {
-                console.log('🔄 Fechando loading da janela pai...');
-                window.parent.loadingManager.hide();
-            }
+        // Forçar fechamento do loading se estiver ativo
+        if (window.parent && window.parent.loadingManager) {
+          console.log("🔄 Fechando loading da janela pai...");
+          window.parent.loadingManager.hide();
+        }
 
-            // Tentar fechar loading local também
-            if (window.loadingManager) {
-                console.log('🔄 Fechando loading local...');
-                window.loadingManager.hide();
-            }
+        // Tentar fechar loading local também
+        if (window.loadingManager) {
+          console.log("🔄 Fechando loading local...");
+          window.loadingManager.hide();
+        }
 
-            // Remover qualquer overlay de loading que possa estar ativo
-            const loadingOverlays = document.querySelectorAll('.loading-overlay');
-            loadingOverlays.forEach(overlay => {
-                if (overlay.classList.contains('active')) {
-                    console.log('🔄 Removendo overlay de loading...');
-                    overlay.classList.remove('active');
-                }
-            });
-
-            console.log('✅ Página de sucesso totalmente carregada');
+        // Remover qualquer overlay de loading que possa estar ativo
+        const loadingOverlays = document.querySelectorAll(".loading-overlay");
+        loadingOverlays.forEach((overlay) => {
+          if (overlay.classList.contains("active")) {
+            console.log("🔄 Removendo overlay de loading...");
+            overlay.classList.remove("active");
+          }
         });
-    </script>
-</body>
 
+        console.log("✅ Página de sucesso totalmente carregada");
+      });
+    </script>
+  </body>
 </html>
