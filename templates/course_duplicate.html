@@ -95,7 +95,7 @@
                     console.log('🔄 Modalidade alterada para:', this.value);
                     
                     // Primeiro, remover required de TODOS os campos de horário
-                    const todosHorarios = document.querySelectorAll('select[name="horario_inicio[]"], select[name="horario_fim[]"]');
+                    const todosHorarios = document.querySelectorAll('input[name="horario_inicio[]"], input[name="horario_fim[]"]');
                     todosHorarios.forEach(campo => {
                         campo.removeAttribute('required');
                         console.log('🧹 Limpando required de:', campo.name || campo.id);
@@ -433,51 +433,31 @@
                                              <div class="horario-group">
                                                  <div class="horario-field">
                                                      <label>Horário-Início*</label>
-                                                     <select name="horario_inicio[]" required>
-                                                         <option value="">Selecione o horário</option>
-                                                         <option value="06:00" {% if duplicate_data and duplicate_data.horario_inicio_unidades[i] == '06:00' %}selected{% endif %}>06:00</option>
-                                                         <option value="07:00" {% if duplicate_data and duplicate_data.horario_inicio_unidades[i] == '07:00' %}selected{% endif %}>07:00</option>
-                                                         <option value="08:00" {% if duplicate_data and duplicate_data.horario_inicio_unidades[i] == '08:00' %}selected{% endif %}>08:00</option>
-                                                         <option value="09:00" {% if duplicate_data and duplicate_data.horario_inicio_unidades[i] == '09:00' %}selected{% endif %}>09:00</option>
-                                                         <option value="10:00" {% if duplicate_data and duplicate_data.horario_inicio_unidades[i] == '10:00' %}selected{% endif %}>10:00</option>
-                                                         <option value="11:00" {% if duplicate_data and duplicate_data.horario_inicio_unidades[i] == '11:00' %}selected{% endif %}>11:00</option>
-                                                         <option value="12:00" {% if duplicate_data and duplicate_data.horario_inicio_unidades[i] == '12:00' %}selected{% endif %}>12:00</option>
-                                                         <option value="13:00" {% if duplicate_data and duplicate_data.horario_inicio_unidades[i] == '13:00' %}selected{% endif %}>13:00</option>
-                                                         <option value="14:00" {% if duplicate_data and duplicate_data.horario_inicio_unidades[i] == '14:00' %}selected{% endif %}>14:00</option>
-                                                         <option value="15:00" {% if duplicate_data and duplicate_data.horario_inicio_unidades[i] == '15:00' %}selected{% endif %}>15:00</option>
-                                                         <option value="16:00" {% if duplicate_data and duplicate_data.horario_inicio_unidades[i] == '16:00' %}selected{% endif %}>16:00</option>
-                                                         <option value="17:00" {% if duplicate_data and duplicate_data.horario_inicio_unidades[i] == '17:00' %}selected{% endif %}>17:00</option>
-                                                         <option value="18:00" {% if duplicate_data and duplicate_data.horario_inicio_unidades[i] == '18:00' %}selected{% endif %}>18:00</option>
-                                                         <option value="19:00" {% if duplicate_data and duplicate_data.horario_inicio_unidades[i] == '19:00' %}selected{% endif %}>19:00</option>
-                                                         <option value="20:00" {% if duplicate_data and duplicate_data.horario_inicio_unidades[i] == '20:00' %}selected{% endif %}>20:00</option>
-                                                         <option value="21:00" {% if duplicate_data and duplicate_data.horario_inicio_unidades[i] == '21:00' %}selected{% endif %}>21:00</option>
-                                                         <option value="22:00" {% if duplicate_data and duplicate_data.horario_inicio_unidades[i] == '22:00' %}selected{% endif %}>22:00</option>
-                                                         <option value="23:00" {% if duplicate_data and duplicate_data.horario_inicio_unidades[i] == '23:00' %}selected{% endif %}>23:00</option>
-                                                     </select>
+                                                     <input type="text" 
+                                                        name="horario_inicio[]" 
+                                                        required
+                                                        placeholder="HH:MM"
+                                                        pattern="([0-1][0-9]|2[0-3]):[0-5][0-9]"
+                                                        title="Formato: HH:MM (ex: 10:30)"
+                                                        maxlength="5"
+                                                        oninput="formatarHorario(this)"
+                                                        onblur="validarHorario(this)"
+                                                        style="width: 100px; text-align: center;"
+                                                        value="{{ duplicate_data.horario_inicio_unidades[i] if duplicate_data and i < duplicate_data.horario_inicio_unidades|length else '' }}">
                                                  </div>
                                                  <div class="horario-field">
                                                      <label>Horário-Fim*</label>
-                                                     <select name="horario_fim[]" required>
-                                                         <option value="">Selecione o horário</option>
-                                                         <option value="06:00" {% if duplicate_data and duplicate_data.horario_fim_unidades[i] == '06:00' %}selected{% endif %}>06:00</option>
-                                                         <option value="07:00" {% if duplicate_data and duplicate_data.horario_fim_unidades[i] == '07:00' %}selected{% endif %}>07:00</option>
-                                                         <option value="08:00" {% if duplicate_data and duplicate_data.horario_fim_unidades[i] == '08:00' %}selected{% endif %}>08:00</option>
-                                                         <option value="09:00" {% if duplicate_data and duplicate_data.horario_fim_unidades[i] == '09:00' %}selected{% endif %}>09:00</option>
-                                                         <option value="10:00" {% if duplicate_data and duplicate_data.horario_fim_unidades[i] == '10:00' %}selected{% endif %}>10:00</option>
-                                                         <option value="11:00" {% if duplicate_data and duplicate_data.horario_fim_unidades[i] == '11:00' %}selected{% endif %}>11:00</option>
-                                                         <option value="12:00" {% if duplicate_data and duplicate_data.horario_fim_unidades[i] == '12:00' %}selected{% endif %}>12:00</option>
-                                                         <option value="13:00" {% if duplicate_data and duplicate_data.horario_fim_unidades[i] == '13:00' %}selected{% endif %}>13:00</option>
-                                                         <option value="14:00" {% if duplicate_data and duplicate_data.horario_fim_unidades[i] == '14:00' %}selected{% endif %}>14:00</option>
-                                                         <option value="15:00" {% if duplicate_data and duplicate_data.horario_fim_unidades[i] == '15:00' %}selected{% endif %}>15:00</option>
-                                                         <option value="16:00" {% if duplicate_data and duplicate_data.horario_fim_unidades[i] == '16:00' %}selected{% endif %}>16:00</option>
-                                                         <option value="17:00" {% if duplicate_data and duplicate_data.horario_fim_unidades[i] == '17:00' %}selected{% endif %}>17:00</option>
-                                                         <option value="18:00" {% if duplicate_data and duplicate_data.horario_fim_unidades[i] == '18:00' %}selected{% endif %}>18:00</option>
-                                                         <option value="19:00" {% if duplicate_data and duplicate_data.horario_fim_unidades[i] == '19:00' %}selected{% endif %}>19:00</option>
-                                                         <option value="20:00" {% if duplicate_data and duplicate_data.horario_fim_unidades[i] == '20:00' %}selected{% endif %}>20:00</option>
-                                                         <option value="21:00" {% if duplicate_data and duplicate_data.horario_fim_unidades[i] == '21:00' %}selected{% endif %}>21:00</option>
-                                                         <option value="22:00" {% if duplicate_data and duplicate_data.horario_fim_unidades[i] == '22:00' %}selected{% endif %}>22:00</option>
-                                                         <option value="23:00" {% if duplicate_data and duplicate_data.horario_fim_unidades[i] == '23:00' %}selected{% endif %}>23:00</option>
-                                                     </select>
+                                                     <input type="text" 
+                                                        name="horario_fim[]" 
+                                                        required
+                                                        placeholder="HH:MM"
+                                                        pattern="([0-1][0-9]|2[0-3]):[0-5][0-9]"
+                                                        title="Formato: HH:MM (ex: 10:30)"
+                                                        maxlength="5"
+                                                        oninput="formatarHorario(this)"
+                                                        onblur="validarHorario(this)"
+                                                        style="width: 100px; text-align: center;"
+                                                        value="{{ duplicate_data.horario_fim_unidades[i] if duplicate_data and i < duplicate_data.horario_fim_unidades|length else '' }}">
                                                  </div>
                                              </div>
                                              <label>Dias de aula*</label>
@@ -536,51 +516,31 @@
                                          <div class="horario-group">
                                              <div class="horario-field">
                                                  <label>Horário-Início*</label>
-                                                 <select name="horario_inicio[]" required>
-                                                     <option value="">Selecione o horário</option>
-                                                     <option value="06:00">06:00</option>
-                                                     <option value="07:00">07:00</option>
-                                                     <option value="08:00">08:00</option>
-                                                     <option value="09:00">09:00</option>
-                                                     <option value="10:00">10:00</option>
-                                                     <option value="11:00">11:00</option>
-                                                     <option value="12:00">12:00</option>
-                                                     <option value="13:00">13:00</option>
-                                                     <option value="14:00">14:00</option>
-                                                     <option value="15:00">15:00</option>
-                                                     <option value="16:00">16:00</option>
-                                                     <option value="17:00">17:00</option>
-                                                     <option value="18:00">18:00</option>
-                                                     <option value="19:00">19:00</option>
-                                                     <option value="20:00">20:00</option>
-                                                     <option value="21:00">21:00</option>
-                                                     <option value="22:00">22:00</option>
-                                                     <option value="23:00">23:00</option>
-                                                 </select>
+                                                 <input type="text" 
+                                                        name="horario_inicio[]" 
+                                                        required
+                                                        placeholder="HH:MM"
+                                                        pattern="([0-1][0-9]|2[0-3]):[0-5][0-9]"
+                                                        title="Formato: HH:MM (ex: 10:30)"
+                                                        maxlength="5"
+                                                        oninput="formatarHorario(this)"
+                                                        onblur="validarHorario(this)"
+                                                        style="width: 100px; text-align: center;"
+                                                        value="{{ duplicate_data.horario_inicio_unidades[i] if duplicate_data and i < duplicate_data.horario_inicio_unidades|length else '' }}">
                                              </div>
                                              <div class="horario-field">
                                                  <label>Horário-Fim*</label>
-                                                 <select name="horario_fim[]" required>
-                                                     <option value="">Selecione o horário</option>
-                                                     <option value="06:00">06:00</option>
-                                                     <option value="07:00">07:00</option>
-                                                     <option value="08:00">08:00</option>
-                                                     <option value="09:00">09:00</option>
-                                                     <option value="10:00">10:00</option>
-                                                     <option value="11:00">11:00</option>
-                                                     <option value="12:00">12:00</option>
-                                                     <option value="13:00">13:00</option>
-                                                     <option value="14:00">14:00</option>
-                                                     <option value="15:00">15:00</option>
-                                                     <option value="16:00">16:00</option>
-                                                     <option value="17:00">17:00</option>
-                                                     <option value="18:00">18:00</option>
-                                                     <option value="19:00">19:00</option>
-                                                     <option value="20:00">20:00</option>
-                                                     <option value="21:00">21:00</option>
-                                                     <option value="22:00">22:00</option>
-                                                     <option value="23:00">23:00</option>
-                                                 </select>
+                                                 <input type="text" 
+                                                        name="horario_fim[]" 
+                                                        required
+                                                        placeholder="HH:MM"
+                                                        pattern="([0-1][0-9]|2[0-3]):[0-5][0-9]"
+                                                        title="Formato: HH:MM (ex: 10:30)"
+                                                        maxlength="5"
+                                                        oninput="formatarHorario(this)"
+                                                        onblur="validarHorario(this)"
+                                                        style="width: 100px; text-align: center;"
+                                                        value="{{ duplicate_data.horario_fim_unidades[i] if duplicate_data and i < duplicate_data.horario_fim_unidades|length else '' }}">
                                              </div>
                                          </div>
                                          <label>Dias de aula*</label>
@@ -663,51 +623,29 @@
                                                  <div class="horario-group">
                                                      <div class="horario-field">
                                                          <label>Horário-Início</label>
-                                                         <select id="horario_inicio_online" name="horario_inicio[]">
-                                                             <option value="">Selecione o horário</option>
-                                                             <option value="06:00" {% if duplicate_data and duplicate_data.horario_inicio_online == '06:00' %}selected{% endif %}>06:00</option>
-                                                             <option value="07:00" {% if duplicate_data and duplicate_data.horario_inicio_online == '07:00' %}selected{% endif %}>07:00</option>
-                                                             <option value="08:00" {% if duplicate_data and duplicate_data.horario_inicio_online == '08:00' %}selected{% endif %}>08:00</option>
-                                                             <option value="09:00" {% if duplicate_data and duplicate_data.horario_inicio_online == '09:00' %}selected{% endif %}>09:00</option>
-                                                             <option value="10:00" {% if duplicate_data and duplicate_data.horario_inicio_online == '10:00' %}selected{% endif %}>10:00</option>
-                                                             <option value="11:00" {% if duplicate_data and duplicate_data.horario_inicio_online == '11:00' %}selected{% endif %}>11:00</option>
-                                                             <option value="12:00" {% if duplicate_data and duplicate_data.horario_inicio_online == '12:00' %}selected{% endif %}>12:00</option>
-                                                             <option value="13:00" {% if duplicate_data and duplicate_data.horario_inicio_online == '13:00' %}selected{% endif %}>13:00</option>
-                                                             <option value="14:00" {% if duplicate_data and duplicate_data.horario_inicio_online == '14:00' %}selected{% endif %}>14:00</option>
-                                                             <option value="15:00" {% if duplicate_data and duplicate_data.horario_inicio_online == '15:00' %}selected{% endif %}>15:00</option>
-                                                             <option value="16:00" {% if duplicate_data and duplicate_data.horario_inicio_online == '16:00' %}selected{% endif %}>16:00</option>
-                                                             <option value="17:00" {% if duplicate_data and duplicate_data.horario_inicio_online == '17:00' %}selected{% endif %}>17:00</option>
-                                                             <option value="18:00" {% if duplicate_data and duplicate_data.horario_inicio_online == '18:00' %}selected{% endif %}>18:00</option>
-                                                             <option value="19:00" {% if duplicate_data and duplicate_data.horario_inicio_online == '19:00' %}selected{% endif %}>19:00</option>
-                                                             <option value="20:00" {% if duplicate_data and duplicate_data.horario_inicio_online == '20:00' %}selected{% endif %}>20:00</option>
-                                                             <option value="21:00" {% if duplicate_data and duplicate_data.horario_inicio_online == '21:00' %}selected{% endif %}>21:00</option>
-                                                             <option value="22:00" {% if duplicate_data and duplicate_data.horario_inicio_online == '22:00' %}selected{% endif %}>22:00</option>
-                                                             <option value="23:00" {% if duplicate_data and duplicate_data.horario_inicio_online == '23:00' %}selected{% endif %}>23:00</option>
-                                                         </select>
+                                                         <input type="text" 
+                                        id="horario_inicio_online"
+                                        name="horario_inicio[]" 
+                                        placeholder="HH:MM"
+                                        pattern="([0-1][0-9]|2[0-3]):[0-5][0-9]"
+                                        title="Formato: HH:MM (ex: 10:30)"
+                                        maxlength="5"
+                                        oninput="formatarHorario(this)"
+                                        onblur="validarHorario(this)"
+                                        style="width: 120px; text-align: center;">
                                                      </div>
                                                      <div class="horario-field">
                                                          <label>Horário-Fim</label>
-                                                         <select id="horario_fim_online" name="horario_fim[]">
-                                                             <option value="">Selecione o horário</option>
-                                                             <option value="06:00" {% if duplicate_data and duplicate_data.horario_fim_online == '06:00' %}selected{% endif %}>06:00</option>
-                                                             <option value="07:00" {% if duplicate_data and duplicate_data.horario_fim_online == '07:00' %}selected{% endif %}>07:00</option>
-                                                             <option value="08:00" {% if duplicate_data and duplicate_data.horario_fim_online == '08:00' %}selected{% endif %}>08:00</option>
-                                                             <option value="09:00" {% if duplicate_data and duplicate_data.horario_fim_online == '09:00' %}selected{% endif %}>09:00</option>
-                                                             <option value="10:00" {% if duplicate_data and duplicate_data.horario_fim_online == '10:00' %}selected{% endif %}>10:00</option>
-                                                             <option value="11:00" {% if duplicate_data and duplicate_data.horario_fim_online == '11:00' %}selected{% endif %}>11:00</option>
-                                                             <option value="12:00" {% if duplicate_data and duplicate_data.horario_fim_online == '12:00' %}selected{% endif %}>12:00</option>
-                                                             <option value="13:00" {% if duplicate_data and duplicate_data.horario_fim_online == '13:00' %}selected{% endif %}>13:00</option>
-                                                             <option value="14:00" {% if duplicate_data and duplicate_data.horario_fim_online == '14:00' %}selected{% endif %}>14:00</option>
-                                                             <option value="15:00" {% if duplicate_data and duplicate_data.horario_fim_online == '15:00' %}selected{% endif %}>15:00</option>
-                                                             <option value="16:00" {% if duplicate_data and duplicate_data.horario_fim_online == '16:00' %}selected{% endif %}>16:00</option>
-                                                             <option value="17:00" {% if duplicate_data and duplicate_data.horario_fim_online == '17:00' %}selected{% endif %}>17:00</option>
-                                                             <option value="18:00" {% if duplicate_data and duplicate_data.horario_fim_online == '18:00' %}selected{% endif %}>18:00</option>
-                                                             <option value="19:00" {% if duplicate_data and duplicate_data.horario_fim_online == '19:00' %}selected{% endif %}>19:00</option>
-                                                             <option value="20:00" {% if duplicate_data and duplicate_data.horario_fim_online == '20:00' %}selected{% endif %}>20:00</option>
-                                                             <option value="21:00" {% if duplicate_data and duplicate_data.horario_fim_online == '21:00' %}selected{% endif %}>21:00</option>
-                                                             <option value="22:00" {% if duplicate_data and duplicate_data.horario_fim_online == '22:00' %}selected{% endif %}>22:00</option>
-                                                             <option value="23:00" {% if duplicate_data and duplicate_data.horario_fim_online == '23:00' %}selected{% endif %}>23:00</option>
-                                                         </select>
+                                                         <input type="text" 
+                                        id="horario_fim_online"
+                                        name="horario_fim[]" 
+                                        placeholder="HH:MM"
+                                        pattern="([0-1][0-9]|2[0-3]):[0-5][0-9]"
+                                        title="Formato: HH:MM (ex: 10:30)"
+                                        maxlength="5"
+                                        oninput="formatarHorario(this)"
+                                        onblur="validarHorario(this)"
+                                        style="width: 120px; text-align: center;">
                                                      </div>
                                                  </div>
                                                  <label>Dias de aula</label>
@@ -999,8 +937,8 @@
                         'input[name="vagas_unidade[]"]',
                         'input[name="inicio_aulas_data[]"]',
                         'input[name="fim_aulas_data[]"]',
-                        'select[name="horario_inicio[]"]',
-                        'select[name="horario_fim[]"]'
+                        'input[name="horario_inicio[]"]',
+                        'input[name="horario_fim[]"]'
                     ];
                     
                     camposObrigatoriosUnidades.forEach(seletor => {
@@ -1040,7 +978,7 @@
                     
                     // NUNCA adicionar required aos campos de horário aqui
                     // Eles serão gerenciados pela função toggleAulasAssincronas
-                    const horariosOnline = plataformaContainer.querySelectorAll('select[name="horario_inicio[]"], select[name="horario_fim[]"]');
+                    const horariosOnline = plataformaContainer.querySelectorAll('input[name="horario_inicio[]"], input[name="horario_fim[]"]');
                     horariosOnline.forEach(campo => {
                         campo.removeAttribute('required');
                         console.log('❌ Garantindo que horário não tenha required inicialmente:', campo.name);
@@ -1074,7 +1012,7 @@
                     horariosOnlineContainer.style.display = 'block';
                     
                     // Remover required E limpar valores dos campos de horário
-                    const horariosFields = document.querySelectorAll('#plataforma_container select[name="horario_inicio[]"], #plataforma_container select[name="horario_fim[]"]');
+                    const horariosFields = document.querySelectorAll('#plataforma_container input[name="horario_inicio[]"], #plataforma_container input[name="horario_fim[]"]');
                     horariosFields.forEach(field => {
                         field.removeAttribute('required');
                         field.value = ''; // Limpar valor para aulas assíncronas
@@ -1087,7 +1025,7 @@
                     
                     // Adicionar required aos campos de horário
                     setTimeout(() => {
-                        const horariosFields = horariosContainer.querySelectorAll('select[name="horario_inicio[]"], select[name="horario_fim[]"]');
+                        const horariosFields = horariosContainer.querySelectorAll('input[name="horario_inicio[]"], input[name="horario_fim[]"]');
                         horariosFields.forEach(field => {
                             field.setAttribute('required', 'required');
                             console.log('✅ Adicionado required a horário síncrono:', field.name || field.id);
@@ -1179,8 +1117,8 @@
                     'input[name="bairro_unidade[]"]',
                     'input[name="inicio_aulas_data[]"]',
                     'input[name="fim_aulas_data[]"]',
-                    'select[name="horario_inicio[]"]',
-                    'select[name="horario_fim[]"]'
+                    'input[name="horario_inicio[]"]',
+                    'input[name="horario_fim[]"]'
                 ];
                 
                 camposPresenciais.forEach(seletor => {
@@ -1204,7 +1142,7 @@
                 const tipoAulaAssincronas = document.querySelector('input[name="aulas_assincronas"]:checked');
                 if (tipoAulaAssincronas && tipoAulaAssincronas.value === 'sim') {
                     // Limpar horários para aulas assíncronas
-                    const horariosOnline = document.querySelectorAll('#plataforma_container select[name="horario_inicio[]"], #plataforma_container select[name="horario_fim[]"]');
+                    const horariosOnline = document.querySelectorAll('#plataforma_container input[name="horario_inicio[]"], #plataforma_container input[name="horario_fim[]"]');
                     horariosOnline.forEach(campo => {
                         campo.value = '';
                         console.log('🧹 Valor limpo de horário assíncrono:', campo.name);
@@ -1243,7 +1181,7 @@
                 }
                 
                 // Limpar horários online
-                const horariosOnline = document.querySelectorAll('#plataforma_container select[name="horario_inicio[]"], #plataforma_container select[name="horario_fim[]"]');
+                const horariosOnline = document.querySelectorAll('#plataforma_container input[name="horario_inicio[]"], #plataforma_container input[name="horario_fim[]"]');
                 horariosOnline.forEach(campo => {
                     campo.value = '';
                     console.log('🧹 Valor limpo de horário online:', campo.name);
