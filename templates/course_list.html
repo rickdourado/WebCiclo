@@ -910,21 +910,8 @@
                         course.inicio_aulas_data.split('|')[0].strip() if
                         course.inicio_aulas_data else '' %} {% set fim_data =
                         course.fim_aulas_data.split('|')[0].strip() if
-                        course.fim_aulas_data else '' %} {% if inicio_data and
-                        fim_data %} {% set inicio_formatada =
-                        inicio_data.split('-')[2] + '/' +
-                        inicio_data.split('-')[1] + '/' +
-                        inicio_data.split('-')[0] %} {% set fim_formatada =
-                        fim_data.split('-')[2] + '/' + fim_data.split('-')[1] +
-                        '/' + fim_data.split('-')[0] %} {{ inicio_formatada }} a
-                        {{ fim_formatada }} {% elif inicio_data %} {% set
-                        inicio_formatada = inicio_data.split('-')[2] + '/' +
-                        inicio_data.split('-')[1] + '/' +
-                        inicio_data.split('-')[0] %} A partir de {{
-                        inicio_formatada }} {% elif fim_data %} {% set
-                        fim_formatada = fim_data.split('-')[2] + '/' +
-                        fim_data.split('-')[1] + '/' + fim_data.split('-')[0] %}
-                        Até {{ fim_formatada }} {% endif %}
+                        course.fim_aulas_data else '' %}                         {% if inicio_data and
+                        fim_data %} {{ inicio_data|format_date }} a {{ fim_data|format_date }} {% elif inicio_data %} A partir de {{ inicio_data|format_date }} {% elif fim_data %} Até {{ fim_data|format_date }} {% endif %}
                       </span>
                     </div>
                     {% endif %} {% if course.modalidade == 'Online' and
@@ -1294,17 +1281,15 @@
                       <i class="fas fa-calendar-alt"></i>
                       <span
                         ><strong>Período:</strong>
-                        {% if course.inicio_inscricoes %} {% set inicio_parts =
-                        course.inicio_inscricoes.split('/') %} {% if
-                        inicio_parts|length == 3 %} {{ inicio_parts[2] }}/{{
-                        inicio_parts[1] }}/{{ inicio_parts[0] }} {% else %} {{
-                        course.inicio_inscricoes }} {% endif %} {% endif %} {%
-                        if course.inicio_inscricoes and course.fim_inscricoes %}
-                        a {% endif %} {% if course.fim_inscricoes %} {% set
-                        fim_parts = course.fim_inscricoes.split('/') %} {% if
-                        fim_parts|length == 3 %} {{ fim_parts[2] }}/{{
-                        fim_parts[1] }}/{{ fim_parts[0] }} {% else %} {{
-                        course.fim_inscricoes }} {% endif %} {% endif %}
+                        {% if course.inicio_inscricoes %}
+                          {{ course.inicio_inscricoes|format_date }}
+                        {% endif %}
+                        {% if course.inicio_inscricoes and course.fim_inscricoes %}
+                          a
+                        {% endif %}
+                        {% if course.fim_inscricoes %}
+                          {{ course.fim_inscricoes|format_date }}
+                        {% endif %}
                       </span>
                     </div>
                   </div>
