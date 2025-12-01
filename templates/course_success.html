@@ -640,6 +640,8 @@
                         border: 1px solid #e2e8f0;
                       "
                     >
+                      <!-- Mostrar "Turma X" apenas se houver mais de uma turma -->
+                      {% if turmas_inicio|length > 1 %}
                       <div
                         style="
                           font-weight: 600;
@@ -656,6 +658,7 @@
                         ></i>
                         Turma {{ t + 1 }}
                       </div>
+                      {% endif %}
 
                       {% if turmas_inicio[t] or (t < turmas_fim|length and
                       turmas_fim[t]) %}
