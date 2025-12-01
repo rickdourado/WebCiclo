@@ -773,21 +773,27 @@ class CourseService:
         if not date_obj:
             return ""
 
-        # Se é string no formato YYYY-MM-DD
+        # Se é objeto datetime, converter diretamente
+        if hasattr(date_obj, "strftime"):
+            try:
+                return date_obj.strftime("%d/%m/%Y")
+            except:
+                pass
+
+        # Se é string no formato YYYY-MM-DD ou YYYY-MM-DD HH:MM:SS
         if isinstance(date_obj, str):
             try:
-                parts = date_obj.split("-")
+                # Remover horas se existir
+                date_str = date_obj.split(" ")[0] if " " in date_obj else date_obj
+                parts = date_str.split("-")
                 if len(parts) == 3:
                     ano, mes, dia = parts
                     return f"{dia}/{mes}/{ano}"
             except:
                 pass
 
-        # Se é objeto datetime
-        try:
-            return date_obj.strftime("%d/%m/%Y")
-        except:
-            return str(date_obj)
+        # Se não conseguiu converter, retornar original
+        return str(date_obj)
 
     def _process_form_data(self, form_data: Dict) -> Dict:
         """Processa e transforma dados do formulário"""
