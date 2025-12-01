@@ -409,20 +409,9 @@
                     endif %}</span
                   >
                 </div>
-                {% endif %} {% if course.dias_aula %}
-                <div class="info-row">
-                  <i class="fas fa-calendar-day"></i>
-                  <span
-                    ><strong>Dias da Aula:</strong>
-                    {% set dias_lista = course.dias_aula.split('|') %} {% set
-                    dias_unicos = [] %} {% for dia in dias_lista %} {% set
-                    dia_limpo = dia.strip() %} {% if dia_limpo not in
-                    dias_unicos %} {% set _ = dias_unicos.append(dia_limpo) %}
-                    {% endif %} {% endfor %} {{ dias_unicos|join(', ') }}
-                  </span>
-                </div>
-                {% endif %} {% if course.horario_inicio and course.horario_fim
-                %}
+                {% endif %}
+                {# Dias da aula são exibidos por unidade na seção "Informações de Localização" #}
+                {% if course.horario_inicio and course.horario_fim %}
                 <div class="info-row">
                   <i class="fas fa-clock"></i>
                   <span
@@ -727,24 +716,60 @@
               <div class="course-info">
                 <div class="info-row">
                   <i class="fas fa-calendar-alt"></i>
-                  <span
-                    ><strong>Período:</strong>
-                    {% if course.inicio_inscricoes %} {% set inicio_parts =
-                    course.inicio_inscricoes.split('/') %} {% if
-                    inicio_parts|length == 3 %} {% if inicio_parts[0]|length ==
-                    4 %} {# Formato YYYY/MM/DD - converter para DD/MM/AAAA #} {{
-                    inicio_parts[2] }}/{{ inicio_parts[1] }}/{{ inicio_parts[0]
-                    }} {% else %} {# Formato DD/MM/AAAA - manter como está #} {{
-                    course.inicio_inscricoes }} {% endif %} {% else %} {{
-                    course.inicio_inscricoes }} {% endif %} {% endif %} {% if
-                    course.fim_inscricoes %} a {% set fim_parts =
-                    course.fim_inscricoes.split('/') %} {% if fim_parts|length
-                    == 3 %} {% if fim_parts[0]|length == 4 %} {# Formato
-                    YYYY/MM/DD - converter para DD/MM/AAAA #} {{ fim_parts[2]
-                    }}/{{ fim_parts[1] }}/{{ fim_parts[0] }} {% else %} {#
-                    Formato DD/MM/AAAA - manter como está #} {{
-                    course.fim_inscricoes }} {% endif %} {% else %} {{
-                    course.fim_inscricoes }} {% endif %} {% endif %}
+                  <span>
+                    <strong>Período:</strong>
+                    {% if course.inicio_inscricoes %}
+                      {% set inicio_str = course.inicio_inscricoes|string %}
+                      {% if ' ' in inicio_str %}
+                        {# Formato com timestamp: YYYY-MM-DD HH:MM:SS ou DD/MM/YYYY HH:MM:SS #}
+                        {% set inicio_date = inicio_str.split(' ')[0] %}
+                      {% else %}
+                        {% set inicio_date = inicio_str %}
+                      {% endif %}
+                      
+                      {% if '-' in inicio_date %}
+                        {# Formato YYYY-MM-DD #}
+                        {% set inicio_parts = inicio_date.split('-') %}
+                        {{ inicio_parts[2] }}/{{ inicio_parts[1] }}/{{ inicio_parts[0] }}
+                      {% elif '/' in inicio_date %}
+                        {# Formato DD/MM/YYYY ou YYYY/MM/DD #}
+                        {% set inicio_parts = inicio_date.split('/') %}
+                        {% if inicio_parts[0]|length == 4 %}
+                          {{ inicio_parts[2] }}/{{ inicio_parts[1] }}/{{ inicio_parts[0] }}
+                        {% else %}
+                          {{ inicio_date }}
+                        {% endif %}
+                      {% else %}
+                        {{ inicio_date }}
+                      {% endif %}
+                    {% endif %}
+                    
+                    {% if course.fim_inscricoes %}
+                      a
+                      {% set fim_str = course.fim_inscricoes|string %}
+                      {% if ' ' in fim_str %}
+                        {# Formato com timestamp #}
+                        {% set fim_date = fim_str.split(' ')[0] %}
+                      {% else %}
+                        {% set fim_date = fim_str %}
+                      {% endif %}
+                      
+                      {% if '-' in fim_date %}
+                        {# Formato YYYY-MM-DD #}
+                        {% set fim_parts = fim_date.split('-') %}
+                        {{ fim_parts[2] }}/{{ fim_parts[1] }}/{{ fim_parts[0] }}
+                      {% elif '/' in fim_date %}
+                        {# Formato DD/MM/YYYY ou YYYY/MM/DD #}
+                        {% set fim_parts = fim_date.split('/') %}
+                        {% if fim_parts[0]|length == 4 %}
+                          {{ fim_parts[2] }}/{{ fim_parts[1] }}/{{ fim_parts[0] }}
+                        {% else %}
+                          {{ fim_date }}
+                        {% endif %}
+                      {% else %}
+                        {{ fim_date }}
+                      {% endif %}
+                    {% endif %}
                   </span>
                 </div>
               </div>
