@@ -203,9 +203,19 @@ document.addEventListener('DOMContentLoaded', function () {
                 !form.id.includes('search') &&
                 !form.id.includes('login')) {
 
-                console.log('Loading manager: Formulário sendo enviado, mostrando loading...');
+                // CORREÇÃO: Verificar se o formulário é válido ANTES de mostrar o loading
+                // Isso evita que o loading apareça quando há erros de validação HTML5
+                const isValid = form.checkValidity();
+                
+                if (!isValid) {
+                    console.log('⚠️ Formulário inválido, não mostrando loading');
+                    // Não mostrar loading se o formulário for inválido
+                    return;
+                }
 
-                // Mostrar loading
+                console.log('✅ Formulário válido, mostrando loading...');
+
+                // Mostrar loading apenas se o formulário for válido
                 window.loadingManager.show();
 
                 // IMPORTANTE: NÃO prevenir o comportamento padrão
