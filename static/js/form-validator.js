@@ -271,6 +271,32 @@ class FormValidator {
         
         unidades.forEach((unidade, index) => {
             console.log(`Validando unidade ${index + 1}...`);
+            
+            // Verificar se a unidade tem algum campo preenchido (não está vazia)
+            const endereco = unidade.querySelector('input[name="endereco_unidade[]"]');
+            const bairro = unidade.querySelector('input[name="bairro_unidade[]"]');
+            const vagas = unidade.querySelector('input[name="vagas_unidade[]"]');
+            const inicioAulas = unidade.querySelector('input[name="inicio_aulas_data[]"]');
+            const fimAulas = unidade.querySelector('input[name="fim_aulas_data[]"]');
+            const horarioInicio = unidade.querySelector('input[name="horario_inicio[]"]');
+            const horarioFim = unidade.querySelector('input[name="horario_fim[]"]');
+            
+            const temAlgumCampoPreenchido = 
+                (endereco && endereco.value.trim()) ||
+                (bairro && bairro.value.trim()) ||
+                (vagas && vagas.value.trim()) ||
+                (inicioAulas && inicioAulas.value.trim()) ||
+                (fimAulas && fimAulas.value.trim()) ||
+                (horarioInicio && horarioInicio.value.trim()) ||
+                (horarioFim && horarioFim.value.trim());
+            
+            // Se a unidade está vazia, pular validação
+            if (!temAlgumCampoPreenchido) {
+                console.log(`⏭️ Unidade ${index + 1} está vazia, pulando validação`);
+                return;
+            }
+            
+            // Se tem campos preenchidos, validar dias da semana
             const diasCheckboxes = unidade.querySelectorAll('input[name="dias_aula_presencial[]"]');
             console.log(`Encontrados ${diasCheckboxes.length} checkboxes de dias`);
             

@@ -669,10 +669,26 @@ def _prepare_course_for_edit_form(course):
         vagas = vagas_val.split('|') if isinstance(vagas_val, str) and vagas_val else ['']
         
         inicio_aulas_val = course.get('inicio_aulas_data', '')
-        inicio_aulas = inicio_aulas_val.split('|') if isinstance(inicio_aulas_val, str) and inicio_aulas_val else ['']
+        inicio_aulas_raw = inicio_aulas_val.split('|') if isinstance(inicio_aulas_val, str) and inicio_aulas_val else ['']
+        # Limpar formato de data para remover hora se presente (YYYY-MM-DD HH:MM:SS -> YYYY-MM-DD)
+        inicio_aulas = []
+        for data in inicio_aulas_raw:
+            if data and ' ' in data:
+                # Remover parte do horário
+                inicio_aulas.append(data.split(' ')[0])
+            else:
+                inicio_aulas.append(data)
         
         fim_aulas_val = course.get('fim_aulas_data', '')
-        fim_aulas = fim_aulas_val.split('|') if isinstance(fim_aulas_val, str) and fim_aulas_val else ['']
+        fim_aulas_raw = fim_aulas_val.split('|') if isinstance(fim_aulas_val, str) and fim_aulas_val else ['']
+        # Limpar formato de data para remover hora se presente
+        fim_aulas = []
+        for data in fim_aulas_raw:
+            if data and ' ' in data:
+                # Remover parte do horário
+                fim_aulas.append(data.split(' ')[0])
+            else:
+                fim_aulas.append(data)
         
         horario_inicio_val = course.get('horario_inicio', '')
         horario_inicio = horario_inicio_val.split('|') if isinstance(horario_inicio_val, str) and horario_inicio_val else ['']
