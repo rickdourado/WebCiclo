@@ -601,141 +601,39 @@
                   </div>
                   {% endif %}
 
-                  <!-- Seção de Múltiplas Turmas -->
-                  {% set turmas_inicio = inicio_aulas[i].split('||') if i <
-                  inicio_aulas|length and inicio_aulas[i] and '||' in
-                  inicio_aulas[i] else [inicio_aulas[i] if i <
-                  inicio_aulas|length and inicio_aulas[i] else '' ] %} {% set
-                  turmas_fim=fim_aulas[i].split('||') if i < fim_aulas|length
-                  and fim_aulas[i] and '||' in fim_aulas[i] else [fim_aulas[i]
-                  if i < fim_aulas|length and fim_aulas[i] else '' ] %} {% set
-                  turmas_horario_inicio=horario_inicio[i].split('||') if i <
-                  horario_inicio|length and horario_inicio[i] and '||' in
-                  horario_inicio[i] else [horario_inicio[i] if i <
-                  horario_inicio|length and horario_inicio[i] else '' ] %} {%
-                  set turmas_horario_fim=horario_fim[i].split('||') if i <
-                  horario_fim|length and horario_fim[i] and '||' in
-                  horario_fim[i] else [horario_fim[i] if i < horario_fim|length
-                  and horario_fim[i] else '' ] %} {% set
-                  turmas_dias=dias_aula[i].split('||') if i < dias_aula|length
-                  and dias_aula[i] and '||' in dias_aula[i] else [dias_aula[i]
-                  if i < dias_aula|length and dias_aula[i] else '' ] %}
-                  <!-- Informações das Turmas -->
-                  {% if turmas_inicio|length > 0 and turmas_inicio[0] %}
-                  <div
-                    style="
-                      margin-top: 15px;
-                      padding-top: 15px;
-                      border-top: 1px solid #e2e8f0;
-                    "
-                  >
-                    {% for t in range(turmas_inicio|length) %} {% if
-                    turmas_inicio[t] %}
-                    <div
-                      style="
-                        margin-bottom: 15px;
-                        padding: 12px;
-                        background-color: #ffffff;
-                        border-radius: 6px;
-                        border: 1px solid #e2e8f0;
-                      "
-                    >
-                      <!-- Mostrar "Turma X" apenas se houver mais de uma turma -->
-                      {% if turmas_inicio|length > 1 %}
-                      <div
-                        style="
-                          font-weight: 600;
-                          color: #4a5568;
-                          margin-bottom: 8px;
-                          display: flex;
-                          align-items: center;
-                          gap: 6px;
-                        "
-                      >
-                        <i
-                          class="fas fa-user-friends"
-                          style="color: #4299e1; font-size: 0.9em"
-                        ></i>
-                        Turma {{ t + 1 }}
-                      </div>
+                  <!-- Informações de Período, Horário e Dias -->
+                  {% if i < inicio_aulas|length and inicio_aulas[i] %}
+                  <div class="info-row">
+                    <i class="fas fa-calendar-check"></i>
+                    <span>
+                      <strong>Período:</strong>
+                      {% if inicio_aulas[i] and i < fim_aulas|length and fim_aulas[i] %}
+                        {% set inicio_formatada = inicio_aulas[i].strip().split('-')[2] + '/' + inicio_aulas[i].strip().split('-')[1] + '/' + inicio_aulas[i].strip().split('-')[0] %}
+                        {% set fim_formatada = fim_aulas[i].strip().split('-')[2] + '/' + fim_aulas[i].strip().split('-')[1] + '/' + fim_aulas[i].strip().split('-')[0] %}
+                        {{ inicio_formatada }} a {{ fim_formatada }}
+                      {% elif inicio_aulas[i] %}
+                        {% set inicio_formatada = inicio_aulas[i].strip().split('-')[2] + '/' + inicio_aulas[i].strip().split('-')[1] + '/' + inicio_aulas[i].strip().split('-')[0] %}
+                        A partir de {{ inicio_formatada }}
                       {% endif %}
-
-                      {% if turmas_inicio[t] or (t < turmas_fim|length and
-                      turmas_fim[t]) %}
-                      <div
-                        class="info-row"
-                        style="
-                          margin-bottom: 6px;
-                          padding: 4px 0;
-                          border-bottom: none;
-                        "
-                      >
-                        <i
-                          class="fas fa-calendar-check"
-                          style="font-size: 0.9em"
-                        ></i>
-                        <span style="font-size: 0.9em"
-                          ><strong>Período:</strong> {% if turmas_inicio[t] and
-                          t < turmas_fim|length and turmas_fim[t] %} {% set
-                          inicio_formatada=turmas_inicio[t].strip().split('-')[2]
-                          + '/' + turmas_inicio[t].strip().split('-')[1] + '/' +
-                          turmas_inicio[t].strip().split('-')[0] %} {% set
-                          fim_formatada=turmas_fim[t].strip().split('-')[2] +
-                          '/' + turmas_fim[t].strip().split('-')[1] + '/' +
-                          turmas_fim[t].strip().split('-')[0] %} {{
-                          inicio_formatada }} a {{ fim_formatada }} {% elif
-                          turmas_inicio[t] %} {% set
-                          inicio_formatada=turmas_inicio[t].strip().split('-')[2]
-                          + '/' + turmas_inicio[t].strip().split('-')[1] + '/' +
-                          turmas_inicio[t].strip().split('-')[0] %} A partir de
-                          {{ inicio_formatada }} {% elif t < turmas_fim|length
-                          and turmas_fim[t] %} {% set
-                          fim_formatada=turmas_fim[t].strip().split('-')[2] +
-                          '/' + turmas_fim[t].strip().split('-')[1] + '/' +
-                          turmas_fim[t].strip().split('-')[0] %} Até {{
-                          fim_formatada }} {% endif %}
-                        </span>
-                      </div>
-                      {% endif %} {% if t < turmas_horario_inicio|length and
-                      turmas_horario_inicio[t] and t < turmas_horario_fim|length
-                      and turmas_horario_fim[t] %}
-                      <div
-                        class="info-row"
-                        style="
-                          margin-bottom: 6px;
-                          padding: 4px 0;
-                          border-bottom: none;
-                        "
-                      >
-                        <i class="fas fa-clock" style="font-size: 0.9em"></i>
-                        <span style="font-size: 0.9em"
-                          ><strong>Horário:</strong> {{
-                          turmas_horario_inicio[t].strip() }} às {{
-                          turmas_horario_fim[t].strip() }}</span
-                        >
-                      </div>
-                      {% endif %} {% if t < turmas_dias|length and
-                      turmas_dias[t] %}
-                      <div
-                        class="info-row"
-                        style="
-                          margin-bottom: 0;
-                          padding: 4px 0;
-                          border-bottom: none;
-                        "
-                      >
-                        <i
-                          class="fas fa-calendar-day"
-                          style="font-size: 0.9em"
-                        ></i>
-                        <span style="font-size: 0.9em"
-                          ><strong>Dias:</strong> {{
-                          turmas_dias[t].strip().replace(',', ', ') }}</span
-                        >
-                      </div>
-                      {% endif %}
-                    </div>
-                    {% endif %} {% endfor %}
+                    </span>
+                  </div>
+                  {% endif %}
+                  
+                  {% if i < horario_inicio|length and horario_inicio[i] and i < horario_fim|length and horario_fim[i] %}
+                  <div class="info-row">
+                    <i class="fas fa-clock"></i>
+                    <span>
+                      <strong>Horário:</strong> {{ horario_inicio[i].strip() }} às {{ horario_fim[i].strip() }}
+                    </span>
+                  </div>
+                  {% endif %}
+                  
+                  {% if i < dias_aula|length and dias_aula[i] %}
+                  <div class="info-row">
+                    <i class="fas fa-calendar-day"></i>
+                    <span>
+                      <strong>Dias:</strong> {{ dias_aula[i].strip().replace(',', ', ') }}
+                    </span>
                   </div>
                   {% endif %}
                 </div>
