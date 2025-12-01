@@ -357,6 +357,13 @@ def duplicate_course(course_id):
             logger.info(f"horario_fim[]: {request.form.getlist('horario_fim[]')}")
             logger.info(f"endereco_unidade[]: {request.form.getlist('endereco_unidade[]')}")
             logger.info(f"vagas_unidade[]: {request.form.getlist('vagas_unidade[]')}")
+            
+            # Log de dias da semana para debug
+            logger.info("=== DIAS DA SEMANA ===")
+            # Verificar todos os campos que começam com dias_aula
+            for key in request.form.keys():
+                if 'dias_aula' in key:
+                    logger.info(f"{key}: {request.form.getlist(key)}")
             logger.info("========================")
             
             # Usar o serviço de cursos para criar o curso duplicado

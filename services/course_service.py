@@ -495,11 +495,14 @@ class CourseService:
             dias_aula_list = []
             num_turmas = len(course_data['enderecos_unidades'])
             
+            logger.info(f"📅 Processando dias da semana para {num_turmas} turmas")
+            
             if hasattr(form_data, 'getlist'):
                 # Tentar obter dias específicos por turma (dias_aula_presencial_0[], dias_aula_presencial_1[], etc)
                 dias_por_turma = []
                 for i in range(num_turmas):
                     dias_especificos = form_data.getlist(f'dias_aula_presencial_{i}[]')
+                    logger.info(f"  Turma {i}: dias_aula_presencial_{i}[] = {dias_especificos}")
                     if dias_especificos:
                         dias_por_turma.append(','.join([str(d) for d in dias_especificos if d]))
                     else:
@@ -508,20 +511,26 @@ class CourseService:
                 # Se conseguimos dias específicos por turma, usar isso
                 if any(dias_por_turma):
                     dias_aula_list = dias_por_turma
+                    logger.info(f"✅ Usando dias específicos por turma: {dias_aula_list}")
                 else:
                     # Fallback: tentar obter dias genéricos (todos os checkboxes com nome dias_aula_presencial[])
                     dias_presencial = form_data.getlist('dias_aula_presencial[]')
+                    logger.info(f"⚠️ Fallback para dias genéricos: {dias_presencial}")
                     
                     if not dias_presencial:
                         dias_aula_list = ['' for _ in range(num_turmas)]
+                        logger.warning(f"❌ Nenhum dia encontrado! Lista vazia para {num_turmas} turmas")
                     else:
                         # Aplicar os mesmos dias a todas as turmas (comportamento padrão)
                         joined = ','.join([str(x) for x in dias_presencial if x])
                         dias_aula_list = [joined for _ in range(num_turmas)]
+                        logger.info(f"✅ Aplicando mesmos dias a todas as turmas: {joined}")
             else:
                 dias_aula_list = ['' for _ in range(num_turmas)]
+                logger.warning(f"❌ form_data não tem getlist, lista vazia")
             
             course_data['dias_aula_unidades'] = dias_aula_list
+            logger.info(f"📊 Resultado final dias_aula_unidades: {dias_aula_list}")
         
         if modalidade in ['Online', 'Híbrido']:
             # Dados da plataforma online
