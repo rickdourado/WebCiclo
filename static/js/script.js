@@ -432,9 +432,9 @@ function setupSubmitButtonClick() {
     const form = document.querySelector('.course-form');
     const submitBtn = form.querySelector('button[type="submit"]');
 
-    submitBtn.addEventListener('click', function (e) {
-        // NÃO PREVENIR O COMPORTAMENTO PADRÃO - deixar o formulário ser enviado
-
+    // CORREÇÃO: Usar evento 'submit' do formulário com fase de CAPTURA
+    // Isso garante que execute ANTES do loading-manager
+    form.addEventListener('submit', function (e) {
         // Evitar validação duplicada
         if (submitBtn.disabled) return;
 
@@ -608,7 +608,7 @@ function setupSubmitButtonClick() {
             console.log('Formulário inválido, não enviando...');
             alert('Por favor, preencha todos os campos obrigatórios visíveis.');
         }
-    });
+    }, true); // true = fase de captura (executa ANTES de outros listeners)
 }
 
 // Função auxiliar para verificar se um campo está visível

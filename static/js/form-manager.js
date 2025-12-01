@@ -413,17 +413,29 @@ class FormManager {
                 <div class="horario-group">
                     <div class="horario-field">
                         <label>Horário-Início*</label>
-                        <select name="horario_inicio[]" required>
-                            <option value="">Selecione o horário</option>
-                            ${this.generateTimeOptions()}
-                        </select>
+                        <input type="text" 
+                            name="horario_inicio[]" 
+                            required
+                            placeholder="HH:MM"
+                            pattern="([0-1][0-9]|2[0-3]):[0-5][0-9]"
+                            title="Formato: HH:MM (ex: 10:30)"
+                            maxlength="5"
+                            oninput="formatarHorario(this)"
+                            onblur="validarHorario(this)"
+                            style="width: 120px; text-align: center;">
                     </div>
                     <div class="horario-field">
                         <label>Horário-Fim*</label>
-                        <select name="horario_fim[]" required>
-                            <option value="">Selecione o horário</option>
-                            ${this.generateTimeOptions()}
-                        </select>
+                        <input type="text" 
+                            name="horario_fim[]" 
+                            required
+                            placeholder="HH:MM"
+                            pattern="([0-1][0-9]|2[0-3]):[0-5][0-9]"
+                            title="Formato: HH:MM (ex: 10:30)"
+                            maxlength="5"
+                            oninput="formatarHorario(this)"
+                            onblur="validarHorario(this)"
+                            style="width: 120px; text-align: center;">
                     </div>
                 </div>
                 <label>Dias de aula*</label>
@@ -434,32 +446,7 @@ class FormManager {
         `;
   }
 
-  generateTimeOptions() {
-    const times = [
-      "06:00",
-      "07:00",
-      "08:00",
-      "09:00",
-      "10:00",
-      "11:00",
-      "12:00",
-      "13:00",
-      "14:00",
-      "15:00",
-      "16:00",
-      "17:00",
-      "18:00",
-      "19:00",
-      "20:00",
-      "21:00",
-      "22:00",
-      "23:00",
-    ];
-
-    return times
-      .map((time) => `<option value="${time}">${time}</option>`)
-      .join("");
-  }
+  // Função generateTimeOptions() removida - agora usamos input text com máscara
 
   generateDaysCheckboxes(unidadeIndex = 0) {
     const days = [

@@ -197,6 +197,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const forms = document.querySelectorAll('form');
 
     forms.forEach(form => {
+        // Adicionar listener com prioridade BAIXA (captura = false, último a executar)
         form.addEventListener('submit', function (e) {
             // Verificar se não é um formulário de login ou busca
             if (!form.classList.contains('no-loading') &&
@@ -206,10 +207,16 @@ document.addEventListener('DOMContentLoaded', function () {
                 // CORREÇÃO: Verificar se o formulário é válido ANTES de mostrar o loading
                 // Isso evita que o loading apareça quando há erros de validação HTML5
                 const isValid = form.checkValidity();
-                
+
                 if (!isValid) {
-                    console.log('⚠️ Formulário inválido, não mostrando loading');
+                    console.log('⚠️ Formulário inválido (HTML5), não mostrando loading');
                     // Não mostrar loading se o formulário for inválido
+                    return;
+                }
+
+                // Verificar se alguma validação customizada já preveniu o submit
+                if (e.defaultPrevented) {
+                    console.log('⚠️ Submit foi prevenido por validação customizada, não mostrando loading');
                     return;
                 }
 
@@ -223,7 +230,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 // O loading será fechado quando a página recarregar ou
                 // quando o servidor retornar uma resposta
             }
-        });
+        }, false); // false = fase de bubbling (executa por último)
     });
 
     // Esconder loading quando a nova página carregar completamente
