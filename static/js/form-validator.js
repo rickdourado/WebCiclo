@@ -297,7 +297,9 @@ class FormValidator {
             }
             
             // Se tem campos preenchidos, validar dias da semana
-            const diasCheckboxes = unidade.querySelectorAll('input[name="dias_aula_presencial[]"]');
+            // CORREÇÃO: Buscar por qualquer checkbox de dias dentro da unidade
+            // Pode ser dias_aula_presencial[] ou dias_aula_presencial_N[]
+            const diasCheckboxes = unidade.querySelectorAll('input[type="checkbox"][name^="dias_aula_presencial"]');
             console.log(`Encontrados ${diasCheckboxes.length} checkboxes de dias`);
             
             const algumDiaSelecionado = Array.from(diasCheckboxes).some(cb => cb.checked);

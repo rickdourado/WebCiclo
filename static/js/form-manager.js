@@ -330,7 +330,7 @@ class FormManager {
       // Nunca adicionar required a checkboxes de dias da semana
       // A validação é feita via JavaScript na função validateOnlineFields()
       const isDiasAulaCheckbox =
-        field.name === "dias_aula_presencial[]" ||
+        field.name.startsWith("dias_aula_presencial") ||
         field.name === "dias_aula_online[]";
 
       if (isDiasAulaCheckbox) {

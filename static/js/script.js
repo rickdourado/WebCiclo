@@ -304,7 +304,7 @@ function setupCustomValidation() {
 
                 unidades.forEach((unidade, index) => {
                     console.log(`Validando unidade ${index + 1}...`);
-                    const diasCheckboxes = unidade.querySelectorAll('input[name="dias_aula_presencial[]"]');
+                    const diasCheckboxes = unidade.querySelectorAll('input[type="checkbox"][name^="dias_aula_presencial"]');
                     console.log(`Encontrados ${diasCheckboxes.length} checkboxes de dias`);
 
                     const algumDiaSelecionado = Array.from(diasCheckboxes).some(cb => cb.checked);
@@ -544,7 +544,7 @@ function setupSubmitButtonClick() {
 
                 unidades.forEach((unidade, index) => {
                     console.log(`Validando unidade ${index + 1}...`);
-                    const diasCheckboxes = unidade.querySelectorAll('input[name="dias_aula_presencial[]"]');
+                    const diasCheckboxes = unidade.querySelectorAll('input[type="checkbox"][name^="dias_aula_presencial"]');
                     console.log(`Encontrados ${diasCheckboxes.length} checkboxes de dias`);
 
                     const algumDiaSelecionado = Array.from(diasCheckboxes).some(cb => cb.checked);
