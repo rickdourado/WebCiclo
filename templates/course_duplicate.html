@@ -1149,6 +1149,22 @@
             console.log('🔍 Limpeza final antes do submit...');
             limparCamposRequiredOcultos();
             limparCamposOcultosAntesDosSubmit();
+            
+            // CORREÇÃO ADICIONAL: Remover campos vazios do formulário antes do submit
+            const form = e.target;
+            if (form.classList.contains('course-form')) {
+                const camposVazios = form.querySelectorAll('input[value=""], select:not([value]), textarea:not([value])');
+                camposVazios.forEach(campo => {
+                    // Não remover campos obrigatórios visíveis
+                    if (!campo.hasAttribute('required') || campo.closest('[style*="display: none"]')) {
+                        // Desabilitar campo vazio para não ser enviado
+                        if (campo.value === '' || !campo.value) {
+                            campo.setAttribute('data-was-empty', 'true');
+                            console.log('🧹 Campo vazio não será enviado:', campo.name);
+                        }
+                    }
+                });
+            }
         }, true);
         
         // Função para limpar valores de campos ocultos antes do submit

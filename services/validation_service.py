@@ -170,19 +170,24 @@ class CourseValidator:
         ]
         
         # Validar campos que nunca devem estar presentes (endereço e bairro)
+        # CORREÇÃO: Usar getlist para obter valores corretos de arrays
         for field in presencial_fields:
-            field_value = form_data.get(field)
-            if field_value and field_value.strip():
-                if isinstance(field_value, list):
-                    # Se é uma lista, verificar se algum item não está vazio
-                    if any(item.strip() for item in field_value if item):
-                        field_name = field.replace('[]', '').replace('_', ' ').title()
-                        self.errors.append(f"Campo '{field_name}' não deve ser preenchido para cursos online")
-                else:
-                    # Se é string, verificar se não está vazio
-                    if field_value.strip():
-                        field_name = field.replace('[]', '').replace('_', ' ').title()
-                        self.errors.append(f"Campo '{field_name}' não deve ser preenchido para cursos online")
+            if hasattr(form_data, 'getlist'):
+                field_value = form_data.getlist(field)
+            else:
+                field_value = form_data.get(field, [])
+            
+            # Verificar se há valores não vazios
+            if isinstance(field_value, list):
+                # Se é uma lista, verificar se algum item não está vazio
+                valores_nao_vazios = [item.strip() for item in field_value if item and item.strip()]
+                if valores_nao_vazios:
+                    field_name = field.replace('[]', '').replace('_', ' ').title()
+                    self.errors.append(f"Campo '{field_name}' não deve ser preenchido para cursos online")
+            elif field_value and isinstance(field_value, str) and field_value.strip():
+                # Se é string, verificar se não está vazio
+                field_name = field.replace('[]', '').replace('_', ' ').title()
+                self.errors.append(f"Campo '{field_name}' não deve ser preenchido para cursos online")
         
         # Validar campos de data baseado no tipo de aula
         for field in campos_data_sincronos:

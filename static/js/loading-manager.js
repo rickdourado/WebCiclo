@@ -216,11 +216,21 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    // Esconder loading APENAS quando a nova página carregar completamente
+    // Esconder loading quando a nova página carregar completamente
     window.addEventListener('load', function () {
         if (window.loadingManager) {
             console.log('🔄 Nova página carregada, fechando loading...');
             window.loadingManager.hide();
         }
     });
+
+    // CORREÇÃO: Esconder loading se houver mensagens de erro na página
+    // Isso garante que o loading seja fechado quando há erros de validação
+    setTimeout(function () {
+        const hasErrors = document.querySelector('.alert-error, .alert-warning');
+        if (hasErrors && window.loadingManager) {
+            console.log('⚠️ Erros detectados na página, fechando loading...');
+            window.loadingManager.hide();
+        }
+    }, 100);
 });

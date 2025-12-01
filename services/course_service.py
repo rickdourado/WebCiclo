@@ -36,6 +36,9 @@ class CourseService:
             Tuple[bool, Dict, List[str]]: (sucesso, dados_curso, erros)
         """
         try:
+            # CORREÇÃO: Limpar campos inválidos baseado na modalidade antes da validação
+            form_data = self._clean_form_data_by_modality(form_data)
+            
             # Validar dados
             is_valid, errors, warnings = self.validator.validate_course_data(form_data)
             if not is_valid:
@@ -108,6 +111,9 @@ class CourseService:
             existing_course = self.repository_mysql.find_by_id(course_id)
             if not existing_course:
                 return False, {}, ["Curso não encontrado"]
+            
+            # CORREÇÃO: Limpar campos inválidos baseado na modalidade antes da validação
+            form_data = self._clean_form_data_by_modality(form_data)
             
             # Validar dados
             is_valid, errors, warnings = self.validator.validate_course_data(form_data)
@@ -388,6 +394,53 @@ class CourseService:
                 return False, "Curso não encontrado"
         except Exception as e:
             return False, f"Erro ao excluir curso: {str(e)}"
+    
+    def _clean_form_data_by_modality(self, form_data):
+        """
+        Limpa campos do formulário que não são aplicáveis à modalidade selecionada
+        
+        Args:
+            form_data: Dados do formulário (ImmutableMultiDict ou dict)
+            
+        Returns:
+            MultiDict limpo com apenas campos relevantes
+        """
+        from werkzeug.datastructures import MultiDict
+        
+        modalidade = form_data.get('modalidade', '')
+        
+        # Criar novo MultiDict para armazenar dados limpos
+        cleaned_data = MultiDict()
+        
+        # Copiar todos os dados primeiro
+        if hasattr(form_data, 'items'):
+            for key in form_data.keys():
+                values = form_data.getlist(key) if hasattr(form_data, 'getlist') else [form_data.get(key)]
+                for value in values:
+                    cleaned_data.add(key, value)
+        
+        # Campos a limpar baseado na modalidade
+        if modalidade == 'Online':
+            # Para cursos online, limpar campos presenciais
+            campos_presenciais = [
+                'endereco_unidade[]',
+                'bairro_unidade[]',
+                'complemento[]'
+            ]
+            
+            for campo in campos_presenciais:
+                if campo in cleaned_data:
+                    # Remover valores não vazios desses campos
+                    valores = cleaned_data.getlist(campo)
+                    cleaned_data.setlist(campo, [''] * len(valores) if valores else [])
+                    logger.info(f"🧹 Limpando campo presencial para curso online: {campo}")
+        
+        elif modalidade in ['Presencial', 'Híbrido']:
+            # Para cursos presenciais/híbridos, limpar campos online específicos
+            # (mas manter alguns campos que podem ser usados em híbrido)
+            pass  # Não limpar nada por enquanto para presencial/híbrido
+        
+        return cleaned_data
     
     def _process_form_data_for_mysql(self, form_data: Dict) -> Dict:
         """Processa dados do formulário para salvar no MySQL"""

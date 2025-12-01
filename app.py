@@ -349,6 +349,16 @@ def duplicate_course(course_id):
             logger.info(f"Processando duplicação do curso {course_id}")
             logger.info(f"Dados recebidos: {dict(request.form)}")
             
+            # Log específico para campos críticos
+            logger.info("=== DEBUG DUPLICAÇÃO ===")
+            logger.info(f"modalidade: {request.form.get('modalidade')}")
+            logger.info(f"aulas_assincronas: {request.form.get('aulas_assincronas')}")
+            logger.info(f"horario_inicio[]: {request.form.getlist('horario_inicio[]')}")
+            logger.info(f"horario_fim[]: {request.form.getlist('horario_fim[]')}")
+            logger.info(f"endereco_unidade[]: {request.form.getlist('endereco_unidade[]')}")
+            logger.info(f"vagas_unidade[]: {request.form.getlist('vagas_unidade[]')}")
+            logger.info("========================")
+            
             # Usar o serviço de cursos para criar o curso duplicado
             success, course_data, messages = course_service.create_course(request.form, request.files)
             
