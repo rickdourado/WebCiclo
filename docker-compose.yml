@@ -1,24 +1,21 @@
-version: '3.8'
+version: "3.8"
 
 services:
-  mysql:
-    image: mysql:8.0
-    container_name: meu-mysql
-    restart: unless-stopped
+  mariadb:
+    image: mariadb:latest
+    container_name: mariadb_container
+    restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: 091820
+      MYSQL_ROOT_PASSWORD: carioca2025
       MYSQL_DATABASE: cursoscarioca
     ports:
       - "3306:3306"
     volumes:
-      - mysql-data:/var/lib/mysql
+      - ./data:/var/lib/mysql
+      - ./init:/docker-entrypoint-initdb.d
     networks:
-      - bridge
-
-volumes:
-  mysql-data:
-    external: true
+      - mariadb_network
 
 networks:
-  bridge:
+  mariadb_network:
     driver: bridge

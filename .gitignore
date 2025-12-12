@@ -17,6 +17,7 @@ __pycache__/
 # Diretórios de dados do sistema (não versionar)
 CSV/
 PDF/
+data/
 
 # Arquivo de status dos cursos (específico do servidor)
 course_status.json
