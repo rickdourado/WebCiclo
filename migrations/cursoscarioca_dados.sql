@@ -22,7 +22,7 @@
 LOCK TABLES `cursos` WRITE;
 /*!40000 ALTER TABLE `cursos` DISABLE KEYS */;
 
-INSERT INTO `cursos` VALUES 
+INSERT INTO `cursos` (`id`, `tipo_acao`, `titulo`, `titulo_original`, `descricao`, `descricao_original`, `capa_curso`, `inicio_inscricoes`, `fim_inscricoes`, `orgao`, `tema`, `carga_horaria`, `modalidade`, `acessibilidade`, `recursos_acessibilidade`, `publico_alvo`, `curso_gratuito`, `valor_curso_inteira`, `valor_curso_meia`, `requisitos_meia`, `oferece_certificado`, `pre_requisitos`, `oferece_bolsa`, `valor_bolsa`, `requisitos_bolsa`, `info_complementares`, `info_adicionais`, `parceiro_externo`, `parceiro_nome`, `parceiro_link`, `parceiro_logo`, `status`, `created_at`, `updated_at`, `created_by`) VALUES 
 (1,'Curso','Oficina de Currículo','Oficina de Currículo','O curso ensina a criar currículos acessíveis que destacam suas habilidades e atraem recrutadores.  Você aprenderá a organizar informações e otimizar o documento para leitores de tela, beneficiando candidatos com deficiência.','Aprenda a criar currículos acessíveis que valorizam suas habilidades e alcançam recrutadores, considerando as necessidades de pessoas com deficiência. O curso aborda organização de informações e otimização para leitores de tela.','','2025-09-25 00:00:00','2025-10-10 00:00:00','Secretaria Municipal da Pessoa com Deficiência - SMPD','Carreira','03 Horas','Presencial','exclusivo','Acesso facilitado para cadeirantes, com rampas e portas amplas;\n\nBanheiros acessíveis, adaptados conforme as normas de acessibilidade;\n\nSinalização tátil e visual, para pessoas com deficiência visual ou baixa visão;\n\nEstacionamento com vagas reservadas para pessoas com deficiência ou mobilidade reduzida;\n\nInterprete de Libras.','Pessoas com Deficiência e Familiares de Pessoas com Deficiência.','sim',NULL,NULL,'','sim','Lista de presença','nao',NULL,'','Nome completo, endereço, email e telefone de contato.','','nao','','','','ativo','2025-11-25 19:12:15','2025-11-25 19:12:15',1),
 (2,'Curso','Informática para Negócios','Informática para Negócios','Este curso ensina a usar as ferramentas de informática essenciais para as áreas administrativa e comercial. O objetivo é aplicar esse conhecimento tecnológico para criar novas ideias e soluções inovadoras para o mercado.','Apresentar as principais funções de informática usadas nos ramos administrativo e comercial; Fomentar a criação de novas ideias para o mercado através da tecnologia;','','2025-10-17 00:00:00','2025-10-31 00:00:00','Secretaria Especial da Juventude Carioca - JUV-RIO','Tech','20 horas','Presencial','acessivel','Rampa de acesso','Jovens de 15 a 29 anos','sim',NULL,NULL,'','sim','Frequência mínima de 75% e entrega de trabalho final','nao',NULL,'','Data de nascimento, idade, e-mail, telefone, endereço e bairro','','nao','','','','ativo','2025-11-25 19:12:15','2025-11-25 19:12:15',1),
 (3,'Curso','Mídias Sociais','Mídias Sociais','Este curso ensina a superar os desafios do ambiente digital.\nVocê aprenderá a usar ferramentas online para se destacar profissionalmente.\nO objetivo é te ajudar a conseguir um emprego ou uma nova colocação no mercado.','Apresentar os principais desafios de estar presente no ambiente digitar e capacitar para a aplicação das ferramentas disponíveis para auxiliá-lo em sua colocação profissional.','','2025-10-17 00:00:00','2025-10-31 00:00:00','Secretaria Especial da Juventude Carioca - JUV-RIO','Tech','20 horas','Presencial','acessivel','Rampa de acesso','Jovens de 15 a 30 anos','sim',NULL,NULL,'','sim','Frequência mínima de 75% e entrega de trabalho final','nao',NULL,'','Data de nascimento, idade, e-mail, telefone, endereço e bairro','','nao','','','','ativo','2025-11-25 19:12:15','2025-11-25 19:12:15',1),
@@ -57,12 +57,8 @@ UNLOCK TABLES;
 -- ========================================
 
 LOCK TABLES `plataformas_online` WRITE;
-/*!40000 ALTER TABLE `plataformas_online` DISABLE KEYS */;
-
 INSERT INTO `plataformas_online` (`id`, `curso_id`, `plataforma_digital`, `link_acesso`, `vagas_totais`, `vagas_ocupadas`, `aulas_assincronas`, `inicio_aulas`, `fim_aulas`, `horario_inicio`, `horario_fim`, `status`, `created_at`, `updated_at`) VALUES 
 (1,4,'Google Meet','',0,0,'nao',NULL,NULL,NULL,NULL,'ativa','2025-11-25 19:12:15','2025-11-25 19:12:15');
-
-/*!40000 ALTER TABLE `plataformas_online` ENABLE KEYS */;
 UNLOCK TABLES;
 
 -- ========================================
@@ -71,7 +67,6 @@ UNLOCK TABLES;
 -- ========================================
 
 LOCK TABLES `turmas` WRITE;
-/*!40000 ALTER TABLE `turmas` DISABLE KEYS */;
 
 INSERT INTO `turmas` (`id`, `curso_id`, `numero_turma`, `nome_turma`, `endereco_unidade`, `bairro_unidade`, `complemento`, `vagas_totais`, `vagas_ocupadas`, `inicio_aulas`, `fim_aulas`, `horario_inicio`, `horario_fim`, `status`, `created_at`, `updated_at`) VALUES 
 (1,1,1,NULL,'AVENIDA PRESIDENTE VARGAS, 1997','CENTRO',NULL,50,0,'2025-10-15','2025-10-15','09:00:00','12:00:00','ativa','2025-11-25 19:12:15','2025-11-25 19:12:15'),
@@ -132,7 +127,6 @@ INSERT INTO `turmas` (`id`, `curso_id`, `numero_turma`, `nome_turma`, `endereco_
 (56,24,5,NULL,'Rua Andaraí, 275','Andaraí',NULL,15,0,'2025-10-01','2025-12-15','09:00:00','12:00:00','ativa','2025-11-25 19:12:16','2025-11-25 19:12:16'),
 (57,24,6,NULL,'Rua Andaraí, 275','Andaraí',NULL,15,0,'2025-10-01','2025-12-15','13:00:00','16:00:00','ativa','2025-11-25 19:12:16','2025-11-25 19:12:16');
 
-/*!40000 ALTER TABLE `turmas` ENABLE KEYS */;
 UNLOCK TABLES;
 
 -- ========================================
@@ -141,9 +135,8 @@ UNLOCK TABLES;
 -- ========================================
 
 LOCK TABLES `turmas_dias_semana` WRITE;
-/*!40000 ALTER TABLE `turmas_dias_semana` DISABLE KEYS */;
 
-INSERT INTO `turmas_dias_semana` VALUES 
+INSERT INTO `turmas_dias_semana` (`id`, `turma_id`, `dia_semana`) VALUES 
 (1,1,'Quarta-feira'),
 (2,2,'Quarta-feira'),
 (3,3,'Terça-feira'),
@@ -193,9 +186,8 @@ UNLOCK TABLES;
 -- ========================================
 
 LOCK TABLES `users` WRITE;
-/*!40000 ALTER TABLE `users` DISABLE KEYS */;
 
-INSERT INTO `users` VALUES 
+INSERT INTO `users` (`id`, `email`, `senha`, `ativo`, `ultimo_acesso`, `created_at`, `updated_at`) VALUES 
 (1,'admin@cicloscarioca.rio','$2b$12$w24TIPFaHIt63abU/r4WUOygD1fLvTc/yp9lMcEV..ykulu.ZYgTS','sim','2025-11-17 20:22:39','2025-11-17 20:10:13','2025-11-17 20:22:39'),
 (2,'oportunidades.cariocas@prefeitura.rio','$2b$12$Y6.iMtfBEc.9haX/McQMDeYd7.mCbCIeUqDlnByV974RhjFXXfXNO','sim','2025-11-18 14:07:22','2025-11-17 20:16:07','2025-11-18 14:07:22');
 

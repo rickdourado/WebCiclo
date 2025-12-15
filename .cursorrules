@@ -1,32 +1,187 @@
 # Regras do Projeto WebCiclo
-- Execute um comando no terminal por vez, ao invés de utilizar &&, para evitar erros.
-- O ambiente virtual de desenvolvimento é intitulado 'ciclo', usado pelo Anaconda
+
+## Ambiente de Desenvolvimento
+
+- Execute um comando no terminal por vez, ao invés de utilizar &&, para evitar erros
+- O ambiente virtual é gerenciado com `uv` e Python 3.11
+- Ativação automática via `direnv` ao entrar no diretório do projeto
+- VS Code configurado para usar `.venv/bin/python` automaticamente
 
 ## Visão Geral
 
-O WebCiclo.Carioca é um sistema de curadoria de cursos desenvolvido com Flask para frontend e backend, utilizando HTML5, CSS3 e JavaScript Vanilla para a interface. O sistema é projetado para ser hospedado na plataforma PythonAnywhere.
+O WebCiclo Carioca é um sistema de curadoria e gestão de cursos desenvolvido para a Prefeitura do Rio de Janeiro. Utiliza Flask como framework web, com arquitetura em camadas (Services → Repositories → Database) e interface moderna em HTML5, CSS3 e JavaScript Vanilla.
 
 ## Arquitetura do Sistema
 
-A estrutura do sistema se divide em três partes principais:
+### Estrutura em Camadas
 
-- **Frontend (HTML5 + CSS3 + JS Vanilla):** Interface do usuário renderizada por Flask, com páginas HTML5 semânticas, estilização CSS3 responsiva e interações básicas em JavaScript puro.
-- **Backend (Python/Flask):** Controla a lógica de negócio, processamento de dados, renderização de templates e gerenciamento de arquivos.
-- **Armazenamento de Dados:** Utiliza arquivos CSV e PDF para armazenar informações dos cursos, em vez de um banco de dados tradicional.
+O sistema segue uma arquitetura em três camadas bem definidas:
+
+1. **Apresentação (Frontend)**
+   - Templates HTML5 semânticos com Jinja2
+   - CSS3 moderno com design responsivo (glassmorphism, gradientes)
+   - JavaScript Vanilla para interações (sem frameworks)
+   - Font Awesome para ícones
+
+2. **Lógica de Negócio (Services)**
+   - `course_service.py` - Gerenciamento completo de cursos
+   - `auth_service.py` - Autenticação e segurança
+   - `ai_service.py` - Integração com Google Gemini AI
+   - `validation_service.py` - Validação de dados
+   - `file_service.py` - Manipulação de arquivos
+   - `image_service.py` - Processamento de imagens
+   - `course_status_service.py` - Gestão de status
+
+3. **Acesso a Dados (Repositories)**
+   - `course_repository_mysql.py` - **Principal**: Operações com MySQL
+   - `course_repository.py` - Legado: Compatibilidade com CSV
+   - `user_repository.py` - Gestão de usuários
+
+### Armazenamento de Dados
+
+**IMPORTANTE**: O sistema migrou de CSV para MySQL como armazenamento principal.
+
+- **Banco de Dados MySQL** (Principal)
+  - Tabela `cursos` - Dados principais dos cursos
+  - Tabela `turmas` - Turmas de cursos presenciais
+  - Tabela `turmas_dias_semana` - Dias da semana das turmas
+  - Tabela `plataformas_online` - Plataformas para cursos online
+  - Tabela `usuarios` - Usuários administrativos
+
+- **Arquivos CSV/PDF** (Exportação)
+  - Gerados para compatibilidade e relatórios
+  - Não são mais a fonte primária de dados
 
 ## Regras de Desenvolvimento
 
-- **Linguagem:** Toda documentação e comentários em português brasileiro
-- **Controle de Versão:** Verificar a data do sistema ao registrar mudanças
-- **Documentação:** Manter arquivos .md de documentação na pasta `documentacao`
-- **Changelog:** Registrar alterações diárias em arquivos com formato `AAAA-MM-DD.md` na pasta `documentacao/changelogs`
-- **Padrões:** Utilizar HTML5 semântico, CSS modular e JavaScript ES6+ compatível
-- **Acessibilidade:** Garantir que as páginas sejam acessíveis e responsivas
-- **Segurança:** Implementar validação de dados e proteção contra ataques comuns
+### Código
+
+- **Linguagem**: Toda documentação e comentários em português brasileiro
+- **Type Hints**: Sempre que possível em Python
+- **Docstrings**: Formato Google Style
+- **Nomenclatura**:
+  - Variáveis e funções: `snake_case`
+  - Classes: `PascalCase`
+  - Arquivos: `snake_case`
+  - Constantes: `UPPER_SNAKE_CASE`
+
+### Segurança
+
+- **CSRF Protection**: Obrigatório em todos os formulários
+- **Validação**: Sanitizar todas as entradas de usuário
+- **Senhas**: Hash bcrypt com 12 rounds
+- **Headers**: Configurar headers de segurança (XSS, CSP, etc.)
+- **Autenticação**: Usar decorator `@login_required` para rotas protegidas
+
+### Frontend
+
+- **HTML5**: Semântico e acessível (ARIA labels, alt texts)
+- **CSS3**: Modular, responsivo, sem frameworks
+- **JavaScript**: ES6+ compatível, sem jQuery ou frameworks
+- **Responsividade**: Mobile-first, testar em múltiplos dispositivos
+- **Acessibilidade**: Garantir navegação por teclado e leitores de tela
+
+### Documentação
+
+- Manter arquivos `.md` na pasta `documentacao/`
+- Registrar mudanças significativas no README.md
+- Documentar decisões arquiteturais importantes
+- Incluir exemplos de uso em docstrings
+
+## Padrões de Código
+
+### Fluxo de Dados
+
+```
+Template (HTML) 
+  ↓ (form data)
+Route (app.py)
+  ↓ (validated data)
+Service (business logic)
+  ↓ (processed data)
+Repository (data access)
+  ↓ (SQL queries)
+MySQL Database
+```
+
+### Tratamento de Erros
+
+- Sempre usar try/except em operações críticas
+- Logar erros com `logging.error()`
+- Retornar mensagens amigáveis ao usuário
+- Não expor detalhes técnicos em produção
+
+### Validação
+
+- Validar no frontend (UX)
+- Validar no backend (segurança)
+- Usar `ValidationService` para regras complexas
+- Retornar erros específicos e acionáveis
+
+## Modalidades de Curso
+
+O sistema suporta três modalidades:
+
+1. **Presencial**: Múltiplas turmas com endereços, horários e dias da semana
+2. **Online**: Plataformas digitais com links e recursos
+3. **Híbrido**: Combinação de presencial e online
+
+## Integrações
+
+- **Google Gemini AI**: Melhoria automática de descrições (modelo: gemini-2.5-pro)
+- **Notion** (opcional): Upload de cursos para base de conhecimento
+- **PythonAnywhere**: Plataforma de hospedagem em produção
+
+## Scripts Utilitários
+
+- `migrate_csv_to_mysql.py` - Migração de dados CSV → MySQL
+- `verify_mysql_data.py` - Verificação de integridade
+- `create_admin_user.py` - Criação de usuários admin
+- `generate_admin_hash.py` - Geração de hash de senhas
+- `pdf_generator.py` - Geração de relatórios PDF
+- `csv_generator.py` - Exportação para CSV
 
 ## Observações Importantes
 
-- O sistema utiliza arquivos CSV e PDF para armazenamento de dados em vez de um banco de dados tradicional
-- A estrutura do projeto está otimizada para funcionar no ambiente PythonAnywhere
-- O sistema utiliza Flask para servir tanto o backend quanto o frontend
-- Não são utilizados frameworks JavaScript como React ou bibliotecas como jQuery
+- O sistema está otimizado para PythonAnywhere
+- Usar `uv` para gerenciamento de dependências
+- Configurar variáveis de ambiente no `.env`
+- Testar em ambiente local antes de deploy
+- Manter compatibilidade com Python 3.11+
+- Priorizar performance e segurança
+- Seguir princípios SOLID e DRY
+
+## Configuração de Ambiente
+
+### Variáveis de Ambiente Obrigatórias
+
+```env
+# Autenticação
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=<hash_bcrypt>
+
+# Segurança
+SECRET_KEY=<chave_forte>
+WTF_CSRF_SECRET_KEY=<chave_csrf>
+
+# Banco de Dados MySQL
+DB_HOST=localhost
+DB_PORT=3306
+DB_USER=root
+DB_PASSWORD=<senha>
+DB_NAME=cursoscarioca
+
+# APIs (opcional)
+GEMINI_API_KEY=<chave_api>
+NOTION_TOKEN=<token>
+```
+
+## Testes
+
+- Testar todas as modalidades de curso
+- Verificar proteção CSRF
+- Validar upload de arquivos
+- Testar responsividade
+- Verificar segurança com `scripts/test_auth.py`
+- Validar integridade de dados com `scripts/verify_mysql_data.py`
+
