@@ -640,6 +640,18 @@ class FormManager {
         } <button type="button" class="remove-plataforma-btn" onclick="removePlataforma(this)" style="display:none;">×</button>`;
       }
       plataforma.setAttribute("data-plataforma", index);
+
+      // Atualizar nomes dos radio buttons de aulas assíncronas para manter consistência
+      const radios = plataforma.querySelectorAll('input[type="radio"][name^="aulas_assincronas"]');
+      radios.forEach(radio => {
+          // Se for a primeira plataforma (index 0), usa nome sem sufixo
+          // Se forem as seguintes, usa o índice + 1 (ex: aulas_assincronas_2)
+          if (index === 0) {
+              radio.name = "aulas_assincronas";
+          } else {
+              radio.name = `aulas_assincronas_${index + 1}`;
+          }
+      });
     });
 
     // Atualizar visibilidade dos botões após renumerar

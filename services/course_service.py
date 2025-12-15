@@ -408,6 +408,14 @@ class CourseService:
                     full_course["dias_aula_online"] = ",".join(
                         plataforma["dias_semana"]
                     )
+            
+            # Processar lista de plataformas online (múltiplas)
+            if full_course.get("plataformas_online_list"):
+                plataformas_list = full_course["plataformas_online_list"]
+                full_course["plataformas_online_list"] = [self._normalize_mysql_types(p) for p in plataformas_list]
+                
+                # Opcional: Criar strings pipe-separated para "unidades online" se o template quiser usar a mesma lógica
+                # Mas é melhor ter lógica dedicada para Online.
 
         except Exception as e:
             logger.error(
@@ -668,29 +676,77 @@ class CourseService:
             course_data["dias_aula_unidades"] = dias_aula_list
             logger.info(f"📊 Resultado final dias_aula_unidades: {dias_aula_list}")
 
-        if modalidade in ["Online", "Híbrido"]:
-            # Dados da plataforma online
-            course_data["plataforma_digital"] = form_data.get("plataforma_digital", "")
-            course_data["link_acesso"] = form_data.get("link_acesso", "")
-            course_data["vagas_online"] = form_data.get("vagas_online", 0)
-            course_data["aulas_assincronas"] = form_data.get("aulas_assincronas", "sim")
 
-            if course_data["aulas_assincronas"] == "nao":
-                course_data["inicio_aulas_online"] = self._convert_date_to_mysql(
-                    form_data.get("inicio_aulas_online")
-                )
-                course_data["fim_aulas_online"] = self._convert_date_to_mysql(
-                    form_data.get("fim_aulas_online")
-                )
-                course_data["horario_inicio_online"] = form_data.get(
-                    "horario_inicio_online"
-                )
-                course_data["horario_fim_online"] = form_data.get("horario_fim_online")
-                course_data["dias_aula_online"] = (
-                    form_data.getlist("dias_aula_online[]")
-                    if hasattr(form_data, "getlist")
-                    else []
-                )
+        if modalidade in ["Online", "Híbrido"]:
+            # Dados das plataformas online
+            # Coletar primeira plataforma (campos estáticos/singulares)
+            plataforma_digital_list = [form_data.get("plataforma_digital", "")]
+            vagas_online_list = [form_data.get("vagas_online", 0)]
+            
+            # Coletar aulas assíncronas da primeira plataforma
+            aulas_assincronas_list = [form_data.get("aulas_assincronas", "sim")]
+            
+            # Coletar datas e horários (que já vêm como listas do formulário)
+            # Nota: o primeiro elemento dessas listas corresponde à primeira plataforma
+            inicio_aulas_list = form_data.getlist("inicio_aulas_data[]") if hasattr(form_data, "getlist") else []
+            fim_aulas_list = form_data.getlist("fim_aulas_data[]") if hasattr(form_data, "getlist") else []
+            horario_inicio_list = form_data.getlist("horario_inicio[]") if hasattr(form_data, "getlist") else []
+            horario_fim_list = form_data.getlist("horario_fim[]") if hasattr(form_data, "getlist") else []
+            
+            # Coletar plataformas adicionais (campos com sufixo [])
+            # Coletar plataformas adicionais (campos com sufixo [])
+            if hasattr(form_data, "getlist"):
+                extras = form_data.getlist("plataforma_digital[]")
+                if extras:
+                    plataforma_digital_list.extend(extras)
+                    
+                # Vagas adicionais vêm em vagas_unidade[] (usado tanto para presencial quanto online extra)
+                # O primeiro campo tem name="vagas_unidade[]", então getlist DEVE retornar todos
+                vagas_all = form_data.getlist("vagas_unidade[]")
+                if vagas_all:
+                    vagas_online_list = vagas_all
+                # Se não houver vagas_all, mantemos o vagas_online_list inicial (que pode ser 0 ou None)
+
+            # Coletar aulas assíncronas das plataformas adicionais
+            num_plataformas = len(plataforma_digital_list)
+            
+            for i in range(2, num_plataformas + 1):
+                key = f"aulas_assincronas_{i}"
+                if key in form_data:
+                    val = form_data.get(key)
+                    aulas_assincronas_list.append(val)
+                else:
+                    aulas_assincronas_list.append("sim")
+
+            # Estruturar lista de plataformas
+            plataformas_data = []
+            for i in range(num_plataformas):
+                plataforma = {
+                    "plataforma_digital": plataforma_digital_list[i] if i < len(plataforma_digital_list) else "",
+                    "link_acesso": form_data.get("link_acesso", ""), 
+                    "vagas": vagas_online_list[i] if i < len(vagas_online_list) else 0,
+                    "aulas_assincronas": aulas_assincronas_list[i] if i < len(aulas_assincronas_list) else "sim",
+                    "inicio_aulas": self._convert_date_to_mysql(inicio_aulas_list[i]) if i < len(inicio_aulas_list) else None,
+                    "fim_aulas": self._convert_date_to_mysql(fim_aulas_list[i]) if i < len(fim_aulas_list) else None,
+                    "horario_inicio": horario_inicio_list[i] if i < len(horario_inicio_list) else None,
+                    "horario_fim": horario_fim_list[i] if i < len(horario_fim_list) else None,
+                    "dias_semana": form_data.getlist("dias_aula_online[]") if i == 0 else [] 
+                }
+                plataformas_data.append(plataforma)
+            
+            course_data["plataformas_digitais_list"] = plataformas_data
+
+            # Manter campos legados para compatibilidade (pegando dados da primeira plataforma)
+            if plataformas_data:
+                p0 = plataformas_data[0]
+                course_data["plataforma_digital"] = p0["plataforma_digital"]
+                course_data["vagas_online"] = p0["vagas"]
+                course_data["aulas_assincronas"] = p0["aulas_assincronas"]
+                course_data["inicio_aulas_online"] = p0["inicio_aulas"]
+                course_data["fim_aulas_online"] = p0["fim_aulas"]
+                course_data["horario_inicio_online"] = p0["horario_inicio"]
+                course_data["horario_fim_online"] = p0["horario_fim"]
+                course_data["dias_aula_online"] = p0["dias_semana"]
 
         return course_data
 

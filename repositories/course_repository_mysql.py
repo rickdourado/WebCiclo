@@ -119,8 +119,9 @@ class CourseRepositoryMySQL:
                     self._insert_turmas(cursor, course_id, course_data)
                 
                 # Inserir plataforma online se modalidade for Online ou Híbrido
+                # Inserir plataformas online se modalidade for Online ou Híbrido
                 if course_data.get('modalidade') in ['Online', 'Híbrido']:
-                    self._insert_plataforma_online(cursor, course_id, course_data)
+                    self._insert_plataformas_online(cursor, course_id, course_data)
                 
                 connection.commit()
                 logger.info(f"✅ Curso criado com sucesso: ID {course_id}")
@@ -207,14 +208,14 @@ class CourseRepositoryMySQL:
             
             logger.info(f"✅ Turma {i+1} criada para curso {course_id}")
     
-    def _insert_plataforma_online(self, cursor, course_id: int, course_data: Dict[str, Any]):
+    def _insert_plataformas_online(self, cursor, course_id: int, course_data: Dict[str, Any]):
         """
-        Insere plataforma online para um curso
+        Insere plataformas online para um curso
         
         Args:
             cursor: Cursor do banco de dados
             course_id: ID do curso
-            course_data: Dados do curso contendo informações da plataforma
+            course_data: Dados do curso contendo lista de plataformas
         """
         sql_plataforma = """
             INSERT INTO plataformas_online (
@@ -226,40 +227,44 @@ class CourseRepositoryMySQL:
             )
         """
         
-        aulas_assincronas = course_data.get('aulas_assincronas', 'sim')
+        plataformas = course_data.get('plataformas_digitais_list', [])
         
-        values_plataforma = (
-            course_id,
-            course_data.get('plataforma_digital'),
-            course_data.get('link_acesso'),
-            int(course_data.get('vagas_online', 0)) if course_data.get('vagas_online') else 0,
-            aulas_assincronas,
-            course_data.get('inicio_aulas_online') if aulas_assincronas == 'nao' else None,
-            course_data.get('fim_aulas_online') if aulas_assincronas == 'nao' else None,
-            course_data.get('horario_inicio_online') if aulas_assincronas == 'nao' else None,
-            course_data.get('horario_fim_online') if aulas_assincronas == 'nao' else None
-        )
-        
-        cursor.execute(sql_plataforma, values_plataforma)
-        plataforma_id = cursor.lastrowid
-        
-        # TODO: Inserir dias da semana se aulas síncronas
-        # Tabela plataformas_dias_semana não existe ainda no banco
-        # if aulas_assincronas == 'nao' and course_data.get('dias_aula_online'):
-        #     dias_list = course_data.get('dias_aula_online', [])
-        #     if isinstance(dias_list, str):
-        #         dias_list = dias_list.split(',')
-        #     
-        #     for dia in dias_list:
-        #         dia = dia.strip()
-        #         if dia:
-        #             sql_dia = """
-        #                 INSERT INTO plataformas_dias_semana (plataforma_id, dia_semana)
-        #                 VALUES (%s, %s)
-        #             """
-        #             cursor.execute(sql_dia, (plataforma_id, dia))
-        
-        logger.info(f"✅ Plataforma online criada para curso {course_id}")
+        # Fallback para compatibilidade se a lista não estiver presente
+        if not plataformas and course_data.get('plataforma_digital'):
+             aulas_assincronas = course_data.get('aulas_assincronas', 'sim')
+             plataformas = [{
+                'plataforma_digital': course_data.get('plataforma_digital'),
+                'link_acesso': course_data.get('link_acesso'),
+                'vagas': int(course_data.get('vagas_online', 0)) if course_data.get('vagas_online') else 0,
+                'aulas_assincronas': aulas_assincronas,
+                'inicio_aulas': course_data.get('inicio_aulas_online') if aulas_assincronas == 'nao' else None,
+                'fim_aulas': course_data.get('fim_aulas_online') if aulas_assincronas == 'nao' else None,
+                'horario_inicio': course_data.get('horario_inicio_online') if aulas_assincronas == 'nao' else None,
+                'horario_fim': course_data.get('horario_fim_online') if aulas_assincronas == 'nao' else None,
+                'dias_semana': course_data.get('dias_aula_online', [])
+             }]
+
+        for p in plataformas:
+            aulas_assincronas = p.get('aulas_assincronas', 'sim')
+            
+            values_plataforma = (
+                course_id,
+                p.get('plataforma_digital'),
+                p.get('link_acesso'),
+                int(p.get('vagas', 0)) if p.get('vagas') else 0,
+                aulas_assincronas,
+                p.get('inicio_aulas') if aulas_assincronas == 'nao' else None,
+                p.get('fim_aulas') if aulas_assincronas == 'nao' else None,
+                p.get('horario_inicio') if aulas_assincronas == 'nao' else None,
+                p.get('horario_fim') if aulas_assincronas == 'nao' else None
+            )
+            
+            cursor.execute(sql_plataforma, values_plataforma)
+            plataforma_id = cursor.lastrowid
+            
+            # TODO: Inserir dias da semana se aulas síncronas (futuro)
+            
+            logger.info(f"✅ Plataforma online criada para curso {course_id}")
     
     def find_by_id(self, course_id: int) -> Optional[Dict[str, Any]]:
         """
@@ -286,8 +291,21 @@ class CourseRepositoryMySQL:
                 # Buscar turmas presenciais
                 course['turmas'] = self._get_turmas_by_course_id(cursor, course_id)
                 
-                # Buscar plataforma online
-                course['plataforma_online'] = self._get_plataforma_by_course_id(cursor, course_id)
+                # Buscar plataformas online
+                course['plataforma_online'] = self._get_plataformas_by_course_id(cursor, course_id)
+                # Manter compatibilidade com código que espera dicionário se for apenas um
+                if isinstance(course['plataforma_online'], list) and len(course['plataforma_online']) > 0:
+                     # Se houver apenas uma, o código legado pode esperar um dict.
+                     # Mas agora vamos retornar a lista ou o primeiro? 
+                     # O ideal é mudar quem consome para aceitar lista.
+                     # Mas Services.py _format_course_for_template espera DICT.
+                     # Vamos retornar a primeira como padrão para 'plataforma_online' 
+                     # e adicionar 'plataformas_online_list' com todas.
+                     course['plataformas_online_list'] = course['plataforma_online']
+                     course['plataforma_online'] = course['plataforma_online'][0]
+                elif isinstance(course['plataforma_online'], list) and len(course['plataforma_online']) == 0:
+                     course['plataforma_online'] = None
+                     course['plataformas_online_list'] = []
                 
                 return course
                 
@@ -377,6 +395,20 @@ class CourseRepositoryMySQL:
                     connection.commit()
                     logger.info(f"✅ Novas turmas do curso {course_id} inseridas")
                 
+                # Se houver dados de plataformas, atualizar plataformas também
+                if 'plataformas_digitais_list' in course_data or course_data.get('plataforma_digital'):
+                    # Deletar plataformas antigas
+                    sql_delete_plataformas = "DELETE FROM plataformas_online WHERE curso_id = %s"
+                    cursor.execute(sql_delete_plataformas, (course_id,))
+                    
+                    connection.commit()
+                    logger.info(f"✅ Plataformas antigas do curso {course_id} deletadas")
+                    
+                    # Inserir novas plataformas
+                    self._insert_plataformas_online(cursor, course_id, course_data)
+                    connection.commit()
+                    logger.info(f"✅ Novas plataformas do curso {course_id} inseridas")
+                
                 # Retornar curso atualizado
                 return self.find_by_id(course_id)
                 
@@ -440,13 +472,13 @@ class CourseRepositoryMySQL:
         
         return turmas
     
-    def _get_plataforma_by_course_id(self, cursor, course_id: int) -> Optional[Dict[str, Any]]:
-        """Busca a plataforma online de um curso"""
+    def _get_plataformas_by_course_id(self, cursor, course_id: int) -> List[Dict[str, Any]]:
+        """Busca as plataformas online de um curso"""
         sql = "SELECT * FROM plataformas_online WHERE curso_id = %s"
         cursor.execute(sql, (course_id,))
-        plataforma = cursor.fetchone()
+        plataformas = cursor.fetchall()
         
-        if plataforma:
+        for plataforma in plataformas:
             # TODO: Buscar dias da semana quando tabela existir
             # Tabela plataformas_dias_semana não existe ainda no banco
             # sql_dias = "SELECT dia_semana FROM plataformas_dias_semana WHERE plataforma_id = %s"
@@ -455,7 +487,7 @@ class CourseRepositoryMySQL:
             # plataforma['dias_semana'] = [dia['dia_semana'] for dia in dias]
             plataforma['dias_semana'] = []  # Temporário até criar a tabela
         
-        return plataforma
+        return plataformas
     
     def find_all(self):
         """
