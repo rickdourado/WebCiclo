@@ -545,56 +545,66 @@ class FormManager {
     return `
             <fieldset class="plataforma-fieldset">
                 <legend>Informações da Plataforma ${count} <button type="button" class="remove-plataforma-btn" onclick="removePlataforma(this)" style="display:none;">×</button></legend>
-                <label>Plataforma Digital</label>
-                <input type="text" name="plataforma_digital[]" placeholder="Ex: Zoom, Google Meet, etc.">
-                <label>Número de vagas*</label>
-                <input type="number" name="vagas_unidade[]" min="1" required>
-                <label>Carga Horária*</label>
-                <input type="text" name="carga_horaria[]" required>
-                <small style="color: red; font-size: 0.9em; margin-top: 5px; display: block;">(Dê preferência a carga horária no formato de horas)</small>
-                
-                <label class="required">Aulas Assíncronas?</label>
-                <div class="radio-group">
-                    <label class="radio-label">
-                        <input type="radio" name="aulas_assincronas" value="sim" required checked onclick="toggleAulasAssincronas(true)"> SIM
-                    </label>
-                    <label class="radio-label">
-                        <input type="radio" name="aulas_assincronas" value="nao" required onclick="toggleAulasAssincronas(false)"> NÃO
-                    </label>
-                </div>
-                
-                <div id="horarios_detalhados_online_container_${count}" class="horarios-detalhados-container" style="display: none;">
-                    <div class="data-group">
-                        <div class="data-field">
-                            <label>Início das aulas</label>
-                            <input type="date" name="inicio_aulas_data[]">
-                        </div>
-                        <div class="data-field">
-                            <label>Fim das aulas</label>
-                            <input type="date" name="fim_aulas_data[]">
-                        </div>
+                <div class="plataforma-item" data-plataforma="${count - 1}">
+                    <label>Plataforma Digital</label>
+                    <input type="text" name="plataforma_digital[]" placeholder="Ex: Zoom, Google Meet, etc.">
+                    
+                    <label>Número de vagas*</label>
+                    <input type="number" name="vagas_unidade[]" min="1" required>
+                    
+                    <label class="required">Aulas Assíncronas?</label>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="aulas_assincronas_${count}" value="sim" required checked onclick="toggleAulasAssincronas(true)"> SIM
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="aulas_assincronas_${count}" value="nao" required onclick="toggleAulasAssincronas(false)"> NÃO
+                        </label>
                     </div>
                     
-                    <div id="horarios_online_container_${count}" class="horarios-online-container" style="display: none;">
-                        <div class="horario-group">
-                            <div class="horario-field">
-                                <label>Horário-Início</label>
-                                <select name="horario_inicio[]">
-                                    <option value="">Selecione o horário</option>
-                                    ${this.generateTimeOptions()}
-                                </select>
+                    <div class="horarios-detalhados-container" style="display: none;">
+                        <div class="data-group">
+                            <div class="data-field">
+                                <label>Início das aulas</label>
+                                <input type="date" name="inicio_aulas_data[]">
                             </div>
-                            <div class="horario-field">
-                                <label>Horário-Fim</label>
-                                <select name="horario_fim[]">
-                                    <option value="">Selecione o horário</option>
-                                    ${this.generateTimeOptions()}
-                                </select>
+                            <div class="data-field">
+                                <label>Fim das aulas</label>
+                                <input type="date" name="fim_aulas_data[]">
                             </div>
                         </div>
-                        <label>Dias de aula</label>
-                        <div class="checkbox-group dias-aula">
-                            ${this.generateDaysCheckboxes()}
+                        
+                        <div class="horarios-online-container" style="display: none;">
+                            <div class="horario-group">
+                                <div class="horario-field">
+                                    <label>Horário-Início</label>
+                                    <input type="text" 
+                                        name="horario_inicio[]" 
+                                        placeholder="HH:MM"
+                                        pattern="([0-1][0-9]|2[0-3]):[0-5][0-9]"
+                                        title="Formato: HH:MM (ex: 10:30)"
+                                        maxlength="5"
+                                        oninput="formatarHorario(this)"
+                                        onblur="validarHorario(this)"
+                                        style="width: 120px; text-align: center;">
+                                </div>
+                                <div class="horario-field">
+                                    <label>Horário-Fim</label>
+                                    <input type="text" 
+                                        name="horario_fim[]" 
+                                        placeholder="HH:MM"
+                                        pattern="([0-1][0-9]|2[0-3]):[0-5][0-9]"
+                                        title="Formato: HH:MM (ex: 10:30)"
+                                        maxlength="5"
+                                        oninput="formatarHorario(this)"
+                                        onblur="validarHorario(this)"
+                                        style="width: 120px; text-align: center;">
+                                </div>
+                            </div>
+                            <label>Dias de aula</label>
+                            <div class="checkbox-group dias-aula">
+                                ${this.generateDaysCheckboxes()}
+                            </div>
                         </div>
                     </div>
                 </div>
