@@ -1,11 +1,16 @@
 # Regras do Projeto WebCiclo
 
-## Ambiente de Desenvolvimento
+## Regras Fundamentais (SEMPRE)
 
-- Execute um comando no terminal por vez, ao invés de utilizar &&, para evitar erros
-- O ambiente virtual é gerenciado com `uv` e Python 3.11
-- Ativação automática via `direnv` ao entrar no diretório do projeto
-- VS Code configurado para usar `.venv/bin/python` automaticamente
+1.  **SEMPRE** Execute um comando no terminal por vez, ao invés de utilizar `&&`, para evitar erros.
+2.  **SEMPRE** Utilize o `uv` como principal comando, evitando o uso de `pip`.
+3.  **SEMPRE** ative o ambiente virtual correto: `source .venv/bin/activate`.
+    - _Nota: Se instruído anteriormente, usar `conda activate ciclo`, mas priorizar venv local se disponível._
+4.  **SEMPRE** seguir a estrutura de arquivos e convenções de nomenclatura definidas.
+5.  **SEMPRE** unifique os changelogs usando primeiramente o dia em que foram feitos (padrão `AAAA-MM-DD.md`) na pasta `documentacao/logs`.
+6.  **SEMPRE** delete scripts temporários criados para tarefas pontuais após o uso.
+7.  **SEMPRE** coloque arquivos de documentação na pasta `documentacao`.
+8.  **SEMPRE** priorize a **confiabilidade**, **usabilidade** e **acessibilidade**.
 
 ## Visão Geral
 
@@ -18,12 +23,14 @@ O WebCiclo Carioca é um sistema de curadoria e gestão de cursos desenvolvido p
 O sistema segue uma arquitetura em três camadas bem definidas:
 
 1. **Apresentação (Frontend)**
+
    - Templates HTML5 semânticos com Jinja2
    - CSS3 moderno com design responsivo (glassmorphism, gradientes)
    - JavaScript Vanilla para interações (sem frameworks)
    - Font Awesome para ícones
 
 2. **Lógica de Negócio (Services)**
+
    - `course_service.py` - Gerenciamento completo de cursos
    - `auth_service.py` - Autenticação e segurança
    - `ai_service.py` - Integração com Google Gemini AI
@@ -42,6 +49,7 @@ O sistema segue uma arquitetura em três camadas bem definidas:
 **IMPORTANTE**: O sistema migrou de CSV para MySQL como armazenamento principal.
 
 - **Banco de Dados MySQL** (Principal)
+
   - Tabela `cursos` - Dados principais dos cursos
   - Tabela `turmas` - Turmas de cursos presenciais
   - Tabela `turmas_dias_semana` - Dias da semana das turmas
@@ -93,7 +101,7 @@ O sistema segue uma arquitetura em três camadas bem definidas:
 ### Fluxo de Dados
 
 ```
-Template (HTML) 
+Template (HTML)
   ↓ (form data)
 Route (app.py)
   ↓ (validated data)
@@ -184,4 +192,3 @@ NOTION_TOKEN=<token>
 - Testar responsividade
 - Verificar segurança com `scripts/test_auth.py`
 - Validar integridade de dados com `scripts/verify_mysql_data.py`
-
