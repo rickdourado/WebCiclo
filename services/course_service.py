@@ -1262,13 +1262,23 @@ class CourseService:
         Converte data para formato HTML (YYYY-MM-DD)
 
         Args:
-            date_string: Data em formato DD/MM/YYYY ou YYYY-MM-DD
+            date_string: Data em formato DD/MM/YYYY, YYYY-MM-DD ou objeto datetime
 
         Returns:
             str: Data no formato YYYY-MM-DD
         """
         if not date_string:
             return ""
+
+        # Se é um objeto datetime, converter diretamente
+        if hasattr(date_string, 'strftime'):
+            try:
+                return date_string.strftime("%Y-%m-%d")
+            except:
+                pass
+
+        # Converter para string se não for
+        date_string = str(date_string)
 
         # Se já está no formato correto (YYYY-MM-DD)
         import re
