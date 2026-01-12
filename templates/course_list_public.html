@@ -73,12 +73,12 @@
                         <div class="courses-list" id="coursesList">
                             {% for course in courses %}
                             <div class="course-item" 
-                                 data-course-id="{{ course.id }}"
+                                 data-course-id="{{ course.id or '' }}"
                                  data-name="{{ course.titulo|lower }}" 
                                  data-category="{{ course.tema or '' }}" 
                                  data-modality="{{ course.modalidade or '' }}"
                                  data-orgao="{{ course.orgao or '' }}">
-                                <div class="course-header-row" onclick="toggleCourseDetails({{ course.id }})">
+                                <div class="course-header-row" onclick="toggleCourseDetails({{ course.id or 0 }})">
                                     <div class="course-basic-info">
                                         <div class="course-title">
                                             {% if course.tipo_acao %}
@@ -88,7 +88,7 @@
                                         </div>
                                         <div class="course-meta">
                                             <span><i class="fas fa-building"></i> {{ course.orgao }}</span>
-                                            <span><i class="fas fa-calendar"></i> {{ course.created_at }}</span>
+                                            <span><i class="fas fa-calendar"></i> {{ course.created_at|format_date }}</span>
                                             <span><i class="fas fa-laptop"></i> {{ course.modalidade|title }}</span>
                                         </div>
                                     </div>

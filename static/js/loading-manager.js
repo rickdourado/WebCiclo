@@ -197,15 +197,32 @@ document.addEventListener('DOMContentLoaded', function () {
     const forms = document.querySelectorAll('form');
 
     forms.forEach(form => {
+        // Adicionar listener com prioridade BAIXA (captura = false, último a executar)
         form.addEventListener('submit', function (e) {
             // Verificar se não é um formulário de login ou busca
             if (!form.classList.contains('no-loading') &&
                 !form.id.includes('search') &&
                 !form.id.includes('login')) {
 
-                console.log('Loading manager: Formulário sendo enviado, mostrando loading...');
+                // CORREÇÃO: Verificar se o formulário é válido ANTES de mostrar o loading
+                // Isso evita que o loading apareça quando há erros de validação HTML5
+                const isValid = form.checkValidity();
 
-                // Mostrar loading
+                if (!isValid) {
+                    console.log('⚠️ Formulário inválido (HTML5), não mostrando loading');
+                    // Não mostrar loading se o formulário for inválido
+                    return;
+                }
+
+                // Verificar se alguma validação customizada já preveniu o submit
+                if (e.defaultPrevented) {
+                    console.log('⚠️ Submit foi prevenido por validação customizada, não mostrando loading');
+                    return;
+                }
+
+                console.log('✅ Formulário válido, mostrando loading...');
+
+                // Mostrar loading apenas se o formulário for válido
                 window.loadingManager.show();
 
                 // IMPORTANTE: NÃO prevenir o comportamento padrão
@@ -213,14 +230,24 @@ document.addEventListener('DOMContentLoaded', function () {
                 // O loading será fechado quando a página recarregar ou
                 // quando o servidor retornar uma resposta
             }
-        });
+        }, false); // false = fase de bubbling (executa por último)
     });
 
-    // Esconder loading APENAS quando a nova página carregar completamente
+    // Esconder loading quando a nova página carregar completamente
     window.addEventListener('load', function () {
         if (window.loadingManager) {
             console.log('🔄 Nova página carregada, fechando loading...');
             window.loadingManager.hide();
         }
     });
+
+    // CORREÇÃO: Esconder loading se houver mensagens de erro na página
+    // Isso garante que o loading seja fechado quando há erros de validação
+    setTimeout(function () {
+        const hasErrors = document.querySelector('.alert-error, .alert-warning');
+        if (hasErrors && window.loadingManager) {
+            console.log('⚠️ Erros detectados na página, fechando loading...');
+            window.loadingManager.hide();
+        }
+    }, 100);
 });

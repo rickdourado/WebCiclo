@@ -17,6 +17,7 @@ __pycache__/
 # Diretórios de dados do sistema (não versionar)
 CSV/
 PDF/
+data/
 
 # Arquivo de status dos cursos (específico do servidor)
 course_status.json
@@ -203,9 +204,6 @@ cython_debug/
 .cursorignore
 .cursorindexingignore
 
-# Kiro IDE
-.kiro/
-
 # Trae IDE
 .trae/
 
@@ -218,3 +216,6 @@ activate_ciclo.sh.local
 
 # Configurações específicas do usuário
 .kiro/settings/user.json
+
+# Agent folder
+.agent/

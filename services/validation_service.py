@@ -67,6 +67,11 @@ class CourseValidator:
             'acessibilidade': 'Acessibilidade'
         }
         
+        # Datas de inscrição são obrigatórias conforme esquema do banco (NOT NULL)
+        required_fields.update({
+            'inicio_inscricoes_data': 'Início das inscrições',
+            'fim_inscricoes_data': 'Fim das inscrições'
+        })
         for field, label in required_fields.items():
             value = form_data.get(field, '').strip()
             if not value:
@@ -165,19 +170,24 @@ class CourseValidator:
         ]
         
         # Validar campos que nunca devem estar presentes (endereço e bairro)
+        # CORREÇÃO: Usar getlist para obter valores corretos de arrays
         for field in presencial_fields:
-            field_value = form_data.get(field)
-            if field_value and field_value.strip():
-                if isinstance(field_value, list):
-                    # Se é uma lista, verificar se algum item não está vazio
-                    if any(item.strip() for item in field_value if item):
-                        field_name = field.replace('[]', '').replace('_', ' ').title()
-                        self.errors.append(f"Campo '{field_name}' não deve ser preenchido para cursos online")
-                else:
-                    # Se é string, verificar se não está vazio
-                    if field_value.strip():
-                        field_name = field.replace('[]', '').replace('_', ' ').title()
-                        self.errors.append(f"Campo '{field_name}' não deve ser preenchido para cursos online")
+            if hasattr(form_data, 'getlist'):
+                field_value = form_data.getlist(field)
+            else:
+                field_value = form_data.get(field, [])
+            
+            # Verificar se há valores não vazios
+            if isinstance(field_value, list):
+                # Se é uma lista, verificar se algum item não está vazio
+                valores_nao_vazios = [item.strip() for item in field_value if item and item.strip()]
+                if valores_nao_vazios:
+                    field_name = field.replace('[]', '').replace('_', ' ').title()
+                    self.errors.append(f"Campo '{field_name}' não deve ser preenchido para cursos online")
+            elif field_value and isinstance(field_value, str) and field_value.strip():
+                # Se é string, verificar se não está vazio
+                field_name = field.replace('[]', '').replace('_', ' ').title()
+                self.errors.append(f"Campo '{field_name}' não deve ser preenchido para cursos online")
         
         # Validar campos de data baseado no tipo de aula
         for field in campos_data_sincronos:
@@ -287,11 +297,6 @@ class CourseValidator:
                     inicio_aula_dt = datetime.strptime(inicio_aula.split(',')[0].strip(), '%Y-%m-%d')
                     fim_aula_dt = datetime.strptime(fim_aula.split(',')[0].strip(), '%Y-%m-%d')
                     
-                    # Início das aulas deve ser >= fim das inscrições
-                    if inicio_aula_dt < fim_insc:
-                        fim_insc_formatado = fim_insc.strftime('%d/%m/%Y')
-                        self.errors.append(f"Início das aulas da unidade {i} deve ser posterior ou igual ao fim das inscrições ({fim_insc_formatado})")
-                    
                     # Fim das aulas deve ser >= início das aulas
                     if fim_aula_dt < inicio_aula_dt:
                         self.errors.append(f"Fim das aulas da unidade {i} deve ser posterior ou igual ao início das aulas")
@@ -319,7 +324,6 @@ class CourseValidator:
         enderecos = form_data.getlist('endereco_unidade[]') if hasattr(form_data, 'getlist') else form_data.get('endereco_unidade[]', [])
         bairros = form_data.getlist('bairro_unidade[]') if hasattr(form_data, 'getlist') else form_data.get('bairro_unidade[]', [])
         vagas = form_data.getlist('vagas_unidade[]') if hasattr(form_data, 'getlist') else form_data.get('vagas_unidade[]', [])
-        dias = form_data.getlist('dias_aula_presencial[]') if hasattr(form_data, 'getlist') else form_data.get('dias_aula_presencial[]', [])
         
         # Determinar número de unidades presenciais
         # Usar apenas os campos que realmente pertencem às unidades presenciais
@@ -331,13 +335,21 @@ class CourseValidator:
             bairro = bairros[i] if i < len(bairros) else ''
             vaga = vagas[i] if i < len(vagas) else ''
             
+            # Obter dias específicos para esta unidade (dias_aula_presencial_i[])
+            dias_especificos = form_data.getlist(f'dias_aula_presencial_{i}[]') if hasattr(form_data, 'getlist') else []
+            
+            # Se não houver dias específicos, tentar obter dias genéricos (fallback)
+            if not dias_especificos:
+                dias_generos = form_data.getlist('dias_aula_presencial[]') if hasattr(form_data, 'getlist') else form_data.get('dias_aula_presencial[]', [])
+                dias_especificos = dias_generos
+            
             # Só incluir se pelo menos um campo principal não estiver vazio
             if endereco.strip() or bairro.strip() or vaga.strip():
                 unidade = {
                     'endereco_unidade': endereco,
                     'bairro_unidade': bairro,
                     'vagas_unidade': vaga,
-                    'dias_aula': dias  # Para presencial, todos os dias se aplicam a todas as unidades
+                    'dias_aula': dias_especificos  # Para presencial, usar dias específicos da unidade
                 }
                 unidades.append(unidade)
         return unidades

@@ -20,12 +20,13 @@ from config import Config
 class LoginForm(FlaskForm):
     """Formulário de login com proteção CSRF"""
     username = StringField(
-        'Usuário',
+        'Email',
         validators=[
-            DataRequired(message='Usuário é obrigatório'),
-            Length(min=3, max=50, message='Usuário deve ter entre 3 e 50 caracteres')
+            DataRequired(message='Email é obrigatório'),
+            Email(message='Email inválido'),
+            Length(min=3, max=100, message='Email deve ter entre 3 e 100 caracteres')
         ],
-        render_kw={'placeholder': 'Digite seu usuário'}
+        render_kw={'placeholder': 'seu.email@exemplo.com', 'type': 'email'}
     )
     
     password = PasswordField(
