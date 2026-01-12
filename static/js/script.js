@@ -376,42 +376,8 @@ function setupDateValidation() {
 
 // Função para validar datas das aulas em tempo real (sem alertas)
 function validateAulasDatesRealTime() {
-    const fimInscricoesData = document.getElementById('fim_inscricoes_data');
-    if (!fimInscricoesData || !fimInscricoesData.value) {
-        return;
-    }
-
-    const fimInscricoes = new Date(fimInscricoesData.value);
-
-    // Validar datas das unidades
-    const inicioAulasInputs = document.querySelectorAll('input[name="inicio_aulas_data[]"]');
-    const fimAulasInputs = document.querySelectorAll('input[name="fim_aulas_data[]"]');
-
-    inicioAulasInputs.forEach((input) => {
-        if (input.value) {
-            const inicioAulas = new Date(input.value);
-            if (inicioAulas < fimInscricoes) {
-                input.style.borderColor = '#e53e3e';
-                input.style.backgroundColor = 'rgba(229, 62, 62, 0.05)';
-            } else {
-                input.style.borderColor = '';
-                input.style.backgroundColor = '';
-            }
-        }
-    });
-
-    fimAulasInputs.forEach((input) => {
-        if (input.value) {
-            const fimAulas = new Date(input.value);
-            if (fimAulas < fimInscricoes) {
-                input.style.borderColor = '#e53e3e';
-                input.style.backgroundColor = 'rgba(229, 62, 62, 0.05)';
-            } else {
-                input.style.borderColor = '';
-                input.style.backgroundColor = '';
-            }
-        }
-    });
+    // Validação removida - não há mais restrição entre datas de aulas e inscrições
+    return;
 }
 
 // Função para exibir/ocultar o campo de plataforma digital
@@ -628,41 +594,8 @@ function isFieldVisible(field) {
 
 // Função para validar datas das aulas em relação às datas de inscrições
 function validateAulasDates() {
-    const fimInscricoesData = document.getElementById('fim_inscricoes_data');
-    if (!fimInscricoesData || !fimInscricoesData.value) {
-        return true; // Se não há data de fim das inscrições, não validar
-    }
-
-    const fimInscricoes = new Date(fimInscricoesData.value);
-    let isValid = true;
-
-    // Validar datas das unidades (modalidade Presencial/Híbrida)
-    const inicioAulasInputs = document.querySelectorAll('input[name="inicio_aulas_data[]"]');
-    const fimAulasInputs = document.querySelectorAll('input[name="fim_aulas_data[]"]');
-
-    inicioAulasInputs.forEach((input, index) => {
-        if (input.value) {
-            const inicioAulas = new Date(input.value);
-            if (inicioAulas < fimInscricoes) {
-                const fimInscricoesFormatado = fimInscricoes.toLocaleDateString('pt-BR');
-                alert(`Início das aulas da unidade ${index + 1} deve ser posterior ou igual ao fim das inscrições (${fimInscricoesFormatado}).`);
-                isValid = false;
-            }
-        }
-    });
-
-    fimAulasInputs.forEach((input, index) => {
-        if (input.value) {
-            const fimAulas = new Date(input.value);
-            if (fimAulas < fimInscricoes) {
-                const fimInscricoesFormatado = fimInscricoes.toLocaleDateString('pt-BR');
-                alert(`Fim das aulas da unidade ${index + 1} deve ser posterior ou igual ao fim das inscrições (${fimInscricoesFormatado}).`);
-                isValid = false;
-            }
-        }
-    });
-
-    return isValid;
+    // Validação removida - não há mais restrição entre datas de aulas e inscrições
+    return true;
 }
 
 // Função para formatar valores monetários

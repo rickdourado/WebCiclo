@@ -297,11 +297,6 @@ class CourseValidator:
                     inicio_aula_dt = datetime.strptime(inicio_aula.split(',')[0].strip(), '%Y-%m-%d')
                     fim_aula_dt = datetime.strptime(fim_aula.split(',')[0].strip(), '%Y-%m-%d')
                     
-                    # Início das aulas deve ser >= fim das inscrições
-                    if inicio_aula_dt < fim_insc:
-                        fim_insc_formatado = fim_insc.strftime('%d/%m/%Y')
-                        self.errors.append(f"Início das aulas da unidade {i} deve ser posterior ou igual ao fim das inscrições ({fim_insc_formatado})")
-                    
                     # Fim das aulas deve ser >= início das aulas
                     if fim_aula_dt < inicio_aula_dt:
                         self.errors.append(f"Fim das aulas da unidade {i} deve ser posterior ou igual ao início das aulas")
