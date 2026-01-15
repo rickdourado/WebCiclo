@@ -2,11 +2,11 @@
 # Serviço de negócio para cursos
 
 from typing import Dict, List, Optional, Tuple
-from repositories.course_repository import CourseRepository
-from repositories.course_repository_mysql import CourseRepositoryMySQL
-from services.validation_service import CourseValidator, ValidationError
-from services.ai_service import AIService
-from services.file_service import FileService
+from src.models.course_repository import CourseRepository
+from src.models.course_repository_mysql import CourseRepositoryMySQL
+from src.services.validation_service import CourseValidator, ValidationError
+from src.services.ai_service import AIService
+from src.services.file_service import FileService
 from flask import session
 import logging
 

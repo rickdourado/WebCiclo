@@ -2,7 +2,7 @@
 # Serviço para gerenciar o status de inserção dos cursos no sistema
 
 from typing import Set
-from repositories.course_repository_mysql import CourseRepositoryMySQL
+from src.models.course_repository_mysql import CourseRepositoryMySQL
 import logging
 
 logger = logging.getLogger(__name__)

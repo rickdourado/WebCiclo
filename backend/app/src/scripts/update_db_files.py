@@ -6,7 +6,7 @@ import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from app import app
-from repositories.course_repository_mysql import CourseRepositoryMySQL
+from src.models.course_repository_mysql import CourseRepositoryMySQL
 
 def update_database_files():
     """

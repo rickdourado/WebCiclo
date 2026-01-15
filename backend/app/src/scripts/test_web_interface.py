@@ -10,7 +10,7 @@ from pathlib import Path
 # Adiciona o diretório raiz ao path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from services.course_service import CourseService
+from src.services.course_service import CourseService
 
 
 def test_course_listing():

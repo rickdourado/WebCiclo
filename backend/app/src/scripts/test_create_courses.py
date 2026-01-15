@@ -12,8 +12,8 @@ from datetime import datetime, timedelta
 # Adiciona o diretório raiz ao path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from repositories.course_repository_mysql import CourseRepositoryMySQL
-from services.course_service import CourseService
+from src.models.course_repository_mysql import CourseRepositoryMySQL
+from src.services.course_service import CourseService
 
 
 def create_test_courses():

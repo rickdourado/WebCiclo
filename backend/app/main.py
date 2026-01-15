@@ -16,13 +16,13 @@ import logging
 
 # Importar configurações e serviços
 from config import Config, config
-from services.course_service import CourseService
-from services.validation_service import ValidationError
-from services.course_status_service import CourseStatusService
-from services.auth_service import AuthService
+from src.services.course_service import CourseService
+from src.services.validation_service import ValidationError
+from src.services.course_status_service import CourseStatusService
+from src.services.auth_service import AuthService
 
 # Importar formulários
-from forms import LoginForm, CourseForm, CourseStatusForm, DeleteCourseForm
+from schemas import LoginForm, CourseForm, CourseStatusForm, DeleteCourseForm
 
 # Configurar aplicação Flask
 app = Flask(__name__)
@@ -155,8 +155,8 @@ course_status_service = CourseStatusService()
 auth_service = AuthService()
 
 # Configuração do template folder
-app.template_folder = "templates"
-app.static_folder = "static"
+app.template_folder = "../../web/templates"
+app.static_folder = "../../web/static"
 
 
 # Simulação de banco de dados para cursos

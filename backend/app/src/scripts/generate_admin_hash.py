@@ -9,7 +9,7 @@ import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from services.auth_service import AuthService
+from src.services.auth_service import AuthService
 
 def main():
     """Gera hash da senha do admin"""

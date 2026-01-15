@@ -169,7 +169,7 @@ class FileService:
         
         try:
             # Importar serviço de imagem
-            from services.image_service import ImageService
+            from src.services.image_service import ImageService
             
             image_service = ImageService()
             

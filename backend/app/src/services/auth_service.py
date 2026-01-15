@@ -8,7 +8,7 @@ Migrado para usar banco de dados MySQL ao invés de variáveis de ambiente.
 import bcrypt
 import logging
 from typing import Tuple, Optional, Dict, Any
-from repositories.user_repository import UserRepository
+from src.models.user_repository import UserRepository
 
 logger = logging.getLogger(__name__)
 

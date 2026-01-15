@@ -5,10 +5,10 @@ import os
 from typing import Dict, List, Optional
 from datetime import datetime
 from config import Config
-from scripts.csv_generator import generate_csv
-from scripts.pdf_generator import generate_pdf
-from scripts.csv_reader import read_csv_files, get_course_by_id
-from scripts.id_manager import get_next_id
+from src.scripts.csv_generator import generate_csv
+from src.scripts.pdf_generator import generate_pdf
+from src.scripts.csv_reader import read_csv_files, get_course_by_id
+from src.scripts.id_manager import get_next_id
 
 class CourseRepository:
     """Repositório para operações com dados de cursos"""
@@ -246,7 +246,7 @@ class CourseRepository:
             Dict ou None: Dados do curso se encontrado
         """
         try:
-            from scripts.csv_reader import get_course_by_id
+            from src.scripts.csv_reader import get_course_by_id
             return get_course_by_id(course_id)
         except Exception as e:
             print(f"Erro ao buscar curso por ID {course_id}: {str(e)}")
