@@ -409,10 +409,25 @@ class CourseService:
                         plataforma["dias_semana"]
                     )
             
+            
             # Processar lista de plataformas online (múltiplas)
             if full_course.get("plataformas_online_list"):
                 plataformas_list = full_course["plataformas_online_list"]
-                full_course["plataformas_online_list"] = [self._normalize_mysql_types(p) for p in plataformas_list]
+                logger.info(f"📋 Processando {len(plataformas_list)} plataformas online")
+                
+                normalized_plataformas = []
+                for idx, p in enumerate(plataformas_list):
+                    logger.info(f"  Plataforma {idx + 1}: {p.get('plataforma_digital')}")
+                    logger.info(f"    - horario_inicio: {p.get('horario_inicio')} (tipo: {type(p.get('horario_inicio'))})")
+                    logger.info(f"    - horario_fim: {p.get('horario_fim')} (tipo: {type(p.get('horario_fim'))})")
+                    logger.info(f"    - aulas_assincronas: {p.get('aulas_assincronas')}")
+                    
+                    normalized_p = self._normalize_mysql_types(p)
+                    logger.info(f"    - horario_inicio normalizado: {normalized_p.get('horario_inicio')}")
+                    logger.info(f"    - horario_fim normalizado: {normalized_p.get('horario_fim')}")
+                    normalized_plataformas.append(normalized_p)
+                
+                full_course["plataformas_online_list"] = normalized_plataformas
                 
                 # Opcional: Criar strings pipe-separated para "unidades online" se o template quiser usar a mesma lógica
                 # Mas é melhor ter lógica dedicada para Online.
@@ -821,6 +836,40 @@ class CourseService:
             csv_data["dias_aula"] = "|".join(
                 [",".join(t.get("dias_semana", [])) for t in turmas]
             )
+        
+        # Processar plataformas online para formato CSV/PDF
+        if csv_data.get("plataformas_online_list"):
+            plataformas = csv_data["plataformas_online_list"]
+            
+            # Para cursos online, usar dados da primeira plataforma como padrão
+            if plataformas and len(plataformas) > 0:
+                primeira_plataforma = plataformas[0]
+                
+                # Se não houver dados de turmas presenciais, usar dados da plataforma online
+                if not csv_data.get("turmas"):
+                    # Processar horários
+                    if primeira_plataforma.get("horario_inicio"):
+                        csv_data["horario_inicio"] = str(primeira_plataforma.get("horario_inicio", ""))
+                    if primeira_plataforma.get("horario_fim"):
+                        csv_data["horario_fim"] = str(primeira_plataforma.get("horario_fim", ""))
+                    
+                    # Processar datas
+                    if primeira_plataforma.get("inicio_aulas"):
+                        csv_data["inicio_aulas_data"] = self._convert_date_from_mysql(
+                            primeira_plataforma.get("inicio_aulas")
+                        )
+                    if primeira_plataforma.get("fim_aulas"):
+                        csv_data["fim_aulas_data"] = self._convert_date_from_mysql(
+                            primeira_plataforma.get("fim_aulas")
+                        )
+                    
+                    # Processar dias da semana
+                    dias = primeira_plataforma.get("dias_semana", [])
+                    if dias and len(dias) > 0:
+                        if isinstance(dias, list):
+                            csv_data["dias_aula"] = ",".join(dias)
+                        else:
+                            csv_data["dias_aula"] = str(dias)
 
         return csv_data
 

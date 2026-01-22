@@ -1192,6 +1192,91 @@
                 </div>
                 {% endif %}
 
+                <!-- Seção: Informações das Turmas Online (apenas para cursos online) -->
+                {% if course.modalidade == 'Online' and course.plataformas_online_list %}
+                <div class="info-section">
+                  <div class="info-section-title">
+                    <i class="fas fa-desktop"></i>
+                    Informações das Turmas Online
+                  </div>
+                  <div class="course-info">
+                    {% for plataforma in course.plataformas_online_list %}
+                    <div class="unit-info" style="margin-bottom: 20px; padding: 15px; background-color: #f8f9fa; border-radius: 8px; border-left: 4px solid #667eea;">
+                      <div style="font-weight: 600; color: #2d3748; margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-video" style="color: #667eea"></i>
+                        Turma Online {{ loop.index }}
+                      </div>
+
+                      <div class="info-row">
+                        <i class="fas fa-globe"></i>
+                        <span><strong>Plataforma:</strong> {{ plataforma.plataforma_digital }}</span>
+                      </div>
+
+                      {% if plataforma.vagas %}
+                      <div class="info-row">
+                        <i class="fas fa-user-plus"></i>
+                        <span><strong>Vagas:</strong> {{ plataforma.vagas }}</span>
+                      </div>
+                      {% endif %}
+
+                      <div class="info-row">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                        <span>
+                          <strong>Tipo de Aula:</strong>
+                          {% if plataforma.aulas_assincronas == 'sim' %}
+                            Aulas Assíncronas (gravadas/conteúdo)
+                          {% else %}
+                            Aulas Síncronas (ao vivo)
+                          {% endif %}
+                        </span>
+                      </div>
+
+                      {% if plataforma.inicio_aulas %}
+                      <div class="info-row">
+                        <i class="fas fa-calendar-check"></i>
+                        <span>
+                          <strong>Período:</strong>
+                          {% if plataforma.inicio_aulas and plataforma.fim_aulas %}
+                            {{ plataforma.inicio_aulas|format_date }} a {{ plataforma.fim_aulas|format_date }}
+                          {% elif plataforma.inicio_aulas %}
+                            A partir de {{ plataforma.inicio_aulas|format_date }}
+                          {% endif %}
+                        </span>
+                      </div>
+                      {% endif %}
+
+                      {# Exibir horários se disponíveis #}
+                      {% if plataforma.aulas_assincronas == 'nao' %}
+                        {% if plataforma.horario_inicio or plataforma.horario_fim %}
+                        <div class="info-row">
+                          <i class="fas fa-clock"></i>
+                          <span>
+                            <strong>Horário:</strong>
+                            {% if plataforma.horario_inicio and plataforma.horario_fim %}
+                              {{ plataforma.horario_inicio }} às {{ plataforma.horario_fim }}
+                            {% elif plataforma.horario_inicio %}
+                              A partir de {{ plataforma.horario_inicio }}
+                            {% elif plataforma.horario_fim %}
+                              Até {{ plataforma.horario_fim }}
+                            {% endif %}
+                          </span>
+                        </div>
+                        {% else %}
+                        <div class="info-row">
+                          <i class="fas fa-clock"></i>
+                          <span>
+                            <strong>Horário:</strong> <em style="color: #999;">Não informado</em>
+                          </span>
+                        </div>
+                        {% endif %}
+                      {% endif %}
+                    </div>
+                    {% endfor %}
+                  </div>
+                </div>
+                {% endif %}
+
+
                 <!-- Seção: Informações Acadêmicas -->
                 <div class="info-section">
                   <div class="info-section-title">
@@ -1313,6 +1398,107 @@
                   </div>
                 </div>
                 {% endif %}
+
+                <!-- Seção: Descrições do Curso -->
+                {% if course.descricao_original or course.descricao %}
+                <div class="info-section">
+                  <div class="info-section-title">
+                    <i class="fas fa-file-alt"></i>
+                    Descrições do Curso
+                  </div>
+                  <div class="course-info">
+                    {% if course.descricao_original %}
+                    <div class="description-item">
+                      <div class="description-label">
+                        <i class="fas fa-edit"></i>
+                        <strong>Descrição Original:</strong>
+                      </div>
+                      <div class="description-content">
+                        {{ course.descricao_original }}
+                      </div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if course.descricao %}
+                    <div class="description-item enhanced">
+                      <div class="description-label">
+                        <i class="fas fa-magic"></i>
+                        <strong>Descrição Melhorada (IA):</strong>
+                      </div>
+                      <div class="description-content">{{ course.descricao }}</div>
+                    </div>
+                    {% endif %}
+                  </div>
+                </div>
+                {% endif %}
+
+                <!-- Seção: Parceiro Externo -->
+                {% if course.parceiro_externo == 'sim' and course.parceiro_nome %}
+                <div class="info-section">
+                  <div class="info-section-title">
+                    <i class="fas fa-handshake"></i>
+                    Parceiro Externo
+                  </div>
+                  <div class="course-info">
+                    <div class="info-row">
+                      <i class="fas fa-building"></i>
+                      <span><strong>Nome do Parceiro:</strong> {{ course.parceiro_nome }}</span>
+                    </div>
+
+                    {% if course.parceiro_link %}
+                    <div class="info-row">
+                      <i class="fas fa-link"></i>
+                      <span>
+                        <strong>Site do Parceiro:</strong>
+                        <a href="{{ course.parceiro_link }}" target="_blank" style="color: #4299e1; text-decoration: none">
+                          {{ course.parceiro_link }}
+                          <i class="fas fa-external-link-alt" style="font-size: 0.8em"></i>
+                        </a>
+                      </span>
+                    </div>
+                    {% endif %}
+
+                    {% if course.parceiro_logo %}
+                    <div class="info-row">
+                      <i class="fas fa-image"></i>
+                      <span>
+                        <strong>Logo do Parceiro:</strong>
+                        <a href="{{ url_for('static', filename='images/LOGOPARCEIROS/' + course.parceiro_logo) }}" target="_blank" style="color: #4299e1; text-decoration: none">
+                          {{ course.parceiro_logo }}
+                          <i class="fas fa-external-link-alt" style="font-size: 0.8em"></i>
+                        </a>
+                      </span>
+                    </div>
+                    {% endif %}
+                  </div>
+
+                  <!-- Exibir logo do parceiro como imagem -->
+                  {% if course.parceiro_logo %}
+                  <div style="margin-top: 20px; text-align: center">
+                    <img
+                      src="{{ url_for('static', filename='images/LOGOPARCEIROS/' + course.parceiro_logo) }}"
+                      alt="Logo {{ course.parceiro_nome }}"
+                      style="max-width: 200px; max-height: 100px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);"
+                    />
+                  </div>
+                  {% endif %}
+                </div>
+                {% endif %}
+
+                <!-- Seção: Informações do Sistema -->
+                <div class="info-section">
+                  <div class="info-section-title">
+                    <i class="fas fa-cogs"></i>
+                    Informações do Sistema
+                  </div>
+                  <div class="course-info">
+                    <div class="info-row">
+                      <i class="fas fa-calendar-plus"></i>
+                      <span><strong>Criado em:</strong> {{ course.created_at }}</span>
+                    </div>
+                  </div>
+                </div>
+
 
                 <!-- Seção: Parceiro Externo -->
                 {% if course.parceiro_externo == 'sim' and course.parceiro_nome

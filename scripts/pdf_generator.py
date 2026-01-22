@@ -109,6 +109,28 @@ def clean_field_value(value, is_date=False):
     
     return value_str
 
+def format_accessibility(value):
+    """
+    Formata o valor de acessibilidade para texto legível.
+    
+    Args:
+        value: Valor do campo acessibilidade
+        
+    Returns:
+        str: Texto formatado
+    """
+    if not value or value == 'N/A':
+        return 'N/A'
+    
+    accessibility_map = {
+        'acessivel': 'Acessível para pessoas com deficiência',
+        'exclusivo': 'Exclusivo para pessoas com deficiência',
+        'nao_acessivel': 'Não acessível para Pessoas com Deficiência',
+        'não_acessível': 'Não acessível para Pessoas com Deficiência'
+    }
+    
+    return accessibility_map.get(str(value).strip(), str(value))
+
 def create_info_table(data, col_widths=None):
     """
     Cria uma tabela formatada com informações do curso.
@@ -311,12 +333,44 @@ def generate_pdf(course_data):
         period_info.append(["Início das Aulas", clean_field_value(course_data['inicio_aulas_data'], is_date=True)])
     if course_data.get('fim_aulas_data'):
         period_info.append(["Fim das Aulas", clean_field_value(course_data['fim_aulas_data'], is_date=True)])
-    if course_data.get('horario_inicio'):
-        period_info.append(["Horário de Início", clean_field_value(course_data['horario_inicio'])])
-    if course_data.get('horario_fim'):
-        period_info.append(["Horário de Fim", clean_field_value(course_data['horario_fim'])])
+    
+    # Adicionar dias da aula com formatação melhorada
     if course_data.get('dias_aula'):
-        period_info.append(["Dias da Aula", clean_field_value(course_data['dias_aula'])])
+        dias_raw = clean_field_value(course_data['dias_aula'])
+        # Substituir separadores por vírgula e espaço para melhor legibilidade
+        dias_formatted = dias_raw.replace('|', ', ').replace(',', ', ')
+        # Limpar espaços múltiplos
+        while '  ' in dias_formatted:
+            dias_formatted = dias_formatted.replace('  ', ' ')
+        period_info.append(["Dias de Realização das Aulas", dias_formatted])
+    
+    # Adicionar horários das aulas de forma combinada
+    if course_data.get('horario_inicio') and course_data.get('horario_fim'):
+        horario_inicio = clean_field_value(course_data['horario_inicio'])
+        horario_fim = clean_field_value(course_data['horario_fim'])
+        
+        # Se houver múltiplos horários (separados por |), formatá-los adequadamente
+        if '|' in horario_inicio or '|' in horario_fim:
+            horarios_inicio = horario_inicio.split('|')
+            horarios_fim = horario_fim.split('|')
+            horarios_formatados = []
+            
+            for i in range(max(len(horarios_inicio), len(horarios_fim))):
+                inicio = horarios_inicio[i].strip() if i < len(horarios_inicio) else 'N/A'
+                fim = horarios_fim[i].strip() if i < len(horarios_fim) else 'N/A'
+                if inicio != 'N/A' and fim != 'N/A':
+                    horarios_formatados.append(f"{inicio} às {fim}")
+            
+            if horarios_formatados:
+                period_info.append(["Horário das Aulas", ' | '.join(horarios_formatados)])
+        else:
+            # Horário único
+            if horario_inicio != 'N/A' and horario_fim != 'N/A':
+                period_info.append(["Horário das Aulas", f"{horario_inicio} às {horario_fim}"])
+    elif course_data.get('horario_inicio'):
+        period_info.append(["Horário de Início", clean_field_value(course_data['horario_inicio'])])
+    elif course_data.get('horario_fim'):
+        period_info.append(["Horário de Fim", clean_field_value(course_data['horario_fim'])])
     
     period_table = create_info_table(period_info)
     elements.append(period_table)
@@ -344,7 +398,7 @@ def generate_pdf(course_data):
             academic_info.append(["Pré-requisitos para Certificado", wrap_text(clean_field_value(course_data['pre_requisitos']), 50)])
     
     if course_data.get('acessibilidade'):
-        academic_info.append(["Acessibilidade", clean_field_value(course_data['acessibilidade'])])
+        academic_info.append(["Acessibilidade", format_accessibility(course_data['acessibilidade'])])
     
     if course_data.get('recursos_acessibilidade'):
         # Tratar recursos de acessibilidade com quebra de linha adequada

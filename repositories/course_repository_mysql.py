@@ -247,6 +247,13 @@ class CourseRepositoryMySQL:
         for p in plataformas:
             aulas_assincronas = p.get('aulas_assincronas', 'sim')
             
+            # Helper function to validate time values
+            def get_valid_time(value):
+                """Returns the time value if valid, otherwise None"""
+                if value and isinstance(value, str) and value.strip():
+                    return value.strip()
+                return None
+            
             values_plataforma = (
                 course_id,
                 p.get('plataforma_digital'),
@@ -255,8 +262,8 @@ class CourseRepositoryMySQL:
                 aulas_assincronas,
                 p.get('inicio_aulas') if aulas_assincronas == 'nao' else None,
                 p.get('fim_aulas') if aulas_assincronas == 'nao' else None,
-                p.get('horario_inicio') if aulas_assincronas == 'nao' else None,
-                p.get('horario_fim') if aulas_assincronas == 'nao' else None
+                get_valid_time(p.get('horario_inicio')) if aulas_assincronas == 'nao' else None,
+                get_valid_time(p.get('horario_fim')) if aulas_assincronas == 'nao' else None
             )
             
             cursor.execute(sql_plataforma, values_plataforma)
