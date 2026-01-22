@@ -75,15 +75,42 @@ def format_date_filter(value):
     return date_str
 
 
-@app.template_filter("format_currency")
-def format_currency_filter(value):
-    """Formata valores monetários"""
+    return f"R$ {value_str}"
+
+
+@app.template_filter("format_time")
+def format_time_filter(value):
+    """Formata horários (timedelta ou string) para HH:MM"""
     if not value:
         return ""
-    value_str = str(value)
-    if value_str.startswith("R$"):
-        return value_str
-    return f"R$ {value_str}"
+    
+    # Se for timedelta do MySQL
+    from datetime import timedelta
+    if isinstance(value, timedelta):
+        seconds = value.total_seconds()
+        hours = int(seconds // 3600)
+        minutes = int((seconds % 3600) // 60)
+        return f"{hours:02d}:{minutes:02d}"
+    
+    # Se for string (ex: "09:00:00" ou "09:00")
+    val_str = str(value)
+    if ":" in val_str:
+        parts = val_str.split(":")
+        if len(parts) >= 2:
+            return f"{parts[0].zfill(2)}:{parts[1].zfill(2)}"
+            
+    return val_str
+
+
+@app.template_filter("format_accessibility")
+def format_accessibility_filter(value):
+    """Converte o valor do campo acessibilidade para um texto legível"""
+    mapping = {
+        'acessivel': 'Acessível para pessoas com deficiência',
+        'exclusivo': 'Exclusivo para pessoas com deficiência',
+        'nao_acessivel': 'Não acessível para Pessoas com Deficiência'
+    }
+    return mapping.get(value, value)
 
 
 @app.template_filter("safe_split")

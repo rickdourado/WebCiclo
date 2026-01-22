@@ -16,6 +16,13 @@ load_dotenv()
 logger = logging.getLogger(__name__)
 
 
+def get_valid_time(value):
+    """Retorna o valor do horário se for válido, caso contrário retorna None"""
+    if value and isinstance(value, str) and value.strip():
+        return value.strip()
+    return None
+
+
 class CourseRepositoryMySQL:
     """Repositório para operações de cursos no banco de dados MySQL"""
     
@@ -239,8 +246,8 @@ class CourseRepositoryMySQL:
                 'aulas_assincronas': aulas_assincronas,
                 'inicio_aulas': course_data.get('inicio_aulas_online') if aulas_assincronas == 'nao' else None,
                 'fim_aulas': course_data.get('fim_aulas_online') if aulas_assincronas == 'nao' else None,
-                'horario_inicio': course_data.get('horario_inicio_online') if aulas_assincronas == 'nao' else None,
-                'horario_fim': course_data.get('horario_fim_online') if aulas_assincronas == 'nao' else None,
+                'horario_inicio': get_valid_time(course_data.get('horario_inicio_online')) if aulas_assincronas == 'nao' else None,
+                'horario_fim': get_valid_time(course_data.get('horario_fim_online')) if aulas_assincronas == 'nao' else None,
                 'dias_semana': course_data.get('dias_aula_online', [])
              }]
 
@@ -255,8 +262,8 @@ class CourseRepositoryMySQL:
                 aulas_assincronas,
                 p.get('inicio_aulas') if aulas_assincronas == 'nao' else None,
                 p.get('fim_aulas') if aulas_assincronas == 'nao' else None,
-                p.get('horario_inicio') if aulas_assincronas == 'nao' else None,
-                p.get('horario_fim') if aulas_assincronas == 'nao' else None
+                get_valid_time(p.get('horario_inicio')) if aulas_assincronas == 'nao' else None,
+                get_valid_time(p.get('horario_fim')) if aulas_assincronas == 'nao' else None
             )
             
             cursor.execute(sql_plataforma, values_plataforma)

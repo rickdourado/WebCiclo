@@ -822,6 +822,44 @@ class CourseService:
                 [",".join(t.get("dias_semana", [])) for t in turmas]
             )
 
+        # Processar plataformas online para formato CSV/PDF
+        if csv_data.get("plataformas_online_list"):
+            plataformas = csv_data["plataformas_online_list"]
+
+            # Para cursos online, usar dados da primeira plataforma como padrão
+            if plataformas and len(plataformas) > 0:
+                primeira_plataforma = plataformas[0]
+
+                # Se não houver dados de turmas presenciais, usar dados da plataforma online
+                if not csv_data.get("turmas"):
+                    # Processar horários
+                    if primeira_plataforma.get("horario_inicio"):
+                        csv_data["horario_inicio"] = str(
+                            primeira_plataforma.get("horario_inicio", "")
+                        )
+                    if primeira_plataforma.get("horario_fim"):
+                        csv_data["horario_fim"] = str(
+                            primeira_plataforma.get("horario_fim", "")
+                        )
+
+                    # Processar datas
+                    if primeira_plataforma.get("inicio_aulas"):
+                        csv_data["inicio_aulas_data"] = self._convert_date_from_mysql(
+                            primeira_plataforma.get("inicio_aulas")
+                        )
+                    if primeira_plataforma.get("fim_aulas"):
+                        csv_data["fim_aulas_data"] = self._convert_date_from_mysql(
+                            primeira_plataforma.get("fim_aulas")
+                        )
+
+                    # Processar dias da semana
+                    dias = primeira_plataforma.get("dias_semana", [])
+                    if dias and len(dias) > 0:
+                        if isinstance(dias, list):
+                            csv_data["dias_aula"] = ",".join(dias)
+                        else:
+                            csv_data["dias_aula"] = str(dias)
+
         return csv_data
 
     def _convert_date_from_mysql(self, date_obj) -> str:

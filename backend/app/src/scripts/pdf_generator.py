@@ -13,6 +13,15 @@ from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_JUSTIFY
 from reportlab.lib.utils import simpleSplit
 import re
 
+def format_accessibility(value):
+    """Converte o valor do campo acessibilidade para um texto legível"""
+    mapping = {
+        'acessivel': 'Acessível para pessoas com deficiência',
+        'exclusivo': 'Exclusivo para pessoas com deficiência',
+        'nao_acessivel': 'Não acessível para Pessoas com Deficiência'
+    }
+    return mapping.get(value, value)
+
 def format_date_to_brazilian(date_str):
     """
     Converte datas para o formato brasileiro DD/MM/AAAA.
@@ -311,12 +320,36 @@ def generate_pdf(course_data):
         period_info.append(["Início das Aulas", clean_field_value(course_data['inicio_aulas_data'], is_date=True)])
     if course_data.get('fim_aulas_data'):
         period_info.append(["Fim das Aulas", clean_field_value(course_data['fim_aulas_data'], is_date=True)])
-    if course_data.get('horario_inicio'):
-        period_info.append(["Horário de Início", clean_field_value(course_data['horario_inicio'])])
-    if course_data.get('horario_fim'):
-        period_info.append(["Horário de Fim", clean_field_value(course_data['horario_fim'])])
+    
+    # Adicionar dias da aula com formatação melhorada
     if course_data.get('dias_aula'):
-        period_info.append(["Dias da Aula", clean_field_value(course_data['dias_aula'])])
+        dias_raw = clean_field_value(course_data['dias_aula'])
+        dias_formatted = dias_raw.replace('|', ', ').replace(',', ', ')
+        while '  ' in dias_formatted:
+            dias_formatted = dias_formatted.replace('  ', ' ')
+        period_info.append(["Dias de Realização das Aulas", dias_formatted])
+    
+    # Adicionar horários das aulas de forma combinada
+    if course_data.get('horario_inicio') and course_data.get('horario_fim'):
+        horario_inicio = clean_field_value(course_data['horario_inicio'])
+        horario_fim = clean_field_value(course_data['horario_fim'])
+        
+        if '|' in horario_inicio or '|' in horario_fim:
+            horarios_inicio = horario_inicio.split('|')
+            horarios_fim = horario_fim.split('|')
+            horarios_formatados = []
+            
+            for i in range(max(len(horarios_inicio), len(horarios_fim))):
+                inicio = horarios_inicio[i].strip() if i < len(horarios_inicio) else 'N/A'
+                fim = horarios_fim[i].strip() if i < len(horarios_fim) else 'N/A'
+                if inicio != 'N/A' and fim != 'N/A':
+                    horarios_formatados.append(f"{inicio} às {fim}")
+            
+            if horarios_formatados:
+                period_info.append(["Horário das Aulas", ' | '.join(horarios_formatados)])
+        else:
+            if horario_inicio != 'N/A' and horario_fim != 'N/A':
+                period_info.append(["Horário das Aulas", f"{horario_inicio} às {horario_fim}"])
     
     period_table = create_info_table(period_info)
     elements.append(period_table)
@@ -344,7 +377,7 @@ def generate_pdf(course_data):
             academic_info.append(["Pré-requisitos para Certificado", wrap_text(clean_field_value(course_data['pre_requisitos']), 50)])
     
     if course_data.get('acessibilidade'):
-        academic_info.append(["Acessibilidade", clean_field_value(course_data['acessibilidade'])])
+        academic_info.append(["Acessibilidade", format_accessibility(course_data['acessibilidade'])])
     
     if course_data.get('recursos_acessibilidade'):
         # Tratar recursos de acessibilidade com quebra de linha adequada

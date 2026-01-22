@@ -704,8 +704,8 @@
                   <div class="info-row">
                     <i class="fas fa-clock"></i>
                     <span>
-                      <strong>Horário:</strong> {{ plataforma.horario_inicio }}
-                      às {{ plataforma.horario_fim }}
+                      <strong>Horário das Aulas Síncronas:</strong> {{ plataforma.horario_inicio|format_time }}
+                      às {{ plataforma.horario_fim|format_time }}
                     </span>
                   </div>
                   {% endif %}
@@ -750,12 +750,7 @@
                   <i class="fas fa-universal-access"></i>
                   <span
                     ><strong>Acessibilidade:</strong>
-                    {% if course.acessibilidade == 'acessivel' %} Acessível para
-                    pessoas com deficiência {% elif course.acessibilidade ==
-                    'exclusivo' %} Exclusivo para pessoas com deficiência {%
-                    elif course.acessibilidade == 'nao_acessivel' %} Não
-                    acessível para Pessoas com Deficiência {% else %} {{
-                    course.acessibilidade }} {% endif %}
+                    {{ course.acessibilidade|format_accessibility }}
                   </span>
                 </div>
 

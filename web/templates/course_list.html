@@ -1228,13 +1228,7 @@
                       <i class="fas fa-universal-access"></i>
                       <span
                         ><strong>Acessibilidade:</strong>
-                        {% if course.acessibilidade == 'acessivel' %} Acessível
-                        para pessoas com deficiência {% elif
-                        course.acessibilidade == 'exclusivo' %} Exclusivo para
-                        pessoas com deficiência {% elif course.acessibilidade ==
-                        'nao_acessivel' %} Não acessível para Pessoas com
-                        Deficiência {% else %} {{ course.acessibilidade }} {%
-                        endif %}
+                        {{ course.acessibilidade|format_accessibility }}
                       </span>
                     </div>
 
@@ -1294,6 +1288,78 @@
                     </div>
                   </div>
                 </div>
+
+                <!-- Seção: Informações das Turmas Online -->
+                {% if course.modalidade in ['Online', 'Híbrido'] and course.plataformas_online_list %}
+                <div class="info-section">
+                  <div class="info-section-title">
+                    <i class="fas fa-laptop-house"></i>
+                    Informações das Turmas Online
+                  </div>
+                  <div class="course-info">
+                    {% for plataforma in course.plataformas_online_list %}
+                    <div class="unit-info" style="margin-bottom: 20px; padding: 15px; background-color: #f0f7ff; border-radius: 8px; border-left: 4px solid #4299e1;">
+                      <div style="font-weight: 600; color: #2d3748; margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-desktop" style="color: #4299e1"></i>
+                        Plataforma Online {{ loop.index }}
+                      </div>
+
+                      <div class="info-row">
+                        <i class="fas fa-video"></i>
+                        <span><strong>Plataforma Digital:</strong> {{ plataforma.plataforma_digital }}</span>
+                      </div>
+
+                      {% if plataforma.vagas %}
+                      <div class="info-row">
+                        <i class="fas fa-users"></i>
+                        <span><strong>Capacidade (Vagas):</strong> {{ plataforma.vagas }}</span>
+                      </div>
+                      {% endif %}
+
+                      <div class="info-row">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                        <span><strong>Tipo de Aula:</strong> 
+                          {% if plataforma.aulas_assincronas == 'sim' %}
+                            Assíncrona (Gravada)
+                          {% else %}
+                            Síncrona (Ao Vivo)
+                          {% endif %}
+                        </span>
+                      </div>
+
+                      {% if plataforma.inicio_aulas or plataforma.fim_aulas %}
+                      <div class="info-row">
+                        <i class="fas fa-calendar-day"></i>
+                        <span><strong>Período das Aulas:</strong>
+                          {% if plataforma.inicio_aulas and plataforma.fim_aulas %}
+                            {{ plataforma.inicio_aulas|format_date }} a {{ plataforma.fim_aulas|format_date }}
+                          {% elif plataforma.inicio_aulas %}
+                            A partir de {{ plataforma.inicio_aulas|format_date }}
+                          {% elif plataforma.fim_aulas %}
+                            Até {{ plataforma.fim_aulas|format_date }}
+                          {% endif %}
+                        </span>
+                      </div>
+                      {% endif %}
+
+                      {% if plataforma.dias_semana %}
+                      <div class="info-row">
+                        <i class="fas fa-calendar-week"></i>
+                        <span><strong>Dias das Aulas Síncronas:</strong> {{ plataforma.dias_semana|join(', ') }}</span>
+                      </div>
+                      {% endif %}
+
+                      {% if plataforma.horario_inicio and plataforma.horario_fim %}
+                      <div class="info-row">
+                        <i class="fas fa-clock"></i>
+                        <span><strong>Horário das Aulas Síncronas:</strong> {{ plataforma.horario_inicio|format_time }} às {{ plataforma.horario_fim|format_time }}</span>
+                      </div>
+                      {% endif %}
+                    </div>
+                    {% endfor %}
+                  </div>
+                </div>
+                {% endif %}
 
                 <!-- Seção: Informações Complementares -->
                 {% if course.info_complementares %}
