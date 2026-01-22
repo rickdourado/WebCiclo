@@ -165,7 +165,8 @@ def generate_pdf(course_data):
         str: Caminho do arquivo PDF gerado.
     """
     # Criar diretório PDF se não existir
-    pdf_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'PDF')
+    from config import Config
+    pdf_dir = Config.PDF_DIR
     print(f"Diretório PDF: {pdf_dir}")
     if not os.path.exists(pdf_dir):
         print(f"Criando diretório PDF: {pdf_dir}")

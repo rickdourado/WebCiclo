@@ -14,7 +14,8 @@ def read_csv_files():
         list: Lista de dicionários contendo os dados dos cursos.
     """
     # Diretório onde os arquivos CSV estão armazenados
-    csv_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'CSV')
+    from config import Config
+    csv_dir = Config.CSV_DIR
     
     if not os.path.exists(csv_dir):
         print(f"Diretório CSV não encontrado: {csv_dir}")

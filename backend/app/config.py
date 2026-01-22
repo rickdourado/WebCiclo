@@ -16,7 +16,7 @@ class Config:
     
     # Configurações de segurança CSRF
     WTF_CSRF_ENABLED = True
-    WTF_CSRF_TIME_LIMIT = 3600  # 1 hora
+    WTF_CSRF_TIME_LIMIT = None  # Token não expira (segue a expiração da sessão)
     WTF_CSRF_SECRET_KEY = os.environ.get('WTF_CSRF_SECRET_KEY', SECRET_KEY)
     
     # Configurações de upload
@@ -26,9 +26,10 @@ class Config:
     ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'bmp'}
     
     # Configurações de diretórios
-    CSV_DIR = 'CSV'
-    PDF_DIR = 'PDF'
-    ID_FILE = 'last_id.json'
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    CSV_DIR = os.path.join(BASE_DIR, 'CSV')
+    PDF_DIR = os.path.join(BASE_DIR, 'PDF')
+    ID_FILE = os.path.join(BASE_DIR, 'last_id.json')
     
     # Configurações de API
     GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY')

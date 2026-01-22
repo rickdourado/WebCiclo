@@ -687,11 +687,11 @@ class CourseService:
             aulas_assincronas_list = [form_data.get("aulas_assincronas", "sim")]
             
             # Coletar datas e horários (que já vêm como listas do formulário)
-            # Nota: o primeiro elemento dessas listas corresponde à primeira plataforma
-            inicio_aulas_list = form_data.getlist("inicio_aulas_data[]") if hasattr(form_data, "getlist") else []
-            fim_aulas_list = form_data.getlist("fim_aulas_data[]") if hasattr(form_data, "getlist") else []
-            horario_inicio_list = form_data.getlist("horario_inicio[]") if hasattr(form_data, "getlist") else []
-            horario_fim_list = form_data.getlist("horario_fim[]") if hasattr(form_data, "getlist") else []
+            # Nota: o primeiro elemento dessas listas pode ser vazio se vier da seção presencial oculta
+            inicio_aulas_list = [d for d in form_data.getlist("inicio_aulas_data[]") if d.strip()] if hasattr(form_data, "getlist") else []
+            fim_aulas_list = [d for d in form_data.getlist("fim_aulas_data[]") if d.strip()] if hasattr(form_data, "getlist") else []
+            horario_inicio_list = [h for h in form_data.getlist("horario_inicio[]") if h.strip()] if hasattr(form_data, "getlist") else []
+            horario_fim_list = [h for h in form_data.getlist("horario_fim[]") if h.strip()] if hasattr(form_data, "getlist") else []
             
             # Coletar plataformas adicionais (campos com sufixo [])
             # Coletar plataformas adicionais (campos com sufixo [])
@@ -704,7 +704,7 @@ class CourseService:
                 # O primeiro campo tem name="vagas_unidade[]", então getlist DEVE retornar todos
                 vagas_all = form_data.getlist("vagas_unidade[]")
                 if vagas_all:
-                    vagas_online_list = vagas_all
+                    vagas_online_list = [v for v in vagas_all if v.strip()]
                 # Se não houver vagas_all, mantemos o vagas_online_list inicial (que pode ser 0 ou None)
 
             # Coletar aulas assíncronas das plataformas adicionais

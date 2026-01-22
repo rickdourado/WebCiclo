@@ -6,7 +6,8 @@ import json
 import glob
 
 # Arquivo para armazenar o último ID utilizado
-ID_FILE = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'last_id.json')
+from config import Config
+ID_FILE = Config.ID_FILE
 
 def get_existing_ids():
     """
@@ -16,7 +17,7 @@ def get_existing_ids():
         set: Conjunto de IDs existentes.
     """
     existing_ids = set()
-    csv_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'CSV')
+    csv_dir = Config.CSV_DIR
     
     if os.path.exists(csv_dir):
         csv_files = glob.glob(os.path.join(csv_dir, "*.csv"))
