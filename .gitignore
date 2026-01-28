@@ -222,3 +222,15 @@ activate_ciclo.sh.local
 
 # Documentation
 documentacao/
+data_webciclo/.my-healthcheck.cnf
+data_webciclo/aria_log_control
+data_webciclo/aria_log.00000001
+data_webciclo/ib_buffer_pool
+data_webciclo/ib_logfile0
+data_webciclo/ibdata1
+data_webciclo/ibtmp1
+data_webciclo/mariadb_upgrade_info
+data_webciclo/multi-master.info
+data_webciclo/undo001
+data_webciclo/undo002
+data_webciclo/undo003
