@@ -219,3 +219,6 @@ activate_ciclo.sh.local
 
 # Agent folder
 .agent/
+
+# Documentation
+documentacao/
