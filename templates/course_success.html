@@ -670,10 +670,10 @@
                     >
                   </div>
 
-                  {% if plataforma.vagas %}
+                  {% if plataforma.vagas_totais %}
                   <div class="info-row">
                     <i class="fas fa-user-plus"></i>
-                    <span><strong>Vagas:</strong> {{ plataforma.vagas }}</span>
+                    <span><strong>Vagas:</strong> {{ plataforma.vagas_totais }}</span>
                   </div>
                   {% endif %}
 
@@ -699,31 +699,24 @@
                       plataforma.inicio_aulas|format_date }} {% endif %}
                     </span>
                   </div>
-                  {% endif %} {# Exibir horários se disponíveis #} {% if
-                  plataforma.aulas_assincronas == 'nao' %} {% if
-                  plataforma.horario_inicio or plataforma.horario_fim %}
+                  {% endif %} {# Exibir horários apenas para aulas síncronas #}
+                  {% if plataforma.aulas_assincronas == 'nao' %}
+                  {% if plataforma.horario_inicio or plataforma.horario_fim %}
                   <div class="info-row">
                     <i class="fas fa-clock"></i>
                     <span>
                       <strong>Horário:</strong>
-                      {% if plataforma.horario_inicio and plataforma.horario_fim
-                      %} {{ plataforma.horario_inicio }} às {{
-                      plataforma.horario_fim }} {% elif
-                      plataforma.horario_inicio %} A partir de {{
-                      plataforma.horario_inicio }} {% elif
-                      plataforma.horario_fim %} Até {{ plataforma.horario_fim }}
+                      {% if plataforma.horario_inicio and plataforma.horario_fim %}
+                        {{ plataforma.horario_inicio }} às {{ plataforma.horario_fim }}
+                      {% elif plataforma.horario_inicio %}
+                        A partir de {{ plataforma.horario_inicio }}
+                      {% elif plataforma.horario_fim %}
+                        Até {{ plataforma.horario_fim }}
                       {% endif %}
                     </span>
                   </div>
-                  {% else %}
-                  <div class="info-row">
-                    <i class="fas fa-clock"></i>
-                    <span>
-                      <strong>Horário:</strong>
-                      <em style="color: #999">Não informado</em>
-                    </span>
-                  </div>
-                  {% endif %} {% endif %}
+                  {% endif %}
+                  {% endif %}
                 </div>
                 {% endfor %}
               </div>
