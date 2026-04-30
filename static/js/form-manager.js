@@ -50,6 +50,10 @@ class FormManager {
 
     // Inicializar campos de aulas assíncronas
     this.initializeAsyncFields();
+
+    // Aplicar estado inicial de containers com base na modalidade já selecionada
+    // (crítico: desabilita inputs de containers ocultos desde o carregamento da página)
+    this.toggleUnidades();
   }
 
   setCurrentDate() {
@@ -144,47 +148,53 @@ class FormManager {
     const unidadesContainer = document.getElementById("unidades_container");
     const plataformaContainer = document.getElementById("plataforma_container");
 
+    // Passo 1: ocultar e DESABILITAR todos os inputs de ambos os containers
+    // (campos disabled não são enviados no POST → sem valores fantasma)
+    if (unidadesContainer) {
+      unidadesContainer.style.display = "none";
+      this._setContainerInputsDisabled(unidadesContainer, true);
+      this.setFieldsRequired(unidadesContainer, false);
+    }
+    if (plataformaContainer) {
+      plataformaContainer.style.display = "none";
+      this._setContainerInputsDisabled(plataformaContainer, true);
+      this.setFieldsRequired(plataformaContainer, false);
+    }
+
     // Verificar se há dados de duplicação (unidades já renderizadas pelo servidor)
     const unidadesList = document.getElementById("unidades_list");
     const hasPreRenderedUnits =
       unidadesList && unidadesList.querySelectorAll(".unidade-item").length > 1;
 
+    // Passo 2: mostrar e REABILITAR apenas o container correto
     if (modalidade === "Presencial" || modalidade === "Híbrido") {
-      // Para Presencial e Híbrido: mostrar apenas unidades
       if (unidadesContainer) {
         unidadesContainer.style.display = "block";
+        this._setContainerInputsDisabled(unidadesContainer, false);
         this.setFieldsRequired(unidadesContainer, true);
       }
-      if (plataformaContainer) {
-        plataformaContainer.style.display = "none";
-        this.setFieldsRequired(plataformaContainer, false);
-      }
-
-      // Só atualizar unidades existentes se não há unidades pré-renderizadas
       if (!hasPreRenderedUnits) {
         this.updateExistingUnits(modalidade);
       }
     } else if (modalidade === "Online") {
-      // Para Online: mostrar apenas plataforma
-      if (unidadesContainer) {
-        unidadesContainer.style.display = "none";
-        this.setFieldsRequired(unidadesContainer, false);
-      }
       if (plataformaContainer) {
         plataformaContainer.style.display = "block";
+        this._setContainerInputsDisabled(plataformaContainer, false);
         this.setFieldsRequired(plataformaContainer, true);
       }
-    } else {
-      // Para outras modalidades: ocultar ambos
-      if (unidadesContainer) {
-        unidadesContainer.style.display = "none";
-        this.setFieldsRequired(unidadesContainer, false);
-      }
-      if (plataformaContainer) {
-        plataformaContainer.style.display = "none";
-        this.setFieldsRequired(plataformaContainer, false);
-      }
     }
+  }
+
+  /** Desabilita ou habilita todos os inputs/selects/textareas de um container */
+  _setContainerInputsDisabled(container, disabled) {
+    if (!container) return;
+    container.querySelectorAll("input, select, textarea").forEach((el) => {
+      if (disabled) {
+        el.setAttribute("disabled", "disabled");
+      } else {
+        el.removeAttribute("disabled");
+      }
+    });
   }
 
   updateExistingUnits(modalidade) {
