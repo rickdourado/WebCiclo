@@ -9,6 +9,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/icon-fallback.css') }}">
+    <!-- Flatpickr: calendário DD/MM/AAAA para campos de inscrição -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/flatpickr.min.css') }}">
+    <script src="{{ url_for('static', filename='js/flatpickr.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/flatpickr.pt.js') }}"></script>
     <script src="{{ url_for('static', filename='js/icon-fallback.js') }}"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
@@ -208,18 +212,20 @@
                             </div>
 
                             <div class="form-group">
-                                <label for="inicio_inscricoes" class="required">Início das inscrições</label>
+                                <label for="inicio_inscricoes_data" class="required">Início das inscrições</label>
                                 <div class="datetime-group">
-                                    <input type="date" id="inicio_inscricoes_data" name="inicio_inscricoes_data"
-                                        value="{{ course.inicio_inscricoes_data }}" required>
+                                    <input type="text" id="inicio_inscricoes_data" name="inicio_inscricoes_data"
+                                        class="date-picker" placeholder="DD/MM/AAAA" maxlength="10"
+                                        value="{{ course.inicio_inscricoes_data | datebr }}" required autocomplete="off">
                                 </div>
                             </div>
 
                             <div class="form-group">
-                                <label for="fim_inscricoes" class="required">Fim das inscrições</label>
+                                <label for="fim_inscricoes_data" class="required">Fim das inscrições</label>
                                 <div class="datetime-group">
-                                    <input type="date" id="fim_inscricoes_data" name="fim_inscricoes_data"
-                                        value="{{ course.fim_inscricoes_data }}" required>
+                                    <input type="text" id="fim_inscricoes_data" name="fim_inscricoes_data"
+                                        class="date-picker" placeholder="DD/MM/AAAA" maxlength="10"
+                                        value="{{ course.fim_inscricoes_data | datebr }}" required autocomplete="off">
                                 </div>
                             </div>
 
@@ -336,18 +342,20 @@
                                             <input type="number" name="vagas_unidade[]" min="1" required
                                                 value="{{ course.vagas_unidades[i]|replace(',', '')|replace('.', '')|trim if i < course.vagas_unidades|length else '' }}">
 
-
-
                                             <div class="data-group">
                                                 <div class="data-field">
                                                     <label>Início das aulas*</label>
-                                                    <input type="date" name="inicio_aulas_data[]" required
-                                                        value="{{ course.inicio_aulas_unidades[i] if i < course.inicio_aulas_unidades|length else '' }}">
+                                                    <input type="text" name="inicio_aulas_data[]" required
+                                                        class="data-mask" placeholder="DD/MM/AAAA" maxlength="10"
+                                                        oninput="mascararData(this)" onblur="validarData(this)"
+                                                        value="{{ course.inicio_aulas_unidades[i] | datebr if i < course.inicio_aulas_unidades|length else '' }}">
                                                 </div>
                                                 <div class="data-field">
                                                     <label>Fim das aulas*</label>
-                                                    <input type="date" name="fim_aulas_data[]" required
-                                                        value="{{ course.fim_aulas_unidades[i] if i < course.fim_aulas_unidades|length else '' }}">
+                                                    <input type="text" name="fim_aulas_data[]" required
+                                                        class="data-mask" placeholder="DD/MM/AAAA" maxlength="10"
+                                                        oninput="mascararData(this)" onblur="validarData(this)"
+                                                        value="{{ course.fim_aulas_unidades[i] | datebr if i < course.fim_aulas_unidades|length else '' }}">
                                                 </div>
                                             </div>
                                             <div class="horario-group">
@@ -478,14 +486,18 @@
                                             <div class="data-group" id="horarios_online_container">
                                                 <div class="data-field">
                                                     <label>Início das aulas</label>
-                                                    <input type="date" id="inicio_aulas_online"
+                                                    <input type="text" id="inicio_aulas_online"
                                                         name="inicio_aulas_data[]"
-                                                        value="{{ course.inicio_aulas_online.split(',')[0] if course.inicio_aulas_online and ',' in course.inicio_aulas_online else course.inicio_aulas_online }}">
+                                                        class="data-mask" placeholder="DD/MM/AAAA" maxlength="10"
+                                                        oninput="mascararData(this)" onblur="validarData(this)"
+                                                        value="{{ (course.inicio_aulas_online.split(',')[0] if course.inicio_aulas_online and ',' in course.inicio_aulas_online else course.inicio_aulas_online) | datebr }}">
                                                 </div>
                                                 <div class="data-field">
                                                     <label>Fim das aulas</label>
-                                                    <input type="date" id="fim_aulas_online" name="fim_aulas_data[]"
-                                                        value="{{ course.fim_aulas_online.split(',')[0] if course.fim_aulas_online and ',' in course.fim_aulas_online else course.fim_aulas_online }}">
+                                                    <input type="text" id="fim_aulas_online" name="fim_aulas_data[]"
+                                                        class="data-mask" placeholder="DD/MM/AAAA" maxlength="10"
+                                                        oninput="mascararData(this)" onblur="validarData(this)"
+                                                        value="{{ (course.fim_aulas_online.split(',')[0] if course.fim_aulas_online and ',' in course.fim_aulas_online else course.fim_aulas_online) | datebr }}">
                                                 </div>
                                             </div>
                                             <div id="horarios_detalhados_online_container"
@@ -845,6 +857,10 @@
                 if (unidadesContainer) unidadesContainer.style.display = 'none';
                 if (plataformaContainer) plataformaContainer.style.display = 'none';
 
+                // Desabilitar inputs do container oculto para evitar valores fantasma no submit
+                _setContainerInputsDisabled(unidadesContainer, true);
+                _setContainerInputsDisabled(plataformaContainer, true);
+
                 // Remover required de todos os campos de modalidade
                 const allModalidadeFields = document.querySelectorAll('#unidades_container input, #unidades_container select, #plataforma_container input, #plataforma_container select');
                 allModalidadeFields.forEach(field => {
@@ -854,7 +870,7 @@
                 if (modalidade === 'Presencial' || modalidade === 'Híbrido') {
                     if (unidadesContainer) {
                         unidadesContainer.style.display = 'block';
-                        // Adicionar required apenas aos campos visíveis
+                        _setContainerInputsDisabled(unidadesContainer, false);
                         const unidadesFields = unidadesContainer.querySelectorAll('input[required], select[required]');
                         unidadesFields.forEach(field => {
                             field.setAttribute('required', 'required');
@@ -863,13 +879,26 @@
                 } else if (modalidade === 'Online') {
                     if (plataformaContainer) {
                         plataformaContainer.style.display = 'block';
-                        // Adicionar required apenas aos campos visíveis
+                        _setContainerInputsDisabled(plataformaContainer, false);
                         const plataformaFields = plataformaContainer.querySelectorAll('input[required], select[required]');
                         plataformaFields.forEach(field => {
                             field.setAttribute('required', 'required');
                         });
                     }
                 }
+            }
+
+            // Helper: desabilita/habilita todos os inputs de um container
+            function _setContainerInputsDisabled(container, disabled) {
+                if (!container) return;
+                const inputs = container.querySelectorAll('input, select, textarea');
+                inputs.forEach(input => {
+                    if (disabled) {
+                        input.setAttribute('disabled', 'disabled');
+                    } else {
+                        input.removeAttribute('disabled');
+                    }
+                });
             }
 
             function toggleAulasAssincronas(isAssincronas) {
@@ -916,11 +945,15 @@
                     <div class="data-group">
                         <div class="data-field">
                             <label>Início das aulas*</label>
-                            <input type="date" name="inicio_aulas_data[]" required>
+                            <input type="text" name="inicio_aulas_data[]" required
+                                class="data-mask" placeholder="DD/MM/AAAA" maxlength="10"
+                                oninput="mascararData(this)" onblur="validarData(this)">
                         </div>
                         <div class="data-field">
                             <label>Fim das aulas*</label>
-                            <input type="date" name="fim_aulas_data[]" required>
+                            <input type="text" name="fim_aulas_data[]" required
+                                class="data-mask" placeholder="DD/MM/AAAA" maxlength="10"
+                                oninput="mascararData(this)" onblur="validarData(this)">
                         </div>
                     </div>
                     
@@ -1047,11 +1080,15 @@
                     <div class="data-group" id="horarios_online_container_${newPlataformaIndex}">
                         <div class="data-field">
                             <label>Início das aulas</label>
-                            <input type="date" id="inicio_aulas_online_${newPlataformaIndex}" name="inicio_aulas_data[]">
+                            <input type="text" id="inicio_aulas_online_${newPlataformaIndex}" name="inicio_aulas_data[]"
+                                class="data-mask" placeholder="DD/MM/AAAA" maxlength="10"
+                                oninput="mascararData(this)" onblur="validarData(this)">
                         </div>
                         <div class="data-field">
                             <label>Fim das aulas</label>
-                            <input type="date" id="fim_aulas_online_${newPlataformaIndex}" name="fim_aulas_data[]">
+                            <input type="text" id="fim_aulas_online_${newPlataformaIndex}" name="fim_aulas_data[]"
+                                class="data-mask" placeholder="DD/MM/AAAA" maxlength="10"
+                                oninput="mascararData(this)" onblur="validarData(this)">
                         </div>
                     </div>
                     
@@ -1218,6 +1255,37 @@
 
                 // Configurar upload de capa do curso
                 setupCourseCoverUpload();
+
+                // Inicializar Flatpickr nos campos de calendário de inscrição
+                if (typeof flatpickr !== 'undefined') {
+                    flatpickr.localize(flatpickr.l10ns.pt);
+
+                    const fpConfig = {
+                        dateFormat: 'd/m/Y',
+                        allowInput: true,
+                        locale: 'pt',
+                    };
+
+                    const inicioEl = document.getElementById('inicio_inscricoes_data');
+                    const fimEl = document.getElementById('fim_inscricoes_data');
+                    let inicioPicker, fimPicker;
+
+                    if (inicioEl) {
+                        inicioPicker = flatpickr(inicioEl, {
+                            ...fpConfig,
+                            onChange: (dates) => { if (fimPicker && dates[0]) fimPicker.set('minDate', dates[0]); }
+                        });
+                    }
+                    if (fimEl) {
+                        fimPicker = flatpickr(fimEl, {
+                            ...fpConfig,
+                            onChange: (dates) => { if (inicioPicker && dates[0]) inicioPicker.set('maxDate', dates[0]); }
+                        });
+                    }
+                }
+
+                // Inicializar conversão de datas .data-mask no submit
+                if (typeof setupDateConversion === 'function') setupDateConversion();
             });
 
             // Função para gerenciar upload de capa do curso

@@ -53,17 +53,9 @@ class FormManager {
   }
 
   setCurrentDate() {
-    const hoje = new Date();
-    const ano = hoje.getFullYear();
-    const mes = String(hoje.getMonth() + 1).padStart(2, "0");
-    const dia = String(hoje.getDate()).padStart(2, "0");
-    const dataAtual = `${ano}-${mes}-${dia}`;
-
-    const inicioData = document.getElementById("inicio_inscricoes_data");
-    const fimData = document.getElementById("fim_inscricoes_data");
-
-    if (inicioData) inicioData.value = dataAtual;
-    if (fimData) fimData.value = dataAtual;
+    // Não sobrescrever campos de inscrição gerenciados pelo Flatpickr.
+    // Os valores já vêm pré-preenchidos pelo backend via filtro |datebr.
+    // Esta função é mantida para compatibilidade mas não altera os campos.
   }
 
   setupCurrencyFields() {
@@ -403,11 +395,15 @@ class FormManager {
                 <div class="data-group">
                     <div class="data-field">
                         <label>Início das aulas*</label>
-                        <input type="date" name="inicio_aulas_data[]" required>
+                        <input type="text" name="inicio_aulas_data[]" required
+                            class="data-mask" placeholder="DD/MM/AAAA" maxlength="10"
+                            oninput="mascararData(this)" onblur="validarData(this)">
                     </div>
                     <div class="data-field">
                         <label>Fim das aulas*</label>
-                        <input type="date" name="fim_aulas_data[]" required>
+                        <input type="text" name="fim_aulas_data[]" required
+                            class="data-mask" placeholder="DD/MM/AAAA" maxlength="10"
+                            oninput="mascararData(this)" onblur="validarData(this)">
                     </div>
                 </div>
                 <div class="horario-group">
@@ -566,11 +562,15 @@ class FormManager {
                         <div class="data-group">
                             <div class="data-field">
                                 <label>Início das aulas</label>
-                                <input type="date" name="inicio_aulas_data[]">
+                                <input type="text" name="inicio_aulas_data[]"
+                                    class="data-mask" placeholder="DD/MM/AAAA" maxlength="10"
+                                    oninput="mascararData(this)" onblur="validarData(this)">
                             </div>
                             <div class="data-field">
                                 <label>Fim das aulas</label>
-                                <input type="date" name="fim_aulas_data[]">
+                                <input type="text" name="fim_aulas_data[]"
+                                    class="data-mask" placeholder="DD/MM/AAAA" maxlength="10"
+                                    oninput="mascararData(this)" onblur="validarData(this)">
                             </div>
                         </div>
                         

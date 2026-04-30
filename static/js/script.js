@@ -37,6 +37,131 @@ function validarHorario(input) {
     }
 }
 
+// ─── Máscara DD/MM/AAAA para campos de data ──────────────────────────────────
+
+/**
+ * Aplica máscara DD/MM/AAAA enquanto o usuário digita.
+ * Use: oninput="mascararData(this)"
+ */
+function mascararData(input) {
+    let v = input.value.replace(/\D/g, '').substring(0, 8);
+    if (v.length >= 5) {
+        v = v.substring(0, 2) + '/' + v.substring(2, 4) + '/' + v.substring(4);
+    } else if (v.length >= 3) {
+        v = v.substring(0, 2) + '/' + v.substring(2);
+    }
+    input.value = v;
+}
+
+/**
+ * Valida se a string no formato DD/MM/AAAA é uma data real.
+ */
+function validarData(input) {
+    const v = input.value;
+    const regex = /^(\d{2})\/(\d{2})\/(\d{4})$/;
+    const match = v.match(regex);
+    if (!match) {
+        input.setCustomValidity(v ? 'Use o formato DD/MM/AAAA (ex: 25/12/2025)' : '');
+        return;
+    }
+    const [, dd, mm, aaaa] = match;
+    const date = new Date(`${aaaa}-${mm}-${dd}`);
+    const valida = date.getFullYear() === parseInt(aaaa) &&
+                   date.getMonth() + 1 === parseInt(mm) &&
+                   date.getDate() === parseInt(dd);
+    input.setCustomValidity(valida ? '' : 'Data inválida');
+}
+
+/**
+ * Converte DD/MM/AAAA → YYYY-MM-DD para envio ao backend.
+ * Chamado antes do submit via setupDateConversion().
+ */
+function converterDataParaISO(valor) {
+    if (!valor) return valor;
+    // Já está em YYYY-MM-DD (ex: campos que vieram do banco)
+    if (/^\d{4}-\d{2}-\d{2}$/.test(valor)) return valor;
+    const match = valor.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+    if (match) return `${match[3]}-${match[2]}-${match[1]}`;
+    return valor;
+}
+
+/**
+ * Pré-popula um campo de máscara a partir de um valor ISO (YYYY-MM-DD).
+ */
+function preencherDataMascara(input, isoValue) {
+    if (!isoValue) return;
+    const match = isoValue.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (match) {
+        input.value = `${match[3]}/${match[2]}/${match[1]}`;
+    }
+}
+
+/**
+ * Configura a conversão automática de todos os campos .data-mask para ISO
+ * antes do submit de qualquer formulário na página.
+ */
+function setupDateConversion() {
+    const forms = document.querySelectorAll('form');
+    forms.forEach(form => {
+        form.addEventListener('submit', function () {
+            form.querySelectorAll('input.data-mask').forEach(input => {
+                input.value = converterDataParaISO(input.value);
+            });
+        }, true); // captura, antes dos outros listeners
+    });
+}
+
+// Inicializa máscara e conversão ao carregar o DOM
+document.addEventListener('DOMContentLoaded', function () {
+    // Pré-preencher campos de máscara que vieram do backend (YYYY-MM-DD → DD/MM/AAAA)
+    document.querySelectorAll('input.data-mask').forEach(input => {
+        if (input.value && /^\d{4}-\d{2}-\d{2}$/.test(input.value)) {
+            preencherDataMascara(input, input.value);
+        }
+    });
+    setupDateConversion();
+
+    // Inicializar Flatpickr nos campos de calendário (.date-picker)
+    if (typeof flatpickr !== 'undefined') {
+        flatpickr.localize(flatpickr.l10ns.pt);
+
+        const commonConfig = {
+            dateFormat: 'd/m/Y',      // exibição DD/MM/AAAA
+            allowInput: true,          // permite digitar além de clicar
+            locale: 'pt',
+        };
+
+        const inicioEl = document.getElementById('inicio_inscricoes_data');
+        const fimEl = document.getElementById('fim_inscricoes_data');
+
+        let inicioPicker, fimPicker;
+
+        if (inicioEl) {
+            inicioPicker = flatpickr(inicioEl, {
+                ...commonConfig,
+                onChange: function (selectedDates) {
+                    // Quando início muda, setar data mínima do fim
+                    if (fimPicker && selectedDates[0]) {
+                        fimPicker.set('minDate', selectedDates[0]);
+                    }
+                }
+            });
+        }
+
+        if (fimEl) {
+            fimPicker = flatpickr(fimEl, {
+                ...commonConfig,
+                onChange: function (selectedDates) {
+                    // Quando fim muda, setar data máxima do início
+                    if (inicioPicker && selectedDates[0]) {
+                        inicioPicker.set('maxDate', selectedDates[0]);
+                    }
+                }
+            });
+        }
+    }
+});
+
 // Funções globais mantidas para compatibilidade com templates
 function toggleAulasAssincronas(isAsync) {
     if (formManager) {
@@ -332,8 +457,10 @@ function setupCustomValidation() {
         const fimHora = document.getElementById('fim_inscricoes_hora');
 
         if (inicioData && fimData && inicioData.value && fimData.value) {
-            const inicioDateTime = new Date(`${inicioData.value}T${inicioHora ? inicioHora.value : '00:00'}`);
-            const fimDateTime = new Date(`${fimData.value}T${fimHora ? fimHora.value : '23:59'}`);
+            const inicioISO = converterDataParaISO(inicioData.value);
+            const fimISO = converterDataParaISO(fimData.value);
+            const inicioDateTime = new Date(`${inicioISO}T${inicioHora ? inicioHora.value : '00:00'}`);
+            const fimDateTime = new Date(`${fimISO}T${fimHora ? fimHora.value : '23:59'}`);
 
             if (fimDateTime <= inicioDateTime) {
                 alert('O fim das inscrições deve ser posterior ou igual ao início das inscrições.');
@@ -538,8 +665,10 @@ function setupSubmitButtonClick() {
         const fimHora = document.getElementById('fim_inscricoes_hora');
 
         if (inicioData && fimData && inicioData.value && fimData.value) {
-            const inicioDateTime = new Date(`${inicioData.value}T${inicioHora ? inicioHora.value : '00:00'}`);
-            const fimDateTime = new Date(`${fimData.value}T${fimHora ? fimHora.value : '23:59'}`);
+            const inicioISO = converterDataParaISO(inicioData.value);
+            const fimISO = converterDataParaISO(fimData.value);
+            const inicioDateTime = new Date(`${inicioISO}T${inicioHora ? inicioHora.value : '00:00'}`);
+            const fimDateTime = new Date(`${fimISO}T${fimHora ? fimHora.value : '23:59'}`);
 
             if (fimDateTime <= inicioDateTime) {
                 alert('O fim das inscrições deve ser posterior ou igual ao início das inscrições.');

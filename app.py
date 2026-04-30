@@ -96,6 +96,25 @@ def safe_split_filter(value, separator="|"):
     return value.split(separator)
 
 
+@app.template_filter("datebr")
+def datebr_filter(value):
+    """Converte YYYY-MM-DD (banco) → DD/MM/AAAA (exibição no formulário).
+    Aceita None, string vazia, ou datas já em DD/MM/AAAA."""
+    if not value:
+        return ""
+    date_str = str(value).strip()
+    # Remover parte de horário se vier do banco como timestamp
+    if " " in date_str:
+        date_str = date_str.split(" ")[0]
+    # YYYY-MM-DD → DD/MM/AAAA
+    if "-" in date_str and len(date_str.split("-")[0]) == 4:
+        parts = date_str.split("-")
+        if len(parts) == 3:
+            return f"{parts[2]}/{parts[1]}/{parts[0]}"
+    # Já está em DD/MM/AAAA ou outro formato — retornar como está
+    return date_str
+
+
 # Handler para erros CSRF
 @app.errorhandler(400)
 def csrf_error(e):
